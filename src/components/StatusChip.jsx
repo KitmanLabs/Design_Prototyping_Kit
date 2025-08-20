@@ -1,37 +1,57 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import '../styles/design-tokens.css'
+import { Chip } from '@mui/material'
 
 /**
  * Medinah Design System Status Chip Component
  * 
- * Pre-styled status chip with consistent colors and styling
+ * Uses MUI Chip with consistent colors and styling
  * Automatically applies correct status colors based on type
  */
 function MedinahStatusChip({ status, type = 'default', className = '', ...props }) {
-  const getStatusClass = () => {
+  const getChipProps = () => {
     switch (type) {
       case 'success':
-        return 'status-success'
+        return {
+          color: 'success',
+          variant: 'filled',
+          size: 'small'
+        }
       case 'error':
-        return 'status-error'
+        return {
+          color: 'error',
+          variant: 'filled',
+          size: 'small'
+        }
       case 'warning':
-        return 'status-warning'
+        return {
+          color: 'warning',
+          variant: 'filled',
+          size: 'small'
+        }
       case 'primary':
-        return 'status-primary'
+        return {
+          color: 'primary',
+          variant: 'filled',
+          size: 'small'
+        }
       default:
-        return 'status-default'
+        return {
+          variant: 'outlined',
+          size: 'small'
+        }
     }
   }
 
-  const chipClasses = ['status-chip', getStatusClass(), className]
-    .filter(Boolean)
-    .join(' ')
+  const chipProps = getChipProps()
 
   return (
-    <div className={chipClasses} {...props}>
-      {status}
-    </div>
+    <Chip
+      label={status}
+      className={className}
+      {...chipProps}
+      {...props}
+    />
   )
 }
 

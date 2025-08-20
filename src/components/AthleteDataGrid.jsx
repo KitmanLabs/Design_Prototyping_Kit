@@ -1,18 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Typography, IconButton, Menu, MenuItem, Tooltip, Chip } from '@mui/material';
-// Handle MUI X License
-import { LicenseInfo } from '@mui/x-data-grid-premium';
-import { 
-  DataGridPremium, 
-  GridToolbarColumnsButton, 
-  GridToolbarFilterButton, 
+import {
+  DataGrid,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton,
   GridToolbarDensitySelector,
   GridToolbarExport,
   GridToolbarQuickFilter,
-  GridPagination,
-  gridClasses
-} from '@mui/x-data-grid-premium';
+} from '@mui/x-data-grid';
 import { 
   DeleteOutlined, 
   AssignmentOutlined,
@@ -163,7 +159,7 @@ const AthleteDataGrid = ({
       field: 'name',
       headerName: 'Name',
       width: 180,
-      valueGetter: (params) => `${params.row.firstname} ${params.row.lastname}`,
+      valueGetter: (_value, row) => `${row.firstname} ${row.lastname}`,
       filterable: true,
       groupable: false,
     },
@@ -250,13 +246,10 @@ const AthleteDataGrid = ({
       headerName: 'Last Assessment',
       type: 'date',
       width: 140,
-      valueGetter: (params) => params.value ? new Date(params.value) : null,
+      valueGetter: (value) => value ? new Date(value) : null,
     }
   ], []);
-  const [paginationModel, setPaginationModel] = useState({
-    page: 0,
-    pageSize: 10,
-  });
+  // Pagination temporarily disabled to avoid footer runtime issue
   
   const [selectedRows, setSelectedRows] = useState([]);
 
@@ -305,53 +298,30 @@ const AthleteDataGrid = ({
 
   return (
     <Box sx={containerStyles}>
-      <DataGridPremium
+      <DataGrid
         rows={data}
         columns={columns}
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        pageSizeOptions={[10, 25, 50, 100]}
         checkboxSelection
         disableRowSelectionOnClick
         density="comfortable"
-        rowSelectionModel={selectedRows}
         onRowSelectionModelChange={setSelectedRows}
-        pagination
-        slots={{
-          toolbar: CustomToolbarComponent,
-          pagination: GridPagination,
-        }}
+        hideFooter
+        slots={{ toolbar: CustomToolbarComponent }}
         slotProps={{
-          pagination: {
-            sx: {
-              '& .MuiTablePagination-toolbar': {
-                justifyContent: 'flex-start',
-              },
-            },
-          },
-        }}
-        initialState={{
-          pagination: { 
-            paginationModel: { pageSize: 10 } 
-          },
-          columns: {
-            columnVisibilityModel: {},
-          },
-        }}
-        componentsProps={{
           basePopper: {
             sx: {
-              // Style popover menus
               '& .MuiPaper-root': {
                 boxShadow: 'var(--shadow-lg)',
                 borderRadius: 'var(--radius-md)',
                 border: '1px solid var(--color-border-primary)'
               }
             }
-          }
+          },
         }}
-        experimentalFeatures={{ 
-          ariaV7: true 
+        initialState={{
+          columns: {
+            columnVisibilityModel: {},
+          },
         }}
         {...props}
       />

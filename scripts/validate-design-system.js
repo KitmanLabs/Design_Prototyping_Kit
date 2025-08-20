@@ -96,6 +96,45 @@ function checkHardcodedColors() {
   }
 }
 
+function checkDisallowedButtonsAndIcons() {
+  console.log('🔍 Checking for disallowed button variants and non-outlined icons...');
+  const files = [];
+  function walk(dir) {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const e of entries) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) walk(full);
+      else if (/(\.jsx?|\.css)$/.test(e.name)) files.push(full);
+    }
+  }
+  walk('src');
+  let foundIssues = '';
+  for (const file of files) {
+    const content = fs.readFileSync(file, 'utf8');
+    if (/variant\s*=\s*['"]text['"]/g.test(content) || /variant\s*=\s*['"]outlined['"]/g.test(content)) {
+      foundIssues += `Disallowed button variant in ${file}\n`;
+    }
+    const iconImports = content.match(/import\s*\{[^}]*\}\s*from\s*['"]@mui\/icons-material['"]/g) || [];
+    if (iconImports.length) {
+      const names = (content.match(/\{([^}]*)\}\s*from\s*['"]@mui\/icons-material['"]/g) || [])
+        .flatMap(m => m.replace(/^[^{]*\{|\}.*$/g, '').split(',').map(s => s.trim()))
+        .filter(Boolean);
+      for (const n of names) {
+        if (n && !n.endsWith('Outlined')) {
+          foundIssues += `Non-outlined icon '${n}' in ${file}\n`;
+        }
+      }
+    }
+  }
+  if (foundIssues) {
+    console.log('❌ Component usage violations found:\n' + foundIssues);
+    hasErrors = true;
+    return false;
+  }
+  console.log('✅ No disallowed button variants or icons found\n');
+  return true;
+}
+
 // Run all checks
 console.log('Starting comprehensive design system validation...\n');
 
@@ -114,6 +153,9 @@ checkDesignTokens();
 
 // Color validation
 checkHardcodedColors();
+
+// Component usage validation
+checkDisallowedButtonsAndIcons();
 
 // Code style validation
 runCommand('npm run lint', 'ESLint validation');

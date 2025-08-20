@@ -1,0 +1,80 @@
+{
+  "id": "f-378",
+  "title": "Test - Toggle Switch",
+  "productArea": "Medical",
+  "category": "Other",
+  "createdAt": "2025-07-17T10:22:24Z",
+  "creator": "Bhuvan Bhatt",
+  "description": "Test toggle switch rendering on mobile",
+  "sections": [
+    {
+      "id": "s1",
+      "title": "Section 1",
+      "items": [
+        {
+          "id": "ss1",
+          "type": "subsection",
+          "title": "Sub-section 1.1",
+          "items": [
+            {
+              "id": "q1",
+              "type": "boolean",
+              "label": "Can you see toggle?",
+              "description": "Can you see toggle? (Short Text)",
+              "mandatory": true,
+              "ui": { "style": "toggle", "labels": ["Yes", "No"] },
+              "followUps": []
+            },
+            {
+              "id": "q2",
+              "type": "boolean",
+              "label": "Can you see toggle? Long",
+              "description": "Can you see toggle? Here we will test how the UI will look when the content is large (Long Text)",
+              "mandatory": false,
+              "ui": { "style": "toggle", "labels": ["Yes", "No"] },
+              "followUps": []
+            },
+            {
+              "id": "q3",
+              "type": "boolean",
+              "label": "Can you see checkbox?",
+              "description": "Can you see checkbox?",
+              "mandatory": false,
+              "ui": { "style": "checkbox", "labels": ["Yes", "No"] },
+              "followUps": []
+            },
+            {
+              "id": "q4",
+              "type": "boolean",
+              "label": "Can you see switch?",
+              "description": "Can you see switch?",
+              "mandatory": false,
+              "ui": { "style": "switch", "labels": ["Yes", "No"] },
+              "followUps": []
+            },
+            {
+              "id": "q5",
+              "type": "boolean",
+              "label": "New question",
+              "description": "Can youddd see switch? Here we will test how the UI will lodddok when the content is large (Long Text)...",
+              "mandatory": false,
+              "ui": { "style": "switch", "labels": ["Yes", "No"] },
+              "followUps": []
+            },
+            {
+              "id": "q6",
+              "type": "boolean",
+              "label": "New question",
+              "description": "New question",
+              "mandatory": false,
+              "ui": { "style": "checkbox", "labels": ["Yes", "No"] },
+              "followUps": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+

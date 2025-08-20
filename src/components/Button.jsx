@@ -18,20 +18,36 @@ function MedinahButton({
   className = '',
   ...props 
 }) {
-  const baseClass = 'btn'
-  const variantClass = `btn-${variant}`
-  const sizeClass = size === 'small' ? 'btn-small' : ''
-  
-  const buttonClasses = [baseClass, variantClass, sizeClass, className]
-    .filter(Boolean)
-    .join(' ')
+  const padding = size === 'small'
+    ? 'var(--spacing-sm) var(--spacing-md)'
+    : 'calc(var(--spacing-sm) + 2px) calc(var(--spacing-md) + 2px)'
+
+  const fontSize = size === 'small' ? 'var(--button-font-size)' : 'var(--font-size-base)'
+
+  const computedStyle = {
+    fontSize,
+    fontWeight: 'var(--button-font-weight)',
+    borderRadius: 'var(--button-border-radius)',
+    padding,
+    textTransform: 'var(--button-text-transform)',
+    backgroundColor: variant === 'primary' ? 'var(--button-primary-bg)' : 'var(--button-secondary-bg)',
+    color: variant === 'primary' ? 'var(--button-primary-color)' : 'var(--button-secondary-color)',
+    border: 'none',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    opacity: disabled ? 0.6 : 1,
+  }
 
   return (
     <button
       type={type}
-      className={buttonClasses}
+      className={className}
       disabled={disabled}
       onClick={onClick}
+      style={computedStyle}
       {...props}
     >
       {children}
