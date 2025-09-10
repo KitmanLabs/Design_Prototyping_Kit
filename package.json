@@ -40,7 +40,7 @@
     "stylelint": "^15.0.0",
     "stylelint-config-standard": "^30.0.0",
     "stylelint-plugin-design-system": "file:./stylelint-plugin-design-system",
-    "vite": "^4.4.5"
+    "vite": "^7.1.5"
   },
   "husky": {
     "hooks": {
