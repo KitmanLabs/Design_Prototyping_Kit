@@ -148,6 +148,11 @@ const AthleteDataGrid = ({
   onBulkAction,
   ...props 
 }) => {
+  // Ensure data is always an array and filter out any null/undefined entries
+  const safeData = useMemo(() => {
+    if (!Array.isArray(data)) return [];
+    return data.filter(row => row && typeof row === 'object' && row.id);
+  }, [data]);
   const columns = useMemo(() => [
     {
       field: 'id',
@@ -159,7 +164,10 @@ const AthleteDataGrid = ({
       field: 'name',
       headerName: 'Name',
       width: 180,
-      valueGetter: (_value, row) => `${row.firstname} ${row.lastname}`,
+      valueGetter: (_value, row) => {
+        if (!row || !row.firstname || !row.lastname) return '';
+        return `${row.firstname} ${row.lastname}`;
+      },
       filterable: true,
       groupable: false,
     },
@@ -299,11 +307,12 @@ const AthleteDataGrid = ({
   return (
     <Box sx={containerStyles}>
       <DataGrid
-        rows={data}
+        rows={safeData}
         columns={columns}
         checkboxSelection
         disableRowSelectionOnClick
         density="comfortable"
+        loading={safeData.length === 0}
         onRowSelectionModelChange={setSelectedRows}
         hideFooter
         slots={{ toolbar: CustomToolbarComponent }}
