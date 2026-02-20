@@ -55,3 +55,20 @@ export const assessmentsSimple = assessments.map(assessment => ({
   score: assessment.overall_score,
   status: assessment.status
 }))
+
+// Staff form definition for Form Builder (schema-driven template)
+export const staffForm = {
+  'Personal': [
+    { type: 'TextField', name: 'full_name', label: 'Full name', required: true },
+    { type: 'Select', name: 'role', label: 'Role', options: ['Coach', 'Analyst', 'Medical', 'Sporting Director'] },
+    { type: 'DatePicker', name: 'start_date', label: 'Start date' },
+  ],
+  'Contact': [
+    { type: 'TextField', name: 'email', label: 'Email', required: true },
+    { type: 'TextField', name: 'phone', label: 'Phone', helperText: 'Optional' },
+  ],
+  'Additional': [
+    { type: 'RadioGroup', name: 'work_pattern', label: 'Work pattern', options: ['Full-time', 'Part-time', 'Contract'] },
+    { type: 'CheckboxGroup', name: 'certifications', label: 'Certifications', options: ['UEFA A', 'UEFA B', 'First Aid', 'Other'] },
+  ],
+}

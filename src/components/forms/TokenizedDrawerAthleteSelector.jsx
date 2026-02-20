@@ -48,7 +48,10 @@ function TokenizedDrawerAthleteSelector(props) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <VendorDrawerAthleteSelector {...props} />
+      <VendorDrawerAthleteSelector
+        {...props}
+        selected={props.selectedAthletes ?? props.selected ?? []}
+      />
     </ThemeProvider>
   )
 }

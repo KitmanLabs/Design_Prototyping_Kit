@@ -61,7 +61,15 @@ function Screen03_FormResponsesForTemplate() {
       cellClassName: 'grid-cell--pad-left',
       renderCell: (params) => (
         <Typography component="span" variant="body2" sx={{ color: 'var(--color-text-primary)' }}>
-          <Link component="button" underline="none" onClick={(e) => { e.stopPropagation() }} sx={{ color: 'var(--color-text-primary)' }}>
+          <Link
+            component="button"
+            underline="none"
+            onClick={(e) => {
+              e.stopPropagation()
+              navigate(`/forms/form_answers_sets/${params.row.id}`, { state: { athleteName: params.row.athleteName } })
+            }}
+            sx={{ color: 'var(--color-text-primary)' }}
+          >
             {params.value}
           </Link>
         </Typography>
@@ -93,7 +101,7 @@ function Screen03_FormResponsesForTemplate() {
         <Button size="small" variant="secondary">Start</Button>
       )
     }
-  ]), [])
+  ]), [navigate])
 
   return (
     <Box sx={{ py: 2, bgcolor: 'var(--color-background-primary)', height: '100%' }}>

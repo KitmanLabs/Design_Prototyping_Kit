@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Box,
   Paper,
@@ -22,11 +22,16 @@ import athletesData from '../../data/athletes.json'
 
 function Screen01_FormsHome() {
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // Check if we're in league view
+  const isLeagueView = location.pathname.startsWith('/league')
   // Inline stub data to visually render the screen (no behavior)
   const rows = [
     { id: 'f-001', title: 'Daily Wellness Check', type: 'Questionnaire', status: 'Active', owner: 'Performance', updated: 'Today 10:12', due: 'Today 18:00', recipients: 53, completion: 41 },
     { id: 'f-002', title: 'Post-Game RPE', type: 'Questionnaire', status: 'Scheduled', owner: 'Coaching', updated: 'Yesterday 16:40', due: 'Tomorrow 09:00', recipients: 53, completion: null },
     { id: 'f-003', title: 'Injury Follow-up', type: 'Questionnaire', status: 'Draft', owner: 'Medical', updated: 'Mon 14:20', due: null, recipients: 8, completion: null },
+    { id: 'staff_form', title: 'Staff Form', type: 'Questionnaire', status: 'Draft', owner: 'Sporting Operations', updated: 'Today 09:30', due: null, recipients: 0, completion: null, route: '/forms/staff_form/build' },
   ]
 
   const columns = useMemo(() => [
@@ -44,7 +49,8 @@ function Screen01_FormsHome() {
             underline="none"
             onClick={(e) => {
               e.stopPropagation()
-              navigate(`/forms/${params.row.id}/build`)
+              const basePath = isLeagueView ? '/league/forms' : '/forms'
+              navigate(params.row.route ? (isLeagueView ? `/league${params.row.route}` : params.row.route) : `${basePath}/${params.row.id}/build`)
             }}
             sx={{ color: 'var(--color-text-primary)' }}
           >
@@ -106,7 +112,7 @@ function Screen01_FormsHome() {
         </IconButton>
       )
     },
-  ], [navigate])
+  ], [navigate, isLeagueView])
 
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
   const [actionMenuAnchor, setActionMenuAnchor] = useState(null)

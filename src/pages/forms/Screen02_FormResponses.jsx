@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Box,
   Paper,
@@ -45,7 +45,8 @@ function TabPanel(props) {
 
 function Screen02_FormResponses() {
   const navigate = useNavigate()
-  const location = window?.history?.state?.usr || {}
+  const location = useLocation()
+  const locationState = location?.state || {}
 
   // Stubbed data for the grid; wire this to real data later
   const allForms = React.useMemo(() => ([
@@ -57,7 +58,7 @@ function Screen02_FormResponses() {
   ]), [])
 
   const [tabValue, setTabValue] = React.useState(
-    location.initialTab === 'compliance' ? 2 : (location.initialTab === 'completed' ? 1 : 0)
+    locationState.initialTab === 'compliance' ? 2 : (locationState.initialTab === 'completed' ? 1 : 0)
   )
   const [selectedFormName, setSelectedFormName] = React.useState(null)
   const [paginationModel, setPaginationModel] = React.useState({ page: 0, pageSize: 25 })
