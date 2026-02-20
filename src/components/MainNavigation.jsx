@@ -24,7 +24,8 @@ import {
   SettingsOutlined,
   HelpOutlined,
   ChevronLeftOutlined,
-  ChevronRightOutlined
+  ChevronRightOutlined,
+  ChatOutlined
 } from '@mui/icons-material'
 import '../styles/design-tokens.css'
 
@@ -70,6 +71,13 @@ const navigationItems = [
     label: 'Calendar', 
     icon: CalendarMonthOutlined, 
     path: '/planning',
+    section: 'main'
+  },
+  { 
+    id: 'messages', 
+    label: 'Messages', 
+    icon: ChatOutlined, 
+    path: '/messages',
     section: 'main'
   },
   { 

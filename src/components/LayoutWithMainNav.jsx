@@ -51,6 +51,7 @@ const pageTitles = {
   '/forms/form_templates': 'Forms',
   '/forms/form_answers_sets': 'Forms',
   '/planning': 'Calendar',
+  '/messages': 'All messages',
   '/activity': 'Activity log',
   '/settings': 'Admin',
   '/help': 'Help'
