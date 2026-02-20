@@ -1,0 +1,418 @@
+[
+  {
+    "id": "5156926",
+    "title": "KL - With Attach",
+    "start": "2025-09-02T14:31:00",
+    "end": "2025-09-02T15:31:00",
+    "backgroundColor": "#E62020",
+    "borderColor": "#E62020",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5156926",
+    "extendedProps": {
+      "eventType": "TRAINING_SESSION",
+      "squad": "International Squad",
+      "location": "Training Field",
+      "coach": "Kitman Labs"
+    }
+  },
+  {
+    "id": "5156927",
+    "title": "KL",
+    "start": "2025-09-02T15:12:00",
+    "end": "2025-09-02T16:12:00",
+    "backgroundColor": "#482831",
+    "borderColor": "#482831",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5156927",
+    "extendedProps": {
+      "eventType": "TRAINING_SESSION",
+      "squad": "International Squad",
+      "location": "Training Field",
+      "coach": "Kitman Labs"
+    }
+  },
+  {
+    "id": "5155482",
+    "title": "TEST",
+    "start": "2025-09-02T18:40:00",
+    "end": "2025-09-02T19:40:00",
+    "backgroundColor": "#01205D",
+    "borderColor": "#01205D",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5155482",
+    "extendedProps": {
+      "eventType": "TEST_SESSION",
+      "squad": "International Squad",
+      "location": "Testing Facility",
+      "coach": "Test Team"
+    }
+  },
+  {
+    "id": "5160787",
+    "title": "Repeated Event",
+    "start": "2025-09-05T08:30:00",
+    "end": "2025-09-05T09:30:00",
+    "backgroundColor": "#482831",
+    "borderColor": "#482831",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5160787",
+    "extendedProps": {
+      "eventType": "RECURRING_EVENT",
+      "squad": "International Squad",
+      "location": "Main Facility",
+      "coach": "Regular Coach"
+    }
+  },
+  {
+    "id": "5164041",
+    "title": "KL - With Attach",
+    "start": "2025-09-09T14:31:00",
+    "end": "2025-09-09T15:31:00",
+    "backgroundColor": "#E62020",
+    "borderColor": "#E62020",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5164041",
+    "extendedProps": {
+      "eventType": "TRAINING_SESSION",
+      "squad": "International Squad",
+      "location": "Training Field",
+      "coach": "Kitman Labs"
+    }
+  },
+  {
+    "id": "5164042",
+    "title": "KL",
+    "start": "2025-09-09T15:12:00",
+    "end": "2025-09-09T16:12:00",
+    "backgroundColor": "#482831",
+    "borderColor": "#482831",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5164042",
+    "extendedProps": {
+      "eventType": "TRAINING_SESSION",
+      "squad": "International Squad",
+      "location": "Training Field",
+      "coach": "Kitman Labs"
+    }
+  },
+  {
+    "id": "5163988",
+    "title": "TEST",
+    "start": "2025-09-09T18:40:00",
+    "end": "2025-09-09T19:40:00",
+    "backgroundColor": "#01205D",
+    "borderColor": "#01205D",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5163988",
+    "extendedProps": {
+      "eventType": "TEST_SESSION",
+      "squad": "International Squad",
+      "location": "Testing Facility",
+      "coach": "Test Team"
+    }
+  },
+  {
+    "id": "5174051",
+    "title": "T e s t",
+    "start": "2025-09-09T19:27:00",
+    "end": "2025-09-09T20:27:00",
+    "backgroundColor": "#036BC6",
+    "borderColor": "#036BC6",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5174051",
+    "extendedProps": {
+      "eventType": "TEST_SESSION",
+      "squad": "International Squad",
+      "location": "Testing Facility",
+      "coach": "Test Team"
+    }
+  },
+  {
+    "id": "5162923",
+    "title": "Repeated Event",
+    "start": "2025-09-12T08:30:00",
+    "end": "2025-09-12T09:30:00",
+    "backgroundColor": "#482831",
+    "borderColor": "#482831",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5162923",
+    "extendedProps": {
+      "eventType": "RECURRING_EVENT",
+      "squad": "International Squad",
+      "location": "Main Facility",
+      "coach": "Regular Coach"
+    }
+  },
+  {
+    "id": "5179374",
+    "title": "Australia - Kitman Series",
+    "start": "2025-09-12T10:37:00",
+    "end": "2025-09-12T11:57:00",
+    "backgroundColor": "#B134C1",
+    "borderColor": "#B134C1",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5179374",
+    "extendedProps": {
+      "eventType": "SERIES_EVENT",
+      "squad": "International Squad",
+      "location": "Series Venue",
+      "coach": "Series Coach"
+    }
+  },
+  {
+    "id": "5156166",
+    "title": "KL - With Attach",
+    "start": "2025-09-16T14:31:00",
+    "end": "2025-09-16T15:31:00",
+    "backgroundColor": "#E62020",
+    "borderColor": "#E62020",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5156166",
+    "extendedProps": {
+      "eventType": "TRAINING_SESSION",
+      "squad": "International Squad",
+      "location": "Training Field",
+      "coach": "Kitman Labs"
+    }
+  },
+  {
+    "id": "5173387",
+    "title": "KL",
+    "start": "2025-09-16T15:12:00",
+    "end": "2025-09-16T16:12:00",
+    "backgroundColor": "#482831",
+    "borderColor": "#482831",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5173387",
+    "extendedProps": {
+      "eventType": "TRAINING_SESSION",
+      "squad": "International Squad",
+      "location": "Training Field",
+      "coach": "Kitman Labs"
+    }
+  },
+  {
+    "id": "5173344",
+    "title": "TEST",
+    "start": "2025-09-16T18:40:00",
+    "end": "2025-09-16T19:40:00",
+    "backgroundColor": "#01205D",
+    "borderColor": "#01205D",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5173344",
+    "extendedProps": {
+      "eventType": "TEST_SESSION",
+      "squad": "International Squad",
+      "location": "Testing Facility",
+      "coach": "Test Team"
+    }
+  },
+  {
+    "id": "5178991",
+    "title": "Repeated Event",
+    "start": "2025-09-19T08:30:00",
+    "end": "2025-09-19T09:30:00",
+    "backgroundColor": "#482831",
+    "borderColor": "#482831",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5178991",
+    "extendedProps": {
+      "eventType": "RECURRING_EVENT",
+      "squad": "International Squad",
+      "location": "Main Facility",
+      "coach": "Regular Coach"
+    }
+  },
+  {
+    "id": "5183353",
+    "title": "KL - With Attach",
+    "start": "2025-09-23T14:31:00",
+    "end": "2025-09-23T15:31:00",
+    "backgroundColor": "#E62020",
+    "borderColor": "#E62020",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5183353",
+    "extendedProps": {
+      "eventType": "TRAINING_SESSION",
+      "squad": "International Squad",
+      "location": "Training Field",
+      "coach": "Kitman Labs"
+    }
+  },
+  {
+    "id": "5156228",
+    "title": "KL",
+    "start": "2025-09-23T15:12:00",
+    "end": "2025-09-23T16:12:00",
+    "backgroundColor": "#482831",
+    "borderColor": "#482831",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5156228",
+    "extendedProps": {
+      "eventType": "TRAINING_SESSION",
+      "squad": "International Squad",
+      "location": "Training Field",
+      "coach": "Kitman Labs"
+    }
+  },
+  {
+    "id": "5183310",
+    "title": "TEST",
+    "start": "2025-09-23T18:40:00",
+    "end": "2025-09-23T19:40:00",
+    "backgroundColor": "#01205D",
+    "borderColor": "#01205D",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5183310",
+    "extendedProps": {
+      "eventType": "TEST_SESSION",
+      "squad": "International Squad",
+      "location": "Testing Facility",
+      "coach": "Test Team"
+    }
+  },
+  {
+    "id": "5185297",
+    "title": "Repeated Event",
+    "start": "2025-09-26T08:30:00",
+    "end": "2025-09-26T09:30:00",
+    "backgroundColor": "#482831",
+    "borderColor": "#482831",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5185297",
+    "extendedProps": {
+      "eventType": "RECURRING_EVENT",
+      "squad": "International Squad",
+      "location": "Main Facility",
+      "coach": "Regular Coach"
+    }
+  },
+  {
+    "id": "5156166-30",
+    "title": "KL - With Attach",
+    "start": "2025-09-30T14:31:00",
+    "end": "2025-09-30T15:31:00",
+    "backgroundColor": "#E62020",
+    "borderColor": "#E62020",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5156166",
+    "extendedProps": {
+      "eventType": "TRAINING_SESSION",
+      "squad": "International Squad",
+      "location": "Training Field",
+      "coach": "Kitman Labs"
+    }
+  },
+  {
+    "id": "5156208",
+    "title": "KL",
+    "start": "2025-09-30T15:12:00",
+    "end": "2025-09-30T16:12:00",
+    "backgroundColor": "#482831",
+    "borderColor": "#482831",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5156208",
+    "extendedProps": {
+      "eventType": "TRAINING_SESSION",
+      "squad": "International Squad",
+      "location": "Training Field",
+      "coach": "Kitman Labs"
+    }
+  },
+  {
+    "id": "4864755",
+    "title": "TEST",
+    "start": "2025-09-30T18:40:00",
+    "end": "2025-09-30T19:40:00",
+    "backgroundColor": "#01205D",
+    "borderColor": "#01205D",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/4864755",
+    "extendedProps": {
+      "eventType": "TEST_SESSION",
+      "squad": "International Squad",
+      "location": "Testing Facility",
+      "coach": "Test Team"
+    }
+  },
+  {
+    "id": "5159804",
+    "title": "Repeated Event",
+    "start": "2025-10-03T08:30:00",
+    "end": "2025-10-03T09:30:00",
+    "backgroundColor": "#482831",
+    "borderColor": "#482831",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5159804",
+    "extendedProps": {
+      "eventType": "RECURRING_EVENT",
+      "squad": "International Squad",
+      "location": "Main Facility",
+      "coach": "Regular Coach"
+    }
+  },
+  {
+    "id": "5156166-7",
+    "title": "KL - With Attach",
+    "start": "2025-10-07T14:31:00",
+    "end": "2025-10-07T15:31:00",
+    "backgroundColor": "#E62020",
+    "borderColor": "#E62020",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5156166",
+    "extendedProps": {
+      "eventType": "TRAINING_SESSION",
+      "squad": "International Squad",
+      "location": "Training Field",
+      "coach": "Kitman Labs"
+    }
+  },
+  {
+    "id": "5156208-7",
+    "title": "KL",
+    "start": "2025-10-07T15:12:00",
+    "end": "2025-10-07T16:12:00",
+    "backgroundColor": "#482831",
+    "borderColor": "#482831",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5156208",
+    "extendedProps": {
+      "eventType": "TRAINING_SESSION",
+      "squad": "International Squad",
+      "location": "Training Field",
+      "coach": "Kitman Labs"
+    }
+  },
+  {
+    "id": "5174078",
+    "title": "TEST",
+    "start": "2025-10-07T18:40:00",
+    "end": "2025-10-07T19:40:00",
+    "backgroundColor": "#01205D",
+    "borderColor": "#01205D",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5174078",
+    "extendedProps": {
+      "eventType": "TEST_SESSION",
+      "squad": "International Squad",
+      "location": "Testing Facility",
+      "coach": "Test Team"
+    }
+  },
+  {
+    "id": "5174081",
+    "title": "Repeated Event",
+    "start": "2025-10-10T08:30:00",
+    "end": "2025-10-10T09:30:00",
+    "backgroundColor": "#482831",
+    "borderColor": "#482831",
+    "textColor": "#ffffff",
+    "url": "/planning_hub/events/5174081",
+    "extendedProps": {
+      "eventType": "RECURRING_EVENT",
+      "squad": "International Squad",
+      "location": "Main Facility",
+      "coach": "Regular Coach"
+    }
+  }
+]

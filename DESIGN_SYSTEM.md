@@ -1,5 +1,20 @@
 # Design System Guide
 
+## 📦 Component library priority
+
+**Use components in this order:**
+
+1. **First:** `@saarbyrne/playbook` – Use Playbook components when the package provides an equivalent (e.g. Button, DataGrid, DatePicker, Drawer, Toasts, ConfirmationModal, etc.). Import from `@saarbyrne/playbook/components` or the specific subpath (e.g. `@saarbyrne/playbook/layouts/Drawer`).
+2. **Fallback:** MUI (`@mui/material`, `@mui/icons-material`, `@mui/x-data-grid`, `@mui/x-date-pickers`) – Use when Playbook does not export a suitable component, or when using a Playbook component causes errors.
+
+```jsx
+// ✅ Prefer Playbook when available
+import { Button, DataGrid, Drawer } from '@saarbyrne/playbook/components'
+
+// ✅ Use MUI when Playbook has no equivalent or causes issues
+import { SomeMuiComponent } from '@mui/material'
+```
+
 ## 🎨 Core Rules
 
 ### Colors (Auto-Enforced)

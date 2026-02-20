@@ -28,6 +28,7 @@ import { Button, Icon, Card, PlayerAvatar, LogoImage } from './components'
 ```
 
 **Design Rules (Auto-Enforced):**
+- **Component priority:** Prefer `@saarbyrne/playbook`; use MUI when Playbook has no equivalent or causes errors (see DESIGN_SYSTEM.md).
 - Colors: Use `var(--color-primary)` instead of `#3B4960`
 - Buttons: Only `variant="contained"` allowed
 - Icons: Material Icons Outlined only

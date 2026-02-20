@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import LayoutWithMainNav from './components/LayoutWithMainNav'
 import SimplePage from './pages/SimplePage'
 import Athletes from './pages/Athletes'
+import CalendarPage from './pages/Calendar'
 import Screen01_FormsHome from './pages/forms/Screen01_FormsHome'
 import Screen02_FormBuilder from './pages/forms/Screen02_FormBuilder'
 import Screen02_FormResponses from './pages/forms/Screen02_FormResponses'
@@ -24,7 +25,7 @@ function App() {
         <Route path="/forms/form_answers_sets/forms/:formId" element={<Screen03_FormResponsesForTemplate />} />
         <Route path="/forms/form_answers_sets/:answerSetId" element={<Screen04_FormAnswerSet />} />
         <Route path="/forms/:formId/build" element={<Screen02_FormBuilder />} />
-        <Route path="/planning" element={<SimplePage pageName="Calendar" />} />
+        <Route path="/planning" element={<CalendarPage />} />
         <Route path="/activity" element={<SimplePage pageName="Activity log" />} />
         <Route path="/settings" element={<SimplePage pageName="Admin" />} />
         <Route path="/help" element={<SimplePage pageName="Help" />} />

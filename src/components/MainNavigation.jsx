@@ -197,16 +197,19 @@ function MainNavigation({
     <Box
       sx={{
         width: isOpen ? DRAWER_WIDTH : DRAWER_WIDTH_COLLAPSED,
-        height: '100vh',
+        height: '100%',
+        minHeight: 0,
         background: 'linear-gradient(180deg, #000000 0%, #111111 40%, #000000 70%, #040037ff 90%, #040037ff 100%)',
         color: '#ffffff',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        overflow: 'hidden'
       }}
     >
-      {/* Header with Logo */}
+      {/* Header with Logo - fixed, no shrink */}
       <Box
         sx={{
+          flexShrink: 0,
           display: 'flex',
           alignItems: 'center',
           justifyContent: isOpen ? 'flex-start' : 'center',
@@ -235,15 +238,15 @@ function MainNavigation({
         </Box>
       </Box>
 
-      {/* Main Navigation Items */}
-      <Box sx={{ flex: 1, overflow: 'auto' }}>
+      {/* Main Navigation Items - scrollable middle with minHeight 0 so flex allows overflow */}
+      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', overflowX: 'hidden' }}>
         <List sx={{ py: 1 }}>
           {navigationItems.map((item) => renderNavItem(item, !isOpen))}
         </List>
       </Box>
 
-      {/* Bottom Items */}
-      <Box>
+      {/* Bottom Items - fixed at bottom, no shrink */}
+      <Box sx={{ flexShrink: 0 }}>
         <List sx={{ py: 1 }}>
           {bottomItems.map((item) => renderNavItem(item, !isOpen))}
         </List>
@@ -276,12 +279,16 @@ function MainNavigation({
         mr: 0,
         '& .MuiDrawer-paper': {
           marginRight: 0,
-
           width: isOpen ? DRAWER_WIDTH : DRAWER_WIDTH_COLLAPSED,
           boxSizing: 'border-box',
           border: 'none',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-          transition: 'none'
+          transition: 'none',
+          height: '100vh',
+          maxHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
         }
       }}
       {...props}
