@@ -152,3 +152,20 @@ sftp-config.json
 # Visual Studio Code - https://code.visualstudio.com/
 .settings/
 .vscode/
+
+### Installs ###
+# Ignore all node_modules folders (root and nested)
+node_modules/
+**/node_modules/
+
+# pnpm / Yarn / npm artifacts
+.pnpm-store/
+.pnp
+.pnp.js
+yarn-error.log
+yarn-debug.log
+npm-debug.log*
+
+# Explicitly ignore node_modules in common subpackages
+playbook-components-build/node_modules/
+playbook-components/node_modules/
