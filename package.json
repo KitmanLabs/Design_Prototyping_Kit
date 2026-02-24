@@ -41,7 +41,7 @@
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-filepond": "^1.2.0",
+    "react-filepond": "^7.1.3",
     "filepond": "^4.30.0",
     "filepond-plugin-file-validate-size": "^2.2.8",
     "filepond-plugin-file-validate-type": "^1.2.9",
