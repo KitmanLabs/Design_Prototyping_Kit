@@ -12,18 +12,22 @@ import {
   Menu,
   MenuItem,
   Link,
-  Autocomplete
+  Autocomplete,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip
 } from '@mui/material'
 import { DataGrid, GridPagination, GridToolbar } from 'playbook-components'
 import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined, KeyboardArrowDownOutlined, KeyboardArrowRightOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DateRangePicker } from '@mui/x-date-pickers-pro'
+import { DateRangePicker, DatePicker } from '@mui/x-date-pickers-pro'
 import dayjs from 'dayjs'
 import '../../styles/design-tokens.css'
 import { Button, StatusChip, Icon } from '../../components'
 import AssignFormDrawer from '../../components/forms/AssignFormDrawer'
 import CreateFormDrawer from '../../components/forms/CreateFormDrawer'
+import EditScheduleDrawer from '../../components/forms/EditScheduleDrawer'
 import athletesData from '../../data/athletes.json'
 import formsTemplatesData from '../../data/forms_templates.json'
 import { currentUser } from '../../data/layout'
@@ -112,7 +116,7 @@ const completedRowsData = [
 ]
 
 const complianceRowsData = [
-  { id: 'c-1', athleteName: 'Tymofii Antoniuk', position: 'Hooker', dob: 'Apr 18, 2002', complete: 3, total: 10, lastUpdated: '24 Feb 2026', subRows: [
+  { id: 'c-1', athleteName: 'Ethan Walker', position: 'Inside Centre', dob: '14 Mar 2001', complete: 3, total: 10, lastUpdated: '24 Feb 2026', subRows: [
     { id: 'c-1-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '20 Feb 2026' },
     { id: 'c-1-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '18 Feb 2026' },
     { id: 'c-1-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '15 Feb 2026' },
@@ -124,7 +128,7 @@ const complianceRowsData = [
     { id: 'c-1-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-1-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-2', athleteName: 'Johnny Appleseed', position: 'Loose-head Prop', dob: 'Jan 01, 2000', complete: 2, total: 10, lastUpdated: '—', subRows: [
+  { id: 'c-2', athleteName: 'Ryan O\'Sullivan', position: 'Loosehead Prop', dob: '22 Sep 1998', complete: 2, total: 10, lastUpdated: '—', subRows: [
     { id: 'c-2-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '10 Feb 2026' },
     { id: 'c-2-sub-2', formName: 'Orthopedic Exam', status: 'Draft', lastUpdated: '12 Feb 2026' },
     { id: 'c-2-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '8 Feb 2026' },
@@ -136,7 +140,7 @@ const complianceRowsData = [
     { id: 'c-2-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-2-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-3', athleteName: 'Daniel Athlete', position: 'Wing', dob: 'Nov 12, 1980', complete: 5, total: 10, lastUpdated: '18 Jan 2026', subRows: [
+  { id: 'c-3', athleteName: 'Connor McCarthy', position: 'Wing', dob: '07 Jun 1996', complete: 5, total: 10, lastUpdated: '18 Jan 2026', subRows: [
     { id: 'c-3-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '15 Jan 2026' },
     { id: 'c-3-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '16 Jan 2026' },
     { id: 'c-3-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '14 Jan 2026' },
@@ -148,7 +152,7 @@ const complianceRowsData = [
     { id: 'c-3-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-3-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-4', athleteName: 'Test Reset PW Confirm', position: 'Inside Centre', dob: 'Jun 28, 2000', complete: 0, total: 10, lastUpdated: '—', subRows: [
+  { id: 'c-4', athleteName: 'Finn Henderson', position: 'Fly Half', dob: '28 Nov 2003', complete: 0, total: 10, lastUpdated: '—', subRows: [
     { id: 'c-4-sub-1', formName: 'Medical Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-4-sub-2', formName: 'Orthopedic Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-4-sub-3', formName: 'Medical History Form', status: 'Not Started', lastUpdated: '—' },
@@ -160,7 +164,7 @@ const complianceRowsData = [
     { id: 'c-4-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-4-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-5', athleteName: 'Form PDF Export Test', position: 'Outside Centre', dob: 'Jul 09, 1999', complete: 4, total: 10, lastUpdated: '10 Feb 2026', subRows: [
+  { id: 'c-5', athleteName: 'Jack Morrison', position: 'Outside Centre', dob: '09 Apr 1999', complete: 4, total: 10, lastUpdated: '10 Feb 2026', subRows: [
     { id: 'c-5-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '5 Feb 2026' },
     { id: 'c-5-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '6 Feb 2026' },
     { id: 'c-5-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '4 Feb 2026' },
@@ -172,7 +176,7 @@ const complianceRowsData = [
     { id: 'c-5-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-5-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-6', athleteName: 'Marcus Johnson', position: 'Forward', dob: 'Mar 15, 1999', complete: 8, total: 10, lastUpdated: '22 Feb 2026', subRows: [
+  { id: 'c-6', athleteName: 'Marcus Thompson', position: 'Number 8', dob: '15 Jan 1997', complete: 8, total: 10, lastUpdated: '22 Feb 2026', subRows: [
     { id: 'c-6-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '18 Feb 2026' },
     { id: 'c-6-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '19 Feb 2026' },
     { id: 'c-6-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '17 Feb 2026' },
@@ -184,7 +188,7 @@ const complianceRowsData = [
     { id: 'c-6-sub-9', formName: 'Vision Exam', status: 'Draft', lastUpdated: '22 Feb 2026' },
     { id: 'c-6-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-7', athleteName: 'Elena Rodriguez', position: 'Midfielder', dob: 'Aug 22, 1996', complete: 6, total: 10, lastUpdated: '20 Feb 2026', subRows: [
+  { id: 'c-7', athleteName: 'Sean Brennan', position: 'Scrum Half', dob: '18 Aug 1995', complete: 6, total: 10, lastUpdated: '20 Feb 2026', subRows: [
     { id: 'c-7-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '15 Feb 2026' },
     { id: 'c-7-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '16 Feb 2026' },
     { id: 'c-7-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '14 Feb 2026' },
@@ -196,7 +200,7 @@ const complianceRowsData = [
     { id: 'c-7-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-7-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-8', athleteName: 'David Chen', position: 'Defender', dob: 'Nov 03, 2000', complete: 1, total: 10, lastUpdated: '15 Feb 2026', subRows: [
+  { id: 'c-8', athleteName: 'Patrick Doyle', position: 'Hooker', dob: '03 Dec 2000', complete: 1, total: 10, lastUpdated: '15 Feb 2026', subRows: [
     { id: 'c-8-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '15 Feb 2026' },
     { id: 'c-8-sub-2', formName: 'Orthopedic Exam', status: 'Draft', lastUpdated: '15 Feb 2026' },
     { id: 'c-8-sub-3', formName: 'Medical History Form', status: 'Not Started', lastUpdated: '—' },
@@ -208,7 +212,7 @@ const complianceRowsData = [
     { id: 'c-8-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-8-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-9', athleteName: 'Emma Brown', position: 'Wing', dob: 'Feb 14, 1998', complete: 0, total: 10, lastUpdated: '—', subRows: [
+  { id: 'c-9', athleteName: 'Dylan Murphy', position: 'Fullback', dob: '27 Feb 2002', complete: 0, total: 10, lastUpdated: '—', subRows: [
     { id: 'c-9-sub-1', formName: 'Medical Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-9-sub-2', formName: 'Orthopedic Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-9-sub-3', formName: 'Medical History Form', status: 'Not Started', lastUpdated: '—' },
@@ -220,7 +224,7 @@ const complianceRowsData = [
     { id: 'c-9-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-9-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-10', athleteName: 'Liam Davis', position: 'Second Row', dob: 'Jul 28, 1997', complete: 10, total: 10, lastUpdated: '20 Feb 2026', subRows: [
+  { id: 'c-10', athleteName: 'Liam O\'Brien', position: 'Lock', dob: '11 Jul 1994', complete: 10, total: 10, lastUpdated: '20 Feb 2026', subRows: [
     { id: 'c-10-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '12 Feb 2026' },
     { id: 'c-10-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '13 Feb 2026' },
     { id: 'c-10-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '11 Feb 2026' },
@@ -234,13 +238,136 @@ const complianceRowsData = [
   ]}
 ]
 
+// Scheduling Overview mock data
+const schedulingRowsData = [
+  {
+    id: 's-1',
+    scheduleName: 'Pre-Season Medical Screening',
+    startDate: '2026-03-01T14:05:00',
+    endDate: '2026-03-04T18:00:00',
+    category: 'Medical',
+    players: ['Michael Anderson', 'Bill Byerson', 'David Carter', 'Elena Rodriguez', 'James Wilson', 'Emma Brown', 'Liam Davis', 'Sophie Miller', 'Marcus Johnson', 'Ryan Thompson', 'Sarah Mitchell', 'Daniel Lee', 'Jessica Wang', 'Chris Evans', 'Amy Chen', 'Kevin O\'Brien', 'Laura Parker', 'Tom Harris', 'Rachel Green', 'Nick Adams', 'Olivia Turner', 'Jake Morrison', 'Megan Foster', 'Alex Reed', 'Hannah Cooper', 'Ben Walsh', 'Sara Kennedy', 'Mike Sullivan', 'Emily Scott', 'John Blake', 'Kate Murphy', 'Brian Hayes', 'Lisa Morgan', 'Steve Collins', 'Diana Ross', 'Paul White', 'Maria Garcia', 'George Brown', 'Nicole Taylor', 'Peter Jackson', 'Karen Lewis', 'Frank Moore', 'Linda Hall', 'Edward Young', 'Andrea King', 'Robert Wright', 'Jennifer Lopez', 'Thomas Baker', 'Michelle Clark', 'William Hill', 'Amanda Green', 'Christopher Lee', 'Catherine Adams', 'Timothy Brown', 'Samantha Jones', 'Joseph Martinez', 'Stephanie Robinson', 'Anthony Miller', 'Rebecca Wilson', 'Charles Taylor', 'Victoria Thompson', 'Mark Anderson', 'Elizabeth Davis', 'Matthew Garcia', 'Christina Martinez', 'Ryan Johnson', 'Ashley Williams', 'Joshua Brown', 'Lauren Moore', 'Brandon Jackson', 'Morgan White', 'Tyler Harris', 'Kayla Martin', 'Justin Thompson'],
+    isUpcoming: true,
+    forms: [
+      { id: 's-1-f-1', formName: 'Medical Exam' },
+      { id: 's-1-f-2', formName: 'Orthopedic Exam' },
+      { id: 's-1-f-3', formName: 'Medical History Form' }
+    ]
+  },
+  {
+    id: 's-2',
+    scheduleName: 'Weekly Wellness Check',
+    startDate: '2026-03-05T09:00:00',
+    endDate: '2026-03-05T17:00:00',
+    category: 'Wellbeing',
+    players: ['Ethan Walker', 'Connor McCarthy', 'Finn Henderson', 'Jack Morrison', 'Marcus Thompson', 'Sean Brennan', 'Patrick Doyle', 'Dylan Murphy'],
+    isUpcoming: true,
+    forms: [
+      { id: 's-2-f-1', formName: 'Daily Wellness Check' }
+    ]
+  },
+  {
+    id: 's-3',
+    scheduleName: 'Performance Evaluation Q1',
+    startDate: '2026-03-10T08:00:00',
+    endDate: '2026-03-15T18:00:00',
+    category: 'Performance',
+    players: ['Michael Anderson', 'Bill Byerson', 'David Carter', 'Elena Rodriguez', 'James Wilson', 'Emma Brown', 'Liam Davis', 'Sophie Miller', 'Marcus Johnson', 'Ryan Thompson', 'Sarah Mitchell', 'Daniel Lee', 'Jessica Wang', 'Chris Evans', 'Amy Chen'],
+    isUpcoming: true,
+    forms: [
+      { id: 's-3-f-1', formName: 'Training Load Monitoring' },
+      { id: 's-3-f-2', formName: 'Post-Game RPE' },
+      { id: 's-3-f-3', formName: 'Performance Assessment' }
+    ]
+  },
+  {
+    id: 's-4',
+    scheduleName: 'Concussion Protocol Review',
+    startDate: '2026-03-20T10:00:00',
+    endDate: '2026-03-22T16:00:00',
+    category: 'Medical',
+    players: ['Ethan Walker', 'Ryan O\'Sullivan', 'Connor McCarthy', 'Finn Henderson', 'Jack Morrison'],
+    isUpcoming: true,
+    forms: [
+      { id: 's-4-f-1', formName: 'Concussion Protocol' },
+      { id: 's-4-f-2', formName: 'Return to Play Assessment' }
+    ]
+  },
+  {
+    id: 's-5',
+    scheduleName: 'End of Season Survey',
+    startDate: '2026-04-01T09:00:00',
+    endDate: '2026-04-07T18:00:00',
+    category: 'Assessment',
+    players: ['Michael Anderson', 'Bill Byerson', 'David Carter', 'Elena Rodriguez', 'James Wilson', 'Emma Brown', 'Liam Davis', 'Sophie Miller', 'Marcus Johnson', 'Ryan Thompson'],
+    isUpcoming: true,
+    forms: [
+      { id: 's-5-f-1', formName: 'End of Season Survey' },
+      { id: 's-5-f-2', formName: 'Season Feedback Form' }
+    ]
+  },
+  // Past schedules
+  {
+    id: 's-6',
+    scheduleName: 'January Health Check',
+    startDate: '2026-01-15T14:05:00',
+    endDate: '2026-01-18T17:00:00',
+    category: 'Medical',
+    players: ['Michael Anderson', 'Bill Byerson', 'David Carter', 'Elena Rodriguez', 'James Wilson', 'Emma Brown', 'Liam Davis', 'Sophie Miller', 'Marcus Johnson', 'Ryan Thompson', 'Sarah Mitchell', 'Daniel Lee'],
+    isUpcoming: false,
+    forms: [
+      { id: 's-6-f-1', formName: 'Medical Exam' },
+      { id: 's-6-f-2', formName: 'Medical History Form' }
+    ]
+  },
+  {
+    id: 's-7',
+    scheduleName: 'Winter Training Assessment',
+    startDate: '2026-02-01T08:00:00',
+    endDate: '2026-02-05T18:00:00',
+    category: 'Performance',
+    players: ['Ethan Walker', 'Connor McCarthy', 'Finn Henderson', 'Jack Morrison', 'Marcus Thompson', 'Sean Brennan'],
+    isUpcoming: false,
+    forms: [
+      { id: 's-7-f-1', formName: 'Training Load Monitoring' }
+    ]
+  },
+  {
+    id: 's-8',
+    scheduleName: 'February Wellness Survey',
+    startDate: '2026-02-10T09:00:00',
+    endDate: '2026-02-12T17:00:00',
+    category: 'Wellbeing',
+    players: ['Michael Anderson', 'Bill Byerson', 'David Carter', 'Elena Rodriguez', 'James Wilson', 'Emma Brown', 'Liam Davis', 'Sophie Miller'],
+    isUpcoming: false,
+    forms: [
+      { id: 's-8-f-1', formName: 'Daily Wellness Check' },
+      { id: 's-8-f-2', formName: 'Mental Health Assessment' }
+    ]
+  },
+  {
+    id: 's-9',
+    scheduleName: 'Pre-Season Compliance Forms',
+    startDate: '2025-12-16T14:05:00',
+    endDate: '2025-12-19T18:00:00',
+    category: 'Compliance',
+    players: ['Michael Anderson', 'Bill Byerson', 'David Carter', 'Elena Rodriguez', 'James Wilson', 'Emma Brown', 'Liam Davis', 'Sophie Miller', 'Marcus Johnson', 'Ryan Thompson', 'Sarah Mitchell', 'Daniel Lee', 'Jessica Wang', 'Chris Evans', 'Amy Chen', 'Kevin O\'Brien', 'Laura Parker', 'Tom Harris', 'Rachel Green', 'Nick Adams', 'Olivia Turner', 'Jake Morrison', 'Megan Foster', 'Alex Reed', 'Hannah Cooper', 'Ben Walsh', 'Sara Kennedy', 'Mike Sullivan', 'Emily Scott', 'John Blake', 'Kate Murphy', 'Brian Hayes', 'Lisa Morgan', 'Steve Collins', 'Diana Ross', 'Paul White', 'Maria Garcia', 'George Brown', 'Nicole Taylor', 'Peter Jackson', 'Karen Lewis', 'Frank Moore', 'Linda Hall', 'Edward Young', 'Andrea King', 'Robert Wright', 'Jennifer Lopez', 'Thomas Baker', 'Michelle Clark', 'William Hill', 'Amanda Green', 'Christopher Lee', 'Catherine Adams', 'Timothy Brown', 'Samantha Jones', 'Joseph Martinez', 'Stephanie Robinson', 'Anthony Miller', 'Rebecca Wilson', 'Charles Taylor', 'Victoria Thompson', 'Mark Anderson', 'Elizabeth Davis', 'Matthew Garcia', 'Christina Martinez', 'Ryan Johnson', 'Ashley Williams', 'Joshua Brown', 'Lauren Moore', 'Brandon Jackson', 'Morgan White', 'Tyler Harris', 'Kayla Martin', 'Justin Thompson'],
+    isUpcoming: false,
+    forms: [
+      { id: 's-9-f-1', formName: 'Medical Exam' },
+      { id: 's-9-f-2', formName: 'Orthopedic Exam' },
+      { id: 's-9-f-3', formName: 'Medical History Form' }
+    ]
+  }
+]
+
 export default function FormsPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const locationState = location?.state || {}
 
   const [tabValue, setTabValue] = useState(
-    locationState.initialTab === 'compliance' ? 2 : (locationState.initialTab === 'completed' ? 1 : 0)
+    locationState.initialTab === 'scheduling' ? 1 : (locationState.initialTab === 'completed' ? 2 : (locationState.initialTab === 'compliance' ? 3 : 0))
   )
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
   const [actionMenuAnchor, setActionMenuAnchor] = useState(null)
@@ -391,8 +518,7 @@ export default function FormsPage() {
       {
         field: 'athleteName',
         headerName: 'Athlete',
-        minWidth: 180,
-        flex: 1,
+        width: 160,
         headerClassName: 'grid-cell--pad-left',
         cellClassName: 'grid-cell--pad-left',
         renderCell: (params) => (
@@ -412,7 +538,8 @@ export default function FormsPage() {
       {
         field: 'formName',
         headerName: 'Form name',
-        minWidth: 200,
+        flex: 1,
+        minWidth: 180,
         renderCell: (params) => (
           <Link
             component="button"
@@ -427,14 +554,14 @@ export default function FormsPage() {
           </Link>
         )
       },
-      { field: 'productArea', headerName: 'Product area', minWidth: 120 },
-      { field: 'category', headerName: 'Category', minWidth: 100 },
-      { field: 'examiner', headerName: 'Examiner', minWidth: 160 },
-      { field: 'completionDate', headerName: 'Completion date', minWidth: 140 },
+      { field: 'productArea', headerName: 'Product area', width: 120 },
+      { field: 'category', headerName: 'Category', width: 100 },
+      { field: 'examiner', headerName: 'Examiner', width: 140 },
+      { field: 'completionDate', headerName: 'Completion date', width: 130 },
       {
         field: 'formStatus',
         headerName: 'Form status',
-        minWidth: 120,
+        width: 110,
         renderCell: (params) => {
           const status = params.value
           const type = status === 'Complete' ? 'success' : status === 'In progress' ? 'warning' : 'error'
@@ -558,14 +685,18 @@ export default function FormsPage() {
             )
           }
           return (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="body2" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', py: 0.5 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)', lineHeight: 1.4 }}>
                 {params.row.athleteName}
               </Typography>
-              <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>
+              <Typography variant="caption" sx={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', lineHeight: 1.3 }}>
                 {params.row.position}
-                {params.row.dob ? ` · ${params.row.dob}` : ''}
               </Typography>
+              {params.row.dob && (
+                <Typography variant="caption" sx={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', lineHeight: 1.3 }}>
+                  Date of Birth: {params.row.dob}
+                </Typography>
+              )}
             </Box>
           )
         }
@@ -605,6 +736,250 @@ export default function FormsPage() {
       }
     ],
     [expandedRows, toggleRowExpansion]
+  )
+
+  // —— Scheduling Overview tab ——
+  const [schedulingPlayerFilter, setSchedulingPlayerFilter] = useState(null)
+  const [schedulingCategoryFilter, setSchedulingCategoryFilter] = useState(null)
+  const [schedulingDateFilter, setSchedulingDateFilter] = useState(null)
+  const [schedulingTimeRange, setSchedulingTimeRange] = useState('upcoming') // 'upcoming' | 'past'
+  const [schedulingExpandedRows, setSchedulingExpandedRows] = useState(new Set())
+  const [schedulingActionMenuAnchor, setSchedulingActionMenuAnchor] = useState(null)
+  const [schedulingActionRowId, setSchedulingActionRowId] = useState(null)
+  const [editScheduleOpen, setEditScheduleOpen] = useState(false)
+  const [editingSchedule, setEditingSchedule] = useState(null)
+
+  const toggleSchedulingRowExpansion = useCallback((rowId) => {
+    setSchedulingExpandedRows((prev) => {
+      const next = new Set(prev)
+      if (next.has(rowId)) {
+        next.delete(rowId)
+      } else {
+        next.add(rowId)
+      }
+      return next
+    })
+  }, [])
+
+  // Helper function to format date range
+  const formatScheduleDateRange = (startDate, endDate) => {
+    const start = dayjs(startDate)
+    const end = dayjs(endDate)
+    const startFormatted = start.format('MMMM D, YYYY, h:mm a')
+    const endFormatted = end.format('MMMM D, YYYY')
+    return `${startFormatted} – ${endFormatted}`
+  }
+
+  // Get unique players from scheduling data for filter
+  const schedulingPlayerOptions = useMemo(() => {
+    const allPlayers = new Set()
+    schedulingRowsData.forEach((row) => {
+      row.players.forEach((p) => allPlayers.add(p))
+    })
+    return [...allPlayers].sort()
+  }, [])
+
+  // Get unique categories from scheduling data for filter
+  const schedulingCategoryOptions = useMemo(() => {
+    return [...new Set(schedulingRowsData.map((r) => r.category))].sort()
+  }, [])
+
+  const schedulingFilteredRows = useMemo(() => {
+    let rows = schedulingRowsData.filter((r) => {
+      // Filter by upcoming/past
+      if (schedulingTimeRange === 'upcoming' && !r.isUpcoming) return false
+      if (schedulingTimeRange === 'past' && r.isUpcoming) return false
+      return true
+    })
+
+    // Filter by player
+    if (schedulingPlayerFilter) {
+      rows = rows.filter((r) => r.players.includes(schedulingPlayerFilter))
+    }
+
+    // Filter by category
+    if (schedulingCategoryFilter) {
+      rows = rows.filter((r) => r.category === schedulingCategoryFilter)
+    }
+
+    // Filter by date
+    if (schedulingDateFilter) {
+      rows = rows.filter((r) => {
+        const start = dayjs(r.startDate)
+        const end = dayjs(r.endDate)
+        const filterDate = dayjs(schedulingDateFilter)
+        return filterDate.isBetween(start, end, 'day', '[]') || filterDate.isSame(start, 'day') || filterDate.isSame(end, 'day')
+      })
+    }
+
+    // Flatten rows with expanded sub-rows (forms)
+    const flattenedRows = []
+    rows.forEach((row) => {
+      flattenedRows.push({ ...row, isParent: true, hasSubRows: row.forms && row.forms.length > 0 })
+      if (schedulingExpandedRows.has(row.id) && row.forms) {
+        row.forms.forEach((form) => {
+          flattenedRows.push({ ...form, isSubRow: true, parentId: row.id })
+        })
+      }
+    })
+    return flattenedRows
+  }, [schedulingTimeRange, schedulingPlayerFilter, schedulingCategoryFilter, schedulingDateFilter, schedulingExpandedRows])
+
+  // Render player names with tooltip
+  const renderPlayersCell = (players) => {
+    if (!players || players.length === 0) return '—'
+    const displayCount = 3
+    const displayPlayers = players.slice(0, displayCount)
+    const remaining = players.length - displayCount
+    const displayText = displayPlayers.join(', ') + (remaining > 0 ? `, … +${remaining}` : '')
+    
+    // Tooltip shows first 20 players + count of remaining
+    const tooltipDisplayCount = 20
+    const tooltipPlayers = players.slice(0, tooltipDisplayCount)
+    const tooltipRemaining = players.length - tooltipDisplayCount
+    const tooltipText = tooltipPlayers.join(', ') + (tooltipRemaining > 0 ? `, +${tooltipRemaining} more` : '')
+
+    return (
+      <Tooltip 
+        title={tooltipText} 
+        arrow 
+        placement="top"
+        slotProps={{
+          tooltip: {
+            sx: {
+              maxWidth: 400,
+              fontFamily: 'var(--font-family-primary)',
+              fontSize: 'var(--font-size-xs)',
+              backgroundColor: '#616161',
+              color: '#ffffff'
+            }
+          },
+          arrow: {
+            sx: {
+              color: '#616161'
+            }
+          }
+        }}
+      >
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            cursor: 'pointer',
+            color: 'var(--color-text-primary)', 
+            fontFamily: 'var(--font-family-primary)', 
+            fontSize: 'var(--font-size-sm)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {displayText}
+        </Typography>
+      </Tooltip>
+    )
+  }
+
+  const schedulingColumns = useMemo(
+    () => [
+      {
+        field: 'expand',
+        headerName: '',
+        width: 48,
+        sortable: false,
+        filterable: false,
+        disableColumnMenu: true,
+        headerClassName: 'grid-cell--pad-left',
+        cellClassName: 'grid-cell--pad-left',
+        renderCell: (params) => {
+          if (params.row.isSubRow) return null
+          if (!params.row.hasSubRows) return <Box sx={{ width: 24 }} />
+          const isExpanded = schedulingExpandedRows.has(params.row.id)
+          return (
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleSchedulingRowExpansion(params.row.id)
+              }}
+              sx={{
+                p: 0.5,
+                color: 'var(--color-text-secondary)',
+                transition: 'transform 0.2s ease',
+                '&:hover': { color: 'var(--color-primary)' }
+              }}
+            >
+              {isExpanded ? <KeyboardArrowDownOutlined fontSize="small" /> : <KeyboardArrowRightOutlined fontSize="small" />}
+            </IconButton>
+          )
+        }
+      },
+      {
+        field: 'schedule',
+        headerName: 'Schedule',
+        flex: 1,
+        minWidth: 360,
+        renderCell: (params) => {
+          if (params.row.isSubRow) {
+            return (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pl: 2 }}>
+                <Typography variant="body2" sx={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>
+                  {params.row.formName}
+                </Typography>
+              </Box>
+            )
+          }
+          return (
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', py: 0.5 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)', lineHeight: 1.4 }}>
+                {params.row.scheduleName}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', lineHeight: 1.3 }}>
+                {formatScheduleDateRange(params.row.startDate, params.row.endDate)}
+              </Typography>
+            </Box>
+          )
+        }
+      },
+      {
+        field: 'players',
+        headerName: 'Players',
+        flex: 1,
+        minWidth: 300,
+        renderCell: (params) => {
+          if (params.row.isSubRow) return null
+          return renderPlayersCell(params.row.players)
+        }
+      },
+      {
+        field: 'actions',
+        headerName: '',
+        sortable: false,
+        filterable: false,
+        width: 56,
+        align: 'right',
+        headerAlign: 'right',
+        headerClassName: 'grid-cell--pad-right',
+        cellClassName: 'grid-cell--pad-right',
+        renderCell: (params) => {
+          if (params.row.isSubRow) return null
+          return (
+            <IconButton
+              size="small"
+              aria-label="more"
+              onClick={(e) => {
+                e.stopPropagation()
+                setSchedulingActionMenuAnchor(e.currentTarget)
+                setSchedulingActionRowId(params.row.id)
+              }}
+              sx={{ color: 'var(--color-text-secondary)' }}
+            >
+              <MoreVertOutlined fontSize="small" />
+            </IconButton>
+          )
+        }
+      }
+    ],
+    [schedulingExpandedRows, toggleSchedulingRowExpansion]
   )
 
   return (
@@ -648,10 +1023,9 @@ export default function FormsPage() {
             }}
           >
             <Tab label="Forms" {...a11yProps(0)} />
-            <Tab label="Completed" {...a11yProps(1)} />
-            <Tab label="Compliance" {...a11yProps(2)} />
-            <Tab label="Scheduling overview" {...a11yProps(3)} />
-            <Tab label="Tryouts" {...a11yProps(4)} />
+            <Tab label="Scheduling Overview" {...a11yProps(1)} />
+            <Tab label="Completed" {...a11yProps(2)} />
+            <Tab label="Compliance Trials" {...a11yProps(3)} />
           </Tabs>
 
           {/* Forms tab */}
@@ -714,8 +1088,123 @@ export default function FormsPage() {
             </Box>
           </TabPanel>
 
-          {/* Completed tab */}
+          {/* Scheduling Overview tab */}
           <TabPanel value={tabValue} index={1}>
+            <Box sx={{ px: 3, py: 1.5, display: 'flex', flexDirection: 'column', gap: 1.5, flexShrink: 0 }}>
+              {/* Filters row */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                <Autocomplete
+                  size="small"
+                  options={schedulingPlayerOptions}
+                  value={schedulingPlayerFilter}
+                  onChange={(_, v) => setSchedulingPlayerFilter(v)}
+                  popupIcon={<ArrowDropDownOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />}
+                  renderInput={(params) => <TextField {...params} label="Players" variant="filled" />}
+                  sx={{ minWidth: 200 }}
+                />
+                <TextField
+                  select
+                  size="small"
+                  variant="filled"
+                  label="Category"
+                  value={schedulingCategoryFilter || ''}
+                  onChange={(e) => setSchedulingCategoryFilter(e.target.value || null)}
+                  sx={{ minWidth: 160 }}
+                >
+                  <MenuItem value="">All</MenuItem>
+                  {schedulingCategoryOptions.map((cat) => (
+                    <MenuItem key={cat} value={cat}>{cat}</MenuItem>
+                  ))}
+                </TextField>
+                <DatePicker
+                  label="Date"
+                  value={schedulingDateFilter}
+                  onChange={(newValue) => setSchedulingDateFilter(newValue)}
+                  slotProps={{
+                    textField: {
+                      size: 'small',
+                      variant: 'filled',
+                      sx: { minWidth: 180 }
+                    }
+                  }}
+                  sx={{
+                    '& .MuiInputBase-root': { fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' },
+                    '& .MuiIconButton-root': { color: 'var(--color-primary)' }
+                  }}
+                />
+              </Box>
+              {/* Upcoming / Past toggle */}
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <ToggleButtonGroup
+                  value={schedulingTimeRange}
+                  exclusive
+                  onChange={(_, newValue) => {
+                    if (newValue !== null) setSchedulingTimeRange(newValue)
+                  }}
+                  size="small"
+                  aria-label="Filter by upcoming or past schedules"
+                  sx={{
+                    '& .MuiToggleButton-root': {
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      fontFamily: 'var(--font-family-primary)',
+                      fontSize: 'var(--font-size-sm)',
+                      px: 2.5,
+                      py: 0.75,
+                      border: '1px solid var(--color-border-primary)',
+                      '&.Mui-selected': {
+                        color: '#ffffff',
+                        backgroundColor: 'var(--color-primary)',
+                        '&:hover': {
+                          backgroundColor: 'var(--color-primary-hover)'
+                        }
+                      },
+                      '&:not(.Mui-selected)': {
+                        color: 'var(--color-text-secondary)',
+                        backgroundColor: 'var(--color-background-secondary)',
+                        '&:hover': {
+                          backgroundColor: 'var(--color-background-hover)'
+                        }
+                      }
+                    },
+                    '& .MuiToggleButton-root:first-of-type': {
+                      borderRadius: 'var(--radius-md) 0 0 var(--radius-md)'
+                    },
+                    '& .MuiToggleButton-root:last-of-type': {
+                      borderRadius: '0 var(--radius-md) var(--radius-md) 0'
+                    }
+                  }}
+                >
+                  <ToggleButton value="upcoming">Upcoming</ToggleButton>
+                  <ToggleButton value="past">Past</ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+            </Box>
+            <Box sx={{
+              ...gridSx,
+              '& .scheduling-sub-row': {
+                backgroundColor: 'var(--color-background-secondary)',
+                '&:hover': { backgroundColor: 'var(--color-background-hover)' }
+              }
+            }}>
+              <DataGrid
+                rows={schedulingFilteredRows}
+                columns={schedulingColumns}
+                disableRowSelectionOnClick
+                pagination
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                pageSizeOptions={[25, 50, 100]}
+                slots={{ pagination: GridPagination }}
+                slotProps={{ pagination: { showFirstButton: true, showLastButton: true } }}
+                getRowClassName={(params) => params.row.isSubRow ? 'scheduling-sub-row' : ''}
+                getRowHeight={(params) => params.model.isSubRow ? 44 : (params.model.isParent ? 64 : 52)}
+              />
+            </Box>
+          </TabPanel>
+
+          {/* Completed tab */}
+          <TabPanel value={tabValue} index={2}>
             <Box sx={{ px: 3, py: 1.5, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flexShrink: 0 }}>
               <Autocomplete
                 size="small"
@@ -785,8 +1274,8 @@ export default function FormsPage() {
             </Box>
           </TabPanel>
 
-          {/* Compliance tab */}
-          <TabPanel value={tabValue} index={2}>
+          {/* Compliance Trials tab */}
+          <TabPanel value={tabValue} index={3}>
             <Box sx={{ px: 3, py: 1.5, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flexShrink: 0 }}>
               <Autocomplete
                 size="small"
@@ -852,24 +1341,6 @@ export default function FormsPage() {
                 slotProps={{ pagination: { showFirstButton: true, showLastButton: true } }}
                 getRowClassName={(params) => params.row.isSubRow ? 'compliance-sub-row' : ''}
               />
-            </Box>
-          </TabPanel>
-
-          {/* Scheduling overview tab */}
-          <TabPanel value={tabValue} index={3}>
-            <Box sx={{ px: 3, py: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Typography variant="body1" sx={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-family-primary)' }}>
-                Scheduling overview content coming soon
-              </Typography>
-            </Box>
-          </TabPanel>
-
-          {/* Tryouts tab */}
-          <TabPanel value={tabValue} index={4}>
-            <Box sx={{ px: 3, py: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Typography variant="body1" sx={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-family-primary)' }}>
-                Tryouts content coming soon
-              </Typography>
             </Box>
           </TabPanel>
         </Paper>
@@ -945,6 +1416,80 @@ export default function FormsPage() {
             Delete
           </MenuItem>
         </Menu>
+
+        {/* Scheduling Overview action menu */}
+        <Menu
+          anchorEl={schedulingActionMenuAnchor}
+          open={Boolean(schedulingActionMenuAnchor)}
+          onClose={() => {
+            setSchedulingActionMenuAnchor(null)
+            setSchedulingActionRowId(null)
+          }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          PaperProps={{
+            sx: {
+              '& .MuiMenuItem-root': { 
+                fontFamily: 'var(--font-family-primary)', 
+                fontSize: 'var(--font-size-sm)',
+                gap: 1
+              }
+            }
+          }}
+        >
+          {(() => {
+            const currentSchedule = schedulingRowsData.find(r => r.id === schedulingActionRowId)
+            const isPastSchedule = currentSchedule && !currentSchedule.isUpcoming
+            return isPastSchedule ? null : (
+              <MenuItem
+                onClick={() => {
+                  setEditingSchedule(currentSchedule)
+                  setEditScheduleOpen(true)
+                  setSchedulingActionMenuAnchor(null)
+                  setSchedulingActionRowId(null)
+                }}
+              >
+                <EditOutlined fontSize="small" />
+                Edit Schedule
+              </MenuItem>
+            )
+          })()}
+          <MenuItem
+            onClick={() => {
+              setSchedulingActionMenuAnchor(null)
+              setSchedulingActionRowId(null)
+            }}
+          >
+            <ContentCopyOutlined fontSize="small" />
+            Duplicate
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              setSchedulingActionMenuAnchor(null)
+              setSchedulingActionRowId(null)
+            }}
+          >
+            <DeleteOutlined fontSize="small" />
+            Delete
+          </MenuItem>
+        </Menu>
+
+        <EditScheduleDrawer
+          open={editScheduleOpen}
+          onClose={() => {
+            setEditScheduleOpen(false)
+            setEditingSchedule(null)
+          }}
+          onSave={(data) => {
+            // Handle save here
+            // eslint-disable-next-line no-console
+            console.log('Schedule saved:', data)
+            setEditScheduleOpen(false)
+            setEditingSchedule(null)
+          }}
+          schedule={editingSchedule}
+          allPlayers={schedulingPlayerOptions}
+        />
 
         <AssignFormDrawer
           open={assignOpen}

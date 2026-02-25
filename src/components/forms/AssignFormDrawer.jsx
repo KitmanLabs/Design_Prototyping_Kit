@@ -15,11 +15,36 @@ import {
   Radio,
   Stack,
   Chip,
+  Select,
+  MenuItem,
+  InputLabel,
   useMediaQuery
 } from '@mui/material'
-import { CloseOutlined } from '@mui/icons-material'
+import { CloseOutlined, DeleteOutline } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { TimePicker } from '@mui/x-date-pickers/TimePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import '../../styles/design-tokens.css'
+
+const TIMEZONES = [
+  'Europe/Dublin',
+  'UTC',
+  'Europe/London',
+  'America/New_York',
+  'Europe/Paris',
+  'Australia/Sydney',
+]
+
+const RESPONSES_PER_PLAYER_OPTIONS = [
+  { value: 1, label: '1 response per player' },
+  { value: 2, label: '2 responses per player' },
+  { value: 3, label: '3 responses per player' },
+  { value: 5, label: '5 responses per player' },
+  { value: 10, label: '10 responses per player' },
+  { value: -1, label: 'Unlimited responses' },
+]
 
 const formFieldStyles = {
   '& .MuiInputBase-root': {
@@ -65,12 +90,26 @@ function AssignFormDrawer({
 
   const [selectedAthletes, setSelectedAthletes] = useState(initialSelectedAthletes)
   const [assignmentType, setAssignmentType] = useState('always-available')
+  
+  // Schedule fields (for "One Time" option)
+  const [scheduleTitle, setScheduleTitle] = useState('')
+  const [startDate, setStartDate] = useState(new Date())
+  const [endDate, setEndDate] = useState(null)
+  const [startTime, setStartTime] = useState(null)
+  const [timezone, setTimezone] = useState('Europe/Dublin')
+  const [responsesPerPlayer, setResponsesPerPlayer] = useState(1)
 
   // Reset state when drawer opens
   React.useEffect(() => {
     if (open) {
       setSelectedAthletes(initialSelectedAthletes)
       setAssignmentType('always-available')
+      setScheduleTitle('')
+      setStartDate(new Date())
+      setEndDate(null)
+      setStartTime(null)
+      setTimezone('Europe/Dublin')
+      setResponsesPerPlayer(1)
     }
   }, [open, initialSelectedAthletes])
 
@@ -79,11 +118,24 @@ function AssignFormDrawer({
   }
 
   const handleAssign = () => {
-    onSubmit && onSubmit({
+    const assignment = {
       formName,
       selectedAthletes,
       assignmentType
-    })
+    }
+    
+    if (assignmentType === 'one-time') {
+      assignment.schedule = {
+        title: scheduleTitle,
+        startDate,
+        endDate,
+        startTime,
+        timezone,
+        responsesPerPlayer
+      }
+    }
+    
+    onSubmit && onSubmit(assignment)
     handleClose()
   }
 
@@ -96,21 +148,22 @@ function AssignFormDrawer({
   }, [athletes])
 
   return (
-    <Drawer
-      anchor={isMobile ? 'bottom' : 'right'}
-      open={open}
-      onClose={handleClose}
-      ModalProps={{ keepMounted: true }}
-      PaperProps={{
-        sx: {
-          width: isMobile ? '100vw' : 480,
-          maxWidth: '100vw',
-          height: isMobile ? '90vh' : '100vh',
-          boxShadow: theme.shadows[16],
-          display: 'flex'
-        }
-      }}
-    >
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <Drawer
+        anchor={isMobile ? 'bottom' : 'right'}
+        open={open}
+        onClose={handleClose}
+        ModalProps={{ keepMounted: true }}
+        PaperProps={{
+          sx: {
+            width: isMobile ? '100vw' : 480,
+            maxWidth: '100vw',
+            height: isMobile ? '90vh' : '100vh',
+            boxShadow: theme.shadows[16],
+            display: 'flex'
+          }
+        }}
+      >
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
         {/* Header */}
         <Box
@@ -238,7 +291,7 @@ function AssignFormDrawer({
               )}
             />
 
-            {/* Assignment Section */}
+            {/* Form Availability Section */}
             <Box>
               <Typography
                 variant="body1"
@@ -250,7 +303,7 @@ function AssignFormDrawer({
                   mb: 1.5
                 }}
               >
-                Assignment
+                Form Availability
               </Typography>
 
               <FormControl component="fieldset">
@@ -343,6 +396,132 @@ function AssignFormDrawer({
                 </RadioGroup>
               </FormControl>
             </Box>
+
+            {/* Schedule Section - Only shown when "One Time" is selected */}
+            {assignmentType === 'one-time' && (
+              <>
+                <Divider sx={{ my: 3 }} />
+                <Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontFamily: 'var(--font-family-primary)',
+                        fontSize: 'var(--font-size-sm)',
+                        fontWeight: 'var(--font-weight-semibold)',
+                        color: 'var(--color-text-primary)'
+                      }}
+                    >
+                      Schedule
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        setScheduleTitle('')
+                        setStartDate(new Date())
+                        setEndDate(null)
+                        setStartTime(null)
+                        setTimezone('Europe/Dublin')
+                        setResponsesPerPlayer(1)
+                      }}
+                      aria-label="Delete schedule"
+                      sx={{ color: 'var(--color-text-secondary)', '&:hover': { color: 'var(--color-error)' } }}
+                    >
+                      <DeleteOutline fontSize="small" />
+                    </IconButton>
+                  </Box>
+
+                  <Stack spacing={2}>
+                    {/* Schedule Title */}
+                    <TextField
+                      fullWidth
+                      size="small"
+                      variant="filled"
+                      label="Schedule Title"
+                      value={scheduleTitle}
+                      onChange={(e) => setScheduleTitle(e.target.value)}
+                      placeholder="Enter schedule name"
+                      sx={formFieldStyles}
+                    />
+
+                    {/* Date Pickers */}
+                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
+                      <DatePicker
+                        label="Start Date"
+                        value={startDate}
+                        onChange={(newValue) => setStartDate(newValue)}
+                        slotProps={{
+                          textField: {
+                            size: 'small',
+                            variant: 'filled',
+                            sx: formFieldStyles
+                          }
+                        }}
+                      />
+                      <DatePicker
+                        label="End Date"
+                        value={endDate}
+                        onChange={(newValue) => setEndDate(newValue)}
+                        slotProps={{
+                          textField: {
+                            size: 'small',
+                            variant: 'filled',
+                            placeholder: 'Select end date',
+                            sx: formFieldStyles
+                          }
+                        }}
+                      />
+                    </Box>
+
+                    {/* Start Time Picker */}
+                    <TimePicker
+                      label="Start Time"
+                      value={startTime}
+                      onChange={(newValue) => setStartTime(newValue)}
+                      slotProps={{
+                        textField: {
+                          size: 'small',
+                          variant: 'filled',
+                          sx: formFieldStyles
+                        }
+                      }}
+                    />
+
+                    {/* Timezone Selector */}
+                    <FormControl size="small" variant="filled" sx={formFieldStyles}>
+                      <InputLabel>Time Zone</InputLabel>
+                      <Select
+                        value={timezone}
+                        onChange={(e) => setTimezone(e.target.value)}
+                        label="Time Zone"
+                      >
+                        {TIMEZONES.map((tz) => (
+                          <MenuItem key={tz} value={tz}>
+                            {tz}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    {/* Responses per Player Selector */}
+                    <FormControl size="small" variant="filled" sx={formFieldStyles}>
+                      <InputLabel>Responses per Player</InputLabel>
+                      <Select
+                        value={responsesPerPlayer}
+                        onChange={(e) => setResponsesPerPlayer(e.target.value)}
+                        label="Responses per Player"
+                      >
+                        {RESPONSES_PER_PLAYER_OPTIONS.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Stack>
+                </Box>
+              </>
+            )}
           </Stack>
         </Box>
 
@@ -392,6 +571,7 @@ function AssignFormDrawer({
         </Box>
       </Box>
     </Drawer>
+    </LocalizationProvider>
   )
 }
 
