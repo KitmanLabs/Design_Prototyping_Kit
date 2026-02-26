@@ -399,10 +399,10 @@ function Screen02_FormResponses() {
               color: 'var(--color-text-muted)'
             },
             '& .MuiTab-root.Mui-selected': {
-              color: 'var(--color-text-primary)'
+              color: 'var(--color-black)'
             },
             '& .MuiTabs-indicator': {
-              backgroundColor: 'var(--color-primary)'
+              backgroundColor: 'var(--color-black)'
             }
           }}
         >

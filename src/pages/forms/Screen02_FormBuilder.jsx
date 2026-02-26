@@ -603,8 +603,8 @@ export default function Screen02_FormBuilder() {
             px: 3,
             pt: 1,
             '& .MuiTab-root': { color: 'var(--color-text-secondary)', textTransform: 'none', fontWeight: 600 },
-            '& .MuiTab-root.Mui-selected': { color: 'var(--color-text-primary)' },
-            '& .MuiTabs-indicator': { backgroundColor: 'var(--color-primary)' }
+            '& .MuiTab-root.Mui-selected': { color: 'var(--color-black)' },
+            '& .MuiTabs-indicator': { backgroundColor: 'var(--color-black)' }
           }}
         >
           <Tab label="Build" {...a11yProps(0)} />
