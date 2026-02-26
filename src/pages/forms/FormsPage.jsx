@@ -15,18 +15,25 @@ import {
   Autocomplete
 } from '@mui/material'
 import { DataGrid, GridPagination, GridToolbar } from 'playbook-components'
-import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined } from '@mui/icons-material'
+import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined, KeyboardArrowDownOutlined, KeyboardArrowRightOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DateRangePicker } from '@mui/x-date-pickers-pro'
 import dayjs from 'dayjs'
 import '../../styles/design-tokens.css'
 import { Button, StatusChip, Icon } from '../../components'
-import TokenizedDrawerAthleteSelector from '../../components/forms/TokenizedDrawerAthleteSelector'
+import AssignFormDrawer from '../../components/forms/AssignFormDrawer'
 import CreateFormDrawer from '../../components/forms/CreateFormDrawer'
 import athletesData from '../../data/athletes.json'
 import formsTemplatesData from '../../data/forms_templates.json'
 import { currentUser } from '../../data/layout'
+import {
+  IosShareOutlined,
+  StickyNote2Outlined,
+  ContentCopyOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from '@mui/icons-material'
 
 function a11yProps(index) {
   return {
@@ -87,6 +94,7 @@ const initialFormsFromData = (formsTemplatesData || []).map((r) => ({
   category: r.category,
   description: r.description || '',
   owner: r.owner,
+  assignments: r.assignments ?? 0,
   lastUpdated: r.lastUpdated
 }))
 
@@ -104,16 +112,126 @@ const completedRowsData = [
 ]
 
 const complianceRowsData = [
-  { id: 'c-1', athleteName: 'Tymofii Antoniuk', position: 'Hooker', dob: 'Apr 18, 2002', complete: 0, total: 1, lastUpdated: '24 Feb 2026' },
-  { id: 'c-2', athleteName: 'Johnny Appleseed', position: 'Loose-head Prop', dob: 'Jan 01, 2000', complete: 0, total: 6, lastUpdated: '—' },
-  { id: 'c-3', athleteName: 'Daniel Athlete', position: 'Wing', dob: 'Nov 12, 1980', complete: 0, total: 5, lastUpdated: '18 Jan 2026' },
-  { id: 'c-4', athleteName: 'Test Reset PW Confirm', position: 'Inside Centre', dob: 'Jun 28, 2000', complete: 0, total: 4, lastUpdated: '—' },
-  { id: 'c-5', athleteName: 'Form PDF Export Test', position: 'Outside Centre', dob: 'Jul 09, 1999', complete: 0, total: 4, lastUpdated: '10 Feb 2026' },
-  { id: 'c-6', athleteName: 'Marcus Johnson', position: 'Forward', dob: 'Mar 15, 1999', complete: 3, total: 5, lastUpdated: '22 Feb 2026' },
-  { id: 'c-7', athleteName: 'Elena Rodriguez', position: 'Midfielder', dob: 'Aug 22, 1996', complete: 2, total: 6, lastUpdated: '—' },
-  { id: 'c-8', athleteName: 'David Chen', position: 'Defender', dob: 'Nov 03, 2000', complete: 1, total: 4, lastUpdated: '15 Feb 2026' },
-  { id: 'c-9', athleteName: 'Emma Brown', position: 'Wing', dob: 'Feb 14, 1998', complete: 0, total: 3, lastUpdated: '—' },
-  { id: 'c-10', athleteName: 'Liam Davis', position: 'Second Row', dob: 'Jul 28, 1997', complete: 4, total: 4, lastUpdated: '20 Feb 2026' }
+  { id: 'c-1', athleteName: 'Tymofii Antoniuk', position: 'Hooker', dob: 'Apr 18, 2002', complete: 3, total: 10, lastUpdated: '24 Feb 2026', subRows: [
+    { id: 'c-1-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '20 Feb 2026' },
+    { id: 'c-1-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '18 Feb 2026' },
+    { id: 'c-1-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '15 Feb 2026' },
+    { id: 'c-1-sub-4', formName: 'Medical Update', status: 'Draft', lastUpdated: '22 Feb 2026' },
+    { id: 'c-1-sub-5', formName: 'Tryout Agreement', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-1-sub-6', formName: 'Prescription Pickup', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-1-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Draft', lastUpdated: '21 Feb 2026' },
+    { id: 'c-1-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-1-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-1-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
+  ]},
+  { id: 'c-2', athleteName: 'Johnny Appleseed', position: 'Loose-head Prop', dob: 'Jan 01, 2000', complete: 2, total: 10, lastUpdated: '—', subRows: [
+    { id: 'c-2-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '10 Feb 2026' },
+    { id: 'c-2-sub-2', formName: 'Orthopedic Exam', status: 'Draft', lastUpdated: '12 Feb 2026' },
+    { id: 'c-2-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '8 Feb 2026' },
+    { id: 'c-2-sub-4', formName: 'Medical Update', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-2-sub-5', formName: 'Tryout Agreement', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-2-sub-6', formName: 'Prescription Pickup', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-2-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-2-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-2-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-2-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
+  ]},
+  { id: 'c-3', athleteName: 'Daniel Athlete', position: 'Wing', dob: 'Nov 12, 1980', complete: 5, total: 10, lastUpdated: '18 Jan 2026', subRows: [
+    { id: 'c-3-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '15 Jan 2026' },
+    { id: 'c-3-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '16 Jan 2026' },
+    { id: 'c-3-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '14 Jan 2026' },
+    { id: 'c-3-sub-4', formName: 'Medical Update', status: 'Complete', lastUpdated: '18 Jan 2026' },
+    { id: 'c-3-sub-5', formName: 'Tryout Agreement', status: 'Complete', lastUpdated: '17 Jan 2026' },
+    { id: 'c-3-sub-6', formName: 'Prescription Pickup', status: 'Draft', lastUpdated: '18 Jan 2026' },
+    { id: 'c-3-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Draft', lastUpdated: '18 Jan 2026' },
+    { id: 'c-3-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-3-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-3-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
+  ]},
+  { id: 'c-4', athleteName: 'Test Reset PW Confirm', position: 'Inside Centre', dob: 'Jun 28, 2000', complete: 0, total: 10, lastUpdated: '—', subRows: [
+    { id: 'c-4-sub-1', formName: 'Medical Exam', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-4-sub-2', formName: 'Orthopedic Exam', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-4-sub-3', formName: 'Medical History Form', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-4-sub-4', formName: 'Medical Update', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-4-sub-5', formName: 'Tryout Agreement', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-4-sub-6', formName: 'Prescription Pickup', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-4-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-4-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-4-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-4-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
+  ]},
+  { id: 'c-5', athleteName: 'Form PDF Export Test', position: 'Outside Centre', dob: 'Jul 09, 1999', complete: 4, total: 10, lastUpdated: '10 Feb 2026', subRows: [
+    { id: 'c-5-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '5 Feb 2026' },
+    { id: 'c-5-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '6 Feb 2026' },
+    { id: 'c-5-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '4 Feb 2026' },
+    { id: 'c-5-sub-4', formName: 'Medical Update', status: 'Complete', lastUpdated: '10 Feb 2026' },
+    { id: 'c-5-sub-5', formName: 'Tryout Agreement', status: 'Draft', lastUpdated: '8 Feb 2026' },
+    { id: 'c-5-sub-6', formName: 'Prescription Pickup', status: 'Draft', lastUpdated: '9 Feb 2026' },
+    { id: 'c-5-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-5-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-5-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-5-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
+  ]},
+  { id: 'c-6', athleteName: 'Marcus Johnson', position: 'Forward', dob: 'Mar 15, 1999', complete: 8, total: 10, lastUpdated: '22 Feb 2026', subRows: [
+    { id: 'c-6-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '18 Feb 2026' },
+    { id: 'c-6-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '19 Feb 2026' },
+    { id: 'c-6-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '17 Feb 2026' },
+    { id: 'c-6-sub-4', formName: 'Medical Update', status: 'Complete', lastUpdated: '22 Feb 2026' },
+    { id: 'c-6-sub-5', formName: 'Tryout Agreement', status: 'Complete', lastUpdated: '20 Feb 2026' },
+    { id: 'c-6-sub-6', formName: 'Prescription Pickup', status: 'Complete', lastUpdated: '20 Feb 2026' },
+    { id: 'c-6-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Complete', lastUpdated: '21 Feb 2026' },
+    { id: 'c-6-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Complete', lastUpdated: '21 Feb 2026' },
+    { id: 'c-6-sub-9', formName: 'Vision Exam', status: 'Draft', lastUpdated: '22 Feb 2026' },
+    { id: 'c-6-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
+  ]},
+  { id: 'c-7', athleteName: 'Elena Rodriguez', position: 'Midfielder', dob: 'Aug 22, 1996', complete: 6, total: 10, lastUpdated: '20 Feb 2026', subRows: [
+    { id: 'c-7-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '15 Feb 2026' },
+    { id: 'c-7-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '16 Feb 2026' },
+    { id: 'c-7-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '14 Feb 2026' },
+    { id: 'c-7-sub-4', formName: 'Medical Update', status: 'Complete', lastUpdated: '20 Feb 2026' },
+    { id: 'c-7-sub-5', formName: 'Tryout Agreement', status: 'Complete', lastUpdated: '18 Feb 2026' },
+    { id: 'c-7-sub-6', formName: 'Prescription Pickup', status: 'Complete', lastUpdated: '19 Feb 2026' },
+    { id: 'c-7-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Draft', lastUpdated: '20 Feb 2026' },
+    { id: 'c-7-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Draft', lastUpdated: '20 Feb 2026' },
+    { id: 'c-7-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-7-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
+  ]},
+  { id: 'c-8', athleteName: 'David Chen', position: 'Defender', dob: 'Nov 03, 2000', complete: 1, total: 10, lastUpdated: '15 Feb 2026', subRows: [
+    { id: 'c-8-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '15 Feb 2026' },
+    { id: 'c-8-sub-2', formName: 'Orthopedic Exam', status: 'Draft', lastUpdated: '15 Feb 2026' },
+    { id: 'c-8-sub-3', formName: 'Medical History Form', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-8-sub-4', formName: 'Medical Update', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-8-sub-5', formName: 'Tryout Agreement', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-8-sub-6', formName: 'Prescription Pickup', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-8-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-8-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-8-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-8-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
+  ]},
+  { id: 'c-9', athleteName: 'Emma Brown', position: 'Wing', dob: 'Feb 14, 1998', complete: 0, total: 10, lastUpdated: '—', subRows: [
+    { id: 'c-9-sub-1', formName: 'Medical Exam', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-9-sub-2', formName: 'Orthopedic Exam', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-9-sub-3', formName: 'Medical History Form', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-9-sub-4', formName: 'Medical Update', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-9-sub-5', formName: 'Tryout Agreement', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-9-sub-6', formName: 'Prescription Pickup', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-9-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-9-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-9-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
+    { id: 'c-9-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
+  ]},
+  { id: 'c-10', athleteName: 'Liam Davis', position: 'Second Row', dob: 'Jul 28, 1997', complete: 10, total: 10, lastUpdated: '20 Feb 2026', subRows: [
+    { id: 'c-10-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '12 Feb 2026' },
+    { id: 'c-10-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '13 Feb 2026' },
+    { id: 'c-10-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '11 Feb 2026' },
+    { id: 'c-10-sub-4', formName: 'Medical Update', status: 'Complete', lastUpdated: '20 Feb 2026' },
+    { id: 'c-10-sub-5', formName: 'Tryout Agreement', status: 'Complete', lastUpdated: '15 Feb 2026' },
+    { id: 'c-10-sub-6', formName: 'Prescription Pickup', status: 'Complete', lastUpdated: '16 Feb 2026' },
+    { id: 'c-10-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Complete', lastUpdated: '17 Feb 2026' },
+    { id: 'c-10-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Complete', lastUpdated: '18 Feb 2026' },
+    { id: 'c-10-sub-9', formName: 'Vision Exam', status: 'Complete', lastUpdated: '19 Feb 2026' },
+    { id: 'c-10-sub-10', formName: 'State Waiver', status: 'Complete', lastUpdated: '20 Feb 2026' }
+  ]}
 ]
 
 export default function FormsPage() {
@@ -128,6 +246,7 @@ export default function FormsPage() {
   const [actionMenuAnchor, setActionMenuAnchor] = useState(null)
   const [actionRowId, setActionRowId] = useState(null)
   const [assignOpen, setAssignOpen] = useState(false)
+  const [selectedFormName, setSelectedFormName] = useState('')
   const [selectedAthletes, setSelectedAthletes] = useState([])
   const [isCreateOpen, setIsCreateOpen] = useState(false)
 
@@ -208,6 +327,7 @@ export default function FormsPage() {
       )
     },
     { field: 'owner', headerName: 'Owner', width: 180 },
+    { field: 'assignments', headerName: 'Assignment', width: 120 },
     { field: 'lastUpdated', headerName: 'Last updated', width: 140, headerClassName: 'grid-cell--pad-right', cellClassName: 'grid-cell--pad-right' },
     {
       field: 'actions',
@@ -351,6 +471,19 @@ export default function FormsPage() {
   const [complianceFormName, setComplianceFormName] = useState(null)
   const [complianceSquad, setComplianceSquad] = useState(null)
   const [complianceDateRange, setComplianceDateRange] = useState([null, null])
+  const [expandedRows, setExpandedRows] = useState(new Set())
+
+  const toggleRowExpansion = useCallback((rowId) => {
+    setExpandedRows((prev) => {
+      const next = new Set(prev)
+      if (next.has(rowId)) {
+        next.delete(rowId)
+      } else {
+        next.add(rowId)
+      }
+      return next
+    })
+  }, [])
 
   const complianceFilteredRows = useMemo(() => {
     let rows = complianceRowsData
@@ -361,43 +494,117 @@ export default function FormsPage() {
     if (start || end) {
       // Filter by date if we had a date field on compliance rows; for now no date filter on compliance
     }
-    return rows
-  }, [complianceAthlete, complianceFormName, complianceSquad, complianceDateRange])
+    // Flatten rows with expanded sub-rows
+    const flattenedRows = []
+    rows.forEach((row) => {
+      flattenedRows.push({ ...row, isParent: true, hasSubRows: row.subRows && row.subRows.length > 0 })
+      if (expandedRows.has(row.id) && row.subRows) {
+        row.subRows.forEach((subRow) => {
+          flattenedRows.push({ ...subRow, isSubRow: true, parentId: row.id })
+        })
+      }
+    })
+    return flattenedRows
+  }, [complianceAthlete, complianceFormName, complianceSquad, complianceDateRange, expandedRows])
 
   const complianceColumns = useMemo(
     () => [
+      {
+        field: 'expand',
+        headerName: '',
+        width: 48,
+        sortable: false,
+        filterable: false,
+        disableColumnMenu: true,
+        headerClassName: 'grid-cell--pad-left',
+        cellClassName: 'grid-cell--pad-left',
+        renderCell: (params) => {
+          if (params.row.isSubRow) return null
+          if (!params.row.hasSubRows) return <Box sx={{ width: 24 }} />
+          const isExpanded = expandedRows.has(params.row.id)
+          return (
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleRowExpansion(params.row.id)
+              }}
+              sx={{
+                p: 0.5,
+                color: 'var(--color-text-secondary)',
+                transition: 'transform 0.2s ease',
+                transform: isExpanded ? 'rotate(0deg)' : 'rotate(0deg)',
+                '&:hover': { color: 'var(--color-primary)' }
+              }}
+            >
+              {isExpanded ? <KeyboardArrowDownOutlined fontSize="small" /> : <KeyboardArrowRightOutlined fontSize="small" />}
+            </IconButton>
+          )
+        }
+      },
       {
         field: 'athleteName',
         headerName: 'Athlete',
         flex: 1,
         minWidth: 260,
-        headerClassName: 'grid-cell--pad-left',
-        cellClassName: 'grid-cell--pad-left',
-        renderCell: (params) => (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>
-              {params.row.athleteName}
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>
-              {params.row.position}
-              {params.row.dob ? ` · ${params.row.dob}` : ''}
-            </Typography>
-          </Box>
-        )
+        renderCell: (params) => {
+          if (params.row.isSubRow) {
+            return (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pl: 2 }}>
+                <Typography variant="body2" sx={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>
+                  {params.row.formName}
+                </Typography>
+              </Box>
+            )
+          }
+          return (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>
+                {params.row.athleteName}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>
+                {params.row.position}
+                {params.row.dob ? ` · ${params.row.dob}` : ''}
+              </Typography>
+            </Box>
+          )
+        }
       },
-      { field: 'lastUpdated', headerName: 'Last updated', minWidth: 160, renderCell: (params) => (params.row.lastUpdated ?? '—') },
+      {
+        field: 'lastUpdated',
+        headerName: 'Last updated',
+        minWidth: 160,
+        renderCell: (params) => {
+          if (params.row.isSubRow) {
+            return (
+              <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>
+                {params.row.lastUpdated ?? '—'}
+              </Typography>
+            )
+          }
+          return params.row.lastUpdated ?? '—'
+        }
+      },
       {
         field: 'status',
         headerName: 'Status',
-        minWidth: 100,
+        minWidth: 120,
         headerClassName: 'grid-cell--pad-right',
         cellClassName: 'grid-cell--pad-right',
-        renderCell: (params) => (
-          <StatusChip status={`${params.row.complete}/${params.row.total}`} type={params.row.complete === params.row.total ? 'success' : 'error'} />
-        )
+        renderCell: (params) => {
+          if (params.row.isSubRow) {
+            const status = params.row.status
+            // Draft = orange/warning, Complete = green/success, Not Started = red/error
+            const type = status === 'Complete' ? 'success' : status === 'Draft' ? 'warning' : 'error'
+            return <StatusChip status={status} type={type} />
+          }
+          return (
+            <StatusChip status={`${params.row.complete}/${params.row.total}`} type={params.row.complete === params.row.total ? 'success' : 'error'} />
+          )
+        }
       }
     ],
-    []
+    [expandedRows, toggleRowExpansion]
   )
 
   return (
@@ -443,6 +650,8 @@ export default function FormsPage() {
             <Tab label="Forms" {...a11yProps(0)} />
             <Tab label="Completed" {...a11yProps(1)} />
             <Tab label="Compliance" {...a11yProps(2)} />
+            <Tab label="Scheduling overview" {...a11yProps(3)} />
+            <Tab label="Tryouts" {...a11yProps(4)} />
           </Tabs>
 
           {/* Forms tab */}
@@ -454,8 +663,9 @@ export default function FormsPage() {
                 placeholder="Search"
                 value={searchForm}
                 onChange={(e) => setSearchForm(e.target.value)}
-                sx={{ minWidth: 260, ...typographyStyles }}
+                sx={{ minWidth: 260 }}
                 InputProps={{
+                  sx: typographyStyles,
                   endAdornment: (
                     <InputAdornment position="end">
                       <SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />
@@ -479,11 +689,20 @@ export default function FormsPage() {
                 <MenuItem value="Medical">Medical</MenuItem>
               </TextField>
             </Box>
-            <Box sx={gridSx}>
+            <Box sx={{
+              ...gridSx,
+              '& .MuiDataGrid-row': {
+                cursor: 'pointer',
+                '&:hover': {
+                  backgroundColor: 'var(--color-background-hover)'
+                }
+              }
+            }}>
               <DataGrid
                 rows={formsRows}
                 columns={formsColumns}
                 disableRowSelectionOnClick
+                onRowClick={() => navigate('/medical-assessment')}
                 pagination
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
@@ -614,7 +833,13 @@ export default function FormsPage() {
                 }}
               />
             </Box>
-            <Box sx={gridSx}>
+            <Box sx={{
+              ...gridSx,
+              '& .compliance-sub-row': {
+                backgroundColor: 'var(--color-background-secondary)',
+                '&:hover': { backgroundColor: 'var(--color-background-hover)' }
+              }
+            }}>
               <DataGrid
                 rows={complianceFilteredRows}
                 columns={complianceColumns}
@@ -625,7 +850,26 @@ export default function FormsPage() {
                 pageSizeOptions={[25, 50, 100]}
                 slots={{ pagination: GridPagination, toolbar: GridToolbar }}
                 slotProps={{ pagination: { showFirstButton: true, showLastButton: true } }}
+                getRowClassName={(params) => params.row.isSubRow ? 'compliance-sub-row' : ''}
               />
+            </Box>
+          </TabPanel>
+
+          {/* Scheduling overview tab */}
+          <TabPanel value={tabValue} index={3}>
+            <Box sx={{ px: 3, py: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Typography variant="body1" sx={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-family-primary)' }}>
+                Scheduling overview content coming soon
+              </Typography>
+            </Box>
+          </TabPanel>
+
+          {/* Tryouts tab */}
+          <TabPanel value={tabValue} index={4}>
+            <Box sx={{ px: 3, py: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Typography variant="body1" sx={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-family-primary)' }}>
+                Tryouts content coming soon
+              </Typography>
             </Box>
           </TabPanel>
         </Paper>
@@ -641,10 +885,27 @@ export default function FormsPage() {
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}
           PaperProps={{
             sx: {
-              '& .MuiMenuItem-root': { fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }
+              '& .MuiMenuItem-root': { 
+                fontFamily: 'var(--font-family-primary)', 
+                fontSize: 'var(--font-size-sm)',
+                gap: 1
+              }
             }
           }}
         >
+          <MenuItem
+            onClick={() => {
+              // Capture the form name before closing the menu
+              const selectedForm = formsList.find((f) => f.id === actionRowId)
+              setSelectedFormName(selectedForm?.form || '')
+              setActionMenuAnchor(null)
+              setAssignOpen(true)
+              setActionRowId(null)
+            }}
+          >
+            <IosShareOutlined fontSize="small" />
+            Assign
+          </MenuItem>
           <MenuItem
             onClick={() => {
               setActionMenuAnchor(null)
@@ -652,33 +913,54 @@ export default function FormsPage() {
               setActionRowId(null)
             }}
           >
+            <StickyNote2Outlined fontSize="small" />
+            Start Form
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              setActionMenuAnchor(null)
+              setActionRowId(null)
+            }}
+          >
+            <ContentCopyOutlined fontSize="small" />
+            Duplicate
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              setActionMenuAnchor(null)
+              if (actionRowId) navigate(`/forms/${actionRowId}/build`)
+              setActionRowId(null)
+            }}
+          >
+            <EditOutlined fontSize="small" />
             Edit
           </MenuItem>
           <MenuItem
             onClick={() => {
               setActionMenuAnchor(null)
-              setAssignOpen(true)
               setActionRowId(null)
             }}
           >
-            Assign
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              setActionMenuAnchor(null)
-              setActionRowId(null)
-            }}
-          >
+            <DeleteOutlined fontSize="small" />
             Delete
           </MenuItem>
         </Menu>
 
-        <TokenizedDrawerAthleteSelector
+        <AssignFormDrawer
           open={assignOpen}
-          onClose={() => setAssignOpen(false)}
+          onClose={() => {
+            setAssignOpen(false)
+            setSelectedFormName('')
+          }}
+          formName={selectedFormName}
           athletes={drawerAthletes}
           selectedAthletes={selectedAthletes}
-          onSelectionChange={setSelectedAthletes}
+          onSubmit={(data) => {
+            setSelectedAthletes(data.selectedAthletes)
+            // Handle assignment submission here
+            // eslint-disable-next-line no-console
+            console.log('Form assignment:', data)
+          }}
         />
 
         <CreateFormDrawer
