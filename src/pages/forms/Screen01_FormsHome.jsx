@@ -162,7 +162,14 @@ function Screen01_FormsHome() {
         size="small" 
         variant="filled" 
         placeholder="Search" 
-        sx={{ minWidth: 260 }}
+        sx={{
+          minWidth: 260,
+          '& .MuiFilledInput-root': {
+            '&:after': {
+              borderBottomColor: 'var(--color-black)'
+            }
+          }
+        }}
         InputProps={{ 
           endAdornment: (
             <InputAdornment position="end">
@@ -171,7 +178,40 @@ function Screen01_FormsHome() {
           ) 
         }}
       />
-      <TextField select size="small" variant="filled" label="Category" sx={{ minWidth: 220 }} value="">
+      <TextField
+        select
+        size="small"
+        variant="filled"
+        label="Category"
+        value=""
+        sx={{
+          minWidth: 220,
+          '& .MuiFilledInput-root': {
+            '&:after': {
+              borderBottomColor: 'var(--color-black)'
+            }
+          }
+        }}
+        SelectProps={{
+          MenuProps: {
+            PaperProps: {
+              sx: {
+                '& .MuiMenuItem-root': {
+                  '&:hover': {
+                    backgroundColor: 'var(--color-background-tertiary)'
+                  },
+                  '&.Mui-selected': {
+                    backgroundColor: 'var(--color-background-tertiary)',
+                    '&:hover': {
+                      backgroundColor: 'var(--color-background-tertiary)'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }}
+      >
         <MenuItem value="">Category</MenuItem>
         <MenuItem value="medical">Medical</MenuItem>
         <MenuItem value="performance">Performance</MenuItem>
@@ -237,6 +277,21 @@ function Screen01_FormsHome() {
     onClose={() => { setActionMenuAnchor(null); setActionRowId(null); }}
     anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
     transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+    PaperProps={{
+      sx: {
+        '& .MuiMenuItem-root': {
+          '&:hover': {
+            backgroundColor: 'var(--color-background-tertiary)'
+          },
+          '&.Mui-selected': {
+            backgroundColor: 'var(--color-background-tertiary)',
+            '&:hover': {
+              backgroundColor: 'var(--color-background-tertiary)'
+            }
+          }
+        }
+      }
+    }}
   >
     <MenuItem onClick={() => { setActionMenuAnchor(null); setActionRowId(null); }}>Edit</MenuItem>
     <MenuItem onClick={() => { setActionMenuAnchor(null); /* open drawer below */ setAssignOpen(true); }}>Assign</MenuItem>
