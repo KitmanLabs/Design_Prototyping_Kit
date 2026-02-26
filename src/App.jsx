@@ -10,6 +10,7 @@ import Screen03_FormResponsesForTemplate from './pages/forms/Screen03_FormRespon
 import Screen04_FormAnswerSet from './pages/forms/Screen04_FormAnswerSet'
 import Messaging from './pages/Messaging'
 import MedicalAssessment from './pages/forms/MedicalAssessment'
+import FormFillView from './pages/forms/FormFillView'
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/forms/form_answers_sets/forms/:formId" element={<Screen03_FormResponsesForTemplate />} />
         <Route path="/forms/form_answers_sets/:answerSetId" element={<Screen04_FormAnswerSet />} />
         <Route path="/medical-assessment" element={<MedicalAssessment />} />
+        <Route path="/form-fill/:athleteId" element={<FormFillView />} />
         <Route path="/forms/:formId/build" element={<Screen02_FormBuilder />} />
         <Route path="/planning" element={<CalendarPage />} />
         <Route path="/messages" element={<Messaging />} />
