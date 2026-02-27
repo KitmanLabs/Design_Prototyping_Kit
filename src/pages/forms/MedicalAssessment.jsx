@@ -98,6 +98,12 @@ const MedicalAssessment = () => {
               variant={'secondary'}
               size="small"
               style={{ fontWeight: 600, fontSize: 'var(--font-size-xs)' }}
+              onClick={() => navigate(`/form-fill/${params.row.id}`, {
+                state: {
+                  athleteName: params.row.athlete,
+                  formTitle: 'Medical Assessment'
+                }
+              })}
             >
               {isStarted ? 'Continue' : 'Start'}
             </Button>
