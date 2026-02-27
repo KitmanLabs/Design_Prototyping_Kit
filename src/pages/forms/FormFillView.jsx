@@ -10,9 +10,19 @@ import {
   IconButton,
   Autocomplete,
   InputAdornment,
-  Chip
+  Chip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  ListItemText,
+  OutlinedInput
 } from '@mui/material'
 import { ArrowBackOutlined, Close, ChevronRight, Lock, Search, InfoOutlined, DiamondOutlined, DragIndicator, KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import '../../styles/design-tokens.css'
 
 // Medical History form template matching screenshot structure
@@ -150,6 +160,20 @@ export default function FormFillView() {
   const [isSummaryView, setIsSummaryView] = React.useState(false)
   const [selectedSummaryItem, setSelectedSummaryItem] = React.useState(null)
 
+  // Form answer state
+  const [hasAllergies, setHasAllergies] = React.useState('')
+  const [allergyDetails, setAllergyDetails] = React.useState('')
+  const [injuries, setInjuries] = React.useState([])
+  const [injuryOtherDetails, setInjuryOtherDetails] = React.useState('')
+  const [medications, setMedications] = React.useState('')
+  const [lastPhysicalDate, setLastPhysicalDate] = React.useState(null)
+  const [preExistingConditions, setPreExistingConditions] = React.useState([])
+  const [conditionOtherDetails, setConditionOtherDetails] = React.useState('')
+
+  // Dropdown options
+  const injuryOptions = ['Sprain', 'Fracture', 'Concussion', 'Other']
+  const conditionOptions = ['Asthma', 'Diabetes', 'Heart Condition', 'Other']
+
   // Recent summaries data
   const recentSummaries = [
     { title: 'Nutritional Assessment and Dietary Planning', date: 'Sep 27, 2025' },
@@ -270,10 +294,10 @@ export default function FormFillView() {
             sx={{ 
               width: 40, 
               height: 40, 
-              bgcolor: '#6366f1',
+              bgcolor: 'var(--color-primary)',
               fontSize: '14px',
               fontWeight: 600,
-              border: '2px solid #6366f1'
+              border: '2px solid var(--color-primary)'
             }}
           >
             {getInitials(athleteName)}
@@ -298,14 +322,14 @@ export default function FormFillView() {
               size="medium"
               onClick={() => setIsSummaryView(prev => !prev)}
               sx={{
-                borderColor: '#334155',
-                color: '#334155',
+                borderColor: 'var(--color-primary)',
+                color: 'var(--color-primary)',
                 textTransform: 'none',
                 fontWeight: 500,
                 px: 2,
                 '&:hover': { 
-                  borderColor: '#1e293b',
-                  backgroundColor: 'rgba(51, 65, 85, 0.04)'
+                  borderColor: 'var(--color-primary-dark)',
+                  backgroundColor: 'var(--color-primary-light)'
                 }
               }}
             >
@@ -317,14 +341,14 @@ export default function FormFillView() {
               disabled={isSaving}
               onClick={handleSaveAsDraft}
               sx={{
-                borderColor: '#334155',
-                color: '#334155',
+                borderColor: 'var(--color-primary)',
+                color: 'var(--color-primary)',
                 textTransform: 'none',
                 fontWeight: 500,
                 px: 2,
                 '&:hover': { 
-                  borderColor: '#1e293b',
-                  backgroundColor: 'rgba(51, 65, 85, 0.04)'
+                  borderColor: 'var(--color-primary-dark)',
+                  backgroundColor: 'var(--color-primary-light)'
                 }
               }}
             >
@@ -337,12 +361,12 @@ export default function FormFillView() {
               disabled={isSaving}
               onClick={handleSubmit}
               sx={{
-                backgroundColor: '#1e293b',
-                color: '#fff',
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-white)',
                 textTransform: 'none',
                 fontWeight: 500,
                 px: 2.5,
-                '&:hover': { backgroundColor: '#0f172a' }
+                '&:hover': { backgroundColor: 'var(--color-primary-hover)' }
               }}
             >
               Submit
@@ -514,7 +538,7 @@ export default function FormFillView() {
             display: 'flex', 
             flexDirection: 'column',
             overflow: 'hidden',
-            backgroundColor: '#fff'
+            backgroundColor: 'var(--color-background-primary)'
           }}>
             {/* Section content */}
             <Box sx={{ flex: 1, p: 4, overflowY: 'auto' }}>
@@ -545,10 +569,179 @@ export default function FormFillView() {
                 {currentSectionIndex + 1}.{currentSubsectionIndex + 1} {currentSubsection?.title || 'Personal Details'}
               </Typography>
               
-              {/* Placeholder content area */}
-              <Box sx={{ minHeight: '300px' }}>
-                {/* Content will be populated here */}
-              </Box>
+              {/* Medical Assessment Questions */}
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {/* Question 1: Allergies */}
+                  <Box>
+                    <Typography 
+                      sx={{ 
+                        fontWeight: 500, 
+                        color: 'var(--color-text-primary)', 
+                        mb: 1.5,
+                        fontSize: '0.95rem'
+                      }}
+                    >
+                      1. Do you currently have any allergies?
+                    </Typography>
+                    <FormControl size="small" sx={{ minWidth: 200, mb: 2 }}>
+                      <InputLabel>Select</InputLabel>
+                      <Select
+                        value={hasAllergies}
+                        label="Select"
+                        onChange={(e) => setHasAllergies(e.target.value)}
+                        sx={{ backgroundColor: 'var(--color-background-primary)' }}
+                      >
+                        <MenuItem value="Yes">Yes</MenuItem>
+                        <MenuItem value="No">No</MenuItem>
+                      </Select>
+                    </FormControl>
+                    {hasAllergies === 'Yes' && (
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Please specify your allergy"
+                        value={allergyDetails}
+                        onChange={(e) => setAllergyDetails(e.target.value)}
+                        sx={{ mt: 1.5, backgroundColor: 'var(--color-background-primary)' }}
+                      />
+                    )}
+                  </Box>
+
+                  {/* Question 2: Injuries */}
+                  <Box>
+                    <Typography 
+                      sx={{ 
+                        fontWeight: 500, 
+                        color: 'var(--color-text-primary)', 
+                        mb: 1.5,
+                        fontSize: '0.95rem'
+                      }}
+                    >
+                      2. Have you sustained any injuries in the past 12 months?
+                    </Typography>
+                    <FormControl size="small" sx={{ minWidth: 300, mb: 2 }}>
+                      <InputLabel>Select injuries</InputLabel>
+                      <Select
+                        multiple
+                        value={injuries}
+                        onChange={(e) => setInjuries(e.target.value)}
+                        input={<OutlinedInput label="Select injuries" />}
+                        renderValue={(selected) => selected.join(', ')}
+                        sx={{ backgroundColor: 'var(--color-background-primary)' }}
+                      >
+                        {injuryOptions.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            <Checkbox checked={injuries.indexOf(option) > -1} />
+                            <ListItemText primary={option} />
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    {injuries.includes('Other') && (
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Please describe other injury"
+                        value={injuryOtherDetails}
+                        onChange={(e) => setInjuryOtherDetails(e.target.value)}
+                        sx={{ mt: 1.5, backgroundColor: 'var(--color-background-primary)' }}
+                      />
+                    )}
+                  </Box>
+
+                  {/* Question 3: Medications */}
+                  <Box>
+                    <Typography 
+                      sx={{ 
+                        fontWeight: 500, 
+                        color: 'var(--color-text-primary)', 
+                        mb: 1.5,
+                        fontSize: '0.95rem'
+                      }}
+                    >
+                      3. Are you currently taking any prescribed medication?
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="List medications (if any)"
+                      value={medications}
+                      onChange={(e) => setMedications(e.target.value)}
+                      multiline
+                      rows={2}
+                      sx={{ backgroundColor: 'var(--color-background-primary)' }}
+                    />
+                  </Box>
+
+                  {/* Question 4: Last Physical */}
+                  <Box>
+                    <Typography 
+                      sx={{ 
+                        fontWeight: 500, 
+                        color: 'var(--color-text-primary)', 
+                        mb: 1.5,
+                        fontSize: '0.95rem'
+                      }}
+                    >
+                      4. When was your last full physical examination?
+                    </Typography>
+                    <DatePicker
+                      label="Select date"
+                      value={lastPhysicalDate}
+                      onChange={(newValue) => setLastPhysicalDate(newValue)}
+                      slotProps={{ 
+                        textField: { 
+                          size: 'small',
+                          sx: { backgroundColor: 'var(--color-background-primary)', minWidth: 250 }
+                        } 
+                      }}
+                    />
+                  </Box>
+
+                  {/* Question 5: Pre-existing Conditions */}
+                  <Box>
+                    <Typography 
+                      sx={{ 
+                        fontWeight: 500, 
+                        color: 'var(--color-text-primary)', 
+                        mb: 1.5,
+                        fontSize: '0.95rem'
+                      }}
+                    >
+                      5. Do you have any pre-existing medical conditions?
+                    </Typography>
+                    <FormControl size="small" sx={{ minWidth: 300, mb: 2 }}>
+                      <InputLabel>Select conditions</InputLabel>
+                      <Select
+                        multiple
+                        value={preExistingConditions}
+                        onChange={(e) => setPreExistingConditions(e.target.value)}
+                        input={<OutlinedInput label="Select conditions" />}
+                        renderValue={(selected) => selected.join(', ')}
+                        sx={{ backgroundColor: 'var(--color-background-primary)' }}
+                      >
+                        {conditionOptions.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            <Checkbox checked={preExistingConditions.indexOf(option) > -1} />
+                            <ListItemText primary={option} />
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    {preExistingConditions.includes('Other') && (
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Please describe other condition"
+                        value={conditionOtherDetails}
+                        onChange={(e) => setConditionOtherDetails(e.target.value)}
+                        sx={{ mt: 1.5, backgroundColor: 'var(--color-background-primary)' }}
+                      />
+                    )}
+                  </Box>
+                </Box>
+              </LocalizationProvider>
             </Box>
             
             {/* Bottom navigation buttons */}
@@ -566,17 +759,17 @@ export default function FormFillView() {
                 startIcon={<KeyboardArrowLeft />}
                 disabled={currentSectionIndex === 0 && currentSubsectionIndex === 0}
                 sx={{
-                  borderColor: '#e2e8f0',
-                  color: '#334155',
+                  borderColor: 'var(--color-border-primary)',
+                  color: 'var(--color-primary)',
                   textTransform: 'none',
                   fontWeight: 500,
                   '&:hover': { 
-                    borderColor: '#cbd5e1',
-                    backgroundColor: 'rgba(51, 65, 85, 0.04)'
+                    borderColor: 'var(--color-border-focus)',
+                    backgroundColor: 'var(--color-primary-light)'
                   },
                   '&.Mui-disabled': {
-                    borderColor: '#e2e8f0',
-                    color: '#94a3b8'
+                    borderColor: 'var(--color-border-primary)',
+                    color: 'var(--color-text-muted)'
                   }
                 }}
               >
@@ -587,13 +780,13 @@ export default function FormFillView() {
                 size="medium"
                 endIcon={<KeyboardArrowRight />}
                 sx={{
-                  borderColor: '#e2e8f0',
-                  color: '#334155',
+                  borderColor: 'var(--color-border-primary)',
+                  color: 'var(--color-primary)',
                   textTransform: 'none',
                   fontWeight: 500,
                   '&:hover': { 
-                    borderColor: '#cbd5e1',
-                    backgroundColor: 'rgba(51, 65, 85, 0.04)'
+                    borderColor: 'var(--color-border-focus)',
+                    backgroundColor: 'var(--color-primary-light)'
                   }
                 }}
               >
