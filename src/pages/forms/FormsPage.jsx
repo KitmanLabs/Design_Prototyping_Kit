@@ -15,10 +15,16 @@ import {
   Autocomplete,
   ToggleButton,
   ToggleButtonGroup,
-  Tooltip
+  Tooltip,
+  Drawer,
+  Checkbox,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText
 } from '@mui/material'
 import { DataGrid, GridPagination, GridToolbar } from 'playbook-components'
-import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined, KeyboardArrowDownOutlined, KeyboardArrowRightOutlined } from '@mui/icons-material'
+import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined, KeyboardArrowDownOutlined, KeyboardArrowRightOutlined, CloseOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DateRangePicker, DatePicker } from '@mui/x-date-pickers-pro'
@@ -748,6 +754,11 @@ export default function FormsPage() {
   const [schedulingActionRowId, setSchedulingActionRowId] = useState(null)
   const [editScheduleOpen, setEditScheduleOpen] = useState(false)
   const [editingSchedule, setEditingSchedule] = useState(null)
+  
+  // Assigned Players drawer state
+  const [assignedPlayersDrawerOpen, setAssignedPlayersDrawerOpen] = useState(false)
+  const [assignedPlayersDrawerData, setAssignedPlayersDrawerData] = useState({ players: [], scheduleId: null })
+  const [selectedAssignedPlayers, setSelectedAssignedPlayers] = useState([])
 
   const toggleSchedulingRowExpansion = useCallback((rowId) => {
     setSchedulingExpandedRows((prev) => {
@@ -826,12 +837,38 @@ export default function FormsPage() {
   }, [schedulingTimeRange, schedulingPlayerFilter, schedulingCategoryFilter, schedulingDateFilter, schedulingExpandedRows])
 
   // Render player names with tooltip
-  const renderPlayersCell = (players) => {
+  const handleOpenAssignedPlayersDrawer = useCallback((players, scheduleId) => {
+    setAssignedPlayersDrawerData({ players, scheduleId })
+    setSelectedAssignedPlayers([...players]) // All players selected by default
+    setAssignedPlayersDrawerOpen(true)
+  }, [])
+
+  const handleCloseAssignedPlayersDrawer = useCallback(() => {
+    setAssignedPlayersDrawerOpen(false)
+    setAssignedPlayersDrawerData({ players: [], scheduleId: null })
+    setSelectedAssignedPlayers([])
+  }, [])
+
+  const handleToggleAssignedPlayer = useCallback((playerName) => {
+    setSelectedAssignedPlayers((prev) =>
+      prev.includes(playerName)
+        ? prev.filter((p) => p !== playerName)
+        : [...prev, playerName]
+    )
+  }, [])
+
+  const handleSaveAssignedPlayers = useCallback(() => {
+    // Handle save logic here - for now just log and close
+    // eslint-disable-next-line no-console
+    console.log('Saved assigned players:', selectedAssignedPlayers)
+    handleCloseAssignedPlayersDrawer()
+  }, [selectedAssignedPlayers, handleCloseAssignedPlayersDrawer])
+
+  const renderPlayersCell = (players, scheduleId) => {
     if (!players || players.length === 0) return '—'
     const displayCount = 3
     const displayPlayers = players.slice(0, displayCount)
     const remaining = players.length - displayCount
-    const displayText = displayPlayers.join(', ') + (remaining > 0 ? `, … +${remaining}` : '')
     
     // Tooltip shows first 20 players + count of remaining
     const tooltipDisplayCount = 20
@@ -861,20 +898,61 @@ export default function FormsPage() {
           }
         }}
       >
-        <Typography 
-          variant="body2" 
+        <Box 
           sx={{ 
-            cursor: 'pointer',
-            color: 'var(--color-text-primary)', 
-            fontFamily: 'var(--font-family-primary)', 
-            fontSize: 'var(--font-size-sm)',
+            display: 'flex',
+            alignItems: 'center',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap'
           }}
         >
-          {displayText}
-        </Typography>
+          <Typography 
+            variant="body2" 
+            component="span"
+            sx={{ 
+              color: 'var(--color-text-primary)', 
+              fontFamily: 'var(--font-family-primary)', 
+              fontSize: 'var(--font-size-sm)',
+            }}
+          >
+            {displayPlayers.join(', ')}
+          </Typography>
+          {remaining > 0 && (
+            <>
+              <Typography 
+                variant="body2" 
+                component="span"
+                sx={{ 
+                  color: 'var(--color-text-primary)', 
+                  fontFamily: 'var(--font-family-primary)', 
+                  fontSize: 'var(--font-size-sm)',
+                }}
+              >
+                , …{' '}
+              </Typography>
+              <Typography 
+                variant="body2" 
+                component="span"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleOpenAssignedPlayersDrawer(players, scheduleId)
+                }}
+                sx={{ 
+                  color: 'var(--color-primary)', 
+                  fontFamily: 'var(--font-family-primary)', 
+                  fontSize: 'var(--font-size-sm)',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  }
+                }}
+              >
+                +{remaining} more
+              </Typography>
+            </>
+          )}
+        </Box>
       </Tooltip>
     )
   }
@@ -947,7 +1025,7 @@ export default function FormsPage() {
         minWidth: 300,
         renderCell: (params) => {
           if (params.row.isSubRow) return null
-          return renderPlayersCell(params.row.players)
+          return renderPlayersCell(params.row.players, params.row.id)
         }
       },
       {
@@ -1490,6 +1568,159 @@ export default function FormsPage() {
           schedule={editingSchedule}
           allPlayers={schedulingPlayerOptions}
         />
+
+        {/* Assigned Players Drawer */}
+        <Drawer
+          anchor="right"
+          open={assignedPlayersDrawerOpen}
+          onClose={handleCloseAssignedPlayersDrawer}
+          PaperProps={{
+            sx: {
+              width: 400,
+              maxWidth: '100vw',
+              height: '100vh',
+              display: 'flex',
+              flexDirection: 'column'
+            }
+          }}
+        >
+          {/* Header */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              px: 3,
+              py: 2,
+              borderBottom: '1px solid var(--color-border-primary)'
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 600,
+                fontFamily: 'var(--font-family-primary)',
+                fontSize: 'var(--font-size-lg)',
+                color: 'var(--color-text-primary)'
+              }}
+            >
+              Assigned Players
+            </Typography>
+            <IconButton onClick={handleCloseAssignedPlayersDrawer} size="small" aria-label="Close">
+              <CloseOutlined />
+            </IconButton>
+          </Box>
+
+          {/* Body */}
+          <Box sx={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+            {/* Selected count */}
+            <Box sx={{ px: 3, py: 2, borderBottom: '1px solid var(--color-border-secondary)' }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-family-primary)',
+                  fontSize: 'var(--font-size-sm)',
+                  color: 'var(--color-text-primary)'
+                }}
+              >
+                Selected {selectedAssignedPlayers.length}
+              </Typography>
+            </Box>
+
+            {/* Player list with checkboxes */}
+            <List sx={{ flex: 1, py: 0 }}>
+              {assignedPlayersDrawerData.players.map((playerName) => (
+                <ListItem
+                  key={playerName}
+                  dense
+                  button
+                  onClick={() => handleToggleAssignedPlayer(playerName)}
+                  sx={{
+                    px: 3,
+                    py: 1,
+                    '&:hover': {
+                      backgroundColor: 'var(--color-background-hover)'
+                    }
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 40 }}>
+                    <Checkbox
+                      edge="start"
+                      checked={selectedAssignedPlayers.includes(playerName)}
+                      tabIndex={-1}
+                      disableRipple
+                      sx={{
+                        color: 'var(--color-border-primary)',
+                        '&.Mui-checked': {
+                          color: 'var(--color-primary)'
+                        }
+                      }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={playerName}
+                    primaryTypographyProps={{
+                      sx: {
+                        fontFamily: 'var(--font-family-primary)',
+                        fontSize: 'var(--font-size-sm)',
+                        color: 'var(--color-text-primary)'
+                      }
+                    }}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+
+          {/* Footer */}
+          <Box
+            sx={{
+              px: 3,
+              py: 2,
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: 1.5,
+              borderTop: '1px solid var(--color-border-primary)'
+            }}
+          >
+            <Button
+              variant="outlined"
+              onClick={handleCloseAssignedPlayersDrawer}
+              sx={{
+                borderColor: 'var(--color-border-primary)',
+                color: 'var(--color-text-primary)',
+                fontFamily: 'var(--font-family-primary)',
+                fontSize: 'var(--font-size-sm)',
+                fontWeight: 600,
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: 'var(--color-border-focus)',
+                  backgroundColor: 'var(--color-background-hover)'
+                }
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleSaveAssignedPlayers}
+              sx={{
+                backgroundColor: 'var(--color-primary)',
+                color: '#ffffff',
+                fontFamily: 'var(--font-family-primary)',
+                fontSize: 'var(--font-size-sm)',
+                fontWeight: 600,
+                textTransform: 'none',
+                '&:hover': {
+                  backgroundColor: 'var(--color-primary-hover)'
+                }
+              }}
+            >
+              Save
+            </Button>
+          </Box>
+        </Drawer>
 
         <AssignFormDrawer
           open={assignOpen}
