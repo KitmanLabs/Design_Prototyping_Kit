@@ -698,11 +698,6 @@ export default function FormsPage() {
               <Typography variant="caption" sx={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', lineHeight: 1.3 }}>
                 {params.row.position}
               </Typography>
-              {params.row.dob && (
-                <Typography variant="caption" sx={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', lineHeight: 1.3 }}>
-                  Date of Birth: {params.row.dob}
-                </Typography>
-              )}
             </Box>
           )
         }
@@ -1103,7 +1098,8 @@ export default function FormsPage() {
             <Tab label="Forms" {...a11yProps(0)} />
             <Tab label="Scheduling Overview" {...a11yProps(1)} />
             <Tab label="Completed" {...a11yProps(2)} />
-            <Tab label="Compliance Trials" {...a11yProps(3)} />
+            <Tab label="Compliance" {...a11yProps(3)} />
+            <Tab label="Tryouts" {...a11yProps(4)} />
           </Tabs>
 
           {/* Forms tab */}
@@ -1352,7 +1348,7 @@ export default function FormsPage() {
             </Box>
           </TabPanel>
 
-          {/* Compliance Trials tab */}
+          {/* Compliance tab */}
           <TabPanel value={tabValue} index={3}>
             <Box sx={{ px: 3, py: 1.5, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flexShrink: 0 }}>
               <Autocomplete
@@ -1419,6 +1415,13 @@ export default function FormsPage() {
                 slotProps={{ pagination: { showFirstButton: true, showLastButton: true } }}
                 getRowClassName={(params) => params.row.isSubRow ? 'compliance-sub-row' : ''}
               />
+            </Box>
+          </TabPanel>
+
+          {/* Tryouts tab */}
+          <TabPanel value={tabValue} index={4}>
+            <Box sx={{ px: 3, py: 3 }}>
+              {/* Empty for now */}
             </Box>
           </TabPanel>
         </Paper>
