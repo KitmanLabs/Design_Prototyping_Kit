@@ -21,10 +21,11 @@ import {
   List,
   ListItem,
   ListItemIcon,
-  ListItemText
+  ListItemText,
+  Badge
 } from '@mui/material'
 import { DataGrid, GridPagination, GridToolbar } from 'playbook-components'
-import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined, KeyboardArrowDownOutlined, KeyboardArrowRightOutlined, CloseOutlined } from '@mui/icons-material'
+import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined, KeyboardArrowDownOutlined, KeyboardArrowRightOutlined, CloseOutlined, NotificationsOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DateRangePicker, DatePicker } from '@mui/x-date-pickers-pro'
@@ -34,6 +35,7 @@ import { Button, StatusChip, Icon } from '../../components'
 import AssignFormDrawer from '../../components/forms/AssignFormDrawer'
 import CreateFormDrawer from '../../components/forms/CreateFormDrawer'
 import EditScheduleDrawer from '../../components/forms/EditScheduleDrawer'
+import NotificationDrawer from '../../components/forms/NotificationDrawer'
 import athletesData from '../../data/athletes.json'
 import formsTemplatesData from '../../data/forms_templates.json'
 import { currentUser } from '../../data/layout'
@@ -382,6 +384,7 @@ export default function FormsPage() {
   const [selectedFormName, setSelectedFormName] = useState('')
   const [selectedAthletes, setSelectedAthletes] = useState([])
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false)
 
   // Forms list: initial from JSON + newly created (add logic)
   const [formsList, setFormsList] = useState(initialFormsFromData)
@@ -1063,14 +1066,36 @@ export default function FormsPage() {
           <Typography variant="h5" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-2xl)' }}>
             Forms
           </Typography>
-          <Button
-            variant="primary"
-            size="medium"
-            onClick={() => setIsCreateOpen(true)}
-            style={{ fontWeight: 700, fontSize: 'var(--font-size-sm)' }}
-          >
-            Create form
-          </Button>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <IconButton
+              onClick={() => setIsNotificationDrawerOpen(true)}
+              size="small"
+              aria-label="Notifications"
+              sx={{ color: 'var(--color-text-secondary)' }}
+            >
+              <Badge 
+                badgeContent={3} 
+                color="error"
+                sx={{
+                  '& .MuiBadge-badge': {
+                    fontSize: 'var(--font-size-xs)',
+                    minWidth: 18,
+                    height: 18
+                  }
+                }}
+              >
+                <NotificationsOutlined />
+              </Badge>
+            </IconButton>
+            <Button
+              variant="primary"
+              size="medium"
+              onClick={() => setIsCreateOpen(true)}
+              style={{ fontWeight: 700, fontSize: 'var(--font-size-sm)' }}
+            >
+              Create form
+            </Button>
+          </Box>
         </Box>
 
         <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
@@ -1747,6 +1772,11 @@ export default function FormsPage() {
           onClose={() => setIsCreateOpen(false)}
           onSubmit={handleCreateForm}
           categories={['Medical', 'Performance', 'Wellbeing', 'Other']}
+        />
+
+        <NotificationDrawer
+          open={isNotificationDrawerOpen}
+          onClose={() => setIsNotificationDrawerOpen(false)}
         />
       </Box>
     </LocalizationProvider>

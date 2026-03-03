@@ -11,6 +11,7 @@ import Screen04_FormAnswerSet from './pages/forms/Screen04_FormAnswerSet'
 import FormFillPage from './pages/forms/FormFillPage'
 import Messaging from './pages/Messaging'
 import MedicalAssessment from './pages/forms/MedicalAssessment'
+import NotificationsPage from './pages/NotificationsPage'
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="/forms/:formId/build" element={<Screen02_FormBuilder />} />
         <Route path="/planning" element={<CalendarPage />} />
         <Route path="/messages" element={<Messaging />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/activity" element={<SimplePage pageName="Activity log" />} />
         <Route path="/settings" element={<SimplePage pageName="Admin" />} />
         <Route path="/help" element={<SimplePage pageName="Help" />} />
