@@ -8,7 +8,6 @@ import {
   Divider,
   TextField,
   Button,
-  Autocomplete,
   FormControl,
   FormControlLabel,
   RadioGroup,
@@ -18,9 +17,18 @@ import {
   Select,
   MenuItem,
   InputLabel,
-  useMediaQuery
+  useMediaQuery,
+  Menu,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  ListItemAvatar,
+  Avatar,
+  Checkbox,
+  Switch
 } from '@mui/material'
-import { CloseOutlined, DeleteOutline, AddOutlined, Check } from '@mui/icons-material'
+import { CloseOutlined, DeleteOutline, AddOutlined, Check, ChevronRightOutlined, ArrowBackOutlined, KeyboardArrowDownOutlined, SyncOutlined } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
@@ -50,6 +58,16 @@ const NOTIFICATION_TIMING_OPTIONS = [
   { value: 'start-date', label: 'Start date' },
   { value: 'end-date', label: 'End date' },
   { value: 'custom-date', label: 'Custom date' },
+]
+
+// Mock teams for athlete grouping
+const MOCK_TEAMS = [
+  { id: 1, name: 'First Team', status: 'active' },
+  { id: 2, name: 'Reserve Team', status: 'active' },
+  { id: 3, name: 'Academy U21', status: 'active' },
+  { id: 4, name: 'Academy U18', status: 'active' },
+  { id: 5, name: 'Munster NTS', status: 'active' },
+  { id: 6, name: 'Club Ops', status: 'inactive' },
 ]
 
 const formFieldStyles = {
@@ -109,6 +127,88 @@ function AssignFormDrawer({
   const [showNotifications, setShowNotifications] = useState(false)
   const [notifications, setNotifications] = useState([])
 
+  // Athlete selector state (drill-down menu)
+  const [athleteMenuAnchor, setAthleteMenuAnchor] = useState(null)
+  const [selectedTeam, setSelectedTeam] = useState(null)
+
+  // Auto-sync state for teams (track which teams have auto-sync enabled)
+  const [teamAutoSync, setTeamAutoSync] = useState({})
+
+  // Group athletes by team
+  const athletesByTeam = useMemo(() => {
+    const grouped = {}
+    MOCK_TEAMS.forEach(team => {
+      grouped[team.id] = []
+    })
+    athletes.forEach(a => {
+      const teamId = a.squad_id || 1
+      if (grouped[teamId]) {
+        grouped[teamId].push({
+          id: a.id,
+          name: a.name || `${a.firstname || ''} ${a.lastname || ''}`.trim(),
+          position: a.position || '—',
+          avatar: a.avatar || null
+        })
+      }
+    })
+    return grouped
+  }, [athletes])
+
+  const handleAthleteMenuOpen = (event) => {
+    setAthleteMenuAnchor(event.currentTarget)
+  }
+
+  const handleAthleteMenuClose = () => {
+    setAthleteMenuAnchor(null)
+    setSelectedTeam(null)
+  }
+
+  const handleTeamClick = (team) => {
+    setSelectedTeam(team)
+  }
+
+  const handleBackToTeams = () => {
+    setSelectedTeam(null)
+  }
+
+  const handleToggleAthlete = (athlete) => {
+    setSelectedAthletes(prev => {
+      const isSelected = prev.some(a => a.id === athlete.id)
+      if (isSelected) {
+        return prev.filter(a => a.id !== athlete.id)
+      } else {
+        return [...prev, athlete]
+      }
+    })
+  }
+
+  const handleSelectAllTeam = (team, event) => {
+    event.stopPropagation()
+    const teamAthletes = athletesByTeam[team.id] || []
+    const allSelected = teamAthletes.every(a => selectedAthletes.some(sa => sa.id === a.id))
+    
+    if (allSelected) {
+      // Deselect all from this team
+      setSelectedAthletes(prev => prev.filter(a => !teamAthletes.some(ta => ta.id === a.id)))
+    } else {
+      // Select all from this team
+      const newAthletes = teamAthletes.filter(a => !selectedAthletes.some(sa => sa.id === a.id))
+      setSelectedAthletes(prev => [...prev, ...newAthletes])
+    }
+  }
+
+  const isAthleteSelected = (athleteId) => selectedAthletes.some(a => a.id === athleteId)
+
+  const handleToggleAutoSync = (teamId, event) => {
+    event.stopPropagation()
+    setTeamAutoSync(prev => ({
+      ...prev,
+      [teamId]: !prev[teamId]
+    }))
+  }
+
+  const isTeamAutoSyncEnabled = (teamId) => Boolean(teamAutoSync[teamId])
+
 
   // Reset state when drawer opens
   React.useEffect(() => {
@@ -123,6 +223,9 @@ function AssignFormDrawer({
       setResponsesPerPlayer(1)
       setShowNotifications(false)
       setNotifications([])
+      setAthleteMenuAnchor(null)
+      setSelectedTeam(null)
+      setTeamAutoSync({})
     }
   }, [open, initialSelectedAthletes])
 
@@ -134,7 +237,8 @@ function AssignFormDrawer({
     const assignment = {
       formName,
       selectedAthletes,
-      assignmentType
+      assignmentType,
+      teamAutoSync  // Include auto-sync settings per team
     }
     
     if (assignmentType === 'one-time') {
@@ -156,14 +260,6 @@ function AssignFormDrawer({
     onSubmit && onSubmit(assignment)
     handleClose()
   }
-
-  const athleteOptions = useMemo(() => {
-    return athletes.map((a) => ({
-      id: a.id,
-      name: a.name || `${a.firstname || ''} ${a.lastname || ''}`.trim(),
-      position: a.position || '—'
-    }))
-  }, [athletes])
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -226,88 +322,306 @@ function AssignFormDrawer({
               sx={formFieldStyles}
             />
 
-            {/* Player / Athlete Selector */}
-            <Autocomplete
-              multiple
-              size="small"
-              options={athleteOptions}
-              value={selectedAthletes}
-              onChange={(_, newValue) => setSelectedAthletes(newValue)}
-              getOptionLabel={(option) => option.name || ''}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="filled"
-                  label="Players / Athletes"
-                  placeholder={selectedAthletes.length === 0 ? 'Select athletes' : ''}
-                  sx={formFieldStyles}
-                />
-              )}
-              renderTags={(value, getTagProps) =>
-                value.map((option, index) => (
-                  <Chip
-                    key={option.id}
-                    label={option.name}
-                    size="small"
-                    {...getTagProps({ index })}
-                    sx={{
-                      backgroundColor: 'var(--color-primary-light)',
-                      color: 'var(--color-text-primary)',
-                      fontFamily: 'var(--font-family-primary)',
-                      fontSize: 'var(--font-size-xs)',
-                      '& .MuiChip-deleteIcon': {
-                        color: 'var(--color-text-secondary)',
-                        '&:hover': { color: 'var(--color-text-primary)' }
-                      }
-                    }}
-                  />
-                ))
-              }
-              renderOption={(props, option) => (
-                <Box
-                  component="li"
-                  {...props}
+            {/* Player / Athlete Selector - Drill Down */}
+            <Box>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontFamily: 'var(--font-family-primary)',
+                  fontSize: 'var(--font-size-xs)',
+                  color: 'var(--color-text-secondary)',
+                  mb: 0.5,
+                  display: 'block'
+                }}
+              >
+                Players
+              </Typography>
+              <Box
+                onClick={handleAthleteMenuOpen}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  p: 1.5,
+                  backgroundColor: 'var(--color-background-secondary)',
+                  borderRadius: 'var(--radius-sm)',
+                  cursor: 'pointer',
+                  border: '1px solid var(--color-border-primary)',
+                  '&:hover': {
+                    backgroundColor: 'var(--color-background-tertiary)',
+                  }
+                }}
+              >
+                <Typography
                   sx={{
                     fontFamily: 'var(--font-family-primary)',
-                    fontSize: 'var(--font-size-sm)'
+                    fontSize: 'var(--font-size-sm)',
+                    color: selectedAthletes.length > 0 ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'
                   }}
                 >
-                  <Box>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontFamily: 'var(--font-family-primary)',
-                        fontSize: 'var(--font-size-sm)',
-                        color: 'var(--color-text-primary)'
-                      }}
-                    >
-                      {option.name}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        fontFamily: 'var(--font-family-primary)',
-                        fontSize: 'var(--font-size-xs)',
-                        color: 'var(--color-text-secondary)'
-                      }}
-                    >
-                      {option.position}
-                    </Typography>
-                  </Box>
+                  {selectedAthletes.length > 0
+                    ? selectedAthletes.map(a => a.name).join(', ')
+                    : 'Select players'}
+                </Typography>
+                <KeyboardArrowDownOutlined sx={{ color: 'var(--color-text-secondary)' }} />
+              </Box>
+
+              <Menu
+                anchorEl={athleteMenuAnchor}
+                open={Boolean(athleteMenuAnchor)}
+                onClose={handleAthleteMenuClose}
+                PaperProps={{
+                  sx: {
+                    width: 360,
+                    maxHeight: 400,
+                    mt: 1
+                  }
+                }}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
+              >
+                {/* Selected count pill */}
+                <Box sx={{ px: 2, py: 1.5 }}>
+                  <Chip
+                    label={`Selected (${selectedAthletes.length})`}
+                    size="small"
+                    sx={{
+                      backgroundColor: 'var(--color-primary)',
+                      color: 'var(--color-white)',
+                      fontFamily: 'var(--font-family-primary)',
+                      fontSize: 'var(--font-size-xs)',
+                      fontWeight: 'var(--font-weight-medium)'
+                    }}
+                  />
                 </Box>
-              )}
-              PaperComponent={(props) => (
-                <Box
-                  {...props}
-                  sx={{
-                    '& .MuiAutocomplete-listbox': {
-                      fontFamily: 'var(--font-family-primary)'
-                    }
-                  }}
-                />
-              )}
-            />
+                <Divider />
+
+                {/* Teams list or Athletes drill-down */}
+                {!selectedTeam ? (
+                  // Teams list
+                  <List sx={{ py: 0 }}>
+                    {MOCK_TEAMS.map((team) => {
+                      const autoSyncEnabled = isTeamAutoSyncEnabled(team.id)
+                      return (
+                        <ListItem
+                          key={team.id}
+                          disablePadding
+                          secondaryAction={
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <Button
+                                size="small"
+                                onClick={(e) => handleSelectAllTeam(team, e)}
+                                sx={{
+                                  textTransform: 'none',
+                                  fontSize: 'var(--font-size-xs)',
+                                  color: 'var(--color-primary)',
+                                  fontFamily: 'var(--font-family-primary)',
+                                  minWidth: 'auto',
+                                  p: 0.5
+                                }}
+                              >
+                                Select all
+                              </Button>
+                              <ChevronRightOutlined sx={{ color: 'var(--color-text-secondary)' }} />
+                            </Box>
+                          }
+                        >
+                          <ListItemButton onClick={() => handleTeamClick(team)} sx={{ pr: 14 }}>
+                            <ListItemText
+                              primary={team.name}
+                              secondary={
+                                <Box component="span" sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                                  <Typography
+                                    component="span"
+                                    sx={{
+                                      fontFamily: 'var(--font-family-primary)',
+                                      fontSize: 'var(--font-size-xs)',
+                                      color: 'var(--color-text-secondary)'
+                                    }}
+                                  >
+                                    {team.status}
+                                  </Typography>
+                                  <Box
+                                    component="span"
+                                    sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <Typography
+                                      component="span"
+                                      sx={{
+                                        fontFamily: 'var(--font-family-primary)',
+                                        fontSize: 'var(--font-size-xs)',
+                                        color: autoSyncEnabled ? 'var(--color-primary)' : 'var(--color-text-secondary)'
+                                      }}
+                                    >
+                                      Auto-sync
+                                    </Typography>
+                                    <Switch
+                                      size="small"
+                                      checked={autoSyncEnabled}
+                                      onChange={(e) => handleToggleAutoSync(team.id, e)}
+                                      sx={{
+                                        '& .MuiSwitch-switchBase.Mui-checked': {
+                                          color: 'var(--color-primary)',
+                                        },
+                                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                          backgroundColor: 'var(--color-primary)',
+                                        },
+                                      }}
+                                    />
+                                  </Box>
+                                </Box>
+                              }
+                              primaryTypographyProps={{
+                                sx: {
+                                  fontFamily: 'var(--font-family-primary)',
+                                  fontSize: 'var(--font-size-sm)',
+                                  fontWeight: 'var(--font-weight-medium)',
+                                  color: 'var(--color-text-primary)'
+                                }
+                              }}
+                            />
+                          </ListItemButton>
+                        </ListItem>
+                      )
+                    })}
+                  </List>
+                ) : (
+                  // Athletes list for selected team
+                  <>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 1, py: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton size="small" onClick={handleBackToTeams}>
+                          <ArrowBackOutlined fontSize="small" />
+                        </IconButton>
+                        <Box sx={{ ml: 1 }}>
+                          <Typography
+                            sx={{
+                              fontFamily: 'var(--font-family-primary)',
+                              fontSize: 'var(--font-size-sm)',
+                              fontWeight: 'var(--font-weight-medium)',
+                              color: 'var(--color-text-primary)'
+                            }}
+                          >
+                            {selectedTeam.name}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontFamily: 'var(--font-family-primary)',
+                              fontSize: 'var(--font-size-xs)',
+                              color: 'var(--color-text-secondary)'
+                            }}
+                          >
+                            {selectedTeam.status}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+                    <Divider />
+                    
+                    {/* Selected pill and auto-sync indicator in drill-down */}
+                    <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Chip
+                        label={`Selected (${selectedAthletes.length})`}
+                        size="small"
+                        sx={{
+                          backgroundColor: 'var(--color-primary)',
+                          color: 'var(--color-white)',
+                          fontFamily: 'var(--font-family-primary)',
+                          fontSize: 'var(--font-size-xs)',
+                          fontWeight: 'var(--font-weight-medium)'
+                        }}
+                      />
+                      {isTeamAutoSyncEnabled(selectedTeam.id) && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <SyncOutlined sx={{ fontSize: 14, color: 'var(--color-primary)' }} />
+                          <Typography
+                            sx={{
+                              fontFamily: 'var(--font-family-primary)',
+                              fontSize: 'var(--font-size-xs)',
+                              color: 'var(--color-primary)'
+                            }}
+                          >
+                            Auto-syncing new players
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+                    <Divider />
+
+                    <List sx={{ py: 0, maxHeight: 200, overflowY: 'auto' }}>
+                      {(athletesByTeam[selectedTeam.id] || []).map((athlete) => (
+                        <ListItem
+                          key={athlete.id}
+                          disablePadding
+                        >
+                          <ListItemButton onClick={() => handleToggleAthlete(athlete)}>
+                            <Checkbox
+                              checked={isAthleteSelected(athlete.id)}
+                              size="small"
+                              sx={{
+                                color: 'var(--color-text-secondary)',
+                                '&.Mui-checked': { color: 'var(--color-primary)' }
+                              }}
+                            />
+                            <ListItemAvatar sx={{ minWidth: 40 }}>
+                              <Avatar
+                                src={athlete.avatar}
+                                sx={{
+                                  width: 32,
+                                  height: 32,
+                                  fontSize: 'var(--font-size-xs)',
+                                  backgroundColor: 'var(--color-primary-light)',
+                                  color: 'var(--color-text-primary)'
+                                }}
+                              >
+                                {athlete.name.split(' ').map(n => n[0]).join('')}
+                              </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText
+                              primary={athlete.name}
+                              primaryTypographyProps={{
+                                sx: {
+                                  fontFamily: 'var(--font-family-primary)',
+                                  fontSize: 'var(--font-size-sm)',
+                                  color: 'var(--color-text-primary)'
+                                }
+                              }}
+                            />
+                          </ListItemButton>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </>
+                )}
+
+                {/* Done button */}
+                <Divider />
+                <Box sx={{ p: 1.5, display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    disableElevation
+                    onClick={handleAthleteMenuClose}
+                    sx={{
+                      backgroundColor: 'var(--color-primary)',
+                      color: 'var(--color-white)',
+                      textTransform: 'none',
+                      fontFamily: 'var(--font-family-primary)',
+                      '&:hover': { backgroundColor: 'var(--color-primary-hover)' }
+                    }}
+                  >
+                    Done
+                  </Button>
+                </Box>
+              </Menu>
+            </Box>
 
             {/* Form Availability Section */}
             <Box>
