@@ -28,6 +28,7 @@ import { Button, StatusChip, Icon } from '../../components'
 import AssignFormDrawer from '../../components/forms/AssignFormDrawer'
 import CreateFormDrawer from '../../components/forms/CreateFormDrawer'
 import EditScheduleDrawer from '../../components/forms/EditScheduleDrawer'
+import ExportFormDrawer from '../../components/forms/ExportFormDrawer'
 import athletesData from '../../data/athletes.json'
 import formsTemplatesData from '../../data/forms_templates.json'
 import { currentUser } from '../../data/layout'
@@ -37,6 +38,7 @@ import {
   ContentCopyOutlined,
   EditOutlined,
   DeleteOutlined,
+  FileDownloadOutlined,
 } from '@mui/icons-material'
 
 function a11yProps(index) {
@@ -376,6 +378,7 @@ export default function FormsPage() {
   const [selectedFormName, setSelectedFormName] = useState('')
   const [selectedAthletes, setSelectedAthletes] = useState([])
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
 
   // Forms list: initial from JSON + newly created (add logic)
   const [formsList, setFormsList] = useState(initialFormsFromData)
@@ -491,7 +494,8 @@ export default function FormsPage() {
         position: a.position || a.position_group || '—',
         ageGroup: (a.squad_name && /U\d+/.test(a.squad_name)) ? (a.squad_name.match(/U\d+/)?.[0] || 'U21') : 'U21',
         status: a.availability_status === 'Injured' ? 'injured' : 'available',
-        avatar: undefined
+        avatar: undefined,
+        team: a.squad_name || 'Unassigned'
       })),
     []
   )
@@ -1415,6 +1419,16 @@ export default function FormsPage() {
             <DeleteOutlined fontSize="small" />
             Delete
           </MenuItem>
+          <MenuItem
+            onClick={() => {
+              setActionMenuAnchor(null)
+              setExportOpen(true)
+              setActionRowId(null)
+            }}
+          >
+            <FileDownloadOutlined fontSize="small" />
+            Export
+          </MenuItem>
         </Menu>
 
         {/* Scheduling Overview action menu */}
@@ -1513,6 +1527,12 @@ export default function FormsPage() {
           onClose={() => setIsCreateOpen(false)}
           onSubmit={handleCreateForm}
           categories={['Medical', 'Performance', 'Wellbeing', 'Other']}
+        />
+
+        <ExportFormDrawer
+          open={exportOpen}
+          onClose={() => setExportOpen(false)}
+          athletes={drawerAthletes}
         />
       </Box>
     </LocalizationProvider>
