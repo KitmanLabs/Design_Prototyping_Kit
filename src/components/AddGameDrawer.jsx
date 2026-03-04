@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Drawer,
   Box,
@@ -35,6 +35,8 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import Button from './Button';
+import LocationPicker from './LocationPicker';
+import savedLocationsData from '../data/saved_locations.json';
 
 // Mock data – teams, opposition, competitions, venues, etc.
 const MOCK_TEAMS = [
@@ -181,7 +183,7 @@ const formFieldStyles = {
   },
 };
 
-const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) => {
+const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editingEvent = null }) => {
   const [attendanceOpen, setAttendanceOpen] = useState(true);
   const [formData, setFormData] = useState({
     date: new Date(),
@@ -213,6 +215,48 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) => 
     reminderPush: '',
     reminderType: '',
   });
+
+  // Populate form when editing an existing game/match
+  useEffect(() => {
+    if (editingEvent) {
+      const startDate = new Date(editingEvent.start);
+      const endDate = new Date(editingEvent.end);
+      const durationMinutes = Math.round((endDate - startDate) / 60000);
+
+      setFormData({
+        date: startDate,
+        startTime: startDate,
+        duration: durationMinutes,
+        timezone: editingEvent.extendedProps?.timezone || 'Europe/Dublin',
+        location: editingEvent.extendedProps?.location || '',
+        selectedAthletes: editingEvent.extendedProps?.selectedAthletes || [],
+        team: editingEvent.extendedProps?.team || '',
+        teamScore: editingEvent.extendedProps?.teamScore || '',
+        opposition: editingEvent.extendedProps?.opposition || '',
+        oppositionScore: editingEvent.extendedProps?.oppositionScore || '',
+        competition: editingEvent.extendedProps?.competition || '',
+        roundNumber: editingEvent.extendedProps?.roundNumber || '',
+        venue: editingEvent.extendedProps?.venue || '',
+        createTurnaroundMarker: editingEvent.extendedProps?.createTurnaroundMarker !== undefined 
+          ? editingEvent.extendedProps.createTurnaroundMarker 
+          : true,
+        turnaroundPrefix: editingEvent.extendedProps?.turnaroundPrefix || '',
+        surfaceType: editingEvent.extendedProps?.surfaceType || '',
+        surfaceQuality: editingEvent.extendedProps?.surfaceQuality || '',
+        weather: editingEvent.extendedProps?.weather || '',
+        temperature: editingEvent.extendedProps?.temperature || '',
+        description: editingEvent.extendedProps?.description || '',
+        attachments: editingEvent.extendedProps?.attachments || [],
+        attachTitle: '',
+        attachLink: '',
+        notifyStaffBy: editingEvent.extendedProps?.notifyStaffBy || ['push'],
+        notifyAthletesBy: editingEvent.extendedProps?.notifyAthletesBy || [],
+        reminderEmail: editingEvent.extendedProps?.reminderEmail || '',
+        reminderPush: editingEvent.extendedProps?.reminderPush || '',
+        reminderType: editingEvent.extendedProps?.reminderType || '',
+      });
+    }
+  }, [editingEvent]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -319,7 +363,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) => 
             }}
           >
             <Typography variant="h6" sx={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
-              New game
+              {editingEvent ? 'Edit game' : 'New game'}
             </Typography>
             <IconButton onClick={onClose} size="small">
               <Close />
@@ -417,22 +461,10 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) => 
               </Grid>
               {/* Location */}
               <Grid item xs={12}>
-                <Autocomplete
-                  freeSolo
-                  options={MOCK_LOCATIONS}
+                <LocationPicker
                   value={formData.location}
-                  onInputChange={(_, value) => handleInputChange('location', value)}
-                  onChange={(_, value) => handleInputChange('location', value || '')}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="filled"
-                      label="Location"
-                      placeholder="Search locations..."
-                      InputLabelProps={{ shrink: true }}
-                      sx={formFieldStyles}
-                    />
-                  )}
+                  onChange={(value) => handleInputChange('location', value)}
+                  savedLocations={savedLocationsData}
                 />
               </Grid>
 

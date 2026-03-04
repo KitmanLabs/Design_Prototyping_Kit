@@ -4,6 +4,7 @@ import FiltersSidebar from '../../components/FiltersSidebar';
 import CalendarHeader from '../../components/CalendarHeader';
 import Calendar from '../../components/Calendar';
 import EventTooltip from '../../components/EventTooltip';
+import EventDetailsDialog from '../../components/EventDetailsDialog';
 import AddEventSidebar from '../../components/AddEventSidebar';
 import AddSessionDrawer from '../../components/AddSessionDrawer';
 import AddGameDrawer from '../../components/AddGameDrawer';
@@ -20,7 +21,10 @@ const CalendarPage = () => {
   const [showAddEventSidebar, setShowAddEventSidebar] = useState(false);
   const [showAddSessionDrawer, setShowAddSessionDrawer] = useState(false);
   const [showAddGameDrawer, setShowAddGameDrawer] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
   const [tooltip, setTooltip] = useState({ show: false, event: null, position: { x: 0, y: 0 } });
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [detailsEvent, setDetailsEvent] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date('2025-09-01'));
   const calendarRef = useRef(null);
 
@@ -160,28 +164,56 @@ const CalendarPage = () => {
     setAllEvents(prev => [...prev, newEvent]);
     setEvents(prev => [...prev, newEvent]);
     setShowAddEventSidebar(false);
+    setEditingEvent(null);
   };
-  const handleCloseAddEventSidebar = () => setShowAddEventSidebar(false);
+  const handleCloseAddEventSidebar = () => {
+    setShowAddEventSidebar(false);
+    setEditingEvent(null);
+  };
 
   const handleAddSession = () => setShowAddSessionDrawer(true);
   const handleSaveSession = (newSession) => {
     setAllEvents(prev => [...prev, newSession]);
     setEvents(prev => [...prev, newSession]);
     setShowAddSessionDrawer(false);
+    setEditingEvent(null);
   };
-  const handleCloseAddSessionDrawer = () => setShowAddSessionDrawer(false);
+  const handleCloseAddSessionDrawer = () => {
+    setShowAddSessionDrawer(false);
+    setEditingEvent(null);
+  };
 
   const handleAddGame = () => setShowAddGameDrawer(true);
   const handleSaveGame = (newGame) => {
     setAllEvents(prev => [...prev, newGame]);
     setEvents(prev => [...prev, newGame]);
     setShowAddGameDrawer(false);
+    setEditingEvent(null);
   };
-  const handleCloseAddGameDrawer = () => setShowAddGameDrawer(false);
+  const handleCloseAddGameDrawer = () => {
+    setShowAddGameDrawer(false);
+    setEditingEvent(null);
+  };
 
   const handleEditEvent = (eventData) => {
-    const title = eventData?.title ?? eventData?.event?.title;
-    alert(`Edit event: ${title}`);
+    const ev = eventData?.event ?? eventData;
+    const eventType = ev?.extendedProps?.eventType;
+    
+    // Close tooltip
+    setTooltip({ show: false, event: null, position: { x: 0, y: 0 } });
+    
+    // Set the event being edited
+    setEditingEvent(ev);
+    
+    // Open appropriate panel based on event type
+    if (eventType === 'TRAINING_SESSION' || eventType === 'TEST_SESSION') {
+      setShowAddSessionDrawer(true);
+    } else if (eventType === 'GAME' || eventType === 'MATCH') {
+      setShowAddGameDrawer(true);
+    } else {
+      // Default to event sidebar for other types
+      setShowAddEventSidebar(true);
+    }
   };
 
   const handleDeleteEvent = (eventData) => {
@@ -196,9 +228,10 @@ const CalendarPage = () => {
 
   const handleMoreDetails = (eventData) => {
     const ev = eventData?.event ?? eventData;
-    const title = ev?.title ?? 'Event';
-    const extendedProps = ev?.extendedProps ?? {};
-    alert(`More details for: ${title}\nSquad: ${extendedProps.squad}\nLocation: ${extendedProps.location}`);
+      // close tooltip and open details dialog with same header style as tooltip
+      setTooltip({ show: false, event: null, position: { x: 0, y: 0 } });
+      setDetailsEvent(ev);
+      setDetailsOpen(true);
   };
 
   const handleDuplicateEvent = () => {
@@ -335,6 +368,7 @@ const CalendarPage = () => {
         onSave={handleSaveEvent}
         athletes={athletesData}
         staff={staffData}
+        editingEvent={editingEvent}
       />
 
       <AddSessionDrawer
@@ -343,12 +377,30 @@ const CalendarPage = () => {
         onSave={handleSaveSession}
         athletes={athletesData}
         staff={staffData}
+        editingEvent={editingEvent}
       />
 
       <AddGameDrawer
         open={showAddGameDrawer}
         onClose={handleCloseAddGameDrawer}
         onSave={handleSaveGame}
+        athletes={athletesData}
+        staff={staffData}
+        editingEvent={editingEvent}
+      />
+      <EventDetailsDialog
+        open={detailsOpen}
+        event={detailsEvent}
+        onClose={() => {
+          setDetailsOpen(false);
+          setDetailsEvent(null);
+        }}
+        onEdit={(ev) => {
+          // open edit panel for this event
+          handleEditEvent(ev);
+          setDetailsOpen(false);
+          setDetailsEvent(null);
+        }}
         athletes={athletesData}
         staff={staffData}
       />
