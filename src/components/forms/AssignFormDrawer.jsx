@@ -20,7 +20,7 @@ import {
   InputLabel,
   useMediaQuery
 } from '@mui/material'
-import { CloseOutlined, DeleteOutline } from '@mui/icons-material'
+import { CloseOutlined, DeleteOutline, AddOutlined, Check } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
@@ -44,6 +44,12 @@ const RESPONSES_PER_PLAYER_OPTIONS = [
   { value: 5, label: '5 responses per player' },
   { value: 10, label: '10 responses per player' },
   { value: -1, label: 'Unlimited responses' },
+]
+
+const NOTIFICATION_TIMING_OPTIONS = [
+  { value: 'start-date', label: 'Start date' },
+  { value: 'end-date', label: 'End date' },
+  { value: 'custom-date', label: 'Custom date' },
 ]
 
 const formFieldStyles = {
@@ -99,6 +105,11 @@ function AssignFormDrawer({
   const [timezone, setTimezone] = useState('Europe/Dublin')
   const [responsesPerPlayer, setResponsesPerPlayer] = useState(1)
 
+  // Notification fields
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [notifications, setNotifications] = useState([])
+
+
   // Reset state when drawer opens
   React.useEffect(() => {
     if (open) {
@@ -110,6 +121,8 @@ function AssignFormDrawer({
       setStartTime(null)
       setTimezone('Europe/Dublin')
       setResponsesPerPlayer(1)
+      setShowNotifications(false)
+      setNotifications([])
     }
   }, [open, initialSelectedAthletes])
 
@@ -133,6 +146,11 @@ function AssignFormDrawer({
         timezone,
         responsesPerPlayer
       }
+    }
+
+    // Include notifications if any were added
+    if (notifications.length > 0) {
+      assignment.notifications = notifications
     }
     
     onSubmit && onSubmit(assignment)
@@ -522,6 +540,234 @@ function AssignFormDrawer({
                 </Box>
               </>
             )}
+
+            {/* Notifications Section */}
+            <Divider sx={{ my: 1 }} />
+            <Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontFamily: 'var(--font-family-primary)',
+                    fontSize: 'var(--font-size-sm)',
+                    fontWeight: 'var(--font-weight-semibold)',
+                    color: 'var(--color-text-primary)'
+                  }}
+                >
+                  Notifications
+                </Typography>
+                {notifications.length > 0 && (
+                  <IconButton
+                    size="small"
+                    onClick={() => setNotifications([])}
+                    aria-label="Remove notifications"
+                    sx={{ color: 'var(--color-text-secondary)', '&:hover': { color: 'var(--color-error)' } }}
+                  >
+                    <DeleteOutline fontSize="small" />
+                  </IconButton>
+                )}
+              </Box>
+
+              {/* Show added notifications */}
+              {notifications.map((notification, index) => (
+                <Box key={index} sx={{ mb: 2 }}>
+                  <FormControl size="small" variant="filled" sx={{ ...formFieldStyles, mb: 2, width: 200 }}>
+                    <InputLabel>When to notify</InputLabel>
+                    <Select
+                      value={notification.timing}
+                      onChange={(e) => {
+                        setNotifications(prev => prev.map((n, i) => 
+                          i === index ? { ...n, timing: e.target.value, customDate: null, customTime: null } : n
+                        ))
+                      }}
+                      label="When to notify"
+                    >
+                      {NOTIFICATION_TIMING_OPTIONS.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {/* Custom date/time pickers - shown when "Custom date" is selected */}
+                  {notification.timing === 'custom-date' && (
+                    <Box sx={{ display: 'flex', gap: 1.5, mb: 2 }}>
+                      <DatePicker
+                        label="Date"
+                        value={notification.customDate || null}
+                        onChange={(newValue) => {
+                          setNotifications(prev => prev.map((n, i) => 
+                            i === index ? { ...n, customDate: newValue } : n
+                          ))
+                        }}
+                        slotProps={{
+                          textField: {
+                            size: 'small',
+                            variant: 'filled',
+                            sx: { ...formFieldStyles, width: 150 }
+                          }
+                        }}
+                      />
+                      <TimePicker
+                        label="Time"
+                        value={notification.customTime || null}
+                        onChange={(newValue) => {
+                          setNotifications(prev => prev.map((n, i) => 
+                            i === index ? { ...n, customTime: newValue } : n
+                          ))
+                        }}
+                        slotProps={{
+                          textField: {
+                            size: 'small',
+                            variant: 'filled',
+                            sx: { ...formFieldStyles, width: 150 }
+                          }
+                        }}
+                      />
+                    </Box>
+                  )}
+
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontFamily: 'var(--font-family-primary)',
+                      fontSize: 'var(--font-size-xs)',
+                      color: 'var(--color-text-secondary)',
+                      mb: 1
+                    }}
+                  >
+                    Notify via
+                  </Typography>
+                  <Stack direction="row" spacing={1}>
+                    <Chip
+                      label="Email"
+                      icon={notification.channels.includes('email') ? <Check sx={{ fontSize: 16 }} /> : undefined}
+                      onClick={() => {
+                        setNotifications(prev => prev.map((n, i) => {
+                          if (i !== index) return n
+                          const channels = n.channels.includes('email')
+                            ? n.channels.filter(c => c !== 'email')
+                            : [...n.channels, 'email']
+                          return { ...n, channels: channels.length > 0 ? channels : ['email'] }
+                        }))
+                      }}
+                      sx={{
+                        fontFamily: 'var(--font-family-primary)',
+                        fontSize: 'var(--font-size-sm)',
+                        backgroundColor: notification.channels.includes('email') 
+                          ? 'var(--color-primary)' 
+                          : 'var(--color-secondary)',
+                        color: notification.channels.includes('email') 
+                          ? 'var(--color-white)' 
+                          : 'var(--color-text-primary)',
+                        '&:hover': {
+                          backgroundColor: notification.channels.includes('email') 
+                            ? 'var(--color-primary-hover)' 
+                            : 'var(--color-secondary-hover)',
+                        },
+                        '& .MuiChip-icon': {
+                          color: 'var(--color-white)',
+                        },
+                      }}
+                    />
+                    <Chip
+                      label="SMS"
+                      icon={notification.channels.includes('sms') ? <Check sx={{ fontSize: 16 }} /> : undefined}
+                      onClick={() => {
+                        setNotifications(prev => prev.map((n, i) => {
+                          if (i !== index) return n
+                          const channels = n.channels.includes('sms')
+                            ? n.channels.filter(c => c !== 'sms')
+                            : [...n.channels, 'sms']
+                          return { ...n, channels: channels.length > 0 ? channels : ['sms'] }
+                        }))
+                      }}
+                      sx={{
+                        fontFamily: 'var(--font-family-primary)',
+                        fontSize: 'var(--font-size-sm)',
+                        backgroundColor: notification.channels.includes('sms') 
+                          ? 'var(--color-primary)' 
+                          : 'var(--color-secondary)',
+                        color: notification.channels.includes('sms') 
+                          ? 'var(--color-white)' 
+                          : 'var(--color-text-primary)',
+                        '&:hover': {
+                          backgroundColor: notification.channels.includes('sms') 
+                            ? 'var(--color-primary-hover)' 
+                            : 'var(--color-secondary-hover)',
+                        },
+                        '& .MuiChip-icon': {
+                          color: 'var(--color-white)',
+                        },
+                      }}
+                    />
+                    <Chip
+                      label="Push"
+                      icon={notification.channels.includes('push') ? <Check sx={{ fontSize: 16 }} /> : undefined}
+                      onClick={() => {
+                        setNotifications(prev => prev.map((n, i) => {
+                          if (i !== index) return n
+                          const channels = n.channels.includes('push')
+                            ? n.channels.filter(c => c !== 'push')
+                            : [...n.channels, 'push']
+                          return { ...n, channels: channels.length > 0 ? channels : ['push'] }
+                        }))
+                      }}
+                      sx={{
+                        fontFamily: 'var(--font-family-primary)',
+                        fontSize: 'var(--font-size-sm)',
+                        backgroundColor: notification.channels.includes('push') 
+                          ? 'var(--color-primary)' 
+                          : 'var(--color-secondary)',
+                        color: notification.channels.includes('push') 
+                          ? 'var(--color-white)' 
+                          : 'var(--color-text-primary)',
+                        '&:hover': {
+                          backgroundColor: notification.channels.includes('push') 
+                            ? 'var(--color-primary-hover)' 
+                            : 'var(--color-secondary-hover)',
+                        },
+                        '& .MuiChip-icon': {
+                          color: 'var(--color-white)',
+                        },
+                      }}
+                    />
+                  </Stack>
+                </Box>
+              ))}
+
+              {/* Add Notification Button */}
+              <Button
+                variant="contained"
+                size="small"
+                disableElevation
+                startIcon={<AddOutlined fontSize="small" />}
+                onClick={() => {
+                  setNotifications(prev => [...prev, {
+                    timing: 'start-date',
+                    channels: ['email'],
+                    customDate: null,
+                    customTime: null
+                  }])
+                }}
+                sx={{
+                  backgroundColor: 'var(--color-background-secondary)',
+                  color: 'var(--color-text-primary)',
+                  border: '1px solid var(--color-border-primary)',
+                  textTransform: 'none',
+                  fontFamily: 'var(--font-family-primary)',
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  '&:hover': {
+                    backgroundColor: 'var(--color-background-tertiary)',
+                    border: '1px solid var(--color-border-focus)'
+                  }
+                }}
+              >
+                Add notification
+              </Button>
+            </Box>
           </Stack>
         </Box>
 
