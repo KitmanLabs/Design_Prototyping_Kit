@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import {
   Drawer,
@@ -8,7 +8,6 @@ import {
   Divider,
   TextField,
   Button,
-  Autocomplete,
   FormControl,
   FormControlLabel,
   RadioGroup,
@@ -18,9 +17,17 @@ import {
   Select,
   MenuItem,
   InputLabel,
-  useMediaQuery
+  useMediaQuery,
+  Switch,
+  Avatar,
+  Paper,
+  Popper,
+  Grow,
+  InputAdornment,
+  Checkbox
 } from '@mui/material'
-import { CloseOutlined, DeleteOutline, AddOutlined, Check } from '@mui/icons-material'
+import { ClickAwayListener } from '@mui/base'
+import { CloseOutlined, DeleteOutline, AddOutlined, Check, KeyboardArrowDownOutlined, ChevronLeft, ChevronRight, SyncOutlined } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
@@ -94,7 +101,13 @@ function AssignFormDrawer({
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
-  const [selectedAthletes, setSelectedAthletes] = useState(initialSelectedAthletes)
+  // Player selector state (same as Export drawer)
+  const [selectorOpen, setSelectorOpen] = useState(false)
+  const [selectedIds, setSelectedIds] = useState(new Set())
+  const [drillPath, setDrillPath] = useState([])
+  const [autoSyncTeams, setAutoSyncTeams] = useState({})
+  const selectorAnchorRef = useRef(null)
+
   const [assignmentType, setAssignmentType] = useState('always-available')
   
   // Schedule fields (for "One Time" option)
@@ -109,11 +122,39 @@ function AssignFormDrawer({
   const [showNotifications, setShowNotifications] = useState(false)
   const [notifications, setNotifications] = useState([])
 
+  // Group athletes by team (same as Export drawer)
+  const teamGroups = useMemo(() => {
+    const grouped = {}
+    athletes.forEach((athlete) => {
+      const teamKey = athlete.team || athlete.squad || 'Unassigned'
+      if (!grouped[teamKey]) {
+        grouped[teamKey] = {
+          key: teamKey,
+          name: teamKey,
+          status: 'Active',
+          athletes: []
+        }
+      }
+      grouped[teamKey].athletes.push({
+        id: athlete.id,
+        name: athlete.name || `${athlete.firstname || ''} ${athlete.lastname || ''}`.trim(),
+        position: athlete.position || '—',
+        avatar: athlete.avatar
+      })
+    })
+    return Object.values(grouped)
+  }, [athletes])
+
+  // Current drill-down team
+  const currentTeam = drillPath.length > 0 ? drillPath[drillPath.length - 1] : null
 
   // Reset state when drawer opens
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
-      setSelectedAthletes(initialSelectedAthletes)
+      setSelectedIds(new Set())
+      setSelectorOpen(false)
+      setDrillPath([])
+      setAutoSyncTeams({})
       setAssignmentType('always-available')
       setScheduleTitle('')
       setStartDate(new Date())
@@ -124,13 +165,21 @@ function AssignFormDrawer({
       setShowNotifications(false)
       setNotifications([])
     }
-  }, [open, initialSelectedAthletes])
+  }, [open])
+
+  // Reset selector state when it closes
+  useEffect(() => {
+    if (!selectorOpen) {
+      setDrillPath([])
+    }
+  }, [selectorOpen])
 
   const handleClose = () => {
     onClose && onClose()
   }
 
   const handleAssign = () => {
+    const selectedAthletes = athletes.filter(a => selectedIds.has(a.id))
     const assignment = {
       formName,
       selectedAthletes,
@@ -157,13 +206,417 @@ function AssignFormDrawer({
     handleClose()
   }
 
-  const athleteOptions = useMemo(() => {
-    return athletes.map((a) => ({
-      id: a.id,
-      name: a.name || `${a.firstname || ''} ${a.lastname || ''}`.trim(),
-      position: a.position || '—'
+  // Selector handlers (same as Export drawer)
+  const handleOpenSelector = () => setSelectorOpen(true)
+  const handleCloseSelector = () => setSelectorOpen(false)
+  const handleDone = () => {
+    setSelectorOpen(false)
+  }
+
+  const handleToggleAthlete = (athleteId) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(athleteId)) {
+        next.delete(athleteId)
+      } else {
+        next.add(athleteId)
+      }
+      return next
+    })
+  }
+
+  const handleSelectAllTeam = useCallback((team) => {
+    const teamAthleteIds = team.athletes.map(a => a.id)
+    const allSelected = teamAthleteIds.every(id => selectedIds.has(id))
+    
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (allSelected) {
+        teamAthleteIds.forEach(id => next.delete(id))
+      } else {
+        teamAthleteIds.forEach(id => next.add(id))
+      }
+      return next
+    })
+  }, [selectedIds])
+
+  const handleAutoSyncToggle = (teamKey) => {
+    setAutoSyncTeams(prev => ({
+      ...prev,
+      [teamKey]: !prev[teamKey]
     }))
-  }, [athletes])
+  }
+
+  const handleDrillDown = (team) => {
+    setDrillPath(prev => [...prev, team])
+  }
+
+  const handleBack = () => {
+    setDrillPath(prev => prev.slice(0, -1))
+  }
+
+  const handleClearSelection = () => {
+    setSelectedIds(new Set())
+  }
+
+  // Get display text for trigger (same as Export drawer)
+  const triggerDisplayText = useMemo(() => {
+    if (selectedIds.size === 0) return ''
+    const selectedNames = athletes
+      .filter(a => selectedIds.has(a.id))
+      .map(a => a.name || `${a.firstname || ''} ${a.lastname || ''}`.trim())
+      .slice(0, 3)
+    if (selectedIds.size > 3) {
+      return `${selectedNames.join(', ')} +${selectedIds.size - 3} more`
+    }
+    return selectedNames.join(', ')
+  }, [selectedIds, athletes])
+
+  // Team row component (same as Export drawer)
+  const TeamRow = ({ team }) => {
+    const teamAthleteIds = team.athletes.map(a => a.id)
+    const selectedCount = teamAthleteIds.filter(id => selectedIds.has(id)).length
+    const allSelected = selectedCount === team.athletes.length && team.athletes.length > 0
+    const isAutoSync = autoSyncTeams[team.key] || false
+
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: 2,
+          py: 1.5,
+          cursor: 'pointer',
+          '&:hover': { bgcolor: 'action.hover' },
+          borderBottom: '1px solid var(--color-border-secondary)'
+        }}
+        onClick={() => handleDrillDown(team)}
+      >
+        <Box sx={{ flex: 1 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              fontFamily: 'var(--font-family-primary)',
+              fontSize: 'var(--font-size-sm)',
+              fontWeight: 'var(--font-weight-medium)',
+              color: 'var(--color-text-primary)'
+            }}
+          >
+            {team.name}
+            {selectedCount > 0 && ` (${selectedCount})`}
+          </Typography>
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                checked={isAutoSync}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleAutoSyncToggle(team.key)
+                }}
+                sx={{
+                  '& .MuiSwitch-switchBase.Mui-checked': {
+                    color: 'var(--color-primary)'
+                  },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                    backgroundColor: 'var(--color-primary)'
+                  }
+                }}
+              />
+            }
+            label={
+              <Typography
+                sx={{
+                  fontFamily: 'var(--font-family-primary)',
+                  fontSize: 'var(--font-size-xs)',
+                  color: 'var(--color-text-secondary)'
+                }}
+              >
+                Auto-sync
+              </Typography>
+            }
+            labelPlacement="end"
+            onClick={(e) => e.stopPropagation()}
+            sx={{ ml: -1, mt: 0.5 }}
+          />
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Button
+            size="small"
+            variant="text"
+            onClick={(e) => {
+              e.stopPropagation()
+              handleSelectAllTeam(team)
+            }}
+            sx={{
+              fontFamily: 'var(--font-family-primary)',
+              fontSize: 'var(--font-size-xs)',
+              textTransform: 'none',
+              minWidth: 'auto',
+              color: 'var(--color-primary)'
+            }}
+          >
+            {allSelected ? 'Clear all' : 'Select all'}
+          </Button>
+          <ChevronRight fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
+        </Box>
+      </Box>
+    )
+  }
+
+  // Player row component (same as Export drawer)
+  const PlayerRow = ({ player }) => {
+    const isSelected = selectedIds.has(player.id)
+    const initials = player.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          px: 2,
+          py: 1,
+          cursor: 'pointer',
+          '&:hover': { bgcolor: 'action.hover' },
+          borderBottom: '1px solid var(--color-border-secondary)'
+        }}
+        onClick={() => handleToggleAthlete(player.id)}
+      >
+        <Checkbox
+          size="small"
+          checked={isSelected}
+          sx={{
+            color: 'var(--color-text-secondary)',
+            '&.Mui-checked': {
+              color: 'var(--color-primary)'
+            },
+            mr: 1
+          }}
+        />
+        <Avatar
+          src={player.avatar}
+          sx={{
+            width: 32,
+            height: 32,
+            mr: 1.5,
+            fontSize: 'var(--font-size-xs)',
+            bgcolor: 'var(--color-background-tertiary)',
+            color: 'var(--color-text-secondary)'
+          }}
+        >
+          {initials}
+        </Avatar>
+        <Typography
+          variant="body2"
+          sx={{
+            fontFamily: 'var(--font-family-primary)',
+            fontSize: 'var(--font-size-sm)',
+            color: 'var(--color-text-primary)'
+          }}
+        >
+          {player.name}
+        </Typography>
+      </Box>
+    )
+  }
+
+  // Selector content (same as Export drawer)
+  const renderSelectorContent = () => {
+    const isAutoSyncActive = currentTeam && autoSyncTeams[currentTeam.key]
+
+    return (
+      <Box>
+        {/* Header */}
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          px={2}
+          pt={2}
+          pb={1}
+        >
+          <Typography
+            variant="h6"
+            sx={{
+              fontFamily: 'var(--font-family-primary)',
+              fontSize: 'var(--font-size-md)',
+              fontWeight: 600,
+              color: 'var(--color-text-primary)'
+            }}
+          >
+            Select Athletes
+          </Typography>
+          <IconButton size="small" onClick={handleCloseSelector}>
+            <CloseOutlined fontSize="small" />
+          </IconButton>
+        </Box>
+
+        {/* Drill-down header or Selected chip */}
+        {currentTeam ? (
+          <>
+            {/* Back button row */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                px: 2,
+                py: 1
+              }}
+            >
+              <Button
+                startIcon={<ChevronLeft fontSize="small" />}
+                onClick={handleBack}
+                size="small"
+                sx={{
+                  textTransform: 'none',
+                  fontFamily: 'var(--font-family-primary)',
+                  fontSize: 'var(--font-size-sm)',
+                  color: 'var(--color-text-primary)',
+                  ml: -1
+                }}
+              >
+                Back
+              </Button>
+              <Box sx={{ textAlign: 'right' }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontFamily: 'var(--font-family-primary)',
+                    fontSize: 'var(--font-size-sm)',
+                    color: 'var(--color-text-primary)'
+                  }}
+                >
+                  {currentTeam.name}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontFamily: 'var(--font-family-primary)',
+                    fontSize: 'var(--font-size-xs)',
+                    color: 'var(--color-text-secondary)'
+                  }}
+                >
+                  {currentTeam.status}
+                </Typography>
+              </Box>
+            </Box>
+            {/* Selected count + auto-sync indicator row */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                px: 2,
+                pb: 1
+              }}
+            >
+              <Chip
+                size="small"
+                variant="filled"
+                disabled={selectedIds.size === 0}
+                color="primary"
+                label={`Selected (${selectedIds.size})`}
+                onDelete={selectedIds.size > 0 ? handleClearSelection : undefined}
+                deleteIcon={<CloseOutlined fontSize="small" />}
+                sx={{
+                  fontFamily: 'var(--font-family-primary)',
+                  fontSize: 'var(--font-size-xs)'
+                }}
+              />
+              {isAutoSyncActive && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontFamily: 'var(--font-family-primary)',
+                      fontSize: 'var(--font-size-xs)',
+                      color: 'var(--color-text-secondary)'
+                    }}
+                  >
+                    Auto-syncing new players
+                  </Typography>
+                  <SyncOutlined fontSize="small" sx={{ color: 'var(--color-text-secondary)', fontSize: 16 }} />
+                </Box>
+              )}
+            </Box>
+          </>
+        ) : (
+          <Box px={2} pb={1}>
+            <Chip
+              size="small"
+              variant="filled"
+              disabled={selectedIds.size === 0}
+              color="primary"
+              label={`Selected (${selectedIds.size})`}
+              onDelete={selectedIds.size > 0 ? handleClearSelection : undefined}
+              deleteIcon={<CloseOutlined fontSize="small" />}
+              sx={{
+                fontFamily: 'var(--font-family-primary)',
+                fontSize: 'var(--font-size-xs)'
+              }}
+            />
+          </Box>
+        )}
+
+        <Divider />
+
+        {/* List content */}
+        <Box sx={{ maxHeight: 300, overflowY: 'auto' }}>
+          {!currentTeam ? (
+            // Team list view
+            teamGroups.map(team => (
+              <TeamRow key={team.key} team={team} />
+            ))
+          ) : (
+            // Player list view
+            currentTeam.athletes.map(player => (
+              <PlayerRow key={player.id} player={player} />
+            ))
+          )}
+          {!currentTeam && teamGroups.length === 0 && (
+            <Typography
+              variant="body2"
+              sx={{
+                textAlign: 'center',
+                py: 3,
+                color: 'var(--color-text-secondary)',
+                fontFamily: 'var(--font-family-primary)'
+              }}
+            >
+              No teams found
+            </Typography>
+          )}
+        </Box>
+
+        <Divider />
+
+        {/* Footer */}
+        <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleDone}
+            disabled={selectedIds.size === 0}
+            sx={{
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--button-primary-color)',
+              textTransform: 'none',
+              fontFamily: 'var(--font-family-primary)',
+              '&:hover': { backgroundColor: 'var(--color-primary-hover)' },
+              '&.Mui-disabled': {
+                backgroundColor: 'var(--color-background-tertiary)',
+                color: 'var(--color-text-secondary)'
+              }
+            }}
+          >
+            Done
+          </Button>
+        </Box>
+      </Box>
+    )
+  }
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -226,88 +679,70 @@ function AssignFormDrawer({
               sx={formFieldStyles}
             />
 
-            {/* Player / Athlete Selector */}
-            <Autocomplete
-              multiple
-              size="small"
-              options={athleteOptions}
-              value={selectedAthletes}
-              onChange={(_, newValue) => setSelectedAthletes(newValue)}
-              getOptionLabel={(option) => option.name || ''}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="filled"
-                  label="Players / Athletes"
-                  placeholder={selectedAthletes.length === 0 ? 'Select athletes' : ''}
-                  sx={formFieldStyles}
-                />
-              )}
-              renderTags={(value, getTagProps) =>
-                value.map((option, index) => (
-                  <Chip
-                    key={option.id}
-                    label={option.name}
-                    size="small"
-                    {...getTagProps({ index })}
+            {/* Players Selector Trigger (same as Export drawer) */}
+            <Box ref={selectorAnchorRef}>
+              <TextField
+                fullWidth
+                size="small"
+                variant="filled"
+                label="Players"
+                value={triggerDisplayText}
+                placeholder="Select players"
+                onClick={handleOpenSelector}
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <KeyboardArrowDownOutlined
+                        fontSize="small"
+                        sx={{ color: 'var(--color-text-secondary)' }}
+                      />
+                    </InputAdornment>
+                  )
+                }}
+                sx={{
+                  ...formFieldStyles,
+                  cursor: 'pointer',
+                  '& .MuiInputBase-input': {
+                    ...formFieldStyles['& .MuiInputBase-input'],
+                    cursor: 'pointer'
+                  }
+                }}
+              />
+            </Box>
+
+            {/* Athlete Selector Dropdown (same as Export drawer) */}
+            <Popper
+              open={selectorOpen}
+              anchorEl={selectorAnchorRef.current}
+              placement="bottom-start"
+              transition
+              sx={{ zIndex: 1400 }}
+              modifiers={[
+                {
+                  name: 'offset',
+                  options: {
+                    offset: [0, 4]
+                  }
+                }
+              ]}
+            >
+              {({ TransitionProps }) => (
+                <Grow {...TransitionProps} timeout={200}>
+                  <Paper
                     sx={{
-                      backgroundColor: 'var(--color-primary-light)',
-                      color: 'var(--color-text-primary)',
-                      fontFamily: 'var(--font-family-primary)',
-                      fontSize: 'var(--font-size-xs)',
-                      '& .MuiChip-deleteIcon': {
-                        color: 'var(--color-text-secondary)',
-                        '&:hover': { color: 'var(--color-text-primary)' }
-                      }
+                      width: selectorAnchorRef.current?.offsetWidth || 400,
+                      boxShadow: theme.shadows[8],
+                      borderRadius: 'var(--radius-md)'
                     }}
-                  />
-                ))
-              }
-              renderOption={(props, option) => (
-                <Box
-                  component="li"
-                  {...props}
-                  sx={{
-                    fontFamily: 'var(--font-family-primary)',
-                    fontSize: 'var(--font-size-sm)'
-                  }}
-                >
-                  <Box>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontFamily: 'var(--font-family-primary)',
-                        fontSize: 'var(--font-size-sm)',
-                        color: 'var(--color-text-primary)'
-                      }}
-                    >
-                      {option.name}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        fontFamily: 'var(--font-family-primary)',
-                        fontSize: 'var(--font-size-xs)',
-                        color: 'var(--color-text-secondary)'
-                      }}
-                    >
-                      {option.position}
-                    </Typography>
-                  </Box>
-                </Box>
+                  >
+                    <ClickAwayListener onClickAway={handleCloseSelector}>
+                      {renderSelectorContent()}
+                    </ClickAwayListener>
+                  </Paper>
+                </Grow>
               )}
-              PaperComponent={(props) => (
-                <Box
-                  {...props}
-                  sx={{
-                    '& .MuiAutocomplete-listbox': {
-                      fontFamily: 'var(--font-family-primary)'
-                    }
-                  }}
-                />
-              )}
-            />
+            </Popper>
 
             {/* Form Availability Section */}
             <Box>
