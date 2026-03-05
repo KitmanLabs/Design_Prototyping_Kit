@@ -1792,6 +1792,7 @@ export default function FormsPage() {
           open={exportOpen}
           onClose={() => setExportOpen(false)}
           athletes={drawerAthletes}
+        />
         <NotificationDrawer
           open={isNotificationDrawerOpen}
           onClose={() => setIsNotificationDrawerOpen(false)}
