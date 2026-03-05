@@ -23,7 +23,8 @@ import {
   CloseOutlined,
   ArrowDropDownOutlined,
   ChevronRightOutlined,
-  AutoAwesomeOutlined
+  AutoAwesomeOutlined,
+  InfoOutlined
 } from '@mui/icons-material'
 import '../../styles/design-tokens.css'
 import { Button, Icon, StatusChip } from '../../components'
@@ -49,6 +50,106 @@ const mockRecentSummaries = [
   { id: 6, title: 'Training Load Monitoring', date: 'Sep 12, 2025' },
   { id: 7, title: 'Mental Health and Wellbeing Check', date: 'Sep 10, 2025' }
 ]
+
+// Mock detailed summary content for drill-down view
+const mockSummaryDetails = {
+  1: {
+    sections: [
+      {
+        title: 'Nutritional Overview',
+        items: [
+          {
+            headline: 'Current Diet Assessment',
+            content: 'Athlete maintains a balanced macronutrient intake with adequate protein (1.8g/kg body weight). Carbohydrate timing around training sessions is well-optimized for performance.'
+          },
+          {
+            headline: 'Hydration Status',
+            content: 'Consistent daily fluid intake of 3-4 liters. Pre and post-training hydration protocols are being followed effectively.'
+          },
+          {
+            headline: 'Supplement Recommendations',
+            content: 'Continue with current Vitamin D supplementation (2000 IU daily). Consider adding omega-3 fatty acids to support joint health and recovery.'
+          }
+        ]
+      },
+      {
+        title: 'Recommendations',
+        items: [
+          {
+            headline: 'Immediate Actions',
+            content: 'Increase iron-rich food intake to address borderline ferritin levels. Schedule follow-up blood work in 4 weeks.'
+          },
+          {
+            headline: 'Dietary Adjustments',
+            content: 'Increase complex carbohydrate intake on high-intensity training days. Add pre-sleep casein protein to support overnight recovery.'
+          }
+        ]
+      }
+    ]
+  },
+  3: {
+    sections: [
+      {
+        title: 'Athlete Medical Summary',
+        items: [
+          {
+            headline: 'Concussion History',
+            content: 'Significant history of concussion. Sustained a concussion in high school (2012) resulting in loss of consciousness and hospitalization. Recent hospitalization for concussion on March 11, 2025.'
+          },
+          {
+            headline: 'Musculoskeletal History',
+            content: 'Right Low Back: History of imaging (X-ray, MRI, CT, or bone scan) performed on December 24, 2024 for chronic issues.'
+          },
+          {
+            headline: 'Vaccination Status',
+            content: 'Incomplete vaccination history: Mumps: Unknown, Pneumonia: Tetanus: No'
+          }
+        ]
+      },
+      {
+        title: 'Recommendations',
+        items: [
+          {
+            headline: 'Immediate Actions',
+            content: 'Player should be immediately held from all contact and throwing activities. Urgent comprehensive orthopedic evaluation of the right shoulder is required. Urgent comprehensive neurological evaluation, including a detailed concussion assessment, is required.'
+          },
+          {
+            headline: 'Diagnostic Next Steps',
+            content: 'Obtain an MRI of the right shoulder to assess rotator cuff integrity and extent of injury. Conduct a full neuropsychological assessment (e.g., ImPACT testing) and a thorough neurological examination to evaluate sequelae of the recent concussion. Review medical records from the March 11, 2025 hospitalization.'
+          }
+        ]
+      }
+    ]
+  }
+}
+
+// Generate default summary details for items without specific content
+const getDefaultSummaryDetail = (summary) => ({
+  sections: [
+    {
+      title: 'Assessment Summary',
+      items: [
+        {
+          headline: 'Overview',
+          content: `This ${summary.title.toLowerCase()} was completed and all findings have been documented. Key observations and metrics are within expected parameters.`
+        },
+        {
+          headline: 'Key Findings',
+          content: 'All assessed areas show satisfactory results. No immediate concerns were identified during this evaluation.'
+        }
+      ]
+    },
+    {
+      title: 'Recommendations',
+      items: [
+        {
+          headline: 'Follow-up Actions',
+          content: 'Continue with current protocols. Schedule next assessment as per standard monitoring schedule.'
+        }
+      ]
+    }
+  ]
+})
 
 function getTemplateForForm() {
   // Return the test toggle template for demo purposes
@@ -83,6 +184,7 @@ export default function FormFillPage() {
   const [answers, setAnswers] = useState(() => buildStubAnswers(template))
   const [summaryDrawerOpen, setSummaryDrawerOpen] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
+  const [selectedSummary, setSelectedSummary] = useState(null)
 
   // Flatten questions for navigation
   const allQuestions = useMemo(() => {
@@ -426,65 +528,108 @@ export default function FormFillPage() {
         }}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          {/* Drawer header - X button */}
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              px: 2,
-              py: 1.5,
-              borderBottom: '1px solid var(--color-border-primary)'
-            }}
-          >
-            <IconButton
-              onClick={() => setSummaryDrawerOpen(false)}
-              size="small"
-              aria-label="Close drawer"
-              sx={{ color: 'var(--color-text-secondary)' }}
-            >
-              <CloseOutlined fontSize="small" />
-            </IconButton>
-          </Box>
-
-          {/* Selectors row */}
-          <Box sx={{ px: 3, py: 2 }}>
-            {/* Player selector (locked/disabled) */}
-            <TextField
-              fullWidth
-              size="small"
-              variant="filled"
-              label="Player"
-              value={athleteName}
-              disabled
-              sx={{
-                mb: 2,
-                '& .MuiInputBase-root': {
-                  backgroundColor: 'var(--color-background-secondary)',
-                  fontFamily: 'var(--font-family-primary)',
-                  fontSize: 'var(--font-size-sm)'
-                },
-                '& .MuiInputLabel-root': {
-                  fontFamily: 'var(--font-family-primary)',
-                  fontSize: 'var(--font-size-sm)'
-                }
-              }}
-            />
-
-            {/* Template search selector */}
-            <Autocomplete
-              size="small"
-              options={mockFormTemplates}
-              getOptionLabel={(option) => option.name || ''}
-              value={selectedTemplate}
-              onChange={(_, newValue) => setSelectedTemplate(newValue)}
-              popupIcon={<ArrowDropDownOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="filled"
-                  label="Search templates"
+          {selectedSummary ? (
+            /* Drill-down Detail View */
+            <>
+              {/* Drill-down header - Back button and X button */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  px: 2,
+                  py: 1.5,
+                  borderBottom: '1px solid var(--color-border-primary)'
+                }}
+              >
+                <IconButton
+                  onClick={() => setSelectedSummary(null)}
+                  size="small"
+                  aria-label="Back to list"
+                  sx={{ color: 'var(--color-text-secondary)' }}
+                >
+                  <ArrowBackOutlined fontSize="small" />
+                </IconButton>
+                <Typography
+                  variant="body2"
                   sx={{
+                    fontFamily: 'var(--font-family-primary)',
+                    fontSize: 'var(--font-size-xs)',
+                    color: 'var(--color-text-secondary)'
+                  }}
+                >
+                  back
+                </Typography>
+                <Box sx={{ flex: 1 }} />
+                <IconButton
+                  onClick={() => {
+                    setSelectedSummary(null)
+                    setSummaryDrawerOpen(false)
+                  }}
+                  size="small"
+                  aria-label="Close drawer"
+                  sx={{ color: 'var(--color-text-secondary)' }}
+                >
+                  <CloseOutlined fontSize="small" />
+                </IconButton>
+              </Box>
+
+              {/* Drill-down content */}
+              <Box sx={{ flex: 1, overflowY: 'auto', px: 3, py: 2 }}>
+                {/* Title and AI chip */}
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 0.5 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontFamily: 'var(--font-family-primary)',
+                      fontSize: 'var(--font-size-lg)',
+                      fontWeight: 600,
+                      color: 'var(--color-text-primary)',
+                      lineHeight: 1.3,
+                      flex: 1
+                    }}
+                  >
+                    {selectedSummary.title}
+                  </Typography>
+                  <StatusChip
+                    label="AI generated"
+                    icon={<AutoAwesomeOutlined sx={{ fontSize: 14 }} />}
+                    size="small"
+                    sx={{
+                      backgroundColor: 'var(--color-background-secondary)',
+                      color: 'var(--color-text-secondary)',
+                      fontFamily: 'var(--font-family-primary)',
+                      fontSize: 'var(--font-size-xs)',
+                      flexShrink: 0
+                    }}
+                  />
+                </Box>
+
+                {/* Date */}
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontFamily: 'var(--font-family-primary)',
+                    fontSize: 'var(--font-size-sm)',
+                    color: 'var(--color-text-secondary)',
+                    mb: 2
+                  }}
+                >
+                  {selectedSummary.date}
+                </Typography>
+
+                <Divider sx={{ mb: 2 }} />
+
+                {/* Player selector (locked/disabled) */}
+                <TextField
+                  fullWidth
+                  size="small"
+                  variant="filled"
+                  label="Player"
+                  value={athleteName}
+                  disabled
+                  sx={{
+                    mb: 3,
                     '& .MuiInputBase-root': {
                       backgroundColor: 'var(--color-background-secondary)',
                       fontFamily: 'var(--font-family-primary)',
@@ -496,87 +641,227 @@ export default function FormFillPage() {
                     }
                   }}
                 />
-              )}
-            />
-          </Box>
 
-          <Divider />
-
-          {/* Recent section */}
-          <Box sx={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-            <Typography
-              variant="body2"
-              sx={{
-                px: 3,
-                py: 1.5,
-                fontWeight: 600,
-                fontFamily: 'var(--font-family-primary)',
-                fontSize: 'var(--font-size-sm)',
-                color: 'var(--color-text-secondary)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}
-            >
-              Recent
-            </Typography>
-
-            <List sx={{ py: 0 }}>
-              {mockRecentSummaries.map((summary) => (
-                <ListItem key={summary.id} disablePadding>
-                  <ListItemButton
-                    sx={{
-                      px: 3,
-                      py: 1.5,
-                      '&:hover': {
-                        backgroundColor: 'var(--color-background-hover)'
-                      }
-                    }}
-                  >
-                    <ListItemText
-                      primary={summary.title}
-                      secondary={summary.date}
-                      primaryTypographyProps={{
-                        sx: {
-                          fontFamily: 'var(--font-family-primary)',
-                          fontSize: 'var(--font-size-sm)',
-                          fontWeight: 500,
-                          color: 'var(--color-text-primary)',
-                          lineHeight: 1.4
-                        }
+                {/* Summary sections */}
+                {(mockSummaryDetails[selectedSummary.id] || getDefaultSummaryDetail(selectedSummary)).sections.map((section, sectionIdx) => (
+                  <Box key={sectionIdx} sx={{ mb: 3 }}>
+                    {/* Section title */}
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontFamily: 'var(--font-family-primary)',
+                        fontSize: 'var(--font-size-md)',
+                        fontWeight: 600,
+                        color: 'var(--color-text-primary)',
+                        mb: 2
                       }}
-                      secondaryTypographyProps={{
-                        sx: {
-                          fontFamily: 'var(--font-family-primary)',
-                          fontSize: 'var(--font-size-xs)',
-                          color: 'var(--color-text-secondary)',
-                          mt: 0.5
-                        }
-                      }}
-                    />
-                    <ChevronRightOutlined
-                      fontSize="small"
-                      sx={{ color: 'var(--color-text-tertiary)', ml: 1 }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
+                    >
+                      {section.title}
+                    </Typography>
 
-            {/* Show More button */}
-            <Box sx={{ px: 3, py: 2 }}>
-              <Button
-                variant="secondary"
-                size="small"
-                style={{
-                  width: '100%',
-                  fontWeight: 600,
-                  fontSize: 'var(--font-size-sm)'
+                    {/* Section items */}
+                    {section.items.map((item, itemIdx) => (
+                      <Box key={itemIdx} sx={{ mb: 2 }}>
+                        {/* Item headline with info icon */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                          <InfoOutlined
+                            sx={{
+                              fontSize: 18,
+                              color: 'var(--color-text-secondary)'
+                            }}
+                          />
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontFamily: 'var(--font-family-primary)',
+                              fontSize: 'var(--font-size-sm)',
+                              fontWeight: 600,
+                              color: 'var(--color-text-primary)'
+                            }}
+                          >
+                            {item.headline}
+                          </Typography>
+                        </Box>
+                        {/* Item content */}
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontFamily: 'var(--font-family-primary)',
+                            fontSize: 'var(--font-size-sm)',
+                            color: 'var(--color-text-secondary)',
+                            lineHeight: 1.6,
+                            pl: 3.5
+                          }}
+                        >
+                          {item.content}
+                        </Typography>
+                      </Box>
+                    ))}
+
+                    {sectionIdx < (mockSummaryDetails[selectedSummary.id] || getDefaultSummaryDetail(selectedSummary)).sections.length - 1 && (
+                      <Divider sx={{ mt: 2 }} />
+                    )}
+                  </Box>
+                ))}
+              </Box>
+            </>
+          ) : (
+            /* Recent List View (existing functionality) */
+            <>
+              {/* Drawer header - X button */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  px: 2,
+                  py: 1.5,
+                  borderBottom: '1px solid var(--color-border-primary)'
                 }}
               >
-                Show More
-              </Button>
-            </Box>
-          </Box>
+                <IconButton
+                  onClick={() => setSummaryDrawerOpen(false)}
+                  size="small"
+                  aria-label="Close drawer"
+                  sx={{ color: 'var(--color-text-secondary)' }}
+                >
+                  <CloseOutlined fontSize="small" />
+                </IconButton>
+              </Box>
+
+              {/* Selectors row */}
+              <Box sx={{ px: 3, py: 2 }}>
+                {/* Player selector (locked/disabled) */}
+                <TextField
+                  fullWidth
+                  size="small"
+                  variant="filled"
+                  label="Player"
+                  value={athleteName}
+                  disabled
+                  sx={{
+                    mb: 2,
+                    '& .MuiInputBase-root': {
+                      backgroundColor: 'var(--color-background-secondary)',
+                      fontFamily: 'var(--font-family-primary)',
+                      fontSize: 'var(--font-size-sm)'
+                    },
+                    '& .MuiInputLabel-root': {
+                      fontFamily: 'var(--font-family-primary)',
+                      fontSize: 'var(--font-size-sm)'
+                    }
+                  }}
+                />
+
+                {/* Template search selector */}
+                <Autocomplete
+                  size="small"
+                  options={mockFormTemplates}
+                  getOptionLabel={(option) => option.name || ''}
+                  value={selectedTemplate}
+                  onChange={(_, newValue) => setSelectedTemplate(newValue)}
+                  popupIcon={<ArrowDropDownOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="filled"
+                      label="Search templates"
+                      sx={{
+                        '& .MuiInputBase-root': {
+                          backgroundColor: 'var(--color-background-secondary)',
+                          fontFamily: 'var(--font-family-primary)',
+                          fontSize: 'var(--font-size-sm)'
+                        },
+                        '& .MuiInputLabel-root': {
+                          fontFamily: 'var(--font-family-primary)',
+                          fontSize: 'var(--font-size-sm)'
+                        }
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+
+              <Divider />
+
+              {/* Recent section */}
+              <Box sx={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    px: 3,
+                    py: 1.5,
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-family-primary)',
+                    fontSize: 'var(--font-size-sm)',
+                    color: 'var(--color-text-secondary)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}
+                >
+                  Recent
+                </Typography>
+
+                <List sx={{ py: 0 }}>
+                  {mockRecentSummaries.map((summary) => (
+                    <ListItem key={summary.id} disablePadding>
+                      <ListItemButton
+                        onClick={() => setSelectedSummary(summary)}
+                        sx={{
+                          px: 3,
+                          py: 1.5,
+                          '&:hover': {
+                            backgroundColor: 'var(--color-background-hover)'
+                          }
+                        }}
+                      >
+                        <ListItemText
+                          primary={summary.title}
+                          secondary={summary.date}
+                          primaryTypographyProps={{
+                            sx: {
+                              fontFamily: 'var(--font-family-primary)',
+                              fontSize: 'var(--font-size-sm)',
+                              fontWeight: 500,
+                              color: 'var(--color-text-primary)',
+                              lineHeight: 1.4
+                            }
+                          }}
+                          secondaryTypographyProps={{
+                            sx: {
+                              fontFamily: 'var(--font-family-primary)',
+                              fontSize: 'var(--font-size-xs)',
+                              color: 'var(--color-text-secondary)',
+                              mt: 0.5
+                            }
+                          }}
+                        />
+                        <ChevronRightOutlined
+                          fontSize="small"
+                          sx={{ color: 'var(--color-text-tertiary)', ml: 1 }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+
+                {/* Show More button */}
+                <Box sx={{ px: 3, py: 2 }}>
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    style={{
+                      width: '100%',
+                      fontWeight: 600,
+                      fontSize: 'var(--font-size-sm)'
+                    }}
+                  >
+                    Show More
+                  </Button>
+                </Box>
+              </Box>
+            </>
+          )}
         </Box>
       </Drawer>
     </Box>
