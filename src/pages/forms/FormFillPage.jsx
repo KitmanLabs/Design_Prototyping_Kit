@@ -243,7 +243,7 @@ export default function FormFillPage() {
   }
 
   const handleBack = () => {
-    navigate('/medical-assessment')
+    navigate('/forms')
   }
 
   // Calculate drawer width for layout shift
