@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Drawer,
   Box,
@@ -29,8 +29,10 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import Button from './Button';
+import LocationPicker from './LocationPicker';
+import savedLocationsData from '../data/saved_locations.json';
 
-const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) => {
+const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], editingEvent = null }) => {
   const [formData, setFormData] = useState({
     eventType: '',
     title: '',
@@ -48,6 +50,38 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
 
   const [errors, setErrors] = useState({});
   const [perSquadEvent, setPerSquadEvent] = useState(false);
+
+  // Populate form when editing an existing event
+  useEffect(() => {
+    if (editingEvent) {
+      const startDate = new Date(editingEvent.start);
+      const endDate = new Date(editingEvent.end);
+      const durationMinutes = Math.round((endDate - startDate) / 60000);
+      
+      // Convert event type from UPPER_CASE to Title Case
+      const eventTypeFormatted = editingEvent.extendedProps?.eventType
+        ? editingEvent.extendedProps.eventType
+            .split('_')
+            .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+            .join(' ')
+        : '';
+
+      setFormData({
+        eventType: eventTypeFormatted,
+        title: editingEvent.title || '',
+        description: editingEvent.extendedProps?.description || '',
+        startDateTime: startDate,
+        duration: durationMinutes,
+        timezone: editingEvent.extendedProps?.timezone || 'Europe/Dublin',
+        repeats: editingEvent.extendedProps?.repeats || 'none',
+        location: editingEvent.extendedProps?.location || '',
+        selectedAthletes: editingEvent.extendedProps?.selectedAthletes || [],
+        selectedStaff: editingEvent.extendedProps?.selectedStaff || [],
+        staffVisibility: editingEvent.extendedProps?.staffVisibility || 'all',
+        attachments: editingEvent.extendedProps?.attachments || [],
+      });
+    }
+  }, [editingEvent]);
 
   const formFieldStyles = {
     '& .MuiInputBase-root': {
@@ -221,7 +255,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--color-background-primary)' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 24px 16px 24px', borderBottom: '1px solid var(--color-border-primary)' }}>
             <Typography variant="h6" sx={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
-              New event
+              {editingEvent ? 'Edit event' : 'New event'}
             </Typography>
             <IconButton onClick={onClose} size="small">
               <Close />
@@ -347,14 +381,10 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
               </Grid>
 
               <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  variant="filled"
-                  label="Location"
+                <LocationPicker
                   value={formData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
-                  placeholder="Search locations..."
-                  sx={formFieldStyles}
+                  onChange={(value) => handleInputChange('location', value)}
+                  savedLocations={savedLocationsData}
                 />
               </Grid>
 
