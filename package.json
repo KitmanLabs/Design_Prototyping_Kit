@@ -14,6 +14,7 @@
     "lint:fix": "eslint src --ext .js,.jsx --fix",
     "lint:css": "stylelint 'src/**/*.css'",
     "lint:css:fix": "stylelint 'src/**/*.css' --fix",
+    "test": "vitest",
     "validate-design-system": "node scripts/validate-design-system.js",
     "validate-quick": "npm run lint && npm run lint:css"
   },
@@ -59,6 +60,9 @@
   },
   "devDependencies": {
     "@babel/preset-flow": "^7.27.1",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@vitejs/plugin-react": "^4.0.3",
     "eslint": "^8.34.0",
     "eslint-plugin-design-system": "file:./eslint-plugin-design-system",
@@ -66,11 +70,13 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "flow-remove-types": "^2.302.0",
     "husky": "^8.0.3",
+    "jsdom": "^28.1.0",
     "stylelint": "^15.0.0",
     "stylelint-config-standard": "^30.0.0",
     "stylelint-plugin-design-system": "file:./stylelint-plugin-design-system",
     "vite": "^7.1.9",
-    "vite-plugin-flow": "^0.2.1"
+    "vite-plugin-flow": "^0.2.1",
+    "vitest": "^4.0.18"
   },
   "husky": {
     "hooks": {

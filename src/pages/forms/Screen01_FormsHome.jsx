@@ -28,10 +28,11 @@ function Screen01_FormsHome() {
   const isLeagueView = location.pathname.startsWith('/league')
   // Inline stub data to visually render the screen (no behavior)
   const rows = [
-    { id: 'f-001', title: 'Daily Wellness Check', type: 'Questionnaire', status: 'Active', owner: 'Performance', updated: 'Today 10:12', due: 'Today 18:00', recipients: 53, completion: 41 },
-    { id: 'f-002', title: 'Post-Game RPE', type: 'Questionnaire', status: 'Scheduled', owner: 'Coaching', updated: 'Yesterday 16:40', due: 'Tomorrow 09:00', recipients: 53, completion: null },
-    { id: 'f-003', title: 'Injury Follow-up', type: 'Questionnaire', status: 'Draft', owner: 'Medical', updated: 'Mon 14:20', due: null, recipients: 8, completion: null },
-    { id: 'staff_form', title: 'Staff Form', type: 'Questionnaire', status: 'Draft', owner: 'Sporting Operations', updated: 'Today 09:30', due: null, recipients: 0, completion: null, route: '/forms/staff_form/build' },
+    { id: 'f-001', title: 'Medical Assessment', category: 'Medical', type: 'Questionnaire', status: 'Active', owner: 'Performance', updated: 'Today 10:12', due: 'Today 18:00', recipients: 53, completion: 41 },
+    { id: 'f-002', title: 'Preseason assessment', category: 'Training', type: 'Questionnaire', status: 'Scheduled', owner: 'Coaching', updated: 'Yesterday 16:40', due: 'Tomorrow 09:00', recipients: 53, completion: null },
+    { id: 'f-003', title: 'End of season survey', category: 'Assessment', type: 'Questionnaire', status: 'Draft', owner: 'Medical', updated: 'Mon 14:20', due: null, recipients: 8, completion: null },
+    { id: 'f-004', title: 'Training', category: 'Rehabilitation', type: 'Questionnaire', status: 'Draft', owner: 'Sporting Operations', updated: 'Today 09:30', due: null, recipients: 0, completion: null },
+    { id: 'f-005', title: 'Transfer screening', category: 'Administrative', type: 'Questionnaire', status: 'Draft', owner: 'Medical', updated: 'Today 09:30', due: null, recipients: 0, completion: null },
   ]
 
   const columns = useMemo(() => [
@@ -161,7 +162,14 @@ function Screen01_FormsHome() {
         size="small" 
         variant="filled" 
         placeholder="Search" 
-        sx={{ minWidth: 260 }}
+        sx={{
+          minWidth: 260,
+          '& .MuiFilledInput-root': {
+            '&:after': {
+              borderBottomColor: 'var(--color-black)'
+            }
+          }
+        }}
         InputProps={{ 
           endAdornment: (
             <InputAdornment position="end">
@@ -170,7 +178,40 @@ function Screen01_FormsHome() {
           ) 
         }}
       />
-      <TextField select size="small" variant="filled" label="Category" sx={{ minWidth: 220 }} value="">
+      <TextField
+        select
+        size="small"
+        variant="filled"
+        label="Category"
+        value=""
+        sx={{
+          minWidth: 220,
+          '& .MuiFilledInput-root': {
+            '&:after': {
+              borderBottomColor: 'var(--color-black)'
+            }
+          }
+        }}
+        SelectProps={{
+          MenuProps: {
+            PaperProps: {
+              sx: {
+                '& .MuiMenuItem-root': {
+                  '&:hover': {
+                    backgroundColor: 'var(--color-background-tertiary)'
+                  },
+                  '&.Mui-selected': {
+                    backgroundColor: 'var(--color-background-tertiary)',
+                    '&:hover': {
+                      backgroundColor: 'var(--color-background-tertiary)'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }}
+      >
         <MenuItem value="">Category</MenuItem>
         <MenuItem value="medical">Medical</MenuItem>
         <MenuItem value="performance">Performance</MenuItem>
@@ -236,6 +277,21 @@ function Screen01_FormsHome() {
     onClose={() => { setActionMenuAnchor(null); setActionRowId(null); }}
     anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
     transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+    PaperProps={{
+      sx: {
+        '& .MuiMenuItem-root': {
+          '&:hover': {
+            backgroundColor: 'var(--color-background-tertiary)'
+          },
+          '&.Mui-selected': {
+            backgroundColor: 'var(--color-background-tertiary)',
+            '&:hover': {
+              backgroundColor: 'var(--color-background-tertiary)'
+            }
+          }
+        }
+      }
+    }}
   >
     <MenuItem onClick={() => { setActionMenuAnchor(null); setActionRowId(null); }}>Edit</MenuItem>
     <MenuItem onClick={() => { setActionMenuAnchor(null); /* open drawer below */ setAssignOpen(true); }}>Assign</MenuItem>
