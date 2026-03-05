@@ -577,21 +577,24 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                           handleInputChange('selectedAthletes', newValue)
                         }
                         renderTags={(value, getTagProps) =>
-                          value.map((option, index) => (
-                            <Chip
-                              key={option.id}
-                              label={getAthleteLabel(option)}
-                              {...getTagProps({ index })}
-                              icon={<Person />}
-                              sx={{
-                                backgroundColor: 'var(--color-background-selected)',
-                                color: 'var(--color-text-primary)',
-                                '& .MuiChip-deleteIcon': {
-                                  color: 'var(--color-text-secondary)',
-                                },
-                              }}
-                            />
-                          ))
+                          value.map((option, index) => {
+                            const { key, ...tagProps } = getTagProps({ index });
+                            return (
+                              <Chip
+                                key={option.id}
+                                label={getAthleteLabel(option)}
+                                {...tagProps}
+                                icon={<Person />}
+                                sx={{
+                                  backgroundColor: 'var(--color-background-selected)',
+                                  color: 'var(--color-text-primary)',
+                                  '& .MuiChip-deleteIcon': {
+                                    color: 'var(--color-text-secondary)',
+                                  },
+                                }}
+                              />
+                            );
+                          })
                         }
                         renderInput={(params) => (
                           <TextField
