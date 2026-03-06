@@ -39,7 +39,11 @@ import {
   FormatListBulletedOutlined,
   FormatListNumberedOutlined,
   ExpandMore,
-  PersonOutlined
+  PersonOutlined,
+  ContentCopyOutlined,
+  InfoOutlined,
+  UndoOutlined,
+  CheckCircleOutlined
 } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
@@ -186,10 +190,47 @@ const getDefaultPlayerFormData = () => ({
   attachments: []
 })
 
+// Error styles for form fields
+const errorFieldStyles = {
+  ...formFieldStyles,
+  '& .MuiInputBase-root': {
+    ...formFieldStyles['& .MuiInputBase-root'],
+    '&.Mui-error': {
+      border: '1px solid var(--color-error)',
+      backgroundColor: 'var(--color-error-light)',
+    },
+  },
+  '& .MuiFilledInput-root': {
+    ...formFieldStyles['& .MuiFilledInput-root'],
+    '&.Mui-error': {
+      border: '1px solid var(--color-error)',
+      backgroundColor: 'var(--color-error-light)',
+    },
+    '&.Mui-error:before': {
+      borderBottom: '1px solid var(--color-error)',
+    },
+    '&.Mui-error:after': {
+      borderBottom: '2px solid var(--color-error)',
+    },
+  },
+  '& .MuiInputLabel-root.Mui-error': {
+    color: 'var(--color-error)',
+  },
+  '& .MuiFormHelperText-root.Mui-error': {
+    color: 'var(--color-error)',
+    fontFamily: 'var(--font-family-primary)',
+    fontSize: 'var(--font-size-xs)',
+  },
+}
+
 // Player Procedure Form Component - renders all fields for a single player
-function PlayerProcedureForm({ playerId, formData, onFormChange }) {
+function PlayerProcedureForm({ playerId, formData, onFormChange, validationErrors = {}, onClearError }) {
   const handleFieldChange = (field, value) => {
     onFormChange(playerId, field, value)
+    // Clear error when field is filled
+    if (onClearError && value) {
+      onClearError(playerId, field)
+    }
   }
 
   const handleAddComplication = (complication) => {
@@ -244,13 +285,19 @@ function PlayerProcedureForm({ playerId, formData, onFormChange }) {
         }}
       />
 
-      {/* Provider */}
-      <FormControl fullWidth size="small" variant="filled" sx={formFieldStyles}>
-        <InputLabel>Provider</InputLabel>
+      {/* Provider - Mandatory */}
+      <FormControl 
+        fullWidth 
+        size="small" 
+        variant="filled" 
+        error={!!validationErrors.provider}
+        sx={validationErrors.provider ? errorFieldStyles : formFieldStyles}
+      >
+        <InputLabel>Provider *</InputLabel>
         <Select
           value={formData.provider}
           onChange={(e) => handleFieldChange('provider', e.target.value)}
-          label="Provider"
+          label="Provider *"
         >
           {PROVIDERS.map((p) => (
             <MenuItem key={p} value={p}>
@@ -258,15 +305,35 @@ function PlayerProcedureForm({ playerId, formData, onFormChange }) {
             </MenuItem>
           ))}
         </Select>
+        {validationErrors.provider && (
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              color: 'var(--color-error)', 
+              mt: 0.5, 
+              ml: 1.5,
+              fontFamily: 'var(--font-family-primary)',
+              fontSize: 'var(--font-size-xs)'
+            }}
+          >
+            {validationErrors.provider}
+          </Typography>
+        )}
       </FormControl>
 
-      {/* Procedure Type */}
-      <FormControl fullWidth size="small" variant="filled" sx={formFieldStyles}>
-        <InputLabel>Procedure Type</InputLabel>
+      {/* Procedure Type - Mandatory */}
+      <FormControl 
+        fullWidth 
+        size="small" 
+        variant="filled" 
+        error={!!validationErrors.procedureType}
+        sx={validationErrors.procedureType ? errorFieldStyles : formFieldStyles}
+      >
+        <InputLabel>Procedure type *</InputLabel>
         <Select
           value={formData.procedureType}
           onChange={(e) => handleFieldChange('procedureType', e.target.value)}
-          label="Procedure Type"
+          label="Procedure type *"
         >
           {PROCEDURE_TYPES.map((type) => (
             <MenuItem key={type} value={type}>
@@ -274,6 +341,20 @@ function PlayerProcedureForm({ playerId, formData, onFormChange }) {
             </MenuItem>
           ))}
         </Select>
+        {validationErrors.procedureType && (
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              color: 'var(--color-error)', 
+              mt: 0.5, 
+              ml: 1.5,
+              fontFamily: 'var(--font-family-primary)',
+              fontSize: 'var(--font-size-xs)'
+            }}
+          >
+            {validationErrors.procedureType}
+          </Typography>
+        )}
       </FormControl>
 
       {/* Procedure Description */}
@@ -292,13 +373,19 @@ function PlayerProcedureForm({ playerId, formData, onFormChange }) {
         </Select>
       </FormControl>
 
-      {/* Reason */}
-      <FormControl fullWidth size="small" variant="filled" sx={formFieldStyles}>
-        <InputLabel>Reason</InputLabel>
+      {/* Reason - Mandatory */}
+      <FormControl 
+        fullWidth 
+        size="small" 
+        variant="filled" 
+        error={!!validationErrors.reason}
+        sx={validationErrors.reason ? errorFieldStyles : formFieldStyles}
+      >
+        <InputLabel>Reason *</InputLabel>
         <Select
           value={formData.reason}
           onChange={(e) => handleFieldChange('reason', e.target.value)}
-          label="Reason"
+          label="Reason *"
         >
           {REASONS.map((r) => (
             <MenuItem key={r} value={r}>
@@ -306,6 +393,20 @@ function PlayerProcedureForm({ playerId, formData, onFormChange }) {
             </MenuItem>
           ))}
         </Select>
+        {validationErrors.reason && (
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              color: 'var(--color-error)', 
+              mt: 0.5, 
+              ml: 1.5,
+              fontFamily: 'var(--font-family-primary)',
+              fontSize: 'var(--font-size-xs)'
+            }}
+          >
+            {validationErrors.reason}
+          </Typography>
+        )}
       </FormControl>
 
       {/* Linked Injury / Illness */}
@@ -534,7 +635,9 @@ function PlayerProcedureForm({ playerId, formData, onFormChange }) {
 PlayerProcedureForm.propTypes = {
   playerId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   formData: PropTypes.object.isRequired,
-  onFormChange: PropTypes.func.isRequired
+  onFormChange: PropTypes.func.isRequired,
+  validationErrors: PropTypes.object,
+  onClearError: PropTypes.func
 }
 
 function ProcedureDrawer({
@@ -559,6 +662,16 @@ function ProcedureDrawer({
   
   // Track which accordion is expanded (player ID or null)
   const [expandedAccordion, setExpandedAccordion] = useState(null)
+
+  // Validation errors state - keyed by player ID, with field-level errors
+  const [validationErrors, setValidationErrors] = useState({})
+  
+  // Players field error state
+  const [playersError, setPlayersError] = useState('')
+
+  // Copy to All state - tracks if copy has been applied and stores previous data for undo
+  const [copyToAllApplied, setCopyToAllApplied] = useState(false)
+  const [previousFormDataForUndo, setPreviousFormDataForUndo] = useState(null)
 
   // Get selected athletes in order
   const selectedAthletes = useMemo(() => {
@@ -600,6 +713,10 @@ function ProcedureDrawer({
       setAutoSyncTeams({})
       setPlayerFormData({})
       setExpandedAccordion(null)
+      setValidationErrors({})
+      setPlayersError('')
+      setCopyToAllApplied(false)
+      setPreviousFormDataForUndo(null)
     }
   }, [open])
 
@@ -649,7 +766,60 @@ function ProcedureDrawer({
     onClose && onClose()
   }
 
+  // Validate form before saving
+  const validateForm = () => {
+    let isValid = true
+    const newErrors = {}
+    
+    // Check if players are selected
+    if (selectedAthletes.length === 0) {
+      setPlayersError('Please select at least one player')
+      isValid = false
+    } else {
+      setPlayersError('')
+    }
+    
+    // Validate mandatory fields for each player
+    selectedAthletes.forEach(athlete => {
+      const playerId = athlete.id
+      const formData = playerFormData[playerId] || {}
+      const playerErrors = {}
+      
+      if (!formData.provider) {
+        playerErrors.provider = 'Provider is required'
+        isValid = false
+      }
+      if (!formData.procedureType) {
+        playerErrors.procedureType = 'Procedure type is required'
+        isValid = false
+      }
+      if (!formData.reason) {
+        playerErrors.reason = 'Reason is required'
+        isValid = false
+      }
+      
+      if (Object.keys(playerErrors).length > 0) {
+        newErrors[playerId] = playerErrors
+      }
+    })
+    
+    setValidationErrors(newErrors)
+    
+    // If there are errors, expand the first accordion with errors
+    if (!isValid && Object.keys(newErrors).length > 0) {
+      const firstErrorPlayerId = Object.keys(newErrors)[0]
+      setExpandedAccordion(Number(firstErrorPlayerId) || firstErrorPlayerId)
+    }
+    
+    return isValid
+  }
+
   const handleSave = () => {
+    // Validate before saving
+    if (!validateForm()) {
+      return
+    }
+    
     // Collect all player procedures
     const procedures = selectedAthletes.map(athlete => ({
       athlete: {
@@ -674,13 +844,112 @@ function ProcedureDrawer({
     }))
   }, [])
 
+  // Clear validation error for a specific field
+  const handleClearError = useCallback((playerId, field) => {
+    setValidationErrors(prev => {
+      const newErrors = { ...prev }
+      if (newErrors[playerId]) {
+        const { [field]: removed, ...rest } = newErrors[playerId]
+        if (Object.keys(rest).length === 0) {
+          delete newErrors[playerId]
+        } else {
+          newErrors[playerId] = rest
+        }
+      }
+      return newErrors
+    })
+  }, [])
+
+  // Copy to All - copies form data from first player to all others (except unique fields)
+  const handleCopyToAll = useCallback(() => {
+    if (selectedAthletes.length <= 1) return
+    
+    const firstPlayerId = selectedAthletes[0].id
+    const sourceData = playerFormData[firstPlayerId]
+    if (!sourceData) return
+    
+    // Store previous form data for undo functionality
+    setPreviousFormDataForUndo(JSON.parse(JSON.stringify(playerFormData)))
+    
+    // Fields that should NOT be copied (unique per player)
+    const uniqueFields = ['linkedCondition', 'bodyArea']
+    
+    setPlayerFormData(prev => {
+      const newData = { ...prev }
+      selectedAthletes.forEach(athlete => {
+        if (athlete.id !== firstPlayerId) {
+          const existingData = newData[athlete.id] || getDefaultPlayerFormData()
+          newData[athlete.id] = {
+            ...existingData,
+            // Copy all fields from source except unique ones
+            procedureOrderDate: sourceData.procedureOrderDate,
+            procedureAppointmentDate: sourceData.procedureAppointmentDate,
+            provider: sourceData.provider,
+            procedureType: sourceData.procedureType,
+            procedureDescription: sourceData.procedureDescription,
+            reason: sourceData.reason,
+            complications: [...(sourceData.complications || [])],
+            note: sourceData.note,
+            attachments: [...(sourceData.attachments || [])],
+            // Keep unique fields as they were
+            linkedCondition: existingData.linkedCondition,
+            bodyArea: existingData.bodyArea,
+          }
+        }
+      })
+      return newData
+    })
+    
+    // Clear validation errors for copied fields
+    setValidationErrors(prev => {
+      const newErrors = { ...prev }
+      selectedAthletes.forEach(athlete => {
+        if (athlete.id !== firstPlayerId && newErrors[athlete.id]) {
+          // Clear errors for fields that were copied
+          const { linkedCondition, bodyArea, ...rest } = newErrors[athlete.id]
+          delete newErrors[athlete.id]
+        }
+      })
+      return newErrors
+    })
+    
+    // Mark copy to all as applied
+    setCopyToAllApplied(true)
+  }, [selectedAthletes, playerFormData])
+
+  // Undo Copy to All - restores previous form data
+  const handleUndoCopyToAll = useCallback(() => {
+    if (previousFormDataForUndo) {
+      setPlayerFormData(previousFormDataForUndo)
+      setPreviousFormDataForUndo(null)
+      setCopyToAllApplied(false)
+    }
+  }, [previousFormDataForUndo])
+
+  // Get count of empty unique fields for a player (for accordion indicator)
+  const getEmptyUniqueFieldsCount = useCallback((playerId) => {
+    const formData = playerFormData[playerId]
+    if (!formData) return 0
+    
+    let count = 0
+    if (!formData.linkedCondition) count++
+    if (!formData.bodyArea) count++
+    return count
+  }, [playerFormData])
+
   // Handle accordion expand/collapse
   const handleAccordionChange = (playerId) => (event, isExpanded) => {
     setExpandedAccordion(isExpanded ? playerId : null)
   }
 
   // Selector handlers
-  const handleOpenSelector = () => setSelectorOpen(true)
+  const handleOpenSelector = () => {
+    setSelectorOpen(true)
+    // Clear players error when opening selector
+    if (playersError) {
+      setPlayersError('')
+    }
+  }
   const handleCloseSelector = () => setSelectorOpen(false)
   const handleDone = () => {
     setSelectorOpen(false)
@@ -1112,32 +1381,34 @@ function ProcedureDrawer({
           {/* Body */}
           <Box sx={{ px: 3, py: 3, flex: 1, overflowY: 'auto' }}>
             <Stack spacing={2.5}>
-              {/* Player Selector */}
+              {/* Player Selector - Mandatory */}
               <Box ref={selectorAnchorRef}>
                 <TextField
                   fullWidth
                   size="small"
                   variant="filled"
-                  label="Players"
+                  label="Players *"
                   value={triggerDisplayText}
                   placeholder="Select players"
                   onClick={handleOpenSelector}
+                  error={!!playersError}
+                  helperText={playersError}
                   InputProps={{
                     readOnly: true,
                     endAdornment: (
                       <InputAdornment position="end">
                         <KeyboardArrowDownOutlined
                           fontSize="small"
-                          sx={{ color: 'var(--color-text-secondary)' }}
+                          sx={{ color: playersError ? 'var(--color-error)' : 'var(--color-text-secondary)' }}
                         />
                       </InputAdornment>
                     )
                   }}
                   sx={{
-                    ...formFieldStyles,
+                    ...(playersError ? errorFieldStyles : formFieldStyles),
                     cursor: 'pointer',
                     '& .MuiInputBase-input': {
-                      ...formFieldStyles['& .MuiInputBase-input'],
+                      ...(playersError ? errorFieldStyles : formFieldStyles)['& .MuiInputBase-input'],
                       cursor: 'pointer'
                     }
                   }}
@@ -1180,7 +1451,7 @@ function ProcedureDrawer({
               {/* Player Accordions - shown when players are selected */}
               {selectedAthletes.length > 0 && (
                 <Box sx={{ mt: 1 }}>
-                  {/* Section header showing player count */}
+                  {/* Section header showing player count and Copy to All button */}
                   <Box 
                     sx={{ 
                       display: 'flex', 
@@ -1189,17 +1460,88 @@ function ProcedureDrawer({
                       mb: 2
                     }}
                   >
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontFamily: 'var(--font-family-primary)',
-                        fontSize: 'var(--font-size-sm)',
-                        fontWeight: 'var(--font-weight-semibold)',
-                        color: 'var(--color-text-primary)'
-                      }}
-                    >
-                      Procedure Details
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontFamily: 'var(--font-family-primary)',
+                          fontSize: 'var(--font-size-sm)',
+                          fontWeight: 'var(--font-weight-semibold)',
+                          color: 'var(--color-text-primary)'
+                        }}
+                      >
+                        Procedure Details
+                      </Typography>
+                      {/* Copy to All button - only show when multiple players selected and not yet applied */}
+                      {selectedAthletes.length > 1 && !copyToAllApplied && (
+                        <Button
+                          variant="contained"
+                          size="small"
+                          disableElevation
+                          startIcon={<ContentCopyOutlined sx={{ fontSize: '14px !important' }} />}
+                          onClick={handleCopyToAll}
+                          sx={{
+                            backgroundColor: 'var(--color-background-secondary)',
+                            color: 'var(--color-text-primary)',
+                            border: '1px solid var(--color-border-primary)',
+                            textTransform: 'none',
+                            fontFamily: 'var(--font-family-primary)',
+                            fontSize: 'var(--font-size-xs)',
+                            fontWeight: 'var(--font-weight-medium)',
+                            py: 0.5,
+                            '&:hover': {
+                              backgroundColor: 'var(--color-background-tertiary)',
+                              border: '1px solid var(--color-border-focus)'
+                            }
+                          }}
+                        >
+                          Copy to all
+                        </Button>
+                      )}
+                      {/* Confirmation indicator and Undo button - show after Copy to All is applied */}
+                      {selectedAthletes.length > 1 && copyToAllApplied && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Chip
+                            size="small"
+                            icon={<CheckCircleOutlined sx={{ fontSize: '14px !important' }} />}
+                            label="Fields copied"
+                            sx={{
+                              fontFamily: 'var(--font-family-primary)',
+                              fontSize: 'var(--font-size-xs)',
+                              backgroundColor: 'var(--color-success-light)',
+                              color: 'var(--color-success-dark)',
+                              height: 24,
+                              '& .MuiChip-icon': {
+                                color: 'var(--color-success-dark)'
+                              }
+                            }}
+                          />
+                          <Button
+                            variant="contained"
+                            size="small"
+                            disableElevation
+                            startIcon={<UndoOutlined sx={{ fontSize: '14px !important' }} />}
+                            onClick={handleUndoCopyToAll}
+                            sx={{
+                              backgroundColor: 'var(--color-background-secondary)',
+                              color: 'var(--color-text-primary)',
+                              border: '1px solid var(--color-border-primary)',
+                              textTransform: 'none',
+                              fontFamily: 'var(--font-family-primary)',
+                              fontSize: 'var(--font-size-xs)',
+                              fontWeight: 'var(--font-weight-medium)',
+                              py: 0.5,
+                              '&:hover': {
+                                backgroundColor: 'var(--color-background-tertiary)',
+                                border: '1px solid var(--color-border-focus)'
+                              }
+                            }}
+                          >
+                            Undo
+                          </Button>
+                        </Box>
+                      )}
+                    </Box>
                     <Chip
                       size="small"
                       icon={<PersonOutlined sx={{ fontSize: '14px !important' }} />}
@@ -1305,19 +1647,51 @@ function ProcedureDrawer({
                                   {athlete.position || '—'}
                                 </Typography>
                               </Box>
-                              {/* Status indicator for collapsed accordions */}
-                              {!isExpanded && playerFormData[playerId]?.procedureType && (
-                                <Chip
-                                  size="small"
-                                  label={playerFormData[playerId].procedureType}
-                                  sx={{
-                                    fontFamily: 'var(--font-family-primary)',
-                                    fontSize: 'var(--font-size-xs)',
-                                    backgroundColor: 'var(--color-background-selected)',
-                                    color: 'var(--color-text-secondary)',
-                                    height: 24
-                                  }}
-                                />
+                              {/* Status indicators for collapsed accordions */}
+                              {!isExpanded && (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  {/* Procedure type chip */}
+                                  {playerFormData[playerId]?.procedureType && (
+                                    <Chip
+                                      size="small"
+                                      label={playerFormData[playerId].procedureType}
+                                      sx={{
+                                        fontFamily: 'var(--font-family-primary)',
+                                        fontSize: 'var(--font-size-xs)',
+                                        backgroundColor: 'var(--color-background-selected)',
+                                        color: 'var(--color-text-secondary)',
+                                        height: 24
+                                      }}
+                                    />
+                                  )}
+                                  {/* Empty unique fields indicator - only show after Copy to All has been applied */}
+                                  {(() => {
+                                    // Only show this indicator after Copy to All has been applied
+                                    if (!copyToAllApplied) return null
+                                    
+                                    const emptyCount = getEmptyUniqueFieldsCount(playerId)
+                                    if (emptyCount > 0) {
+                                      return (
+                                        <Chip
+                                          size="small"
+                                          icon={<InfoOutlined sx={{ fontSize: '14px !important' }} />}
+                                          label={`${emptyCount} field${emptyCount > 1 ? 's' : ''} not filled`}
+                                          sx={{
+                                            fontFamily: 'var(--font-family-primary)',
+                                            fontSize: 'var(--font-size-xs)',
+                                            backgroundColor: 'var(--color-warning-light)',
+                                            color: 'var(--color-warning-dark)',
+                                            height: 24,
+                                            '& .MuiChip-icon': {
+                                              color: 'var(--color-warning-dark)'
+                                            }
+                                          }}
+                                        />
+                                      )
+                                    }
+                                    return null
+                                  })()}
+                                </Box>
                               )}
                             </Box>
                           </AccordionSummary>
@@ -1336,6 +1710,8 @@ function ProcedureDrawer({
                                 playerId={playerId}
                                 formData={playerFormData[playerId]}
                                 onFormChange={handleFormChange}
+                                validationErrors={validationErrors[playerId] || {}}
+                                onClearError={handleClearError}
                               />
                             )}
                           </AccordionDetails>
