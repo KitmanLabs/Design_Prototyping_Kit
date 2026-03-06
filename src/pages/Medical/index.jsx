@@ -19,6 +19,7 @@ import {
   ArrowDropDown,
 } from '@mui/icons-material';
 import { Button, PlayerAvatar, StatusChip } from '../../components';
+import ProcedureDrawer from './ProcedureDrawer';
 import athletesData from '../../data/athletes.json';
 import injuriesData from '../../data/injuries_medical.json';
 import '../../styles/design-tokens.css';
@@ -119,6 +120,9 @@ function MedicalPage() {
   // Menu anchor states
   const [addMenuAnchor, setAddMenuAnchor] = useState(null);
   const [downloadMenuAnchor, setDownloadMenuAnchor] = useState(null);
+  
+  // Procedure drawer state
+  const [procedureDrawerOpen, setProcedureDrawerOpen] = useState(false);
 
   // Menu handlers
   const handleAddMenuClick = (event) => {
@@ -131,8 +135,22 @@ function MedicalPage() {
 
   const handleAddMenuItemClick = (type) => {
     handleAddMenuClose();
-    // Handle add action based on type
-    console.log('Add:', type);
+    if (type === 'procedure') {
+      setProcedureDrawerOpen(true);
+    } else {
+      // Handle other add actions
+      console.log('Add:', type);
+    }
+  };
+
+  const handleProcedureDrawerClose = () => {
+    setProcedureDrawerOpen(false);
+  };
+
+  const handleProcedureSubmit = (procedureData) => {
+    console.log('Procedure submitted:', procedureData);
+    // Handle procedure submission
+    setProcedureDrawerOpen(false);
   };
 
   const handleDownloadMenuClick = (event) => {
@@ -703,6 +721,15 @@ function MedicalPage() {
         <MenuItem onClick={() => handleDownloadMenuItemClick('csv')}>Export as CSV</MenuItem>
         <MenuItem onClick={() => handleDownloadMenuItemClick('excel')}>Export as Excel</MenuItem>
       </Menu>
+
+      {/* Procedure Drawer */}
+      <ProcedureDrawer
+        open={procedureDrawerOpen}
+        onClose={handleProcedureDrawerClose}
+        onSubmit={handleProcedureSubmit}
+        athletes={athletesData}
+        injuries={injuriesData}
+      />
     </Box>
   );
 }
