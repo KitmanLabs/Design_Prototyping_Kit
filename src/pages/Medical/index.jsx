@@ -9,12 +9,14 @@ import {
   InputAdornment,
   IconButton,
   Chip,
+  Menu,
 } from '@mui/material';
 import { DataGrid } from 'playbook-components';
 import {
   SearchOutlined,
   MoreVertOutlined,
   WarningOutlined,
+  ArrowDropDown,
 } from '@mui/icons-material';
 import { Button, PlayerAvatar, StatusChip } from '../../components';
 import athletesData from '../../data/athletes.json';
@@ -113,6 +115,39 @@ function MedicalPage() {
   const [activeRosterFilter, setActiveRosterFilter] = useState('');
   const [positionFilter, setPositionFilter] = useState('');
   const [injuredFilter, setInjuredFilter] = useState('');
+  
+  // Menu anchor states
+  const [addMenuAnchor, setAddMenuAnchor] = useState(null);
+  const [downloadMenuAnchor, setDownloadMenuAnchor] = useState(null);
+
+  // Menu handlers
+  const handleAddMenuClick = (event) => {
+    setAddMenuAnchor(event.currentTarget);
+  };
+
+  const handleAddMenuClose = () => {
+    setAddMenuAnchor(null);
+  };
+
+  const handleAddMenuItemClick = (type) => {
+    handleAddMenuClose();
+    // Handle add action based on type
+    console.log('Add:', type);
+  };
+
+  const handleDownloadMenuClick = (event) => {
+    setDownloadMenuAnchor(event.currentTarget);
+  };
+
+  const handleDownloadMenuClose = () => {
+    setDownloadMenuAnchor(null);
+  };
+
+  const handleDownloadMenuItemClick = (type) => {
+    handleDownloadMenuClose();
+    // Handle download action based on type
+    console.log('Download:', type);
+  };
 
   const tabs = [
     'Roster',
@@ -442,11 +477,13 @@ function MedicalPage() {
             Roster
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button variant="primary" size="small">
+            <Button variant="primary" size="small" onClick={handleAddMenuClick}>
               Add
+              <ArrowDropDown sx={{ fontSize: '16px', marginLeft: '4px' }} />
             </Button>
-            <Button variant="secondary" size="small">
+            <Button variant="secondary" size="small" onClick={handleDownloadMenuClick}>
               Download
+              <ArrowDropDown sx={{ fontSize: '16px', marginLeft: '4px' }} />
             </Button>
           </Box>
         </Box>
@@ -585,6 +622,87 @@ function MedicalPage() {
           </Box>
         </TabPanel>
       ))}
+
+      {/* Add Menu */}
+      <Menu
+        anchorEl={addMenuAnchor}
+        open={Boolean(addMenuAnchor)}
+        onClose={handleAddMenuClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        PaperProps={{
+          sx: {
+            mt: 1,
+            minWidth: 160,
+            boxShadow: 'var(--shadow-lg)',
+            borderRadius: 'var(--radius-sm)',
+            '& .MuiMenuItem-root': {
+              fontFamily: 'var(--font-family-primary)',
+              fontSize: 'var(--font-size-sm)',
+              fontWeight: 'var(--font-weight-medium)',
+              color: 'var(--color-text-primary)',
+              padding: '10px 16px',
+              '&:hover': {
+                backgroundColor: 'var(--color-background-secondary)',
+              },
+            },
+          },
+        }}
+      >
+        <MenuItem onClick={() => handleAddMenuItemClick('injury')}>Injury</MenuItem>
+        <MenuItem onClick={() => handleAddMenuItemClick('illness')}>Illness</MenuItem>
+        <MenuItem onClick={() => handleAddMenuItemClick('note')}>Note</MenuItem>
+        <MenuItem onClick={() => handleAddMenuItemClick('diagnostic')}>Diagnostic</MenuItem>
+        <MenuItem onClick={() => handleAddMenuItemClick('file')}>File</MenuItem>
+        <MenuItem onClick={() => handleAddMenuItemClick('allergy')}>Allergy</MenuItem>
+        <MenuItem onClick={() => handleAddMenuItemClick('chronic-condition')}>Chronic condition</MenuItem>
+        <MenuItem onClick={() => handleAddMenuItemClick('medical-alert')}>Medical alert</MenuItem>
+        <MenuItem onClick={() => handleAddMenuItemClick('procedure')}>Procedure</MenuItem>
+        <MenuItem onClick={() => handleAddMenuItemClick('vaccination')}>Vaccination</MenuItem>
+      </Menu>
+
+      {/* Download Menu */}
+      <Menu
+        anchorEl={downloadMenuAnchor}
+        open={Boolean(downloadMenuAnchor)}
+        onClose={handleDownloadMenuClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        PaperProps={{
+          sx: {
+            mt: 1,
+            minWidth: 160,
+            boxShadow: 'var(--shadow-lg)',
+            borderRadius: 'var(--radius-sm)',
+            '& .MuiMenuItem-root': {
+              fontFamily: 'var(--font-family-primary)',
+              fontSize: 'var(--font-size-sm)',
+              fontWeight: 'var(--font-weight-medium)',
+              color: 'var(--color-text-primary)',
+              padding: '10px 16px',
+              '&:hover': {
+                backgroundColor: 'var(--color-background-secondary)',
+              },
+            },
+          },
+        }}
+      >
+        <MenuItem onClick={() => handleDownloadMenuItemClick('pdf')}>Export as PDF</MenuItem>
+        <MenuItem onClick={() => handleDownloadMenuItemClick('csv')}>Export as CSV</MenuItem>
+        <MenuItem onClick={() => handleDownloadMenuItemClick('excel')}>Export as Excel</MenuItem>
+      </Menu>
     </Box>
   );
 }
