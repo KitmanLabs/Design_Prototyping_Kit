@@ -3,6 +3,7 @@ import LayoutWithMainNav from './components/LayoutWithMainNav'
 import SimplePage from './pages/SimplePage'
 import Athletes from './pages/Athletes'
 import CalendarPage from './pages/Calendar'
+import MedicalPage from './pages/Medical'
 import Screen01_FormsHome from './pages/forms/Screen01_FormsHome'
 import FormsPage from './pages/forms/FormsPage'
 import Screen02_FormBuilder from './pages/forms/Screen02_FormBuilder'
@@ -19,7 +20,7 @@ function App() {
       <Routes>
         <Route path="/" element={<SimplePage pageName="Home" />} />
         <Route path="/dashboard" element={<SimplePage pageName="Dashboard" />} />
-        <Route path="/medical" element={<SimplePage pageName="Medical" />} />
+        <Route path="/medical" element={<MedicalPage />} />
         <Route path="/analysis" element={<SimplePage pageName="Analysis" />} />
         <Route path="/athlete" element={<Athletes />} />
         <Route path="/workloads" element={<SimplePage pageName="Workload" />} />
