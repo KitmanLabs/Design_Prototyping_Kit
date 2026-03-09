@@ -7,20 +7,32 @@ import { createTheme } from '@mui/material/styles';
 const rootTheme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2',
-      focus: 'rgba(25, 118, 210, 0.08)',
+      main: '#3b4960',
+      dark: '#3b4960',
+      contrastText: '#ffffff',
+      focus: 'rgba(59, 73, 96, 0.08)',
     },
-    success: {
-      main: '#2e7d32',
+    secondary: {
+      main: '#f1f2f3',
+      contrastText: '#3b4960',
     },
     error: {
       main: '#d32f2f',
+      dark: '#c62828',
       light: '#e57373',
     },
     warning: {
-      main: '#ed6c02',
+      main: '#ef6c00',
+      dark: '#e65100',
       light: '#ffb74d',
       lighter: '#ffe0b2',
+    },
+    info: {
+      main: '#0288d1',
+      dark: '#01579b',
+    },
+    success: {
+      main: '#2e7d32',
     },
   },
 });
