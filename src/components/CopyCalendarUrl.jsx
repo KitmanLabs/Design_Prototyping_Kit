@@ -12,7 +12,7 @@ import {
   Typography,
   Tooltip,
 } from '@mui/material';
-import { Refresh, ContentCopy, Check } from '@mui/icons-material';
+import { RefreshOutlined, ContentCopyOutlined, CheckOutlined } from '@mui/icons-material';
 
 const CopyCalendarUrl = ({ 
   open = false, 
@@ -78,7 +78,7 @@ const CopyCalendarUrl = ({
           <Tooltip title={refreshing ? 'Refreshing...' : 'Refresh'}>
             <span>
               <IconButton onClick={handleRefresh} size="small" disabled={refreshing}>
-                <Refresh />
+                <RefreshOutlined />
               </IconButton>
             </span>
           </Tooltip>
@@ -86,7 +86,7 @@ const CopyCalendarUrl = ({
           <Tooltip title={copied ? 'Copied' : 'Copy'}>
             <span>
               <IconButton onClick={handleCopy} size="small">
-                {copied ? <Check sx={{ color: 'var(--color-success)' }} /> : <ContentCopy />}
+                {copied ? <CheckOutlined sx={{ color: 'var(--color-success)' }} /> : <ContentCopyOutlined />}
               </IconButton>
             </span>
           </Tooltip>

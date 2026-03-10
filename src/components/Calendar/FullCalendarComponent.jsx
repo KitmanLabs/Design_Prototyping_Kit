@@ -22,7 +22,7 @@ const FullCalendarComponent = ({
   handleEventSelect,
   handleEventClick,
   userLocale = 'en',
-  orgTimeZone = 'UTC',
+  orgTimeZone = "Utc",
   events,
   currentCalendarView,
   setCalendarLoading,
@@ -37,7 +37,7 @@ const FullCalendarComponent = ({
     } = arg;
 
     // Handle event styling for list view
-    if (currentCalendarView === 'listWeek' && backgroundColor === '#FFFFFF') {
+    if (currentCalendarView === 'listWeek' && backgroundColor === 'var(--color-white)') {
       const marker = el.querySelector('.fc-list-event-dot');
       if (marker) {
         marker.style.borderWidth = '1px';

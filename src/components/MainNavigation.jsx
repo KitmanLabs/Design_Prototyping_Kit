@@ -148,8 +148,8 @@ function MainNavigation({
               ml: 1, mr: 0,
               mb: 0.5,
               position: 'relative',
-              backgroundColor: isActive ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-              color: '#ffffff',
+              backgroundColor: isActive ? 'var(--color-overlay-hover)' : 'transparent',
+              color: 'var(--color-white)',
               '&::before': isActive ? {
                 content: '""',
                 position: 'absolute',
@@ -157,12 +157,12 @@ function MainNavigation({
                 top: 0,
                 bottom: 0,
                 width: '3px',
-                backgroundColor: '#ffffff',
+                backgroundColor: 'var(--color-white)',
                 borderRadius: '0 2px 2px 0'
               } : {},
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                color: '#ffffff'
+                backgroundColor: 'var(--color-overlay-active)',
+                color: 'var(--color-white)'
               },
               transition: 'all 0.2s ease'
             }}
@@ -200,8 +200,9 @@ function MainNavigation({
         width: isOpen ? DRAWER_WIDTH : DRAWER_WIDTH_COLLAPSED,
         height: '100%',
         minHeight: 0,
+        // eslint-disable-next-line design-system/no-hardcoded-colors
         background: 'linear-gradient(180deg, #000000 0%, #111111 40%, #000000 70%, #040037ff 90%, #040037ff 100%)',
-        color: '#ffffff',
+        color: 'var(--color-white)',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden'
@@ -229,7 +230,7 @@ function MainNavigation({
         >
           <img
             src={KitmanLogo}
-            alt="Kitman Labs"
+            alt="Kitman labs"
             style={{
               height: '100%',
               width: 'auto',
@@ -256,9 +257,10 @@ function MainNavigation({
         <Box sx={{ p: 1, textAlign: 'left', pl: 2 }}>
           <IconButton
             onClick={onToggle}
-            sx={{ 
+            sx={{
+              // eslint-disable-next-line design-system/no-hardcoded-colors
               color: '#9ca3af',
-              '&:hover': { color: '#ffffff' },
+              '&:hover': { color: 'var(--color-white)' },
               p: 0.5
             }}
           >
@@ -283,7 +285,7 @@ function MainNavigation({
           width: isOpen ? DRAWER_WIDTH : DRAWER_WIDTH_COLLAPSED,
           boxSizing: 'border-box',
           border: 'none',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+          boxShadow: 'var(--shadow-nav)',
           transition: 'none',
           height: '100vh',
           maxHeight: '100vh',

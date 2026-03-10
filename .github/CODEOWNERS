@@ -1,0 +1,11 @@
+# All files require review from saarbyrne
+* @saarbyrne
+
+# Critical paths — always require explicit review
+/src/playbook-components/   @saarbyrne
+/src/styles/                @saarbyrne
+/.github/                   @saarbyrne
+/CLAUDE.md                  @saarbyrne
+/CODEOWNERS                 @saarbyrne
+/package.json               @saarbyrne
+/vite.config.js             @saarbyrne
