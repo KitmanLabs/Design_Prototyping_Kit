@@ -18,7 +18,8 @@
     "validate-design-system": "node scripts/validate-design-system.js",
     "validate-quick": "npm run lint && npm run lint:css",
     "storybook": "npm run strip-flow && storybook dev -p 6006",
-    "build-storybook": "storybook build",
+    "build-storybook": "npm run strip-flow && storybook build",
+    "docs:data": "node scripts/generate-data-docs.js",
     "figma:publish": "figma connect publish"
   },
   "dependencies": {
