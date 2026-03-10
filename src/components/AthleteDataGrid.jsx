@@ -156,7 +156,7 @@ const AthleteDataGrid = ({
   const columns = useMemo(() => [
     {
       field: 'id',
-      headerName: 'ID',
+      headerName: "Id",
       width: 70,
       type: 'number',
     },
@@ -180,7 +180,7 @@ const AthleteDataGrid = ({
     },
     {
       field: 'position_group',
-      headerName: 'Position Group',
+      headerName: "Position group",
       width: 130,
       filterable: true,
       groupable: true,
@@ -228,14 +228,14 @@ const AthleteDataGrid = ({
     },
     {
       field: 'injury_status',
-      headerName: 'Injury Status',
+      headerName: "Injury status",
       width: 150,
       filterable: true,
       groupable: true,
     },
     {
       field: 'training_load',
-      headerName: 'Training Load',
+      headerName: "Training load",
       type: 'number',
       width: 130,
       filterable: true,
@@ -251,7 +251,7 @@ const AthleteDataGrid = ({
     },
     {
       field: 'last_assessment',
-      headerName: 'Last Assessment',
+      headerName: "Last assessment",
       type: 'date',
       width: 140,
       valueGetter: (value) => value ? new Date(value) : null,
