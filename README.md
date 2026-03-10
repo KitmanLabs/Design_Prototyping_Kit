@@ -2,8 +2,6 @@
 
 **A template for rapidly building KitmanLabs product prototypes.**
 
-This repo is set up for designers to prototype new features using the actual design system. It stays in sync with the product through our component library, and Claude Code can help you build screens without coding.
-
 ---
 
 ## Quick Start
