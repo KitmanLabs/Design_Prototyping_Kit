@@ -10,7 +10,7 @@ Welcome to the **Design Prototyping Kit** — a template for building product pr
 |---|---|
 | Set up the repo for the first time | [Getting Started](Getting-Started) |
 | Understand where the data comes from | [Understanding the Data](Understanding-the-Data) |
-| See what UI components are available | [Design System](Design-System) |
+| See what UI components are available | [Design System](Design-System) — or run `npm run storybook` |
 | Learn how to build with Claude Code | [Using Claude Code](Using-Claude-Code) |
 | Understand why your work was rejected | [Why Was My Work Rejected](Why-Was-My-Work-Rejected) |
 

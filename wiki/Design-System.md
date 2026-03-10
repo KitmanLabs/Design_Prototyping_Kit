@@ -11,7 +11,12 @@
 
 This is where you go when you're not sure what component to use, or you want to see all the options before asking Claude.
 
-**[📖 View the Live Storybook](https://KitmanLabs.github.io/Design_Prototyping_Kit/)**
+**To view Storybook locally:**
+```bash
+npm run storybook
+```
+
+This opens Storybook at `http://localhost:6006` in your browser.
 
 ---
 

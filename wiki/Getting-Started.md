@@ -53,6 +53,18 @@ Now you can ask Claude to help you build.
 
 ---
 
+## Step 6 (Optional): Browse Available Components
+
+If you want to see what UI components are available before asking Claude to build:
+
+```bash
+npm run storybook
+```
+
+This opens an interactive component browser at **http://localhost:6006**. You can browse all the buttons, forms, tables, dialogs, etc. that are available to use. But this is optional — Claude knows what's available and will use the right components automatically.
+
+---
+
 ## Your First Build
 
 Ask Claude something like:
