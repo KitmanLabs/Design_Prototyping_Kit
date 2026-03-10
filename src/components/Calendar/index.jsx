@@ -28,6 +28,7 @@ const Calendar = forwardRef(({
     if (api.view?.type !== selectedCalendarView) {
       api.changeView(selectedCalendarView);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCalendarView]);
 
   const handleViewChange = (viewInfo) => {
