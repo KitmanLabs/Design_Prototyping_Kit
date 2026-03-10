@@ -2,7 +2,7 @@
 
 ## Step 1: Create Your Copy
 
-1. Go to the [Design Prototyping Kit repository](https://github.com/yourusername/Design_Prototyping_Kit)
+1. Go to the [Design Prototyping Kit repository](https://github.com/KitmanLabs/Design_Prototyping_Kit)
 2. Click the green **"Use this template"** button at the top
 3. Name it something like `my-product-prototype`
 4. Click **"Create repository from template"**

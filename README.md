@@ -8,7 +8,7 @@ This repo is set up for designers to prototype new features using the actual des
 
 ## Quick Start
 
-1. **[Use this template](https://github.com/yourusername/Design_Prototyping_Kit/generate)** — Get your own copy
+1. **[Use this template](https://github.com/KitmanLabs/Design_Prototyping_Kit/generate)** — Get your own copy
 2. **Clone to your machine** — Use [GitHub Desktop](https://desktop.github.com/) (friendlier than the terminal)
 3. **Run locally** — `npm install` then `npm run dev`, open `http://localhost:3001`
 
@@ -20,7 +20,7 @@ This repo is set up for designers to prototype new features using the actual des
 |--------------|------|
 | Set up for the first time | [Getting Started](wiki/Getting-Started.md) |
 | Understand the data in this prototype | [Understanding the Data](wiki/Understanding-the-Data.md) |
-| See what components are available | [Live Storybook](https://yourusername.github.io/Design_Prototyping_Kit/) |
+| See what components are available | [Live Storybook](https://KitmanLabs.github.io/Design_Prototyping_Kit/) |
 | Learn how to build with Claude Code | [Using Claude Code](wiki/Using-Claude-Code.md) |
 | Understand why my work was rejected | [Why Was My Work Rejected](wiki/Why-Was-My-Work-Rejected.md) |
 

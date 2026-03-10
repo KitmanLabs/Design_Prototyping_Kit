@@ -11,7 +11,7 @@
 
 This is where you go when you're not sure what component to use, or you want to see all the options before asking Claude.
 
-**[📖 View the Live Storybook](https://yourusername.github.io/Design_Prototyping_Kit/)**
+**[📖 View the Live Storybook](https://KitmanLabs.github.io/Design_Prototyping_Kit/)**
 
 ---
 
