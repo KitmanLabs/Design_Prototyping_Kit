@@ -3,8 +3,9 @@ import { Box, Typography, IconButton, Badge, Popover, Menu, MenuItem } from '@mu
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { StaticDatePicker } from 'playbook-components';
-import { ArrowDropDown, ChevronLeft, ChevronRight, FilterAltOutlined } from '@mui/icons-material';
+import { ArrowDropDown, ChevronLeft, ChevronRight, FilterAltOutlined, Settings } from '@mui/icons-material';
 import Button from './Button';
+import CopyCalendarUrl from './CopyCalendarUrl';
 
 const CalendarHeader = ({
   currentView,
@@ -23,6 +24,8 @@ const CalendarHeader = ({
   const [datePickerAnchor, setDatePickerAnchor] = useState(null);
   const [addMenuAnchor, setAddMenuAnchor] = useState(null);
   const [viewMenuAnchor, setViewMenuAnchor] = useState(null);
+  const [settingsAnchor, setSettingsAnchor] = useState(null);
+  const [copyUrlOpen, setCopyUrlOpen] = useState(false);
 
   const VIEW_LABELS = {
     dayGridMonth: 'Month',
@@ -91,6 +94,17 @@ const CalendarHeader = ({
   const handleViewMenuClose = () => {
     setViewMenuAnchor(null);
   };
+
+  const handleSettingsClick = (event) => {
+    setSettingsAnchor(event.currentTarget);
+  };
+
+  const handleSettingsClose = () => {
+    setSettingsAnchor(null);
+  };
+
+  const handleOpenCopyUrl = () => setCopyUrlOpen(true);
+  const handleCloseCopyUrl = () => setCopyUrlOpen(false);
 
   const handleViewSelect = (viewType) => {
     handleViewMenuClose();
@@ -240,6 +254,20 @@ const CalendarHeader = ({
         >
           <ArrowDropDown />
         </IconButton>
+        <IconButton
+          onClick={handleSettingsClick}
+          size="small"
+          sx={{
+            color: 'var(--color-primary)',
+            padding: '4px',
+            ml: 0.5,
+            '&:hover': {
+              backgroundColor: 'var(--color-background-secondary)',
+            },
+          }}
+        >
+          <Settings />
+        </IconButton>
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'flex-end' }}>
@@ -334,6 +362,39 @@ const CalendarHeader = ({
         <MenuItem onClick={() => handleViewSelect('timeGridWeek')}>Week</MenuItem>
         <MenuItem onClick={() => handleViewSelect('listWeek')}>List</MenuItem>
       </Menu>
+
+      <Menu
+        anchorEl={settingsAnchor}
+        open={Boolean(settingsAnchor)}
+        onClose={handleSettingsClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+        PaperProps={{
+          sx: {
+            mt: 1,
+            minWidth: 200,
+            boxShadow: 'var(--shadow-lg)',
+            borderRadius: 'var(--radius-sm)',
+            '& .MuiMenuItem-root': {
+              fontFamily: 'var(--font-family-primary)',
+              fontSize: 'var(--font-size-sm)',
+              fontWeight: 'var(--font-weight-medium)',
+              color: 'var(--color-text-primary)',
+              padding: '10px 16px',
+              '&:hover': { backgroundColor: 'var(--color-background-secondary)' },
+            },
+          },
+        }}
+      >
+        <MenuItem onClick={() => { handleSettingsClose(); handleOpenCopyUrl(); }}>Copy calendar URL</MenuItem>
+        <MenuItem onClick={() => { handleSettingsClose(); /* placeholder */ }}>Calendar settings</MenuItem>
+      </Menu>
+
+      <CopyCalendarUrl
+        open={copyUrlOpen}
+        onClose={handleCloseCopyUrl}
+        calendarUrl={'https://calendar.com/calendar/ical/dcarroll%40kitmanlabs.com/public/'}
+      />
 
       <Popover
         open={Boolean(datePickerAnchor)}

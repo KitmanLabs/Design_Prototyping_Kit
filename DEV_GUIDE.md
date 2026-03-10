@@ -47,6 +47,27 @@ The app will run and show a URL like `http://localhost:5173`. Open that in your 
 
 ---
 
+## 4. Run tests (npm test)
+
+We keep tests **very simple and focused** so they are easy to maintain and always pass reliably.
+
+- **Test command**: run all tests with:
+
+```bash
+npm test
+```
+
+- **For every new critical component or page**:
+  - Add a **small test file** next to it (for example: `App.test.jsx`, `MainNavigation.test.jsx`, `Messaging.test.jsx`).
+  - The test should cover **only the most basic “does it render / route / click” behaviour**.
+  - Avoid complex mocks or flows; these are **smoke tests** to catch obvious breakages.
+
+- **For existing critical components and pages**:
+  - When you touch a component/page, add or update a **similarly small test** if it doesn’t exist yet.
+  - Prefer one or two assertions that reflect the main happy-path behaviour (e.g. “Dashboard title renders”, “Medical nav item is visible”, “Messaging header shows ‘All messages’”).
+
+Tests are powered by **Vitest + React Testing Library**, configured so that `npm test` “just works” without extra flags.
+
 ## 4. Create your own branch to code
 
 Don’t code on `main`. Create a branch with your name or feature name:

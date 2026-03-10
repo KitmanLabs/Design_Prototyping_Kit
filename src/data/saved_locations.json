@@ -1,0 +1,30 @@
+[
+  {
+    "id": "1",
+    "name": "Home Stadium",
+    "address": "Stamford Bridge, The Ticket Bookings Chelsea, London SW6 1HS, United Kingdom",
+    "lat": 51.481581,
+    "lng": -0.190883
+  },
+  {
+    "id": "2",
+    "name": "Training Center A",
+    "address": "Cobham Training Centre, Stoke Road, Cobham, Surrey KT11 3PT, United Kingdom",
+    "lat": 51.3259,
+    "lng": -0.4473
+  },
+  {
+    "id": "3",
+    "name": "Wembley Stadium",
+    "address": "Wembley Stadium, Wembley, London HA9 0WS, United Kingdom",
+    "lat": 51.5561,
+    "lng": -0.2799
+  },
+  {
+    "id": "4",
+    "name": "Old Trafford",
+    "address": "Old Trafford, Sir Matt Busby Way, Manchester M16 0RA, United Kingdom",
+    "lat": 53.4631,
+    "lng": -2.2913
+  }
+]

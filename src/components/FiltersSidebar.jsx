@@ -148,7 +148,8 @@ const FiltersSidebar = ({
         squad_name: (a.squad_name || 'Other').trim(),
       });
     });
-    return list;
+    // Sort by squad_name to prevent duplicate headers in grouped Autocomplete
+    return list.sort((a, b) => a.squad_name.localeCompare(b.squad_name));
   }, [athletes]);
 
   const toggleInArray = (arr, value) => (arr.includes(value) ? arr.filter(v => v !== value) : [...arr, value]);

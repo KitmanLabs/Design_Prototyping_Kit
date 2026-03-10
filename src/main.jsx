@@ -8,10 +8,9 @@ import App from './App'
 import './styles/design-tokens.css'
 import './i18n'
 
-// MUI X Pro license key – set before first component render to remove watermarks and console warnings
+// MUI X Pro license key – hard-coded per request
 LicenseInfo.setLicenseKey(
-  import.meta.env.VITE_MUI_LICENSE ??
-    '4e5ec90a1afaadb78690f94968111927Tz05NTgxNSxFPTE3NTQ3NDE0NDcwMDAsUz1wcmVtaXVtLExNPXN1YnNjcmlwdGlvbixQVj1pbml0aWFsLEtWPTI='
+  'bc1c125f0df063ef4d354f52404b3b86Tz0xMTc1MzksRT0xNzg2NTc5MTk5MDAwLFM9cHJlbWl1bSxMTT1zdWJzY3JpcHRpb24sUFY9aW5pdGlhbCxLVj0y'
 )
 
 const theme = createTheme({

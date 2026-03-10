@@ -187,13 +187,13 @@ const EventTooltip = ({
             onClick={() => onMoreDetails(event)}
             variant="contained"
             sx={{
-              backgroundColor: '#1976d2',
+              backgroundColor: '#3B4960',
               color: '#ffffff',
               fontSize: '12px',
               textTransform: 'none',
               minWidth: 'auto',
               padding: '4px 12px',
-              '&:hover': { backgroundColor: '#1565c0' }
+              '&:hover': { backgroundColor: '#2D3A4A' }
             }}
           >
             More details
