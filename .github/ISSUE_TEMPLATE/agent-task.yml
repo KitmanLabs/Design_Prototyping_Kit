@@ -1,0 +1,69 @@
+name: "🤖 Agent-Ready Task"
+description: "A well-specified task for AI agent execution"
+labels: ["agent-ready", "triage"]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: "Context & Why"
+      description: "Why is this needed? What problem does it solve?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Acceptance Criteria"
+      description: "Specific, testable criteria. What does done look like?"
+      value: |
+        - [ ]
+        - [ ]
+        - [ ] Passes `npm run validate-design-system`
+        - [ ] No hardcoded colors (uses design tokens)
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: "Technical Scope"
+      description: "Files to touch, patterns to follow"
+      placeholder: |
+        Files to modify: src/components/Foo.jsx, src/data/foo.js
+        Follow patterns in: src/components/Bar.jsx
+        Import components from: src/playbook-components
+
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: "Boundaries (Do NOT)"
+      description: "What is out of scope? What must not change?"
+      placeholder: |
+        - Do NOT modify src/playbook-components-build/
+        - Do NOT add new npm dependencies
+        - Do NOT change existing component APIs
+
+  - type: dropdown
+    id: effort
+    attributes:
+      label: "Estimated Effort"
+      options:
+        - "XS (< 30 min)"
+        - "S (30 min – 2 hrs)"
+        - "M (2–4 hrs)"
+        - "L (4–8 hrs)"
+        - "XL (needs decomposition)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priority"
+      options:
+        - "low"
+        - "medium"
+        - "high"
+        - "critical"
+    validations:
+      required: true

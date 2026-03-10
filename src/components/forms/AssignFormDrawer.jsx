@@ -28,7 +28,7 @@ import {
   Checkbox,
   Switch
 } from '@mui/material'
-import { CloseOutlined, DeleteOutline, AddOutlined, Check, ChevronRightOutlined, ArrowBackOutlined, KeyboardArrowDownOutlined, SyncOutlined } from '@mui/icons-material'
+import { CloseOutlined, DeleteOutlineOutlined, AddOutlined, CheckOutlined, ChevronRightOutlined, ArrowBackOutlined, KeyboardArrowDownOutlined, SyncOutlined } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
@@ -759,7 +759,7 @@ function AssignFormDrawer({
                       aria-label="Delete schedule"
                       sx={{ color: 'var(--color-text-secondary)', '&:hover': { color: 'var(--color-error)' } }}
                     >
-                      <DeleteOutline fontSize="small" />
+                      <DeleteOutlineOutlined fontSize="small" />
                     </IconButton>
                   </Box>
 
@@ -877,7 +877,7 @@ function AssignFormDrawer({
                     aria-label="Remove notifications"
                     sx={{ color: 'var(--color-text-secondary)', '&:hover': { color: 'var(--color-error)' } }}
                   >
-                    <DeleteOutline fontSize="small" />
+                    <DeleteOutlineOutlined fontSize="small" />
                   </IconButton>
                 )}
               </Box>
@@ -956,7 +956,7 @@ function AssignFormDrawer({
                   <Stack direction="row" spacing={1}>
                     <Chip
                       label="Email"
-                      icon={notification.channels.includes('email') ? <Check sx={{ fontSize: 16 }} /> : undefined}
+                      icon={notification.channels.includes('email') ? <CheckOutlined sx={{ fontSize: 16 }} /> : undefined}
                       onClick={() => {
                         setNotifications(prev => prev.map((n, i) => {
                           if (i !== index) return n
@@ -987,7 +987,7 @@ function AssignFormDrawer({
                     />
                     <Chip
                       label="SMS"
-                      icon={notification.channels.includes('sms') ? <Check sx={{ fontSize: 16 }} /> : undefined}
+                      icon={notification.channels.includes('sms') ? <CheckOutlined sx={{ fontSize: 16 }} /> : undefined}
                       onClick={() => {
                         setNotifications(prev => prev.map((n, i) => {
                           if (i !== index) return n
@@ -1018,7 +1018,7 @@ function AssignFormDrawer({
                     />
                     <Chip
                       label="Push"
-                      icon={notification.channels.includes('push') ? <Check sx={{ fontSize: 16 }} /> : undefined}
+                      icon={notification.channels.includes('push') ? <CheckOutlined sx={{ fontSize: 16 }} /> : undefined}
                       onClick={() => {
                         setNotifications(prev => prev.map((n, i) => {
                           if (i !== index) return n

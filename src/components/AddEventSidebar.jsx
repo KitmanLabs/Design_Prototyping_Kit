@@ -20,10 +20,10 @@ import {
   InputAdornment,
 } from '@mui/material';
 import {
-  Close,
-  AttachFile,
-  Person,
-  CalendarToday,
+  CloseOutlined,
+  AttachFileOutlined,
+  PersonOutlined,
+  CalendarTodayOutlined,
 } from '@mui/icons-material';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -130,13 +130,13 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
   };
 
   const eventTypes = [
-    'Training Session',
+    "Training session",
     'Game',
     'Meeting',
     'Assessment',
-    'Recovery Session',
-    'Team Building',
-    'Medical Check',
+    "Recovery session",
+    "Team building",
+    "Medical check",
     'Other',
   ];
 
@@ -148,8 +148,8 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
   ];
 
   const staffVisibilityOptions = [
-    { value: 'all', label: 'All Staff' },
-    { value: 'selected', label: 'Only Selected Staff' },
+    { value: 'all', label: "All staff" },
+    { value: 'selected', label: "Only selected staff" },
     { value: 'additional', label: 'Staff and Additional viewers' },
   ];
 
@@ -171,13 +171,13 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
 
   const getEventTypeColor = (eventType) => {
     const colors = {
-      'Training Session': 'var(--color-chart-1)',
+      "Training session": 'var(--color-chart-1)',
       'Game': 'var(--color-chart-4)',
       'Meeting': 'var(--color-chart-2)',
       'Assessment': 'var(--color-chart-3)',
-      'Recovery Session': 'var(--color-chart-5)',
-      'Team Building': 'var(--color-chart-2)',
-      'Medical Check': 'var(--color-chart-4)',
+      "Recovery session": 'var(--color-chart-5)',
+      "Team building": 'var(--color-chart-2)',
+      "Medical check": 'var(--color-chart-4)',
       'Other': 'var(--color-text-muted)',
     };
     return colors[eventType] || 'var(--color-text-muted)';
@@ -196,11 +196,11 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
   const handleSave = () => {
     if (!validateForm()) return;
     const squadName = formData.selectedAthletes.length > 0
-      ? (formData.selectedAthletes[0].squad_name || 'International Squad')
-      : 'International Squad';
+      ? (formData.selectedAthletes[0].squad_name || "International squad")
+      : "International squad";
     const coachName = formData.selectedStaff.length > 0
       ? `${formData.selectedStaff[0].firstname} ${formData.selectedStaff[0].lastname}`
-      : 'TBD';
+      : "Tbd";
     const newEvent = {
       id: Date.now().toString(),
       title: formData.title,
@@ -258,7 +258,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
               {editingEvent ? 'Edit event' : 'New event'}
             </Typography>
             <IconButton onClick={onClose} size="small">
-              <Close />
+              <CloseOutlined />
             </IconButton>
           </Box>
 
@@ -324,7 +324,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                       InputProps: {
                         startAdornment: (
                           <InputAdornment position="start">
-                            <CalendarToday fontSize="small" />
+                            <CalendarTodayOutlined fontSize="small" />
                           </InputAdornment>
                         ),
                       },
@@ -358,7 +358,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                     label="Timezone"
                   >
                     <MenuItem value="Europe/Dublin">Europe/Dublin</MenuItem>
-                    <MenuItem value="UTC">UTC</MenuItem>
+                    <MenuItem value="Utc">UTC</MenuItem>
                     <MenuItem value="America/New_York">America/New_York</MenuItem>
                     <MenuItem value="Europe/London">Europe/London</MenuItem>
                   </Select>
@@ -401,7 +401,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                         key={option.id}
                         label={getAthleteLabel(option)}
                         {...getTagProps({ index })}
-                        icon={<Person />}
+                        icon={<PersonOutlined />}
                         sx={{
                           backgroundColor: 'var(--color-background-selected)',
                           color: 'var(--color-text-primary)',
@@ -453,7 +453,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                         key={option.id}
                         label={`${option.firstname} ${option.lastname}`}
                         {...getTagProps({ index })}
-                        icon={<Person />}
+                        icon={<PersonOutlined />}
                         sx={{
                           backgroundColor: 'var(--color-background-selected)',
                           color: 'var(--color-text-primary)',
@@ -512,7 +512,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                   }}
                   onClick={() => document.getElementById('file-upload').click()}
                 >
-                  <AttachFile sx={{ fontSize: 32, color: 'var(--color-text-muted)', mb: 1 }} />
+                  <AttachFileOutlined sx={{ fontSize: 32, color: 'var(--color-text-muted)', mb: 1 }} />
                   <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>
                     Drag & Drop your files or browse
                   </Typography>
@@ -546,7 +546,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
             </Grid>
           </Box>
 
-          <Box sx={{ padding: '16px 24px', borderTop: '1px solid var(--color-border-primary)', backgroundColor: '#ffffff' }}>
+          <Box sx={{ padding: '16px 24px', borderTop: '1px solid var(--color-border-primary)', backgroundColor: 'var(--color-white)' }}>
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between' }}>
               <Button onClick={onClose} variant="secondary">
                 Cancel
