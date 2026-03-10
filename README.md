@@ -18,11 +18,11 @@ This repo is set up for designers to prototype new features using the actual des
 
 | I want to... | Link |
 |--------------|------|
-| Set up for the first time | [Getting Started](wiki/Getting-Started.md) |
-| Understand the data in this prototype | [Understanding the Data](wiki/Understanding-the-Data.md) |
-| See what components are available | [Design System](wiki/Design-System.md) (run `npm run storybook` locally) |
-| Learn how to build with Claude Code | [Using Claude Code](wiki/Using-Claude-Code.md) |
-| Understand why my work was rejected | [Why Was My Work Rejected](wiki/Why-Was-My-Work-Rejected.md) |
+| Set up for the first time | [Getting Started](../../wiki/Getting-Started) |
+| Understand the data in this prototype | [Understanding the Data](../../wiki/Understanding-the-Data) |
+| See what components are available | [Design System](../../wiki/Design-System) (run `npm run storybook` locally) |
+| Learn how to build with Claude Code | [Using Claude Code](../../wiki/Using-Claude-Code) |
+| Understand why my work was rejected | [Why Was My Work Rejected](../../wiki/Why-Was-My-Work-Rejected) |
 
 ---
 
@@ -42,7 +42,8 @@ Just ask it to build what you need — "Add a new page showing athlete injuries"
 ## Tech
 
 - **React 18** — The UI framework
-- **Storybook** — Interactive component catalogue (see link above)
+- **Material-UI (MUI)** — Component library matching the KitmanLabs design system
+- **Storybook** — Interactive component catalogue (run `npm run storybook` locally)
 - **Design tokens** — Automated color, typography, and spacing
 - **Mock data** — JSON files that simulate a real database
 
