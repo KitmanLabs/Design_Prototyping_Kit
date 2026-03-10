@@ -10,7 +10,7 @@ import {
   ListItemText,
   Paper,
 } from '@mui/material';
-import { LocationOn } from '@mui/icons-material';
+import { LocationOnOutlined } from '@mui/icons-material';
 import { useJsApiLoader, Autocomplete, GoogleMap, Marker } from '@react-google-maps/api';
 import { GOOGLE_MAPS_API_KEY } from '../config/googleMaps';
 
@@ -290,7 +290,7 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
         ...params.InputProps,
         startAdornment: (
           <InputAdornment position="start">
-            <LocationOn sx={{ color: 'var(--color-text-secondary)', fontSize: '20px' }} />
+            <LocationOnOutlined sx={{ color: 'var(--color-text-secondary)', fontSize: '20px' }} />
           </InputAdornment>
         ),
       }}
@@ -379,7 +379,7 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
                       }}
                     >
                       <ListItemIcon sx={{ minWidth: '36px' }}>
-                        <LocationOn sx={{ color: 'var(--color-text-secondary)', fontSize: '20px' }} />
+                        <LocationOnOutlined sx={{ color: 'var(--color-text-secondary)', fontSize: '20px' }} />
                       </ListItemIcon>
                       <ListItemText
                         primary={location.name}
@@ -453,7 +453,7 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
                       }}
                     >
                       <ListItemIcon sx={{ minWidth: '36px' }}>
-                        <LocationOn sx={{ color: 'var(--color-text-secondary)', fontSize: '20px' }} />
+                        <LocationOnOutlined sx={{ color: 'var(--color-text-secondary)', fontSize: '20px' }} />
                       </ListItemIcon>
                       <ListItemText
                         primary={location.name}
@@ -542,7 +542,7 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
                     backgroundColor: 'var(--color-background-tertiary)',
                   }}
                 >
-                  <LocationOn sx={{ fontSize: '48px', color: 'var(--color-text-secondary)', mb: 1 }} />
+                  <LocationOnOutlined sx={{ fontSize: '48px', color: 'var(--color-text-secondary)', mb: 1 }} />
                   <Typography
                     variant="body2"
                     sx={{
@@ -559,7 +559,7 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
 
           {/* Location Details */}
           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-            <LocationOn sx={{ color: 'var(--color-text-secondary)', fontSize: '20px', mt: '2px' }} />
+            <LocationOnOutlined sx={{ color: 'var(--color-text-secondary)', fontSize: '20px', mt: '2px' }} />
             <Box sx={{ flex: 1 }}>
               <Typography
                 variant="body1"

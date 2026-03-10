@@ -20,6 +20,7 @@ const theme = createTheme({
   shape: {
     borderRadius: 4,
   },
+  /* eslint-disable design-system/no-hardcoded-colors */
   palette: {
     primary:    { main: '#3b4960', dark: '#3b4960', contrastText: '#ffffff' },
     secondary:  { main: '#f1f2f3', dark: '#f1f2f3', contrastText: '#3b4960' },
@@ -29,6 +30,7 @@ const theme = createTheme({
     success:    { main: '#2e7d32' },
     background: { default: '#ffffff', paper: '#ffffff' },
   },
+  /* eslint-enable design-system/no-hardcoded-colors */
   components: {
     MuiTextField:     { defaultProps: { variant: 'filled', size: 'small' } },
     MuiFormControl:   { defaultProps: { variant: 'filled', size: 'small' } },

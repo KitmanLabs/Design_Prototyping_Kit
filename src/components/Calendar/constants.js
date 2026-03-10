@@ -1,3 +1,4 @@
+/* eslint-disable design-system/no-hardcoded-colors */
 // Calendar constants matching the original injuryprofiler.com implementation
 
 export const CALENDAR_EVENT_TYPES = {

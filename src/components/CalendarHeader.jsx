@@ -3,7 +3,7 @@ import { Box, Typography, IconButton, Badge, Popover, Menu, MenuItem } from '@mu
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { StaticDatePicker } from 'playbook-components';
-import { ArrowDropDown, ChevronLeft, ChevronRight, FilterAltOutlined, Settings } from '@mui/icons-material';
+import { ArrowDropDownOutlined, ChevronLeftOutlined, ChevronRightOutlined, FilterAltOutlined, SettingsOutlined } from '@mui/icons-material';
 import Button from './Button';
 import CopyCalendarUrl from './CopyCalendarUrl';
 
@@ -198,7 +198,7 @@ const CalendarHeader = ({
             style={navButtonStyle}
             type="button"
           >
-            <ChevronLeft sx={{ fontSize: 20 }} />
+            <ChevronLeftOutlined sx={{ fontSize: 20 }} />
           </Button>
 
           <Button
@@ -207,7 +207,7 @@ const CalendarHeader = ({
             style={navButtonStyle}
             type="button"
           >
-            <ChevronRight sx={{ fontSize: 20 }} />
+            <ChevronRightOutlined sx={{ fontSize: 20 }} />
           </Button>
 
           <Button
@@ -252,7 +252,7 @@ const CalendarHeader = ({
             },
           }}
         >
-          <ArrowDropDown />
+          <ArrowDropDownOutlined />
         </IconButton>
         <IconButton
           onClick={handleSettingsClick}
@@ -266,7 +266,7 @@ const CalendarHeader = ({
             },
           }}
         >
-          <Settings />
+          <SettingsOutlined />
         </IconButton>
       </Box>
 
@@ -277,7 +277,7 @@ const CalendarHeader = ({
           style={secondaryButtonStyle}
         >
           {viewLabel}
-          <ArrowDropDown sx={{ fontSize: '16px', marginLeft: '4px' }} />
+          <ArrowDropDownOutlined sx={{ fontSize: '16px', marginLeft: '4px' }} />
         </Button>
 
         <Button
@@ -286,7 +286,7 @@ const CalendarHeader = ({
           style={primaryButtonStyle}
         >
           Add
-          <ArrowDropDown sx={{ fontSize: '16px', marginLeft: '4px' }} />
+          <ArrowDropDownOutlined sx={{ fontSize: '16px', marginLeft: '4px' }} />
         </Button>
       </Box>
 

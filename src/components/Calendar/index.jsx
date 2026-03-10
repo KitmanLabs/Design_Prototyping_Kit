@@ -16,7 +16,8 @@ const Calendar = forwardRef(({
     selectedCalendarView || 'dayGridMonth'
   );
   const [isFiltersPanelOpen, setIsFiltersPanelOpen] = useState(false);
-  const forwardedRef = ref || useRef(null);
+  const internalRef = useRef(null);
+  const forwardedRef = ref || internalRef;
 
   useEffect(() => {
     if (!selectedCalendarView) return;
@@ -70,5 +71,7 @@ const Calendar = forwardRef(({
     </div>
   );
 });
+
+Calendar.displayName = 'Calendar';
 
 export default Calendar;

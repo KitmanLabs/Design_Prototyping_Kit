@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogActions, Box, Typography, Button, Divider, Chip, Link } from '@mui/material';
-import { Refresh, AttachFile, Person } from '@mui/icons-material';
+import { RefreshOutlined, AttachFileOutlined, PersonOutlined } from '@mui/icons-material';
 
 const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff = [] }) => {
   if (!event) return null;
@@ -99,7 +99,7 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
               sx={{ 
                 width: 12, 
                 height: 12, 
-                backgroundColor: backgroundColor || (extendedProps?.backgroundColor) || '#8B4513', 
+                backgroundColor: backgroundColor || (extendedProps?.backgroundColor) || 'var(--color-primary)', 
                 borderRadius: '2px' 
               }} 
             />
@@ -147,7 +147,7 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
             <Typography variant="subtitle2" sx={{ color: 'var(--color-text-secondary)', mb: 1 }}>Attendees</Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {resolveAthletes().map((name, i) => (
-                <Chip key={`a-${i}`} icon={<Person />} label={name} size="small" />
+                <Chip key={`a-${i}`} icon={<PersonOutlined />} label={name} size="small" />
               ))}
             </Box>
           </Box>
@@ -159,7 +159,7 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
             <Typography variant="subtitle2" sx={{ color: 'var(--color-text-secondary)', mb: 1 }}>Staff</Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {resolveStaff().map((name, i) => (
-                <Chip key={`s-${i}`} icon={<Person />} label={name} size="small" />
+                <Chip key={`s-${i}`} icon={<PersonOutlined />} label={name} size="small" />
               ))}
             </Box>
           </Box>
@@ -172,7 +172,7 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               {getAttachments().map((att, i) => (
                 <Box key={`att-${i}`} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <AttachFile sx={{ color: 'var(--color-text-secondary)', fontSize: 18 }} />
+                  <AttachFileOutlined sx={{ color: 'var(--color-text-secondary)', fontSize: 18 }} />
                   {att.url ? (
                     <Link href={att.url} target="_blank" rel="noreferrer" underline="hover">{att.name}</Link>
                   ) : (

@@ -20,10 +20,10 @@ import {
   InputAdornment,
 } from '@mui/material';
 import {
-  Close,
-  AttachFile,
-  Person,
-  CalendarToday,
+  CloseOutlined,
+  AttachFileOutlined,
+  PersonOutlined,
+  CalendarTodayOutlined,
 } from '@mui/icons-material';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -258,7 +258,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
               {editingEvent ? 'Edit event' : 'New event'}
             </Typography>
             <IconButton onClick={onClose} size="small">
-              <Close />
+              <CloseOutlined />
             </IconButton>
           </Box>
 
@@ -324,7 +324,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                       InputProps: {
                         startAdornment: (
                           <InputAdornment position="start">
-                            <CalendarToday fontSize="small" />
+                            <CalendarTodayOutlined fontSize="small" />
                           </InputAdornment>
                         ),
                       },
@@ -401,7 +401,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                         key={option.id}
                         label={getAthleteLabel(option)}
                         {...getTagProps({ index })}
-                        icon={<Person />}
+                        icon={<PersonOutlined />}
                         sx={{
                           backgroundColor: 'var(--color-background-selected)',
                           color: 'var(--color-text-primary)',
@@ -453,7 +453,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                         key={option.id}
                         label={`${option.firstname} ${option.lastname}`}
                         {...getTagProps({ index })}
-                        icon={<Person />}
+                        icon={<PersonOutlined />}
                         sx={{
                           backgroundColor: 'var(--color-background-selected)',
                           color: 'var(--color-text-primary)',
@@ -512,7 +512,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                   }}
                   onClick={() => document.getElementById('file-upload').click()}
                 >
-                  <AttachFile sx={{ fontSize: 32, color: 'var(--color-text-muted)', mb: 1 }} />
+                  <AttachFileOutlined sx={{ fontSize: 32, color: 'var(--color-text-muted)', mb: 1 }} />
                   <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>
                     Drag & Drop your files or browse
                   </Typography>
@@ -546,7 +546,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
             </Grid>
           </Box>
 
-          <Box sx={{ padding: '16px 24px', borderTop: '1px solid var(--color-border-primary)', backgroundColor: '#ffffff' }}>
+          <Box sx={{ padding: '16px 24px', borderTop: '1px solid var(--color-border-primary)', backgroundColor: 'var(--color-white)' }}>
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between' }}>
               <Button onClick={onClose} variant="secondary">
                 Cancel

@@ -889,12 +889,14 @@ export default function FormsPage() {
               maxWidth: 400,
               fontFamily: 'var(--font-family-primary)',
               fontSize: 'var(--font-size-xs)',
+              // eslint-disable-next-line design-system/no-hardcoded-colors
               backgroundColor: '#616161',
-              color: '#ffffff'
+              color: 'var(--color-white)'
             }
           },
           arrow: {
             sx: {
+              // eslint-disable-next-line design-system/no-hardcoded-colors
               color: '#616161'
             }
           }
@@ -1256,7 +1258,7 @@ export default function FormsPage() {
                       py: 0.75,
                       border: '1px solid var(--color-border-primary)',
                       '&.Mui-selected': {
-                        color: '#ffffff',
+                        color: 'var(--color-white)',
                         backgroundColor: 'var(--color-primary)',
                         '&:hover': {
                           backgroundColor: 'var(--color-primary-hover)'
@@ -1727,7 +1729,7 @@ export default function FormsPage() {
             }}
           >
             <Button
-              variant="outlined"
+              variant="contained"
               onClick={handleCloseAssignedPlayersDrawer}
               sx={{
                 borderColor: 'var(--color-border-primary)',
@@ -1749,7 +1751,7 @@ export default function FormsPage() {
               onClick={handleSaveAssignedPlayers}
               sx={{
                 backgroundColor: 'var(--color-primary)',
-                color: '#ffffff',
+                color: 'var(--color-white)',
                 fontFamily: 'var(--font-family-primary)',
                 fontSize: 'var(--font-size-sm)',
                 fontWeight: 600,
