@@ -41,7 +41,7 @@
     "@mui/x-license": "^8.26.0",
     "@react-google-maps/api": "^2.20.8",
     "@remirror/extension-count": "^2.0.0",
-    "@remirror/pm": "^2.0.0",
+    "@remirror/pm": "^3.0.1",
     "@remirror/react": "^2.0.0",
     "classnames": "^2.5.1",
     "date-fns": "^2.30.0",
