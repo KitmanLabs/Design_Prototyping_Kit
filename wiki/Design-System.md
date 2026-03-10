@@ -1,15 +1,17 @@
-# Design System
+# Design System & Component Library
+
+**This prototype uses pre-built components** that match the KitmanLabs design system. You don't create new components — you use existing ones to build prototypes fast.
 
 ## What is Storybook?
 
-**Storybook** is an interactive catalogue of every UI component in this prototype. It shows you:
+**Storybook** is an interactive catalogue of every UI component available in this prototype. It shows you:
 
 - What components exist and what they're called
 - What they look like
 - How they behave (different sizes, states, disabled, loading, etc.)
 - Code examples
 
-This is where you go when you're not sure what component to use, or you want to see all the options before asking Claude.
+Use Storybook to browse components *before* asking Claude to build something. This helps you understand what's available and design your prototype layout.
 
 **To view Storybook locally:**
 ```bash
