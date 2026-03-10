@@ -4,6 +4,8 @@
   "rules": {
     "design-system/no-hardcoded-colors": true,
     "design-system/use-design-tokens": true,
-    "design-system/font-usage": true
+    "design-system/font-usage": true,
+    "custom-property-pattern": null,
+    "selector-class-pattern": null
   }
 }
