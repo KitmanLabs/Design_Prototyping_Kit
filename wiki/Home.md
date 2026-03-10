@@ -1,10 +1,6 @@
 # Design Prototyping Kit Wiki
 
-Welcome to the **Design Prototyping Kit** — a template for rapidly prototyping product ideas using pre-built components from the real KitmanLabs design system.
-
-**What this is:** A rapid prototyping environment using existing UI components.
-
-**What this is NOT:** A component library or toolkit for engineers to build new components.
+Welcome to the **Design Prototyping Kit** — a template for rapidly prototyping product ideas using pre-built components from the real KitmanLabs design system. Build prototypes in hours, not weeks.
 
 ## Where to Start
 

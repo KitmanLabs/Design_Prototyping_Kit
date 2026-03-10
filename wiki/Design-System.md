@@ -1,6 +1,6 @@
 # Design System & Component Library
 
-**This prototype uses pre-built components** that match the KitmanLabs design system. You don't create new components — you use existing ones to build prototypes fast.
+This prototype uses pre-built components that match the KitmanLabs design system. Browse, combine, and customize them to build your prototype fast.
 
 ## What is Storybook?
 
