@@ -11,4 +11,18 @@ module.exports = {
     'design-system/icon-type-compliance': 'error',
     'design-system/text-casing-compliance': 'warn',
   },
+  overrides: [
+    {
+      // Mock data files and form/game pages contain proper nouns (names, teams, venues,
+      // form template titles, abbreviations like UTC/SMS) that are correctly Title Case
+      files: [
+        'src/data/**/*',
+        'src/data.js',
+        'src/pages/forms/**/*',
+        'src/components/forms/**/*',
+        'src/components/AddGameDrawer.jsx',
+      ],
+      rules: { 'design-system/text-casing-compliance': 'off' },
+    },
+  ],
 };

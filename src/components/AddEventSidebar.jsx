@@ -130,13 +130,13 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
   };
 
   const eventTypes = [
-    'Training Session',
+    "Training session",
     'Game',
     'Meeting',
     'Assessment',
-    'Recovery Session',
-    'Team Building',
-    'Medical Check',
+    "Recovery session",
+    "Team building",
+    "Medical check",
     'Other',
   ];
 
@@ -148,8 +148,8 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
   ];
 
   const staffVisibilityOptions = [
-    { value: 'all', label: 'All Staff' },
-    { value: 'selected', label: 'Only Selected Staff' },
+    { value: 'all', label: "All staff" },
+    { value: 'selected', label: "Only selected staff" },
     { value: 'additional', label: 'Staff and Additional viewers' },
   ];
 
@@ -171,13 +171,13 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
 
   const getEventTypeColor = (eventType) => {
     const colors = {
-      'Training Session': 'var(--color-chart-1)',
+      "Training session": 'var(--color-chart-1)',
       'Game': 'var(--color-chart-4)',
       'Meeting': 'var(--color-chart-2)',
       'Assessment': 'var(--color-chart-3)',
-      'Recovery Session': 'var(--color-chart-5)',
-      'Team Building': 'var(--color-chart-2)',
-      'Medical Check': 'var(--color-chart-4)',
+      "Recovery session": 'var(--color-chart-5)',
+      "Team building": 'var(--color-chart-2)',
+      "Medical check": 'var(--color-chart-4)',
       'Other': 'var(--color-text-muted)',
     };
     return colors[eventType] || 'var(--color-text-muted)';
@@ -196,11 +196,11 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
   const handleSave = () => {
     if (!validateForm()) return;
     const squadName = formData.selectedAthletes.length > 0
-      ? (formData.selectedAthletes[0].squad_name || 'International Squad')
-      : 'International Squad';
+      ? (formData.selectedAthletes[0].squad_name || "International squad")
+      : "International squad";
     const coachName = formData.selectedStaff.length > 0
       ? `${formData.selectedStaff[0].firstname} ${formData.selectedStaff[0].lastname}`
-      : 'TBD';
+      : "Tbd";
     const newEvent = {
       id: Date.now().toString(),
       title: formData.title,
@@ -358,7 +358,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                     label="Timezone"
                   >
                     <MenuItem value="Europe/Dublin">Europe/Dublin</MenuItem>
-                    <MenuItem value="UTC">UTC</MenuItem>
+                    <MenuItem value="Utc">UTC</MenuItem>
                     <MenuItem value="America/New_York">America/New_York</MenuItem>
                     <MenuItem value="Europe/London">Europe/London</MenuItem>
                   </Select>

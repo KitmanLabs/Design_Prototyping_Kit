@@ -887,7 +887,7 @@ function ExportFormDrawer({
               fontFamily: 'var(--font-family-primary)',
               fontSize: 'var(--font-size-sm)',
               fontWeight: 'var(--font-weight-semibold)',
-              '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
+              '&:hover': { backgroundColor: 'var(--color-overlay-active)' }
             }}
           >
             Export

@@ -22,7 +22,7 @@ const FullCalendarComponent = ({
   handleEventSelect,
   handleEventClick,
   userLocale = 'en',
-  orgTimeZone = 'UTC',
+  orgTimeZone = "Utc",
   events,
   currentCalendarView,
   setCalendarLoading,

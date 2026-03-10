@@ -7,7 +7,7 @@ const Calendar = forwardRef(({
   onViewChange,
   selectedCalendarView,
   events = [],
-  orgTimeZone = 'UTC',
+  orgTimeZone = "Utc",
   userLocale = 'en',
   initialDate,
   ...restProps

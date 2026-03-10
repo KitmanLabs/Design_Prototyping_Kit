@@ -135,7 +135,7 @@ function MedinahLayoutWithMainNav({ children }) {
                 sx={{ 
                   color: 'var(--color-text-secondary)',
                   '&:hover': { 
-                    bgcolor: 'rgba(0, 0, 0, 0.04)' 
+                    bgcolor: 'var(--color-overlay-surface)'
                   }
                 }}
               >

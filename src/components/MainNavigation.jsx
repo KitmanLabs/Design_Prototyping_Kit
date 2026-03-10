@@ -148,7 +148,7 @@ function MainNavigation({
               ml: 1, mr: 0,
               mb: 0.5,
               position: 'relative',
-              backgroundColor: isActive ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+              backgroundColor: isActive ? 'var(--color-overlay-hover)' : 'transparent',
               color: 'var(--color-white)',
               '&::before': isActive ? {
                 content: '""',
@@ -161,7 +161,7 @@ function MainNavigation({
                 borderRadius: '0 2px 2px 0'
               } : {},
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                backgroundColor: 'var(--color-overlay-active)',
                 color: 'var(--color-white)'
               },
               transition: 'all 0.2s ease'
@@ -230,7 +230,7 @@ function MainNavigation({
         >
           <img
             src={KitmanLogo}
-            alt="Kitman Labs"
+            alt="Kitman labs"
             style={{
               height: '100%',
               width: 'auto',
@@ -285,7 +285,7 @@ function MainNavigation({
           width: isOpen ? DRAWER_WIDTH : DRAWER_WIDTH_COLLAPSED,
           boxSizing: 'border-box',
           border: 'none',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+          boxShadow: 'var(--shadow-nav)',
           transition: 'none',
           height: '100vh',
           maxHeight: '100vh',

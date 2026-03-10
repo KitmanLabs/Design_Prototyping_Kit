@@ -38,8 +38,8 @@ import savedLocationsData from '../data/saved_locations.json';
 
 // Mock data – session types, locations, etc.
 const MOCK_SESSION_TYPES = [
-  'Strength Training',
-  'Cardio Training',
+  "Strength training",
+  "Cardio training",
   'Tactical',
   'Recovery',
   'Technical',
@@ -57,10 +57,10 @@ const MOCK_REPEAT_OPTIONS = [
 ];
 
 const MOCK_LOCATIONS = [
-  'Home Stadium',
+  "Home stadium",
   'Away',
-  'Wembley Stadium',
-  'Old Trafford',
+  "Wembley stadium",
+  "Old trafford",
   'Training Center A',
   'Training Center B',
   'Gym A',
@@ -69,7 +69,7 @@ const MOCK_LOCATIONS = [
 
 const MOCK_TIMEZONES = [
   'Europe/Dublin',
-  'UTC',
+  "Utc",
   'Europe/London',
   'America/New_York',
   'Europe/Paris',

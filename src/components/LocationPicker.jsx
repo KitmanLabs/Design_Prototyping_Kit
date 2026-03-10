@@ -81,16 +81,16 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
 
   // Mock location suggestions with coordinates for demo purposes
   const mockLocationSuggestions = [
-    { name: 'Emirates Stadium', address: 'Hornsey Road, London N7 7AJ, United Kingdom', lat: 51.5549, lng: -0.1084 },
-    { name: 'Tottenham Hotspur Stadium', address: '782 High Road, London N17 0BX, United Kingdom', lat: 51.6042, lng: -0.0662 },
+    { name: "Emirates stadium", address: 'Hornsey Road, London N7 7AJ, United Kingdom', lat: 51.5549, lng: -0.1084 },
+    { name: "Tottenham hotspur stadium", address: '782 High Road, London N17 0BX, United Kingdom', lat: 51.6042, lng: -0.0662 },
     { name: 'Anfield', address: 'Anfield Road, Liverpool L4 0TH, United Kingdom', lat: 53.4308, lng: -2.9608 },
-    { name: 'Etihad Stadium', address: 'Ashton New Road, Manchester M11 3FF, United Kingdom', lat: 53.4831, lng: -2.2004 },
-    { name: 'Villa Park', address: 'Trinity Road, Birmingham B6 6HE, United Kingdom', lat: 52.5092, lng: -1.8850 },
-    { name: 'St James Park', address: 'Barrack Road, Newcastle upon Tyne NE1 4ST, United Kingdom', lat: 54.9756, lng: -1.6217 },
-    { name: 'London Stadium', address: 'Queen Elizabeth Olympic Park, London E20 2ST, United Kingdom', lat: 51.5383, lng: -0.0163 },
-    { name: 'Stamford Bridge Training Ground', address: 'Cobham, Surrey KT11 3PT, United Kingdom', lat: 51.3259, lng: -0.4473 },
+    { name: "Etihad stadium", address: 'Ashton New Road, Manchester M11 3FF, United Kingdom', lat: 53.4831, lng: -2.2004 },
+    { name: "Villa park", address: 'Trinity Road, Birmingham B6 6HE, United Kingdom', lat: 52.5092, lng: -1.8850 },
+    { name: "St james park", address: 'Barrack Road, Newcastle upon Tyne NE1 4ST, United Kingdom', lat: 54.9756, lng: -1.6217 },
+    { name: "London stadium", address: 'Queen Elizabeth Olympic Park, London E20 2ST, United Kingdom', lat: 51.5383, lng: -0.0163 },
+    { name: "Stamford bridge training ground", address: 'Cobham, Surrey KT11 3PT, United Kingdom', lat: 51.3259, lng: -0.4473 },
     { name: 'Crystal Palace FC', address: 'Holmesdale Road, London SE25 6PU, United Kingdom', lat: 51.3983, lng: -0.0853 },
-    { name: 'Brentford Community Stadium', address: '166 Lionel Road, Brentford TW8 9QT, United Kingdom', lat: 51.4908, lng: -0.2889 },
+    { name: "Brentford community stadium", address: '166 Lionel Road, Brentford TW8 9QT, United Kingdom', lat: 51.4908, lng: -0.2889 },
   ];
 
   useEffect(() => {

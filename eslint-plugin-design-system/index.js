@@ -153,11 +153,14 @@ const rules = {
     },
     create(context) {
       function isTitleCase(text) {
-        return /^[A-Z][a-z]+(\s[A-Z][a-z]+)*$/.test(text);
+        const words = text.trim().split(/\s+/);
+        if (words.length < 2) return false;
+        return words.every(w => /^[A-Z][a-z]+$/.test(w));
       }
       
       function isUpperCase(text) {
-        return text === text.toUpperCase() && text !== text.toLowerCase();
+        // Only flag purely alphabetic ALL-CAPS strings — ignore colours, codes, alphanumerics
+        return /^[A-Z]{2,}$/.test(text);
       }
       
       function toSentenceCase(text) {

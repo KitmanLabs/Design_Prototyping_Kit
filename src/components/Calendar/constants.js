@@ -3,11 +3,11 @@
 
 export const CALENDAR_EVENT_TYPES = {
   TRAINING_SESSION: 'TRAINING_SESSION',
-  GAME: 'GAME',
-  MEETING: 'MEETING',
-  EVENT: 'EVENT',
+  GAME: "Game",
+  MEETING: "Meeting",
+  EVENT: "Event",
   CUSTOM_EVENT: 'CUSTOM_EVENT',
-  UNKNOWN: 'UNKNOWN',
+  UNKNOWN: "Unknown",
 };
 
 export const CALENDAR_VIEW_OPTIONS = {

@@ -39,13 +39,13 @@ const EventTooltip = ({
   const getEventTypeDisplay = (eventType) => {
     switch (eventType) {
       case 'TRAINING_SESSION':
-        return 'Training Session';
+        return "Training session";
       case 'TEST_SESSION':
-        return 'Test Session';
+        return "Test session";
       case 'RECURRING_EVENT':
-        return 'Recurring Event';
+        return "Recurring event";
       case 'SERIES_EVENT':
-        return 'Series Event';
+        return "Series event";
       default:
         return eventType || 'Event';
     }
@@ -53,7 +53,7 @@ const EventTooltip = ({
 
   const getRecurrenceInfo = (event) => {
     if (extendedProps?.eventType === 'RECURRING_EVENT') {
-      return 'Every Tuesday';
+      return "Every tuesday";
     }
     return null;
   };
@@ -76,7 +76,7 @@ const EventTooltip = ({
         backgroundColor: 'var(--color-white)',
         border: '1px solid var(--color-border-primary)',
         borderRadius: '8px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        boxShadow: 'var(--shadow-dialog)',
         minWidth: '320px',
         maxWidth: '400px',
         padding: '16px',
