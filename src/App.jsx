@@ -19,7 +19,7 @@ function App() {
       <Routes>
         <Route path="/" element={<SimplePage pageName="Home" />} />
         <Route path="/dashboard" element={<SimplePage pageName="Dashboard" />} />
-        <Route path="/medical" element={<SimplePage pageName="Medical" />} />
+        <Route path="/medical" element={<MedicalAssessment />} />
         <Route path="/analysis" element={<SimplePage pageName="Analysis" />} />
         <Route path="/athlete" element={<Athletes />} />
         <Route path="/workloads" element={<SimplePage pageName="Workload" />} />

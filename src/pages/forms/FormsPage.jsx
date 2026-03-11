@@ -866,7 +866,7 @@ export default function FormsPage() {
     handleCloseAssignedPlayersDrawer()
   }, [selectedAssignedPlayers, handleCloseAssignedPlayersDrawer])
 
-  const renderPlayersCell = (players, scheduleId) => {
+  const renderPlayersCell = useCallback((players, scheduleId) => {
     if (!players || players.length === 0) return '—'
     const displayCount = 3
     const displayPlayers = players.slice(0, displayCount)
@@ -959,7 +959,7 @@ export default function FormsPage() {
         </Box>
       </Tooltip>
     )
-  }
+  }, [handleOpenAssignedPlayersDrawer])
 
   const schedulingColumns = useMemo(
     () => [
@@ -1061,7 +1061,7 @@ export default function FormsPage() {
         }
       }
     ],
-    [schedulingExpandedRows, toggleSchedulingRowExpansion]
+    [schedulingExpandedRows, toggleSchedulingRowExpansion, renderPlayersCell]
   )
 
   return (

@@ -1,7 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { useLocation, useNavigate } from 'react-router-dom'
-import KitmanLogo from '/public/assets/logos/Kitman Labs base.png'
+
+// Reference public assets directly by URL path (without /public prefix)
+const KitmanLogo = '/assets/logos/Kitman Labs base.png'
+
 import {
   Drawer,
   Box,

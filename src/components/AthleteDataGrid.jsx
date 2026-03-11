@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Typography, IconButton, Menu, MenuItem, Tooltip, Chip } from '@mui/material';
 import {
@@ -261,14 +261,14 @@ const AthleteDataGrid = ({
   
   const [selectedRows, setSelectedRows] = useState([]);
 
-  const handleBulkAction = (action) => {
+  const handleBulkAction = useCallback((action) => {
     if (onBulkAction) {
       onBulkAction(action, selectedRows);
     } else {
       const selectedAthletes = data.filter(athlete => selectedRows.includes(athlete.id));
       console.log(`Bulk action ${action} on athletes:`, selectedAthletes);
     }
-  };
+  }, [onBulkAction, selectedRows, data]);
 
   const CustomToolbarComponent = useMemo(() => {
     return function CustomToolbarWithSelection(props) {
