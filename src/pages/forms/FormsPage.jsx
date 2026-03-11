@@ -891,15 +891,13 @@ export default function FormsPage() {
                   maxWidth: 400,
                   fontFamily: 'var(--font-family-primary)',
                   fontSize: 'var(--font-size-xs)',
-                  // eslint-disable-next-line design-system/no-hardcoded-colors
-                  backgroundColor: '#616161',
+                  backgroundColor: 'var(--color-text-secondary)',
                   color: 'var(--color-white)'
                 }
               },
               arrow: {
                 sx: {
-                  // eslint-disable-next-line design-system/no-hardcoded-colors
-                  color: '#616161'
+                  color: 'var(--color-text-secondary)'
                 }
               }
             }}
