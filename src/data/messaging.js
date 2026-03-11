@@ -56,42 +56,42 @@ export const mockPositions = [
 // Direct messages – varied: unread from other, user ignored, active back-and-forth, different densities
 export const mockDirectMessages = [
   // Unread from other person (Elena just replied)
-  { id: 'dm1', type: 'dm', participantIds: ['current-user', 'u2'], name: 'Elena Rodriguez', lastActivity: '2025-02-24T09:15:00Z', unreadCount: 2 },
+  { id: 'dm1', type: 'dm', participantIds: ['current-user', 'u2'], name: 'Elena Rodriguez', lastActivity: '2025-02-24T09:15:00Z', unreadCount: 2, archived: false },
   // Active back-and-forth (Marcus)
-  { id: 'dm2', type: 'dm', participantIds: ['current-user', 'u1'], name: 'Marcus Johnson', lastActivity: '2025-02-24T08:52:00Z', unreadCount: 0 },
+  { id: 'dm2', type: 'dm', participantIds: ['current-user', 'u1'], name: 'Marcus Johnson', lastActivity: '2025-02-24T08:52:00Z', unreadCount: 0, archived: false },
   // Other person ignoring – last message from user, days ago
-  { id: 'dm3', type: 'dm', participantIds: ['current-user', 'u3'], name: 'David Chen', lastActivity: '2025-02-18T14:00:00Z', unreadCount: 0 },
+  { id: 'dm3', type: 'dm', participantIds: ['current-user', 'u3'], name: 'David Chen', lastActivity: '2025-02-18T14:00:00Z', unreadCount: 0, archived: true },
   // Sparse, formal
-  { id: 'dm4', type: 'dm', participantIds: ['current-user', 'u4'], name: 'Sarah Williams', lastActivity: '2025-02-23T16:30:00Z', unreadCount: 1 },
+  { id: 'dm4', type: 'dm', participantIds: ['current-user', 'u4'], name: 'Sarah Williams', lastActivity: '2025-02-23T16:30:00Z', unreadCount: 1, archived: false },
   // Chatty thread
-  { id: 'dm5', type: 'dm', participantIds: ['current-user', 'u5'], name: 'Alex Thompson', lastActivity: '2025-02-24T07:20:00Z', unreadCount: 0 },
-  { id: 'dm6', type: 'dm', participantIds: ['current-user', 'u6'], name: 'Emma Davis', lastActivity: '2025-02-23T22:10:00Z', unreadCount: 0 },
-  { id: 'dm7', type: 'dm', participantIds: ['current-user', 'u7'], name: 'James Wilson', lastActivity: '2025-02-22T11:00:00Z', unreadCount: 3 },
-  { id: 'dm8', type: 'dm', participantIds: ['current-user', 'u8'], name: 'Maria Santos', lastActivity: '2025-02-21T09:45:00Z', unreadCount: 0 },
-  { id: 'dm9', type: 'dm', participantIds: ['current-user', 'u9'], name: "Liam O'Brien", lastActivity: '2025-02-24T08:00:00Z', unreadCount: 0 },
-  { id: 'dm10', type: 'dm', participantIds: ['current-user', 'u10'], name: 'Sophie Martin', lastActivity: '2025-02-20T17:20:00Z', unreadCount: 0 },
-  { id: 'dm11', type: 'dm', participantIds: ['current-user', 'u11'], name: 'Noah Kim', lastActivity: '2025-02-23T12:05:00Z', unreadCount: 1 },
-  { id: 'dm12', type: 'dm', participantIds: ['current-user', 'u12'], name: 'Olivia Brown', lastActivity: '2025-02-19T10:00:00Z', unreadCount: 0 },
-  { id: 'dm13', type: 'dm', participantIds: ['current-user', 'u13'], name: 'Lucas Garcia', lastActivity: '2025-02-24T06:30:00Z', unreadCount: 0 },
-  { id: 'dm14', type: 'dm', participantIds: ['current-user', 'u14'], name: 'Isabella Lee', lastActivity: '2025-02-23T19:00:00Z', unreadCount: 0 },
-  { id: 'dm15', type: 'dm', participantIds: ['current-user', 'u15'], name: 'Mason Taylor', lastActivity: '2025-02-22T14:22:00Z', unreadCount: 0 },
-  { id: 'dm16', type: 'dm', participantIds: ['current-user', 'u16'], name: 'Ava Anderson', lastActivity: '2025-02-21T08:15:00Z', unreadCount: 0 },
-  { id: 'dm17', type: 'dm', participantIds: ['current-user', 'u17'], name: 'Ethan White', lastActivity: '2025-02-24T09:00:00Z', unreadCount: 0 },
-  { id: 'dm18', type: 'dm', participantIds: ['current-user', 'u18'], name: 'Mia Harris', lastActivity: '2025-02-23T15:40:00Z', unreadCount: 0 }
+  { id: 'dm5', type: 'dm', participantIds: ['current-user', 'u5'], name: 'Alex Thompson', lastActivity: '2025-02-24T07:20:00Z', unreadCount: 0, archived: false },
+  { id: 'dm6', type: 'dm', participantIds: ['current-user', 'u6'], name: 'Emma Davis', lastActivity: '2025-02-23T22:10:00Z', unreadCount: 0, archived: false },
+  { id: 'dm7', type: 'dm', participantIds: ['current-user', 'u7'], name: 'James Wilson', lastActivity: '2025-02-22T11:00:00Z', unreadCount: 3, archived: false },
+  { id: 'dm8', type: 'dm', participantIds: ['current-user', 'u8'], name: 'Maria Santos', lastActivity: '2025-02-21T09:45:00Z', unreadCount: 0, archived: true },
+  { id: 'dm9', type: 'dm', participantIds: ['current-user', 'u9'], name: "Liam O'Brien", lastActivity: '2025-02-24T08:00:00Z', unreadCount: 0, archived: false },
+  { id: 'dm10', type: 'dm', participantIds: ['current-user', 'u10'], name: 'Sophie Martin', lastActivity: '2025-02-20T17:20:00Z', unreadCount: 0, archived: true },
+  { id: 'dm11', type: 'dm', participantIds: ['current-user', 'u11'], name: 'Noah Kim', lastActivity: '2025-02-23T12:05:00Z', unreadCount: 1, archived: false },
+  { id: 'dm12', type: 'dm', participantIds: ['current-user', 'u12'], name: 'Olivia Brown', lastActivity: '2025-02-19T10:00:00Z', unreadCount: 0, archived: false },
+  { id: 'dm13', type: 'dm', participantIds: ['current-user', 'u13'], name: 'Lucas Garcia', lastActivity: '2025-02-24T06:30:00Z', unreadCount: 0, archived: false },
+  { id: 'dm14', type: 'dm', participantIds: ['current-user', 'u14'], name: 'Isabella Lee', lastActivity: '2025-02-23T19:00:00Z', unreadCount: 0, archived: false },
+  { id: 'dm15', type: 'dm', participantIds: ['current-user', 'u15'], name: 'Mason Taylor', lastActivity: '2025-02-22T14:22:00Z', unreadCount: 0, archived: false },
+  { id: 'dm16', type: 'dm', participantIds: ['current-user', 'u16'], name: 'Ava Anderson', lastActivity: '2025-02-21T08:15:00Z', unreadCount: 0, archived: false },
+  { id: 'dm17', type: 'dm', participantIds: ['current-user', 'u17'], name: 'Ethan White', lastActivity: '2025-02-24T09:00:00Z', unreadCount: 0, archived: false },
+  { id: 'dm18', type: 'dm', participantIds: ['current-user', 'u18'], name: 'Mia Harris', lastActivity: '2025-02-23T15:40:00Z', unreadCount: 0, archived: false }
 ]
 
 // Channels – many more
 export const mockChannels = [
-  { id: 'ch1', type: 'channel', name: 'International Squad', description: 'International squad updates and announcements', memberIds: ['current-user', 'u1', 'u2', 'u3', 'u4'], isPrivate: true, channelId: 'CHb2ca56accaee46b589f05c1757fc4d95', muted: false, athletesCanSend: false, staffCanSend: true, lastActivity: '2025-02-24T09:00:00Z', unreadCount: 0 },
-  { id: 'ch2', type: 'channel', name: 'Academy Squad', description: 'Academy training and fixtures', memberIds: ['current-user', 'u5', 'u6', 'u7', 'u8', 'u9'], isPrivate: true, channelId: 'CHacademy01', muted: true, athletesCanSend: true, staffCanSend: true, lastActivity: '2025-02-24T08:30:00Z', unreadCount: 5 },
-  { id: 'ch3', type: 'channel', name: 'First Team', description: 'First team only', memberIds: ['current-user', 'u1', 'u2', 'u4', 'u6', 'u7'], isPrivate: true, channelId: 'CHfirstteam01', muted: false, athletesCanSend: false, staffCanSend: true, lastActivity: '2025-02-23T18:20:00Z', unreadCount: 0 },
-  { id: 'ch4', type: 'channel', name: 'Injury & Recovery', description: 'RTP and medical updates', memberIds: ['current-user', 'u2', 'u3', 'u7'], isPrivate: true, channelId: 'CHinjury01', muted: false, athletesCanSend: true, staffCanSend: true, lastActivity: '2025-02-24T07:45:00Z', unreadCount: 1 },
-  { id: 'ch5', type: 'channel', name: 'Match Day', description: 'Match day logistics and lineup', memberIds: ['current-user', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7'], isPrivate: false, channelId: 'CHmatchday01', muted: false, athletesCanSend: false, staffCanSend: true, lastActivity: '2025-02-22T14:00:00Z', unreadCount: 0 },
-  { id: 'ch6', type: 'channel', name: 'Strength & Conditioning', description: 'S&C programmes and check-ins', memberIds: ['current-user', 'u1', 'u4', 'u5', 'u8', 'u10'], isPrivate: true, channelId: 'CHsc01', muted: true, athletesCanSend: true, staffCanSend: true, lastActivity: '2025-02-23T12:00:00Z', unreadCount: 0 },
-  { id: 'ch7', type: 'channel', name: 'Travel & Logistics', description: 'Travel arrangements', memberIds: ['current-user', 'u1', 'u2', 'u3', 'u6', 'u9', 'u11'], isPrivate: true, channelId: 'CHtravel01', muted: false, athletesCanSend: false, staffCanSend: true, lastActivity: '2025-02-21T11:30:00Z', unreadCount: 0 },
-  { id: 'ch8', type: 'channel', name: 'Nutrition', description: 'Nutrition and hydration', memberIds: ['current-user', 'u4', 'u6', 'u8', 'u10', 'u12'], isPrivate: true, channelId: 'CHnutrition01', muted: false, athletesCanSend: true, staffCanSend: true, lastActivity: '2025-02-24T08:00:00Z', unreadCount: 2 },
-  { id: 'ch9', type: 'channel', name: 'Reserve Team', description: 'Reserve team chat', memberIds: ['current-user', 'u5', 'u8', 'u9', 'u13', 'u14'], isPrivate: true, channelId: 'CHreserve01', muted: false, athletesCanSend: true, staffCanSend: true, lastActivity: '2025-02-23T16:00:00Z', unreadCount: 0 },
-  { id: 'ch10', type: 'channel', name: 'Social & Events', description: 'Team socials and events', memberIds: ['current-user', 'u1', 'u2', 'u5', 'u6', 'u9', 'u10', 'u16', 'u18'], isPrivate: false, channelId: 'CHsocial01', muted: true, athletesCanSend: true, staffCanSend: true, lastActivity: '2025-02-20T19:00:00Z', unreadCount: 0 }
+  { id: 'ch1', type: 'channel', name: 'International Squad', description: 'International squad updates and announcements', memberIds: ['current-user', 'u1', 'u2', 'u3', 'u4'], isPrivate: true, channelId: 'CHb2ca56accaee46b589f05c1757fc4d95', muted: false, athletesCanSend: false, staffCanSend: true, lastActivity: '2025-02-24T09:00:00Z', unreadCount: 0, archived: false, inactiveMembers: [] },
+  { id: 'ch2', type: 'channel', name: 'Academy Squad', description: 'Academy training and fixtures', memberIds: ['current-user', 'u5', 'u6', 'u7', 'u8', 'u9'], isPrivate: true, channelId: 'CHacademy01', muted: true, athletesCanSend: true, staffCanSend: true, lastActivity: '2025-02-24T08:30:00Z', unreadCount: 5, archived: false, inactiveMembers: ['u8', 'u9'] },
+  { id: 'ch3', type: 'channel', name: 'First Team', description: 'First team only', memberIds: ['current-user', 'u1', 'u2', 'u4', 'u6', 'u7'], isPrivate: true, channelId: 'CHfirstteam01', muted: false, athletesCanSend: false, staffCanSend: true, lastActivity: '2025-02-23T18:20:00Z', unreadCount: 0, archived: false, inactiveMembers: [] },
+  { id: 'ch4', type: 'channel', name: 'Injury & Recovery', description: 'RTP and medical updates', memberIds: ['current-user', 'u2', 'u3', 'u7'], isPrivate: true, channelId: 'CHinjury01', muted: false, athletesCanSend: true, staffCanSend: true, lastActivity: '2025-02-24T07:45:00Z', unreadCount: 1, archived: false, inactiveMembers: ['u3'] },
+  { id: 'ch5', type: 'channel', name: 'Match Day', description: 'Match day logistics and lineup', memberIds: ['current-user', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7'], isPrivate: false, channelId: 'CHmatchday01', muted: false, athletesCanSend: false, staffCanSend: true, lastActivity: '2025-02-22T14:00:00Z', unreadCount: 0, archived: true, inactiveMembers: [] },
+  { id: 'ch6', type: 'channel', name: 'Strength & Conditioning', description: 'S&C programmes and check-ins', memberIds: ['current-user', 'u1', 'u4', 'u5', 'u8', 'u10'], isPrivate: true, channelId: 'CHsc01', muted: true, athletesCanSend: true, staffCanSend: true, lastActivity: '2025-02-23T12:00:00Z', unreadCount: 0, archived: false, inactiveMembers: [] },
+  { id: 'ch7', type: 'channel', name: 'Travel & Logistics', description: 'Travel arrangements', memberIds: ['current-user', 'u1', 'u2', 'u3', 'u6', 'u9', 'u11'], isPrivate: true, channelId: 'CHtravel01', muted: false, athletesCanSend: false, staffCanSend: true, lastActivity: '2025-02-21T11:30:00Z', unreadCount: 0, archived: true, inactiveMembers: [] },
+  { id: 'ch8', type: 'channel', name: 'Nutrition', description: 'Nutrition and hydration', memberIds: ['current-user', 'u4', 'u6', 'u8', 'u10', 'u12'], isPrivate: true, channelId: 'CHnutrition01', muted: false, athletesCanSend: true, staffCanSend: true, lastActivity: '2025-02-24T08:00:00Z', unreadCount: 2, archived: false, inactiveMembers: [] },
+  { id: 'ch9', type: 'channel', name: 'Reserve Team', description: 'Reserve team chat', memberIds: ['current-user', 'u5', 'u8', 'u9', 'u13', 'u14'], isPrivate: true, channelId: 'CHreserve01', muted: false, athletesCanSend: true, staffCanSend: true, lastActivity: '2025-02-23T16:00:00Z', unreadCount: 0, archived: false, inactiveMembers: [] },
+  { id: 'ch10', type: 'channel', name: 'Social & Events', description: 'Team socials and events', memberIds: ['current-user', 'u1', 'u2', 'u5', 'u6', 'u9', 'u10', 'u16', 'u18'], isPrivate: false, channelId: 'CHsocial01', muted: true, athletesCanSend: true, staffCanSend: true, lastActivity: '2025-02-20T19:00:00Z', unreadCount: 0, archived: false, inactiveMembers: [] }
 ]
 
 // Messages per conversation – realistic, varied tone and density
