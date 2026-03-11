@@ -261,16 +261,16 @@ const AthleteDataGrid = ({
   
   const [selectedRows, setSelectedRows] = useState([]);
 
-  const handleBulkAction = useCallback((action) => {
-    if (onBulkAction) {
-      onBulkAction(action, selectedRows);
-    } else {
-      const selectedAthletes = data.filter(athlete => selectedRows.includes(athlete.id));
-      console.log(`Bulk action ${action} on athletes:`, selectedAthletes);
-    }
-  }, [onBulkAction, selectedRows, data]);
-
   const CustomToolbarComponent = useMemo(() => {
+    const handleBulkAction = (action) => {
+      if (onBulkAction) {
+        onBulkAction(action, selectedRows);
+      } else {
+        const selectedAthletes = data.filter(athlete => selectedRows.includes(athlete.id));
+        console.log(`Bulk action ${action} on athletes:`, selectedAthletes);
+      }
+    };
+
     return function CustomToolbarWithSelection(props) {
       return (
         <Box sx={{ position: 'relative' }}>
@@ -282,7 +282,7 @@ const AthleteDataGrid = ({
         </Box>
       );
     };
-  }, [selectedRows.length, handleBulkAction]);
+  }, [selectedRows, onBulkAction, data]);
 
   // Basic styling for the grid container
   const containerStyles = {

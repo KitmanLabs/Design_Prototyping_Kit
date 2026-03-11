@@ -97,8 +97,7 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
     if (value !== searchValue) {
       setSearchValue(value || '');
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [value, searchValue]);
 
   const handleInputChange = (e) => {
     const newValue = e.target.value;
