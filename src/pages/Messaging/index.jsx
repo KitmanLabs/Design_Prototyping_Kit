@@ -24,17 +24,17 @@ import {
 import {
   EditOutlined as EditIcon,
   CreateOutlined as ComposeIcon,
-  Add as AddIcon,
-  AttachFile as AttachFileIcon,
+  AddOutlined as AddIcon,
+  AttachFileOutlined as AttachFileIcon,
   SendOutlined as SendIcon,
-  MoreVert as MoreVertIcon,
-  Close as CloseIcon,
-  Search as SearchIcon,
-  ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon,
-  ChatBubbleOutline as ChatBubbleIcon,
-  ArrowBack as ArrowBackIcon,
-  Person as PersonIcon,
+  MoreVertOutlined as MoreVertIcon,
+  CloseOutlined as CloseIcon,
+  SearchOutlined as SearchIcon,
+  ExpandMoreOutlined as ExpandMoreIcon,
+  ExpandLessOutlined as ExpandLessIcon,
+  ChatBubbleOutlineOutlined as ChatBubbleIcon,
+  ArrowBackOutlined as ArrowBackIcon,
+  PersonOutlined as PersonIcon,
   DeleteOutlined as DeleteIcon
 } from '@mui/icons-material'
 import {

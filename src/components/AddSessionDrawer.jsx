@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Drawer,
   Box,
@@ -19,25 +19,27 @@ import {
   ToggleButton,
 } from '@mui/material';
 import {
-  Close,
-  AttachFile,
-  Person,
-  CalendarToday,
-  Schedule,
-  ExpandMore,
-  ExpandLess,
-  Check,
+  CloseOutlined,
+  AttachFileOutlined,
+  PersonOutlined,
+  CalendarTodayOutlined,
+  ScheduleOutlined,
+  ExpandMoreOutlined,
+  ExpandLessOutlined,
+  CheckOutlined,
 } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import Button from './Button';
+import LocationPicker from './LocationPicker';
+import savedLocationsData from '../data/saved_locations.json';
 
 // Mock data – session types, locations, etc.
 const MOCK_SESSION_TYPES = [
-  'Strength Training',
-  'Cardio Training',
+  "Strength training",
+  "Cardio training",
   'Tactical',
   'Recovery',
   'Technical',
@@ -55,10 +57,10 @@ const MOCK_REPEAT_OPTIONS = [
 ];
 
 const MOCK_LOCATIONS = [
-  'Home Stadium',
+  "Home stadium",
   'Away',
-  'Wembley Stadium',
-  'Old Trafford',
+  "Wembley stadium",
+  "Old trafford",
   'Training Center A',
   'Training Center B',
   'Gym A',
@@ -67,7 +69,7 @@ const MOCK_LOCATIONS = [
 
 const MOCK_TIMEZONES = [
   'Europe/Dublin',
-  'UTC',
+  "Utc",
   'Europe/London',
   'America/New_York',
   'Europe/Paris',
@@ -171,7 +173,7 @@ const formFieldStyles = {
   },
 };
 
-const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) => {
+const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editingEvent = null }) => {
   const [attendanceOpen, setAttendanceOpen] = useState(true);
   const [formData, setFormData] = useState({
     workload: 'squad',
@@ -200,6 +202,43 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) 
     reminderPush: '',
     reminderType: '',
   });
+
+  // Populate form when editing an existing session
+  useEffect(() => {
+    if (editingEvent) {
+      const startDate = new Date(editingEvent.start);
+      const endDate = new Date(editingEvent.end);
+      const durationMinutes = Math.round((endDate - startDate) / 60000);
+
+      setFormData({
+        workload: editingEvent.extendedProps?.workload || 'squad',
+        sessionType: editingEvent.extendedProps?.sessionType || '',
+        title: editingEvent.title || '',
+        date: startDate,
+        startTime: startDate,
+        duration: durationMinutes,
+        timezone: editingEvent.extendedProps?.timezone || 'Europe/Dublin',
+        repeats: editingEvent.extendedProps?.repeats || 'none',
+        location: editingEvent.extendedProps?.location || '',
+        selectedAthletes: editingEvent.extendedProps?.selectedAthletes || [],
+        selectedStaff: editingEvent.extendedProps?.selectedStaff || [],
+        description: editingEvent.extendedProps?.description || '',
+        gameDayPlusMinus: editingEvent.extendedProps?.gameDayPlusMinus || '',
+        surfaceType: editingEvent.extendedProps?.surfaceType || '',
+        surfaceQuality: editingEvent.extendedProps?.surfaceQuality || '',
+        weather: editingEvent.extendedProps?.weather || '',
+        temperature: editingEvent.extendedProps?.temperature || '',
+        attachments: editingEvent.extendedProps?.attachments || [],
+        attachTitle: '',
+        attachLink: '',
+        notifyStaffBy: editingEvent.extendedProps?.notifyStaffBy || ['push'],
+        notifyAthletesBy: editingEvent.extendedProps?.notifyAthletesBy || [],
+        reminderEmail: editingEvent.extendedProps?.reminderEmail || '',
+        reminderPush: editingEvent.extendedProps?.reminderPush || '',
+        reminderType: editingEvent.extendedProps?.reminderType || '',
+      });
+    }
+  }, [editingEvent]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -306,10 +345,10 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) 
             }}
           >
             <Typography variant="h6" sx={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
-              New session
+              {editingEvent ? 'Edit session' : 'New session'}
             </Typography>
             <IconButton onClick={onClose} size="small">
-              <Close />
+              <CloseOutlined />
             </IconButton>
           </Box>
 
@@ -398,7 +437,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) 
                       InputProps: {
                         startAdornment: (
                           <InputAdornment position="start">
-                            <CalendarToday fontSize="small" />
+                            <CalendarTodayOutlined fontSize="small" />
                           </InputAdornment>
                         ),
                       },
@@ -422,7 +461,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) 
                       InputProps: {
                         startAdornment: (
                           <InputAdornment position="start">
-                            <Schedule fontSize="small" />
+                            <ScheduleOutlined fontSize="small" />
                           </InputAdornment>
                         ),
                       },
@@ -497,22 +536,10 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) 
 
               {/* Location */}
               <Grid item xs={12}>
-                <Autocomplete
-                  freeSolo
-                  options={MOCK_LOCATIONS}
+                <LocationPicker
                   value={formData.location}
-                  onInputChange={(_, value) => handleInputChange('location', value)}
-                  onChange={(_, value) => handleInputChange('location', value || '')}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="filled"
-                      label="Location"
-                      placeholder="Search locations..."
-                      InputLabelProps={{ shrink: true }}
-                      sx={formFieldStyles}
-                    />
-                  )}
+                  onChange={(value) => handleInputChange('location', value)}
+                  savedLocations={savedLocationsData}
                 />
               </Grid>
 
@@ -535,7 +562,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) 
                     Attendance
                   </Typography>
                   <IconButton size="small">
-                    {attendanceOpen ? <ExpandLess /> : <ExpandMore />}
+                    {attendanceOpen ? <ExpandLessOutlined /> : <ExpandMoreOutlined />}
                   </IconButton>
                 </Box>
                 <Collapse in={attendanceOpen}>
@@ -550,21 +577,24 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) 
                           handleInputChange('selectedAthletes', newValue)
                         }
                         renderTags={(value, getTagProps) =>
-                          value.map((option, index) => (
-                            <Chip
-                              key={option.id}
-                              label={getAthleteLabel(option)}
-                              {...getTagProps({ index })}
-                              icon={<Person />}
-                              sx={{
-                                backgroundColor: 'var(--color-background-selected)',
-                                color: 'var(--color-text-primary)',
-                                '& .MuiChip-deleteIcon': {
-                                  color: 'var(--color-text-secondary)',
-                                },
-                              }}
-                            />
-                          ))
+                          value.map((option, index) => {
+                            const { key, ...tagProps } = getTagProps({ index });
+                            return (
+                              <Chip
+                                key={option.id}
+                                label={getAthleteLabel(option)}
+                                {...tagProps}
+                                icon={<PersonOutlined />}
+                                sx={{
+                                  backgroundColor: 'var(--color-background-selected)',
+                                  color: 'var(--color-text-primary)',
+                                  '& .MuiChip-deleteIcon': {
+                                    color: 'var(--color-text-secondary)',
+                                  },
+                                }}
+                              />
+                            );
+                          })
                         }
                         renderInput={(params) => (
                           <TextField
@@ -593,7 +623,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) 
                               key={option.id}
                               label={getStaffLabel(option)}
                               {...getTagProps({ index })}
-                              icon={<Person />}
+                              icon={<PersonOutlined />}
                               sx={{
                                 backgroundColor: 'var(--color-background-selected)',
                                 color: 'var(--color-text-primary)',
@@ -802,7 +832,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) 
                     document.getElementById('session-file-upload').click()
                   }
                 >
-                  <AttachFile
+                  <AttachFileOutlined
                     sx={{ fontSize: 32, color: 'var(--color-text-muted)', mb: 1 }}
                   />
                   <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>
@@ -917,13 +947,13 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) 
                 >
                   <ToggleButton value="email">
                     {formData.notifyStaffBy.includes('email') && (
-                      <Check sx={{ fontSize: 16, mr: 0.5 }} />
+                      <CheckOutlined sx={{ fontSize: 16, mr: 0.5 }} />
                     )}
                     Email
                   </ToggleButton>
                   <ToggleButton value="push">
                     {formData.notifyStaffBy.includes('push') && (
-                      <Check sx={{ fontSize: 16, mr: 0.5 }} />
+                      <CheckOutlined sx={{ fontSize: 16, mr: 0.5 }} />
                     )}
                     Push
                   </ToggleButton>
@@ -956,13 +986,13 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [] }) 
                 >
                   <ToggleButton value="email">
                     {formData.notifyAthletesBy.includes('email') && (
-                      <Check sx={{ fontSize: 16, mr: 0.5 }} />
+                      <CheckOutlined sx={{ fontSize: 16, mr: 0.5 }} />
                     )}
                     Email
                   </ToggleButton>
                   <ToggleButton value="push">
                     {formData.notifyAthletesBy.includes('push') && (
-                      <Check sx={{ fontSize: 16, mr: 0.5 }} />
+                      <CheckOutlined sx={{ fontSize: 16, mr: 0.5 }} />
                     )}
                     Push
                   </ToggleButton>

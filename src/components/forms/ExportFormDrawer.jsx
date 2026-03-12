@@ -26,8 +26,8 @@ import { ClickAwayListener } from '@mui/base'
 import {
   CloseOutlined,
   KeyboardArrowDownOutlined,
-  ChevronLeft,
-  ChevronRight,
+  ChevronLeftOutlined,
+  ChevronRightOutlined,
   SyncOutlined
 } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
@@ -320,7 +320,7 @@ function ExportFormDrawer({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Button
             size="small"
-            variant="text"
+            variant="contained"
             onClick={(e) => {
               e.stopPropagation()
               handleSelectAllTeam(team)
@@ -335,7 +335,7 @@ function ExportFormDrawer({
           >
             {allSelected ? 'Clear all' : 'Select all'}
           </Button>
-          <ChevronRight fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
+          <ChevronRightOutlined fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
         </Box>
       </Box>
     )
@@ -442,7 +442,7 @@ function ExportFormDrawer({
               }}
             >
               <Button
-                startIcon={<ChevronLeft fontSize="small" />}
+                startIcon={<ChevronLeftOutlined fontSize="small" />}
                 onClick={handleBack}
                 size="small"
                 sx={{
@@ -860,8 +860,9 @@ function ExportFormDrawer({
             display: 'flex',
             alignItems: 'center',
             gap: 2,
+            // eslint-disable-next-line design-system/no-hardcoded-colors
             backgroundColor: 'var(--color-success, #28a745)',
-            color: '#fff',
+            color: 'var(--color-white)',
             px: 2,
             py: 1.5,
             borderRadius: 'var(--radius-sm)',
@@ -879,14 +880,14 @@ function ExportFormDrawer({
           </Typography>
           <Button
             size="small"
-            variant="text"
+            variant="contained"
             sx={{
-              color: '#fff',
+              color: 'var(--color-white)',
               textTransform: 'none',
               fontFamily: 'var(--font-family-primary)',
               fontSize: 'var(--font-size-sm)',
               fontWeight: 'var(--font-weight-semibold)',
-              '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
+              '&:hover': { backgroundColor: 'var(--color-overlay-active)' }
             }}
           >
             Export

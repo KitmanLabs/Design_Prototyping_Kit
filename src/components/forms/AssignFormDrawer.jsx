@@ -59,6 +59,16 @@ const NOTIFICATION_TIMING_OPTIONS = [
   { value: 'custom-date', label: 'Custom date' },
 ]
 
+// Mock teams for athlete grouping
+const MOCK_TEAMS = [
+  { id: 1, name: 'First Team', status: 'active' },
+  { id: 2, name: 'Reserve Team', status: 'active' },
+  { id: 3, name: 'Academy U21', status: 'active' },
+  { id: 4, name: 'Academy U18', status: 'active' },
+  { id: 5, name: 'Munster NTS', status: 'active' },
+  { id: 6, name: 'Club Ops', status: 'inactive' },
+]
+
 const formFieldStyles = {
   '& .MuiInputBase-root': {
     backgroundColor: 'var(--color-background-secondary)',
@@ -164,6 +174,9 @@ function AssignFormDrawer({
       setResponsesPerPlayer(1)
       setShowNotifications(false)
       setNotifications([])
+      setAthleteMenuAnchor(null)
+      setSelectedTeam(null)
+      setTeamAutoSync({})
     }
   }, [open])
 
@@ -183,7 +196,8 @@ function AssignFormDrawer({
     const assignment = {
       formName,
       selectedAthletes,
-      assignmentType
+      assignmentType,
+      teamAutoSync  // Include auto-sync settings per team
     }
     
     if (assignmentType === 'one-time') {
@@ -880,7 +894,7 @@ function AssignFormDrawer({
                       aria-label="Delete schedule"
                       sx={{ color: 'var(--color-text-secondary)', '&:hover': { color: 'var(--color-error)' } }}
                     >
-                      <DeleteOutline fontSize="small" />
+                      <DeleteOutlineOutlined fontSize="small" />
                     </IconButton>
                   </Box>
 
@@ -998,7 +1012,7 @@ function AssignFormDrawer({
                     aria-label="Remove notifications"
                     sx={{ color: 'var(--color-text-secondary)', '&:hover': { color: 'var(--color-error)' } }}
                   >
-                    <DeleteOutline fontSize="small" />
+                    <DeleteOutlineOutlined fontSize="small" />
                   </IconButton>
                 )}
               </Box>
@@ -1077,7 +1091,7 @@ function AssignFormDrawer({
                   <Stack direction="row" spacing={1}>
                     <Chip
                       label="Email"
-                      icon={notification.channels.includes('email') ? <Check sx={{ fontSize: 16 }} /> : undefined}
+                      icon={notification.channels.includes('email') ? <CheckOutlined sx={{ fontSize: 16 }} /> : undefined}
                       onClick={() => {
                         setNotifications(prev => prev.map((n, i) => {
                           if (i !== index) return n
@@ -1108,7 +1122,7 @@ function AssignFormDrawer({
                     />
                     <Chip
                       label="SMS"
-                      icon={notification.channels.includes('sms') ? <Check sx={{ fontSize: 16 }} /> : undefined}
+                      icon={notification.channels.includes('sms') ? <CheckOutlined sx={{ fontSize: 16 }} /> : undefined}
                       onClick={() => {
                         setNotifications(prev => prev.map((n, i) => {
                           if (i !== index) return n
@@ -1139,7 +1153,7 @@ function AssignFormDrawer({
                     />
                     <Chip
                       label="Push"
-                      icon={notification.channels.includes('push') ? <Check sx={{ fontSize: 16 }} /> : undefined}
+                      icon={notification.channels.includes('push') ? <CheckOutlined sx={{ fontSize: 16 }} /> : undefined}
                       onClick={() => {
                         setNotifications(prev => prev.map((n, i) => {
                           if (i !== index) return n

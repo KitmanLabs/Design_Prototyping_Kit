@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Drawer,
   Box,
@@ -20,17 +20,19 @@ import {
   InputAdornment,
 } from '@mui/material';
 import {
-  Close,
-  AttachFile,
-  Person,
-  CalendarToday,
+  CloseOutlined,
+  AttachFileOutlined,
+  PersonOutlined,
+  CalendarTodayOutlined,
 } from '@mui/icons-material';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import Button from './Button';
+import LocationPicker from './LocationPicker';
+import savedLocationsData from '../data/saved_locations.json';
 
-const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) => {
+const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], editingEvent = null }) => {
   const [formData, setFormData] = useState({
     eventType: '',
     title: '',
@@ -48,6 +50,38 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
 
   const [errors, setErrors] = useState({});
   const [perSquadEvent, setPerSquadEvent] = useState(false);
+
+  // Populate form when editing an existing event
+  useEffect(() => {
+    if (editingEvent) {
+      const startDate = new Date(editingEvent.start);
+      const endDate = new Date(editingEvent.end);
+      const durationMinutes = Math.round((endDate - startDate) / 60000);
+      
+      // Convert event type from UPPER_CASE to Title Case
+      const eventTypeFormatted = editingEvent.extendedProps?.eventType
+        ? editingEvent.extendedProps.eventType
+            .split('_')
+            .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+            .join(' ')
+        : '';
+
+      setFormData({
+        eventType: eventTypeFormatted,
+        title: editingEvent.title || '',
+        description: editingEvent.extendedProps?.description || '',
+        startDateTime: startDate,
+        duration: durationMinutes,
+        timezone: editingEvent.extendedProps?.timezone || 'Europe/Dublin',
+        repeats: editingEvent.extendedProps?.repeats || 'none',
+        location: editingEvent.extendedProps?.location || '',
+        selectedAthletes: editingEvent.extendedProps?.selectedAthletes || [],
+        selectedStaff: editingEvent.extendedProps?.selectedStaff || [],
+        staffVisibility: editingEvent.extendedProps?.staffVisibility || 'all',
+        attachments: editingEvent.extendedProps?.attachments || [],
+      });
+    }
+  }, [editingEvent]);
 
   const formFieldStyles = {
     '& .MuiInputBase-root': {
@@ -96,13 +130,13 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
   };
 
   const eventTypes = [
-    'Training Session',
+    "Training session",
     'Game',
     'Meeting',
     'Assessment',
-    'Recovery Session',
-    'Team Building',
-    'Medical Check',
+    "Recovery session",
+    "Team building",
+    "Medical check",
     'Other',
   ];
 
@@ -114,8 +148,8 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
   ];
 
   const staffVisibilityOptions = [
-    { value: 'all', label: 'All Staff' },
-    { value: 'selected', label: 'Only Selected Staff' },
+    { value: 'all', label: "All staff" },
+    { value: 'selected', label: "Only selected staff" },
     { value: 'additional', label: 'Staff and Additional viewers' },
   ];
 
@@ -137,13 +171,13 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
 
   const getEventTypeColor = (eventType) => {
     const colors = {
-      'Training Session': 'var(--color-chart-1)',
+      "Training session": 'var(--color-chart-1)',
       'Game': 'var(--color-chart-4)',
       'Meeting': 'var(--color-chart-2)',
       'Assessment': 'var(--color-chart-3)',
-      'Recovery Session': 'var(--color-chart-5)',
-      'Team Building': 'var(--color-chart-2)',
-      'Medical Check': 'var(--color-chart-4)',
+      "Recovery session": 'var(--color-chart-5)',
+      "Team building": 'var(--color-chart-2)',
+      "Medical check": 'var(--color-chart-4)',
       'Other': 'var(--color-text-muted)',
     };
     return colors[eventType] || 'var(--color-text-muted)';
@@ -162,11 +196,11 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
   const handleSave = () => {
     if (!validateForm()) return;
     const squadName = formData.selectedAthletes.length > 0
-      ? (formData.selectedAthletes[0].squad_name || 'International Squad')
-      : 'International Squad';
+      ? (formData.selectedAthletes[0].squad_name || "International squad")
+      : "International squad";
     const coachName = formData.selectedStaff.length > 0
       ? `${formData.selectedStaff[0].firstname} ${formData.selectedStaff[0].lastname}`
-      : 'TBD';
+      : "Tbd";
     const newEvent = {
       id: Date.now().toString(),
       title: formData.title,
@@ -221,10 +255,10 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--color-background-primary)' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 24px 16px 24px', borderBottom: '1px solid var(--color-border-primary)' }}>
             <Typography variant="h6" sx={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
-              New event
+              {editingEvent ? 'Edit event' : 'New event'}
             </Typography>
             <IconButton onClick={onClose} size="small">
-              <Close />
+              <CloseOutlined />
             </IconButton>
           </Box>
 
@@ -290,7 +324,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
                       InputProps: {
                         startAdornment: (
                           <InputAdornment position="start">
-                            <CalendarToday fontSize="small" />
+                            <CalendarTodayOutlined fontSize="small" />
                           </InputAdornment>
                         ),
                       },
@@ -324,7 +358,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
                     label="Timezone"
                   >
                     <MenuItem value="Europe/Dublin">Europe/Dublin</MenuItem>
-                    <MenuItem value="UTC">UTC</MenuItem>
+                    <MenuItem value="Utc">UTC</MenuItem>
                     <MenuItem value="America/New_York">America/New_York</MenuItem>
                     <MenuItem value="Europe/London">Europe/London</MenuItem>
                   </Select>
@@ -347,14 +381,10 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
               </Grid>
 
               <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  variant="filled"
-                  label="Location"
+                <LocationPicker
                   value={formData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
-                  placeholder="Search locations..."
-                  sx={formFieldStyles}
+                  onChange={(value) => handleInputChange('location', value)}
+                  savedLocations={savedLocationsData}
                 />
               </Grid>
 
@@ -371,7 +401,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
                         key={option.id}
                         label={getAthleteLabel(option)}
                         {...getTagProps({ index })}
-                        icon={<Person />}
+                        icon={<PersonOutlined />}
                         sx={{
                           backgroundColor: 'var(--color-background-selected)',
                           color: 'var(--color-text-primary)',
@@ -423,7 +453,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
                         key={option.id}
                         label={`${option.firstname} ${option.lastname}`}
                         {...getTagProps({ index })}
-                        icon={<Person />}
+                        icon={<PersonOutlined />}
                         sx={{
                           backgroundColor: 'var(--color-background-selected)',
                           color: 'var(--color-text-primary)',
@@ -482,7 +512,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
                   }}
                   onClick={() => document.getElementById('file-upload').click()}
                 >
-                  <AttachFile sx={{ fontSize: 32, color: 'var(--color-text-muted)', mb: 1 }} />
+                  <AttachFileOutlined sx={{ fontSize: 32, color: 'var(--color-text-muted)', mb: 1 }} />
                   <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>
                     Drag & Drop your files or browse
                   </Typography>
@@ -516,7 +546,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [] }) =
             </Grid>
           </Box>
 
-          <Box sx={{ padding: '16px 24px', borderTop: '1px solid var(--color-border-primary)', backgroundColor: '#ffffff' }}>
+          <Box sx={{ padding: '16px 24px', borderTop: '1px solid var(--color-border-primary)', backgroundColor: 'var(--color-white)' }}>
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between' }}>
               <Button onClick={onClose} variant="secondary">
                 Cancel

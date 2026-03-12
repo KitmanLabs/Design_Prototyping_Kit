@@ -7,7 +7,7 @@ const Calendar = forwardRef(({
   onViewChange,
   selectedCalendarView,
   events = [],
-  orgTimeZone = 'UTC',
+  orgTimeZone = "Utc",
   userLocale = 'en',
   initialDate,
   ...restProps
@@ -16,7 +16,8 @@ const Calendar = forwardRef(({
     selectedCalendarView || 'dayGridMonth'
   );
   const [isFiltersPanelOpen, setIsFiltersPanelOpen] = useState(false);
-  const forwardedRef = ref || useRef(null);
+  const internalRef = useRef(null);
+  const forwardedRef = ref || internalRef;
 
   useEffect(() => {
     if (!selectedCalendarView) return;
@@ -27,7 +28,7 @@ const Calendar = forwardRef(({
     if (api.view?.type !== selectedCalendarView) {
       api.changeView(selectedCalendarView);
     }
-  }, [selectedCalendarView]);
+  }, [selectedCalendarView, forwardedRef]);
 
   const handleViewChange = (viewInfo) => {
     setCurrentCalendarView(viewInfo.view.type);
@@ -70,5 +71,7 @@ const Calendar = forwardRef(({
     </div>
   );
 });
+
+Calendar.displayName = 'Calendar';
 
 export default Calendar;

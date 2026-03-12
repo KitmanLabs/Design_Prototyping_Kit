@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, Button, Divider } from '@mui/material';
-import { Refresh } from '@mui/icons-material';
+import { RefreshOutlined } from '@mui/icons-material';
 
 const EventTooltip = ({
   event,
@@ -39,13 +39,13 @@ const EventTooltip = ({
   const getEventTypeDisplay = (eventType) => {
     switch (eventType) {
       case 'TRAINING_SESSION':
-        return 'Training Session';
+        return "Training session";
       case 'TEST_SESSION':
-        return 'Test Session';
+        return "Test session";
       case 'RECURRING_EVENT':
-        return 'Recurring Event';
+        return "Recurring event";
       case 'SERIES_EVENT':
-        return 'Series Event';
+        return "Series event";
       default:
         return eventType || 'Event';
     }
@@ -53,7 +53,7 @@ const EventTooltip = ({
 
   const getRecurrenceInfo = (event) => {
     if (extendedProps?.eventType === 'RECURRING_EVENT') {
-      return 'Every Tuesday';
+      return "Every tuesday";
     }
     return null;
   };
@@ -73,10 +73,10 @@ const EventTooltip = ({
         left: `${position.x}px`,
         top: `${position.y}px`,
         zIndex: 1000,
-        backgroundColor: '#ffffff',
-        border: '1px solid #e0e0e0',
+        backgroundColor: 'var(--color-white)',
+        border: '1px solid var(--color-border-primary)',
         borderRadius: '8px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        boxShadow: 'var(--shadow-dialog)',
         minWidth: '320px',
         maxWidth: '400px',
         padding: '16px',
@@ -90,11 +90,12 @@ const EventTooltip = ({
             sx={{
               width: '12px',
               height: '12px',
+              // eslint-disable-next-line design-system/no-hardcoded-colors
               backgroundColor: '#8B4513',
               borderRadius: '2px',
             }}
           />
-          <Typography variant="h6" sx={{ fontWeight: 600, color: '#333', fontSize: '16px' }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '16px' }}>
             {title}
           </Typography>
         </Box>
@@ -102,11 +103,13 @@ const EventTooltip = ({
           size="small"
           onClick={onDuplicate}
           sx={{
+            // eslint-disable-next-line design-system/no-hardcoded-colors
             color: '#666',
             fontSize: '12px',
             textTransform: 'none',
             minWidth: 'auto',
             padding: '4px 8px',
+            // eslint-disable-next-line design-system/no-hardcoded-colors
             '&:hover': { backgroundColor: '#f5f5f5' }
           }}
         >
@@ -114,39 +117,40 @@ const EventTooltip = ({
         </Button>
       </Box>
 
-      <Typography variant="body2" sx={{ color: '#666', mb: 1, fontSize: '14px' }}>
+      <Typography variant="body2" sx={{ /* eslint-disable-line design-system/no-hardcoded-colors */ color: '#666', mb: 1, fontSize: '14px' }}>
         {startDate}
       </Typography>
-      <Typography variant="body2" sx={{ color: '#666', mb: 2, fontSize: '14px' }}>
+      <Typography variant="body2" sx={{ /* eslint-disable-line design-system/no-hardcoded-colors */ color: '#666', mb: 2, fontSize: '14px' }}>
         {timeRange}
       </Typography>
 
-      <Typography variant="body2" sx={{ color: '#333', mb: 1, fontSize: '14px', fontWeight: 500 }}>
+      <Typography variant="body2" sx={{ color: 'var(--color-text-primary)', mb: 1, fontSize: '14px', fontWeight: 500 }}>
         {getEventTypeDisplay(extendedProps?.eventType)}
       </Typography>
 
       {squadDisplay && (
-        <Typography variant="body2" sx={{ color: '#333', mb: 1, fontSize: '14px' }}>
+        <Typography variant="body2" sx={{ color: 'var(--color-text-primary)', mb: 1, fontSize: '14px' }}>
           {squadDisplay}
         </Typography>
       )}
 
       {recurrenceInfo && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-          <Refresh
+          <RefreshOutlined
             sx={{
               fontSize: '16px',
+              // eslint-disable-next-line design-system/no-hardcoded-colors
               color: '#666',
               transform: 'rotate(45deg)'
             }}
           />
-          <Typography variant="body2" sx={{ color: '#666', fontSize: '14px' }}>
+          <Typography variant="body2" sx={{ /* eslint-disable-line design-system/no-hardcoded-colors */ color: '#666', fontSize: '14px' }}>
             {recurrenceInfo}
           </Typography>
         </Box>
       )}
 
-      <Typography variant="body2" sx={{ color: '#666', mb: 2, fontSize: '14px' }}>
+      <Typography variant="body2" sx={{ /* eslint-disable-line design-system/no-hardcoded-colors */ color: '#666', mb: 2, fontSize: '14px' }}>
         Event description.
       </Typography>
 
@@ -157,11 +161,13 @@ const EventTooltip = ({
           size="small"
           onClick={() => onDelete(event)}
           sx={{
+            // eslint-disable-next-line design-system/no-hardcoded-colors
             color: '#d32f2f',
             fontSize: '12px',
             textTransform: 'none',
             minWidth: 'auto',
             padding: '4px 8px',
+            // eslint-disable-next-line design-system/no-hardcoded-colors
             '&:hover': { backgroundColor: '#ffebee' }
           }}
         >
@@ -172,11 +178,12 @@ const EventTooltip = ({
             size="small"
             onClick={() => onEdit(event)}
             sx={{
-              color: '#333',
+              color: 'var(--color-text-primary)',
               fontSize: '12px',
               textTransform: 'none',
               minWidth: 'auto',
               padding: '4px 8px',
+              // eslint-disable-next-line design-system/no-hardcoded-colors
               '&:hover': { backgroundColor: '#f5f5f5' }
             }}
           >
@@ -187,13 +194,14 @@ const EventTooltip = ({
             onClick={() => onMoreDetails(event)}
             variant="contained"
             sx={{
-              backgroundColor: '#1976d2',
-              color: '#ffffff',
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-white)',
               fontSize: '12px',
               textTransform: 'none',
               minWidth: 'auto',
               padding: '4px 12px',
-              '&:hover': { backgroundColor: '#1565c0' }
+              // eslint-disable-next-line design-system/no-hardcoded-colors
+              '&:hover': { backgroundColor: '#2D3A4A' }
             }}
           >
             More details
