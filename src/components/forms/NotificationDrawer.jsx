@@ -117,6 +117,8 @@ function NotificationDrawer({ open, onClose, notifications = sampleNotifications
                   }}
                 >
                   <ListItemText
+                    primaryTypographyProps={{ component: 'div' }}
+                    secondaryTypographyProps={{ component: 'div' }}
                     primary={
                       <Typography
                         variant="body2"

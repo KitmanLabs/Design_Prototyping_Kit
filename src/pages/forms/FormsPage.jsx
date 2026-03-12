@@ -1729,7 +1729,7 @@ export default function FormsPage() {
             }}
           >
             <Button
-              variant="contained"
+              variant="secondary"
               onClick={handleCloseAssignedPlayersDrawer}
               sx={{
                 borderColor: 'var(--color-border-primary)',
@@ -1747,7 +1747,7 @@ export default function FormsPage() {
               Cancel
             </Button>
             <Button
-              variant="contained"
+              variant="primary"
               onClick={handleSaveAssignedPlayers}
               sx={{
                 backgroundColor: 'var(--color-primary)',

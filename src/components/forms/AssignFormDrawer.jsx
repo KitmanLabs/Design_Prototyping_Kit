@@ -27,7 +27,7 @@ import {
   Checkbox
 } from '@mui/material'
 import { ClickAwayListener } from '@mui/base'
-import { CloseOutlined, DeleteOutline, AddOutlined, Check, KeyboardArrowDownOutlined, ChevronLeft, ChevronRight, SyncOutlined } from '@mui/icons-material'
+import { CloseOutlined, DeleteOutlined, AddOutlined, Check, KeyboardArrowDownOutlined, ChevronLeft, ChevronRight, SyncOutlined } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
@@ -174,9 +174,7 @@ function AssignFormDrawer({
       setResponsesPerPlayer(1)
       setShowNotifications(false)
       setNotifications([])
-      setAthleteMenuAnchor(null)
-      setSelectedTeam(null)
-      setTeamAutoSync({})
+      setAutoSyncTeams({})
     }
   }, [open])
 
@@ -197,7 +195,7 @@ function AssignFormDrawer({
       formName,
       selectedAthletes,
       assignmentType,
-      teamAutoSync  // Include auto-sync settings per team
+      teamAutoSync: autoSyncTeams
     }
     
     if (assignmentType === 'one-time') {
@@ -894,7 +892,7 @@ function AssignFormDrawer({
                       aria-label="Delete schedule"
                       sx={{ color: 'var(--color-text-secondary)', '&:hover': { color: 'var(--color-error)' } }}
                     >
-                      <DeleteOutlineOutlined fontSize="small" />
+                      <DeleteOutlined fontSize="small" />
                     </IconButton>
                   </Box>
 
@@ -1012,7 +1010,7 @@ function AssignFormDrawer({
                     aria-label="Remove notifications"
                     sx={{ color: 'var(--color-text-secondary)', '&:hover': { color: 'var(--color-error)' } }}
                   >
-                    <DeleteOutlineOutlined fontSize="small" />
+                    <DeleteOutlined fontSize="small" />
                   </IconButton>
                 )}
               </Box>

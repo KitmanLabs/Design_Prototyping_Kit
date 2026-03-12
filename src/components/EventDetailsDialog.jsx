@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogActions, Box, Typography, Button, Divider, Chip, Link } from '@mui/material';
-import { RefreshOutlined, AttachFileOutlined, PersonOutlined } from '@mui/icons-material';
+import { RefreshOutlined, AttachFileOutlined, PersonOutlined, LocationOnOutlined } from '@mui/icons-material';
 
 const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff = [] }) => {
   if (!event) return null;
@@ -128,9 +128,46 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
         )}
 
         {extendedProps?.location && (
-          <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', mb: 2, fontSize: '14px' }}>
-            Location: {extendedProps.location}
-          </Typography>
+          <Box sx={{ mb: 2 }}>
+            <Box
+              sx={{
+                width: '100%',
+                height: 140,
+                borderRadius: '8px',
+                overflow: 'hidden',
+                border: '1px solid var(--color-border-primary)',
+                mb: 1,
+                position: 'relative',
+                background: 'var(--color-secondary)',
+                backgroundImage: `
+                  repeating-linear-gradient(0deg, transparent, transparent 19px, var(--color-border-primary) 20px),
+                  repeating-linear-gradient(90deg, transparent, transparent 19px, var(--color-border-primary) 20px)
+                `,
+              }}
+            >
+              <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -60%)' }}>
+                <LocationOnOutlined sx={{ fontSize: 32, color: 'var(--color-error)' }} />
+              </Box>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  backgroundColor: 'rgba(255,255,255,0.85)',
+                  px: 1.5,
+                  py: 0.5,
+                }}
+              >
+                <Typography variant="caption" sx={{ color: 'var(--color-text-secondary)', fontSize: '11px' }}>
+                  {extendedProps.location}
+                </Typography>
+              </Box>
+            </Box>
+            <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
+              {extendedProps.location}
+            </Typography>
+          </Box>
         )}
 
         {extendedProps?.description && (
