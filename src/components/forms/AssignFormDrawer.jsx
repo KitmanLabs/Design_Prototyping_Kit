@@ -27,7 +27,7 @@ import {
   Checkbox
 } from '@mui/material'
 import { ClickAwayListener } from '@mui/base'
-import { CloseOutlined, DeleteOutlined, AddOutlined, Check, KeyboardArrowDownOutlined, ChevronLeft, ChevronRight, SyncOutlined } from '@mui/icons-material'
+import { CloseOutlined, DeleteOutlined, AddOutlined, CheckOutlined, KeyboardArrowDownOutlined, ChevronLeftOutlined, ChevronRightOutlined, SyncOutlined } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
@@ -371,7 +371,7 @@ function AssignFormDrawer({
           >
             {allSelected ? 'Clear all' : 'Select all'}
           </Button>
-          <ChevronRight fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
+          <ChevronRightOutlined fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
         </Box>
       </Box>
     )
@@ -478,7 +478,7 @@ function AssignFormDrawer({
               }}
             >
               <Button
-                startIcon={<ChevronLeft fontSize="small" />}
+                startIcon={<ChevronLeftOutlined fontSize="small" />}
                 onClick={handleBack}
                 size="small"
                 sx={{
