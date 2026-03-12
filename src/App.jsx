@@ -8,6 +8,7 @@ import FormsPage from './pages/forms/FormsPage'
 import Screen02_FormBuilder from './pages/forms/Screen02_FormBuilder'
 import Screen03_FormResponsesForTemplate from './pages/forms/Screen03_FormResponsesForTemplate'
 import Screen04_FormAnswerSet from './pages/forms/Screen04_FormAnswerSet'
+import FormFillPage from './pages/forms/FormFillPage'
 import Messaging from './pages/Messaging'
 import MedicalAssessment from './pages/forms/MedicalAssessment'
 import FormFillView from './pages/forms/FormFillView'
@@ -18,7 +19,7 @@ function App() {
       <Routes>
         <Route path="/" element={<SimplePage pageName="Home" />} />
         <Route path="/dashboard" element={<SimplePage pageName="Dashboard" />} />
-        <Route path="/medical" element={<SimplePage pageName="Medical" />} />
+        <Route path="/medical" element={<MedicalAssessment />} />
         <Route path="/analysis" element={<SimplePage pageName="Analysis" />} />
         <Route path="/athlete" element={<Athletes />} />
         <Route path="/workloads" element={<SimplePage pageName="Workload" />} />
@@ -33,6 +34,7 @@ function App() {
         <Route path="/forms/:formId/build" element={<Screen02_FormBuilder />} />
         <Route path="/planning" element={<CalendarPage />} />
         <Route path="/messages" element={<Messaging />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/activity" element={<SimplePage pageName="Activity log" />} />
         <Route path="/settings" element={<SimplePage pageName="Admin" />} />
         <Route path="/help" element={<SimplePage pageName="Help" />} />

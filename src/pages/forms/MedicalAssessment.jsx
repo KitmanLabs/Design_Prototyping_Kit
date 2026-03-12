@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Paper, Typography, Autocomplete, TextField, MenuItem, IconButton } from '@mui/material';
 import { DataGrid, GridPagination } from 'playbook-components';
-import { ArrowBack as ArrowBackIcon, ArrowDropDownOutlined } from '@mui/icons-material';
+import { ArrowBackOutlined, ArrowDropDownOutlined } from '@mui/icons-material';
 import { Button, StatusChip, Icon } from '../../components';
 import '../../styles/design-tokens.css';
 
@@ -122,7 +122,7 @@ const MedicalAssessment = () => {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0, bgcolor: 'var(--color-background-primary)', height: '100%', fontFamily: 'var(--font-family-primary)' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', px: 3, pt: 2, pb: 1 }}>
         <IconButton onClick={() => navigate(-1)} sx={{ mr: 1, color: 'var(--color-text-primary)' }}>
-          <ArrowBackIcon />
+          <ArrowBackOutlined />
         </IconButton>
         <Typography variant="h5" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-2xl)' }}>
           Medical Assessment

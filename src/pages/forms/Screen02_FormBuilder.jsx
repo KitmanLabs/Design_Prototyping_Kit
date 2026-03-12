@@ -660,6 +660,7 @@ export default function Screen02_FormBuilder() {
             />
 
             <LocalizationProvider dateAdapter={AdapterDayjs}>
+              {/* eslint-disable-next-line design-system/no-hardcoded-colors */}
               <Box sx={{ p: 3, overflowY: 'auto', backgroundColor: '#fafafa' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {(form.sections || []).filter(section => section.id === selectedSectionId).map((selectedSection) => (

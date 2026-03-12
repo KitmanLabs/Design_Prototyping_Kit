@@ -13,8 +13,8 @@ import {
   Select,
   CssBaseline
 } from '@mui/material'
-import { 
-  Notifications
+import {
+  NotificationsOutlined
 } from '@mui/icons-material'
 import MainNavigation from './MainNavigation'
 import { currentUser, availableSquads, pageTitles } from '../data/layout'
@@ -111,7 +111,7 @@ function MedinahLayoutWithMainNav({ children }) {
                 sx={{ 
                   fontSize: '14px',
                   minWidth: 160,
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'var(--color-white)',
                   border: 'none',
                   boxShadow: 'none',
                   '& .MuiOutlinedInput-notchedOutline': {
@@ -135,12 +135,12 @@ function MedinahLayoutWithMainNav({ children }) {
                 sx={{ 
                   color: 'var(--color-text-secondary)',
                   '&:hover': { 
-                    bgcolor: 'rgba(0, 0, 0, 0.04)' 
+                    bgcolor: 'var(--color-overlay-surface)'
                   }
                 }}
               >
                 <Badge badgeContent={3} color="error">
-                  <Notifications />
+                  <NotificationsOutlined />
                 </Badge>
               </IconButton>
 
