@@ -8,10 +8,10 @@ import App from './App'
 import './styles/design-tokens.css'
 import './i18n'
 
-// MUI X Pro license key – hard-coded per request
-LicenseInfo.setLicenseKey(
-  'bc1c125f0df063ef4d354f52404b3b86Tz0xMTc1MzksRT0xNzg2NTc5MTk5MDAwLFM9cHJlbWl1bSxMTT1zdWJzY3JpcHRpb24sUFY9aW5pdGlhbCxLVj0y'
-)
+const muiLicenseKey = import.meta.env.VITE_MUI_X_LICENSE_KEY
+if (muiLicenseKey) {
+  LicenseInfo.setLicenseKey(muiLicenseKey)
+}
 
 const theme = createTheme({
   typography: {
