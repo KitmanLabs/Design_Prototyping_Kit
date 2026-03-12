@@ -19,7 +19,14 @@ import {
   Collapse,
   Checkbox,
   InputAdornment,
-  CircularProgress
+  CircularProgress,
+  Button,
+  Chip,
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material'
 import {
   EditOutlined as EditIcon,
@@ -86,6 +93,17 @@ export default function Messaging() {
   const [channelSettingsMuted, setChannelSettingsMuted] = useState(true)
   const [attachments, setAttachments] = useState([])
   const [conversations, setConversations] = useState(getAllConversations)
+  const [showArchivedChannels, setShowArchivedChannels] = useState(false)
+  const [showArchivedDMs, setShowArchivedDMs] = useState(false)
+  const [managingMemberId, setManagingMemberId] = useState(null)
+  const [memberMenuAnchor, setMemberMenuAnchor] = useState(null)
+  const [showInactiveMembers, setShowInactiveMembers] = useState(true)
+  const [scheduledMessages, setScheduledMessages] = useState([])
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false)
+  const [scheduleSendAnchor, setScheduleSendAnchor] = useState(null)
+  const [scheduleDate, setScheduleDate] = useState('')
+  const [scheduleTime, setScheduleTime] = useState('')
+  const [viewScheduledOpen, setViewScheduledOpen] = useState(false)
 
   const selected = useMemo(() => conversations.find(c => c.id === selectedId), [conversations, selectedId])
   const isChannel = selected?.type === 'channel'
@@ -102,13 +120,28 @@ export default function Messaging() {
     setRightPanel(null)
   }
 
-  const handleSend = () => {
+  const handleSend = (scheduledTime = null) => {
     const text = (editingMessageId ? editText : inputValue).trim()
     if (!text && attachments.length === 0) return
     if (editingMessageId) {
       setMessages(prev => prev.map(m => m.id === editingMessageId ? { ...m, text } : m))
       setEditingMessageId(null)
       setEditText('')
+    } else if (scheduledTime) {
+      // Add to scheduled messages instead of sending immediately
+      const newScheduled = {
+        id: `sched-${Date.now()}`,
+        conversationId: selectedId,
+        conversationName: selected?.name || '',
+        senderId: currentUserId,
+        text,
+        scheduledFor: scheduledTime,
+        attachments: [...attachments],
+        createdAt: new Date().toISOString()
+      }
+      setScheduledMessages(prev => [...prev, newScheduled])
+      setInputValue('')
+      setAttachments([])
     } else {
       setMessages(prev => [...prev, { id: `m-${Date.now()}`, senderId: currentUserId, text, timestamp: new Date().toISOString(), attachments: [...attachments] }])
       setInputValue('')
@@ -145,6 +178,158 @@ export default function Messaging() {
   const handleOpenChannelSettings = () => { setRightPanel('channelSettings'); setAnchorMenu(null) }
   const handleViewMembers = () => { setChannelMembersOpen(true); setAnchorMenu(null) }
   const handleManageMembers = () => { setChannelMembersOpen(true); setAnchorMenu(null) }
+  
+  const handleArchiveChannel = () => {
+    if (selected) {
+      setConversations(prev => prev.map(c => c.id === selected.id ? { ...c, archived: true } : c))
+      // Switch to first non-archived conversation
+      const nextConversation = conversations.find(c => c.id !== selected.id && !c.archived)
+      if (nextConversation) setSelectedId(nextConversation.id)
+    }
+    setAnchorMenu(null)
+  }
+  
+  const handleUnarchiveChannel = () => {
+    if (selected) {
+      setConversations(prev => prev.map(c => c.id === selected.id ? { ...c, archived: false } : c))
+    }
+    setAnchorMenu(null)
+  }
+  
+  const handleArchiveDM = () => {
+    if (selected) {
+      setConversations(prev => prev.map(c => c.id === selected.id ? { ...c, archived: true } : c))
+      // Switch to first non-archived conversation
+      const nextConversation = conversations.find(c => c.id !== selected.id && !c.archived)
+      if (nextConversation) setSelectedId(nextConversation.id)
+    }
+    setAnchorMenu(null)
+  }
+  
+  const handleUnarchiveDM = () => {
+    if (selected) {
+      setConversations(prev => prev.map(c => c.id === selected.id ? { ...c, archived: false } : c))
+    }
+    setAnchorMenu(null)
+  }
+  
+  const handleOpenMemberMenu = (e, memberId) => {
+    e.stopPropagation()
+    setMemberMenuAnchor(e.currentTarget)
+    setManagingMemberId(memberId)
+  }
+  
+  const handleToggleMemberInactive = () => {
+    if (selected && managingMemberId) {
+      setConversations(prev => prev.map(c => {
+        if (c.id === selected.id) {
+          const inactiveMembers = c.inactiveMembers || []
+          const isCurrentlyInactive = inactiveMembers.includes(managingMemberId)
+          return {
+            ...c,
+            inactiveMembers: isCurrentlyInactive 
+              ? inactiveMembers.filter(id => id !== managingMemberId)
+              : [...inactiveMembers, managingMemberId]
+          }
+        }
+        return c
+      }))
+    }
+    setMemberMenuAnchor(null)
+    setManagingMemberId(null)
+  }
+  
+  const handleRemoveMember = () => {
+    if (selected && managingMemberId) {
+      setConversations(prev => prev.map(c => {
+        if (c.id === selected.id) {
+          return {
+            ...c,
+            memberIds: c.memberIds?.filter(id => id !== managingMemberId) || [],
+            inactiveMembers: (c.inactiveMembers || []).filter(id => id !== managingMemberId)
+          }
+        }
+        return c
+      }))
+    }
+    setMemberMenuAnchor(null)
+    setManagingMemberId(null)
+  }
+
+  const handleOpenScheduleSend = (e) => {
+    setScheduleSendAnchor(e.currentTarget)
+  }
+
+  const handleScheduleSend = (option) => {
+    setScheduleSendAnchor(null)
+    const now = new Date()
+    let scheduledTime
+
+    switch (option) {
+      case 'later-today':
+        scheduledTime = new Date(now)
+        scheduledTime.setHours(now.getHours() + 4)
+        break
+      case 'tomorrow-morning':
+        scheduledTime = new Date(now)
+        scheduledTime.setDate(now.getDate() + 1)
+        scheduledTime.setHours(9, 0, 0, 0)
+        break
+      case 'tomorrow-afternoon':
+        scheduledTime = new Date(now)
+        scheduledTime.setDate(now.getDate() + 1)
+        scheduledTime.setHours(13, 0, 0, 0)
+        break
+      case 'custom':
+        setScheduleDialogOpen(true)
+        return
+      default:
+        return
+    }
+
+    handleSend(scheduledTime.toISOString())
+  }
+
+  const handleCustomScheduleSend = () => {
+    if (!scheduleDate || !scheduleTime) return
+    const scheduledTime = new Date(`${scheduleDate}T${scheduleTime}`)
+    handleSend(scheduledTime.toISOString())
+    setScheduleDialogOpen(false)
+    setScheduleDate('')
+    setScheduleTime('')
+  }
+
+  const handleCancelScheduled = (id) => {
+    setScheduledMessages(prev => prev.filter(m => m.id !== id))
+  }
+
+  const handleSendScheduledNow = (scheduled) => {
+    setMessages(prev => [...prev, {
+      id: `m-${Date.now()}`,
+      senderId: scheduled.senderId,
+      text: scheduled.text,
+      timestamp: new Date().toISOString(),
+      attachments: scheduled.attachments
+    }])
+    handleCancelScheduled(scheduled.id)
+  }
+
+  const formatScheduledTime = (isoString) => {
+    const date = new Date(isoString)
+    const now = new Date()
+    const tomorrow = new Date(now)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
+    if (date.toDateString() === now.toDateString()) {
+      return `Today at ${timeStr}`
+    } else if (date.toDateString() === tomorrow.toDateString()) {
+      return `Tomorrow at ${timeStr}`
+    } else {
+      return `${date.toLocaleDateString()} at ${timeStr}`
+    }
+  }
 
   const channelMembers = isChannel && selected ? selected.memberIds?.map(id => ({ ...getUserById(id), isAdmin: id === currentUserId })) : []
 
@@ -199,14 +384,26 @@ export default function Messaging() {
       <Box sx={{ width: SIDEBAR_WIDTH, borderRight: '1px solid var(--color-border-primary)', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
         <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border-primary)' }}>
           <Typography variant="subtitle1" fontWeight={600}>All messages</Typography>
-          <IconButton size="small" onClick={handleAddDM}><ComposeIcon /></IconButton>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            {scheduledMessages.length > 0 && (
+              <Tooltip title="View all scheduled messages">
+                <IconButton size="small" onClick={() => setViewScheduledOpen(true)}>
+                  <ScheduleIcon fontSize="small" />
+                  {scheduledMessages.length > 0 && (
+                    <Box component="span" sx={{ position: 'absolute', top: 4, right: 4, width: 8, height: 8, borderRadius: '50%', bgcolor: 'info.main' }} />
+                  )}
+                </IconButton>
+              </Tooltip>
+            )}
+            <IconButton size="small" onClick={handleAddDM}><ComposeIcon /></IconButton>
+          </Box>
         </Box>
         <Box sx={{ flex: 1, overflow: 'auto' }}>
           <Box sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Typography variant="caption" color="text.secondary" fontWeight={600}>CHANNELS</Typography>
             <IconButton size="small" onClick={handleAddChannel}><AddIcon fontSize="small" /></IconButton>
           </Box>
-          {conversations.filter(c => c.type === 'channel').map((c) => (
+          {conversations.filter(c => c.type === 'channel' && !c.archived).map((c) => (
             <ListItemButton key={c.id} selected={selectedId === c.id} onClick={() => handleSelectConversation(c.id)} sx={{ py: 1 }}>
               <ListItemIcon sx={{ minWidth: 36 }}><PersonIcon fontSize="small" /></ListItemIcon>
               <ListItemText primary={c.name} primaryTypographyProps={{ noWrap: true }} />
@@ -215,11 +412,31 @@ export default function Messaging() {
               )}
             </ListItemButton>
           ))}
+          
+          {conversations.filter(c => c.type === 'channel' && c.archived).length > 0 && (
+            <>
+              <ListItemButton onClick={() => setShowArchivedChannels(!showArchivedChannels)} sx={{ px: 2, py: 1 }}>
+                <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ flex: 1 }}>ARCHIVED CHANNELS</Typography>
+                {showArchivedChannels ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+              </ListItemButton>
+              <Collapse in={showArchivedChannels}>
+                {conversations.filter(c => c.type === 'channel' && c.archived).map((c) => (
+                  <ListItemButton key={c.id} selected={selectedId === c.id} onClick={() => handleSelectConversation(c.id)} sx={{ py: 1, pl: 3 }}>
+                    <ListItemIcon sx={{ minWidth: 36 }}><ArchiveIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText primary={c.name} primaryTypographyProps={{ noWrap: true }} />
+                    {(c.unreadCount ?? 0) > 0 && (
+                      <Box component="span" sx={{ ml: 0.5, minWidth: 20, height: 20, borderRadius: '50%', bgcolor: 'var(--color-primary)', color: 'var(--color-white)', fontSize: 11, fontWeight: 600, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{c.unreadCount > 99 ? '99+' : c.unreadCount}</Box>
+                    )}
+                  </ListItemButton>
+                ))}
+              </Collapse>
+            </>
+          )}
           <Box sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Typography variant="caption" color="text.secondary" fontWeight={600}>DIRECT MESSAGES</Typography>
             <IconButton size="small" onClick={handleAddDM}><AddIcon fontSize="small" /></IconButton>
           </Box>
-          {conversations.filter(c => c.type === 'dm').map((c) => {
+          {conversations.filter(c => c.type === 'dm' && !c.archived).map((c) => {
             const otherId = c.participantIds?.find(pid => pid !== currentUserId)
             const otherUser = otherId ? getUserById(otherId) : null
             return (
@@ -234,6 +451,32 @@ export default function Messaging() {
               </ListItemButton>
             )
           })}
+          
+          {conversations.filter(c => c.type === 'dm' && c.archived).length > 0 && (
+            <>
+              <ListItemButton onClick={() => setShowArchivedDMs(!showArchivedDMs)} sx={{ px: 2, py: 1 }}>
+                <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ flex: 1 }}>ARCHIVED CONVERSATIONS</Typography>
+                {showArchivedDMs ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+              </ListItemButton>
+              <Collapse in={showArchivedDMs}>
+                {conversations.filter(c => c.type === 'dm' && c.archived).map((c) => {
+                  const otherId = c.participantIds?.find(pid => pid !== currentUserId)
+                  const otherUser = otherId ? getUserById(otherId) : null
+                  return (
+                    <ListItemButton key={c.id} selected={selectedId === c.id} onClick={() => handleSelectConversation(c.id)} sx={{ py: 1, pl: 3 }}>
+                      <ListItemIcon sx={{ minWidth: 36 }}>
+                        <Avatar src={otherUser?.avatarUrl} sx={{ width: 28, height: 28, bgcolor: 'grey.400', fontSize: 12 }}>{c.name.slice(0, 1)}</Avatar>
+                      </ListItemIcon>
+                      <ListItemText primary={c.name} primaryTypographyProps={{ noWrap: true }} />
+                      {(c.unreadCount ?? 0) > 0 && (
+                        <Box component="span" sx={{ ml: 0.5, minWidth: 20, height: 20, borderRadius: '50%', bgcolor: 'var(--color-primary)', color: 'var(--color-white)', fontSize: 11, fontWeight: 600, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{c.unreadCount > 99 ? '99+' : c.unreadCount}</Box>
+                      )}
+                    </ListItemButton>
+                  )
+                })}
+              </Collapse>
+            </>
+          )}
         </Box>
       </Box>
 
@@ -259,7 +502,27 @@ export default function Messaging() {
               {isChannel && <MenuItem onClick={handleOpenChannelSettings}>Channel Settings</MenuItem>}
               {isChannel && <MenuItem onClick={handleViewMembers}>View Members</MenuItem>}
               {isChannel && <MenuItem onClick={handleManageMembers}>Manage Members</MenuItem>}
+              {isChannel && !selected?.archived && (
+                <MenuItem onClick={handleArchiveChannel}>
+                  Archive Channel
+                </MenuItem>
+              )}
+              {isChannel && selected?.archived && (
+                <MenuItem onClick={handleUnarchiveChannel}>
+                  Unarchive Channel
+                </MenuItem>
+              )}
               {isChannel && <MenuItem>Leave Channel</MenuItem>}
+              {!isChannel && !selected?.archived && (
+                <MenuItem onClick={handleArchiveDM}>
+                  Archive Conversation
+                </MenuItem>
+              )}
+              {!isChannel && selected?.archived && (
+                <MenuItem onClick={handleUnarchiveDM}>
+                  Unarchive Conversation
+                </MenuItem>
+              )}
               {!isChannel && <MenuItem>View profile</MenuItem>}
             </Menu>
 
@@ -356,8 +619,28 @@ export default function Messaging() {
                   onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
                   InputProps={{ sx: { borderRadius: 2, bgcolor: 'grey.50' } }}
                 />
-                <IconButton sx={{ color: 'var(--color-primary)' }} onClick={handleSend} disabled={!inputValue.trim() && attachments.length === 0}><SendIcon /></IconButton>
+                <Tooltip title="Schedule send">
+                  <IconButton 
+                    size="small" 
+                    onClick={handleOpenScheduleSend} 
+                    disabled={!inputValue.trim() && attachments.length === 0}
+                    sx={{ color: 'action.active' }}
+                  >
+                    <ScheduleIcon />
+                  </IconButton>
+                </Tooltip>
+                <IconButton sx={{ color: 'var(--color-primary)' }} onClick={() => handleSend()} disabled={!inputValue.trim() && attachments.length === 0}><SendIcon /></IconButton>
               </Box>
+              
+              {scheduledMessages.filter(m => m.conversationId === selectedId).length > 0 && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, pt: 1, borderTop: '1px solid var(--color-border-primary)' }}>
+                  <AccessTimeIcon fontSize="small" sx={{ color: 'info.main' }} />
+                  <Typography variant="caption" color="text.secondary">
+                    {scheduledMessages.filter(m => m.conversationId === selectedId).length} scheduled message(s)
+                  </Typography>
+                  <Button size="small" onClick={() => setViewScheduledOpen(true)}>View</Button>
+                </Box>
+              )}
             </Box>
           </>
         ) : (
@@ -473,19 +756,231 @@ export default function Messaging() {
 
       {/* Channel members modal */}
       <Modal open={channelMembersOpen} onClose={() => setChannelMembersOpen(false)}>
-        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 24, p: 2 }}>
+        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 480, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 24, p: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-            <Typography variant="h6">Channel members</Typography>
+            <Typography variant="h6">Manage channel members</Typography>
             <IconButton size="small" onClick={() => setChannelMembersOpen(false)}><CloseIcon /></IconButton>
           </Box>
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>Member</Typography>
+          <FormControlLabel 
+            control={<Switch checked={showInactiveMembers} onChange={(e) => setShowInactiveMembers(e.target.checked)} />} 
+            label="Show inactive members" 
+            sx={{ mb: 2 }} 
+          />
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>MEMBERS</Typography>
           <Divider />
-          {channelMembers.map((m) => (
-            <Box key={m.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-              <Avatar src={m.avatarUrl} sx={{ width: 32, height: 32, bgcolor: m.isAdmin ? 'var(--color-primary)' : 'grey.400', fontSize: 12 }}>{m.name?.slice(0, 1)}</Avatar>
-              <ListItemText primary={m.name} secondary={m.isAdmin ? 'Channel admin' : null} />
+          <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
+            {channelMembers
+              .filter(m => showInactiveMembers || !(selected?.inactiveMembers || []).includes(m.id))
+              .map((m) => {
+                const isInactive = (selected?.inactiveMembers || []).includes(m.id)
+                return (
+                  <Box key={m.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+                    <Avatar 
+                      src={m.avatarUrl} 
+                      sx={{ 
+                        width: 32, 
+                        height: 32, 
+                        bgcolor: m.isAdmin ? 'var(--color-primary)' : 'grey.400', 
+                        fontSize: 12,
+                        opacity: isInactive ? 0.5 : 1
+                      }}
+                    >
+                      {m.name?.slice(0, 1)}
+                    </Avatar>
+                    <ListItemText 
+                      primary={m.name} 
+                      secondary={m.isAdmin ? 'Channel admin' : (isInactive ? 'Inactive' : m.role)} 
+                      primaryTypographyProps={{ sx: { opacity: isInactive ? 0.6 : 1 } }}
+                      secondaryTypographyProps={{ sx: { color: isInactive ? 'warning.main' : undefined } }}
+                    />
+                    {!m.isAdmin && (
+                      <IconButton size="small" onClick={(e) => handleOpenMemberMenu(e, m.id)}>
+                        <MoreVertIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                  </Box>
+                )
+              })}
+          </Box>
+          {channelMembers.filter(m => (selected?.inactiveMembers || []).includes(m.id)).length > 0 && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
+              {channelMembers.filter(m => (selected?.inactiveMembers || []).includes(m.id)).length} inactive member(s)
+            </Typography>
+          )}
+        </Box>
+      </Modal>
+      
+      {/* Member management menu */}
+      <Menu 
+        anchorEl={memberMenuAnchor} 
+        open={Boolean(memberMenuAnchor)} 
+        onClose={() => { setMemberMenuAnchor(null); setManagingMemberId(null) }}
+      >
+        <MenuItem onClick={handleToggleMemberInactive}>
+          <BlockIcon fontSize="small" sx={{ mr: 1 }} /> 
+          {managingMemberId && (selected?.inactiveMembers || []).includes(managingMemberId) ? 'Mark as Active' : 'Mark as Inactive'}
+        </MenuItem>
+        <MenuItem onClick={handleRemoveMember} sx={{ color: 'error.main' }}>
+          <PersonRemoveIcon fontSize="small" sx={{ mr: 1 }} /> Remove from Channel
+        </MenuItem>
+      </Menu>
+      
+      {/* Schedule send menu */}
+      <Menu 
+        anchorEl={scheduleSendAnchor} 
+        open={Boolean(scheduleSendAnchor)} 
+        onClose={() => setScheduleSendAnchor(null)}
+      >
+        <MenuItem onClick={() => handleScheduleSend('later-today')}>
+          <Box>
+            <Typography variant="body2">Later today</Typography>
+            <Typography variant="caption" color="text.secondary">
+              {new Date(Date.now() + 4 * 60 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </Typography>
+          </Box>
+        </MenuItem>
+        <MenuItem onClick={() => handleScheduleSend('tomorrow-morning')}>
+          <Box>
+            <Typography variant="body2">Tomorrow morning</Typography>
+            <Typography variant="caption" color="text.secondary">9:00 AM</Typography>
+          </Box>
+        </MenuItem>
+        <MenuItem onClick={() => handleScheduleSend('tomorrow-afternoon')}>
+          <Box>
+            <Typography variant="body2">Tomorrow afternoon</Typography>
+            <Typography variant="caption" color="text.secondary">1:00 PM</Typography>
+          </Box>
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={() => handleScheduleSend('custom')}>
+          <AccessTimeIcon fontSize="small" sx={{ mr: 1 }} />
+          Pick date & time
+        </MenuItem>
+      </Menu>
+      
+      {/* Custom schedule dialog */}
+      <Dialog open={scheduleDialogOpen} onClose={() => setScheduleDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Schedule send</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <TextField
+              label="Date"
+              type="date"
+              value={scheduleDate}
+              onChange={(e) => setScheduleDate(e.target.value)}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              inputProps={{ min: new Date().toISOString().split('T')[0] }}
+            />
+            <TextField
+              label="Time"
+              type="time"
+              value={scheduleTime}
+              onChange={(e) => setScheduleTime(e.target.value)}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setScheduleDialogOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={handleCustomScheduleSend} 
+            variant="contained" 
+            disabled={!scheduleDate || !scheduleTime}
+          >
+            Schedule send
+          </Button>
+        </DialogActions>
+      </Dialog>
+      
+      {/* View scheduled messages modal */}
+      <Modal open={viewScheduledOpen} onClose={() => setViewScheduledOpen(false)}>
+        <Box sx={{ 
+          position: 'absolute', 
+          top: '50%', 
+          left: '50%', 
+          transform: 'translate(-50%, -50%)', 
+          width: 500, 
+          maxHeight: '80vh',
+          overflow: 'auto',
+          bgcolor: 'background.paper', 
+          borderRadius: 2, 
+          boxShadow: 24, 
+          p: 3 
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+            <Typography variant="h6">Scheduled messages</Typography>
+            <IconButton size="small" onClick={() => setViewScheduledOpen(false)}><CloseIcon /></IconButton>
+          </Box>
+          
+          {scheduledMessages.length === 0 ? (
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+              No scheduled messages
+            </Typography>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {scheduledMessages
+                .sort((a, b) => new Date(a.scheduledFor) - new Date(b.scheduledFor))
+                .map((msg) => (
+                  <Box 
+                    key={msg.id} 
+                    sx={{ 
+                      p: 2, 
+                      border: '1px solid', 
+                      borderColor: 'divider', 
+                      borderRadius: 2,
+                      bgcolor: 'grey.50'
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
+                      <Box sx={{ flex: 1 }}>
+                        {selectedId !== msg.conversationId && (
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                            To: {msg.conversationName}
+                          </Typography>
+                        )}
+                        <Chip 
+                          icon={<ScheduleIcon />} 
+                          label={formatScheduledTime(msg.scheduledFor)} 
+                          size="small" 
+                          color="info"
+                          sx={{ mb: 1 }}
+                        />
+                        <Typography variant="body2" sx={{ mb: 1 }}>{msg.text}</Typography>
+                        {msg.attachments?.length > 0 && (
+                          <Typography variant="caption" color="text.secondary">
+                            📎 {msg.attachments.length} attachment(s)
+                          </Typography>
+                        )}
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+                      <Button 
+                        size="small" 
+                        variant="outlined"
+                        onClick={() => {
+                          // Switch to the conversation if needed
+                          if (selectedId !== msg.conversationId) {
+                            handleSelectConversation(msg.conversationId)
+                          }
+                          handleSendScheduledNow(msg)
+                        }}
+                      >
+                        Send now
+                      </Button>
+                      <Button 
+                        size="small" 
+                        color="error"
+                        onClick={() => handleCancelScheduled(msg.id)}
+                      >
+                        Cancel
+                      </Button>
+                    </Box>
+                  </Box>
+                ))}
             </Box>
-          ))}
+          )}
         </Box>
       </Modal>
     </Box>
