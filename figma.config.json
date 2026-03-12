@@ -1,0 +1,6 @@
+{
+  "codeConnect": {
+    "include": ["src/playbook-components/**/*.figma.tsx"],
+    "parser": "react"
+  }
+}

@@ -1,0 +1,5 @@
+# Flow-typed source files require @babel/eslint-parser — linted separately via validate-design-system
+src/playbook-components/
+src/playbook-components-build/
+# Storybook demo files — intentionally use varied styles for documentation purposes
+src/stories/

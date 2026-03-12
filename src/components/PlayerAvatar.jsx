@@ -33,10 +33,10 @@ function PlayerAvatar({
   // Get image source
   const imageSrc = getPlayerImage(playerId, playerName)
   const fallbackSrc = generateInitialsImage(
-    playerName, 
+    playerName,
     config.size * 2, // Higher resolution for sharp display
-    'var(--color-primary)', 
-    '#ffffff'
+    'var(--color-primary)',
+    'var(--color-white)'
   )
 
   const handleImageError = () => {

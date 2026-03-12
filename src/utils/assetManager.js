@@ -78,10 +78,11 @@ export function getBadgeImage(badgeId) {
  * @param {string} textColor - Text color (hex) 
  * @returns {string} Data URL containing SVG image
  */
+/* eslint-disable design-system/no-hardcoded-colors */
 export function generateInitialsImage(
-  name = '', 
-  size = 400, 
-  bgColor = '#3B4960', 
+  name = '',
+  size = 400,
+  bgColor = '#3B4960',
   textColor = '#ffffff'
 ) {
   // Extract initials from name

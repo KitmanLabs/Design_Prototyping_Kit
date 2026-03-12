@@ -21,28 +21,28 @@ const matchSearch = (label, term) => (label || '').toLowerCase().includes((term 
 const SESSION_TYPES = [
   'Agility',
   'Workout',
-  'Academy Rugby',
+  "Academy rugby",
   'Catapult',
-  'Club Training',
+  "Club training",
   'Omegawave',
-  'Player Maker',
+  "Player maker",
   'Rehab',
   'Speed',
 ];
 
-const TYPE_OPTIONS = ['Squad Sessions', 'Individual Sessions', 'Games', 'Events'];
+const TYPE_OPTIONS = ["Squad sessions", "Individual sessions", 'Games', 'Events'];
 
-const COMPETITION_OPTIONS = ['Kitman Series'];
+const COMPETITION_OPTIONS = ["Kitman series"];
 
-const OPPOSITION_OPTIONS = ['Dublin', 'Cork', 'Galway', 'Australia', 'New Zealand', 'Samoa'];
+const OPPOSITION_OPTIONS = ['Dublin', 'Cork', 'Galway', 'Australia', "New zealand", 'Samoa'];
 
 const SQUADS_MOCK = [
   '1st team',
-  'Academy Squad',
+  "Academy squad",
   'Academy team',
-  'International Squad',
+  "International squad",
   'Kitman Labs - Staff',
-  'Kitman Test Squad',
+  "Kitman test squad",
   'Player view',
   'rob test',
 ];

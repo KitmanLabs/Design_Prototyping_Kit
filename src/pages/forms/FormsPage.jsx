@@ -866,62 +866,51 @@ export default function FormsPage() {
     handleCloseAssignedPlayersDrawer()
   }, [selectedAssignedPlayers, handleCloseAssignedPlayersDrawer])
 
-  const renderPlayersCell = (players, scheduleId) => {
-    if (!players || players.length === 0) return '—'
-    const displayCount = 3
-    const displayPlayers = players.slice(0, displayCount)
-    const remaining = players.length - displayCount
-    
-    // Tooltip shows first 20 players + count of remaining
-    const tooltipDisplayCount = 20
-    const tooltipPlayers = players.slice(0, tooltipDisplayCount)
-    const tooltipRemaining = players.length - tooltipDisplayCount
-    const tooltipText = tooltipPlayers.join(', ') + (tooltipRemaining > 0 ? `, +${tooltipRemaining} more` : '')
+  const schedulingColumns = useMemo(
+    () => {
+      const renderPlayersCell = (players, scheduleId) => {
+        if (!players || players.length === 0) return '—'
+        const displayCount = 3
+        const displayPlayers = players.slice(0, displayCount)
+        const remaining = players.length - displayCount
+        
+        // Tooltip shows first 20 players + count of remaining
+        const tooltipDisplayCount = 20
+        const tooltipPlayers = players.slice(0, tooltipDisplayCount)
+        const tooltipRemaining = players.length - tooltipDisplayCount
+        const tooltipText = tooltipPlayers.join(', ') + (tooltipRemaining > 0 ? `, +${tooltipRemaining} more` : '')
 
-    return (
-      <Tooltip 
-        title={tooltipText} 
-        arrow 
-        placement="top"
-        slotProps={{
-          tooltip: {
-            sx: {
-              maxWidth: 400,
-              fontFamily: 'var(--font-family-primary)',
-              fontSize: 'var(--font-size-xs)',
-              backgroundColor: '#616161',
-              color: '#ffffff'
-            }
-          },
-          arrow: {
-            sx: {
-              color: '#616161'
-            }
-          }
-        }}
-      >
-        <Box 
-          sx={{ 
-            display: 'flex',
-            alignItems: 'center',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          <Typography 
-            variant="body2" 
-            component="span"
-            sx={{ 
-              color: 'var(--color-text-primary)', 
-              fontFamily: 'var(--font-family-primary)', 
-              fontSize: 'var(--font-size-sm)',
+        return (
+          <Tooltip 
+            title={tooltipText} 
+            arrow 
+            placement="top"
+            slotProps={{
+              tooltip: {
+                sx: {
+                  maxWidth: 400,
+                  fontFamily: 'var(--font-family-primary)',
+                  fontSize: 'var(--font-size-xs)',
+                  backgroundColor: 'var(--color-text-secondary)',
+                  color: 'var(--color-white)'
+                }
+              },
+              arrow: {
+                sx: {
+                  color: 'var(--color-text-secondary)'
+                }
+              }
             }}
           >
-            {displayPlayers.join(', ')}
-          </Typography>
-          {remaining > 0 && (
-            <>
+            <Box 
+              sx={{ 
+                display: 'flex',
+                alignItems: 'center',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}
+            >
               <Typography 
                 variant="body2" 
                 component="span"
@@ -931,36 +920,48 @@ export default function FormsPage() {
                   fontSize: 'var(--font-size-sm)',
                 }}
               >
-                , …{' '}
+                {displayPlayers.join(', ')}
               </Typography>
-              <Typography 
-                variant="body2" 
-                component="span"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleOpenAssignedPlayersDrawer(players, scheduleId)
-                }}
-                sx={{ 
-                  color: 'var(--color-primary)', 
-                  fontFamily: 'var(--font-family-primary)', 
-                  fontSize: 'var(--font-size-sm)',
-                  cursor: 'pointer',
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  }
-                }}
-              >
-                +{remaining} more
-              </Typography>
-            </>
-          )}
-        </Box>
-      </Tooltip>
-    )
-  }
+              {remaining > 0 && (
+                <>
+                  <Typography 
+                    variant="body2" 
+                    component="span"
+                    sx={{ 
+                      color: 'var(--color-text-primary)', 
+                      fontFamily: 'var(--font-family-primary)', 
+                      fontSize: 'var(--font-size-sm)',
+                    }}
+                  >
+                    , …{' '}
+                  </Typography>
+                  <Typography 
+                    variant="body2" 
+                    component="span"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleOpenAssignedPlayersDrawer(players, scheduleId)
+                    }}
+                    sx={{ 
+                      color: 'var(--color-primary)', 
+                      fontFamily: 'var(--font-family-primary)', 
+                      fontSize: 'var(--font-size-sm)',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        textDecoration: 'underline',
+                      }
+                    }}
+                  >
+                    +{remaining} more
+                  </Typography>
+                </>
+              )}
+            </Box>
+          </Tooltip>
+        )
+      }
 
-  const schedulingColumns = useMemo(
-    () => [
+      return [
       {
         field: 'expand',
         headerName: '',
@@ -1058,8 +1059,9 @@ export default function FormsPage() {
           )
         }
       }
-    ],
-    [schedulingExpandedRows, toggleSchedulingRowExpansion]
+    ]
+    },
+    [schedulingExpandedRows, toggleSchedulingRowExpansion, handleOpenAssignedPlayersDrawer]
   )
 
   return (
@@ -1256,7 +1258,7 @@ export default function FormsPage() {
                       py: 0.75,
                       border: '1px solid var(--color-border-primary)',
                       '&.Mui-selected': {
-                        color: '#ffffff',
+                        color: 'var(--color-white)',
                         backgroundColor: 'var(--color-primary)',
                         '&:hover': {
                           backgroundColor: 'var(--color-primary-hover)'
@@ -1727,7 +1729,7 @@ export default function FormsPage() {
             }}
           >
             <Button
-              variant="outlined"
+              variant="contained"
               onClick={handleCloseAssignedPlayersDrawer}
               sx={{
                 borderColor: 'var(--color-border-primary)',
@@ -1749,7 +1751,7 @@ export default function FormsPage() {
               onClick={handleSaveAssignedPlayers}
               sx={{
                 backgroundColor: 'var(--color-primary)',
-                color: '#ffffff',
+                color: 'var(--color-white)',
                 fontFamily: 'var(--font-family-primary)',
                 fontSize: 'var(--font-size-sm)',
                 fontWeight: 600,

@@ -93,11 +93,11 @@ const MedicalAssessment = () => {
       renderCell: (params) => {
         const isStarted = params.row.status === 'Draft' || params.row.status === 'Complete';
         return (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-end' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-end', width: '100%' }}>
             <Button
               variant={'secondary'}
               size="small"
-              style={{ fontWeight: 600, fontSize: 'var(--font-size-xs)' }}
+              style={{ fontWeight: 600, fontSize: 'var(--font-size-xs)', minWidth: 72 }}
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(`/forms/medical-assessment/fill/${params.row.id}`, {
@@ -111,11 +111,15 @@ const MedicalAssessment = () => {
             >
               {isStarted ? 'Continue' : 'Start'}
             </Button>
-            {isStarted && (
-              <IconButton size="small" sx={{ color: 'var(--color-text-secondary)' }}>
-                <Icon icon="delete" size="medium" />
-              </IconButton>
-            )}
+            <IconButton 
+              size="small" 
+              sx={{ 
+                color: 'var(--color-text-secondary)',
+                visibility: isStarted ? 'visible' : 'hidden'
+              }}
+            >
+              <Icon icon="delete" size="medium" />
+            </IconButton>
           </Box>
         );
       },

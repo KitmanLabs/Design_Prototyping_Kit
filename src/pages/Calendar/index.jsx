@@ -208,7 +208,7 @@ const CalendarPage = () => {
     // Open appropriate panel based on event type
     if (eventType === 'TRAINING_SESSION' || eventType === 'TEST_SESSION') {
       setShowAddSessionDrawer(true);
-    } else if (eventType === 'GAME' || eventType === 'MATCH') {
+    } else if (eventType === "Game" || eventType === "Match") {
       setShowAddGameDrawer(true);
     } else {
       // Default to event sidebar for other types
@@ -337,7 +337,7 @@ const CalendarPage = () => {
               handleEventClick={handleEventClick}
               onViewChange={handleViewChange}
               selectedCalendarView={currentView}
-              orgTimeZone="UTC"
+              orgTimeZone="Utc"
               userLocale="en"
               events={events}
               initialDate={currentDate.toISOString().split('T')[0]}

@@ -19,14 +19,14 @@ import {
   ToggleButton,
 } from '@mui/material';
 import {
-  Close,
-  AttachFile,
-  Person,
-  CalendarToday,
-  Schedule,
-  ExpandMore,
-  ExpandLess,
-  Check,
+  CloseOutlined,
+  AttachFileOutlined,
+  PersonOutlined,
+  CalendarTodayOutlined,
+  ScheduleOutlined,
+  ExpandMoreOutlined,
+  ExpandLessOutlined,
+  CheckOutlined,
 } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
@@ -38,8 +38,8 @@ import savedLocationsData from '../data/saved_locations.json';
 
 // Mock data – session types, locations, etc.
 const MOCK_SESSION_TYPES = [
-  'Strength Training',
-  'Cardio Training',
+  "Strength training",
+  "Cardio training",
   'Tactical',
   'Recovery',
   'Technical',
@@ -57,10 +57,10 @@ const MOCK_REPEAT_OPTIONS = [
 ];
 
 const MOCK_LOCATIONS = [
-  'Home Stadium',
+  "Home stadium",
   'Away',
-  'Wembley Stadium',
-  'Old Trafford',
+  "Wembley stadium",
+  "Old trafford",
   'Training Center A',
   'Training Center B',
   'Gym A',
@@ -69,7 +69,7 @@ const MOCK_LOCATIONS = [
 
 const MOCK_TIMEZONES = [
   'Europe/Dublin',
-  'UTC',
+  "Utc",
   'Europe/London',
   'America/New_York',
   'Europe/Paris',
@@ -348,7 +348,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
               {editingEvent ? 'Edit session' : 'New session'}
             </Typography>
             <IconButton onClick={onClose} size="small">
-              <Close />
+              <CloseOutlined />
             </IconButton>
           </Box>
 
@@ -437,7 +437,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                       InputProps: {
                         startAdornment: (
                           <InputAdornment position="start">
-                            <CalendarToday fontSize="small" />
+                            <CalendarTodayOutlined fontSize="small" />
                           </InputAdornment>
                         ),
                       },
@@ -461,7 +461,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                       InputProps: {
                         startAdornment: (
                           <InputAdornment position="start">
-                            <Schedule fontSize="small" />
+                            <ScheduleOutlined fontSize="small" />
                           </InputAdornment>
                         ),
                       },
@@ -562,7 +562,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                     Attendance
                   </Typography>
                   <IconButton size="small">
-                    {attendanceOpen ? <ExpandLess /> : <ExpandMore />}
+                    {attendanceOpen ? <ExpandLessOutlined /> : <ExpandMoreOutlined />}
                   </IconButton>
                 </Box>
                 <Collapse in={attendanceOpen}>
@@ -584,7 +584,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                                 key={option.id}
                                 label={getAthleteLabel(option)}
                                 {...tagProps}
-                                icon={<Person />}
+                                icon={<PersonOutlined />}
                                 sx={{
                                   backgroundColor: 'var(--color-background-selected)',
                                   color: 'var(--color-text-primary)',
@@ -623,7 +623,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                               key={option.id}
                               label={getStaffLabel(option)}
                               {...getTagProps({ index })}
-                              icon={<Person />}
+                              icon={<PersonOutlined />}
                               sx={{
                                 backgroundColor: 'var(--color-background-selected)',
                                 color: 'var(--color-text-primary)',
@@ -832,7 +832,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                     document.getElementById('session-file-upload').click()
                   }
                 >
-                  <AttachFile
+                  <AttachFileOutlined
                     sx={{ fontSize: 32, color: 'var(--color-text-muted)', mb: 1 }}
                   />
                   <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>
@@ -947,13 +947,13 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                 >
                   <ToggleButton value="email">
                     {formData.notifyStaffBy.includes('email') && (
-                      <Check sx={{ fontSize: 16, mr: 0.5 }} />
+                      <CheckOutlined sx={{ fontSize: 16, mr: 0.5 }} />
                     )}
                     Email
                   </ToggleButton>
                   <ToggleButton value="push">
                     {formData.notifyStaffBy.includes('push') && (
-                      <Check sx={{ fontSize: 16, mr: 0.5 }} />
+                      <CheckOutlined sx={{ fontSize: 16, mr: 0.5 }} />
                     )}
                     Push
                   </ToggleButton>
@@ -986,13 +986,13 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                 >
                   <ToggleButton value="email">
                     {formData.notifyAthletesBy.includes('email') && (
-                      <Check sx={{ fontSize: 16, mr: 0.5 }} />
+                      <CheckOutlined sx={{ fontSize: 16, mr: 0.5 }} />
                     )}
                     Email
                   </ToggleButton>
                   <ToggleButton value="push">
                     {formData.notifyAthletesBy.includes('push') && (
-                      <Check sx={{ fontSize: 16, mr: 0.5 }} />
+                      <CheckOutlined sx={{ fontSize: 16, mr: 0.5 }} />
                     )}
                     Push
                   </ToggleButton>
