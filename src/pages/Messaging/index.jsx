@@ -42,7 +42,12 @@ import {
   ChatBubbleOutlineOutlined as ChatBubbleIcon,
   ArrowBackOutlined as ArrowBackIcon,
   PersonOutlined as PersonIcon,
-  DeleteOutlined as DeleteIcon
+  DeleteOutlined as DeleteIcon,
+  ArchiveOutlined as ArchiveIcon,
+  ScheduleOutlined as ScheduleIcon,
+  AccessTimeOutlined as AccessTimeIcon,
+  BlockOutlined as BlockIcon,
+  PersonRemoveOutlined as PersonRemoveIcon
 } from '@mui/icons-material'
 import {
   currentUserId,
