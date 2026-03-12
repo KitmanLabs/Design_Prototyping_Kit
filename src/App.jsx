@@ -11,7 +11,7 @@ import Screen04_FormAnswerSet from './pages/forms/Screen04_FormAnswerSet'
 import FormFillPage from './pages/forms/FormFillPage'
 import Messaging from './pages/Messaging'
 import MedicalAssessment from './pages/forms/MedicalAssessment'
-import NotificationsPage from './pages/NotificationsPage'
+import FormFillView from './pages/forms/FormFillView'
 
 function App() {
   return (
@@ -19,7 +19,7 @@ function App() {
       <Routes>
         <Route path="/" element={<SimplePage pageName="Home" />} />
         <Route path="/dashboard" element={<SimplePage pageName="Dashboard" />} />
-        <Route path="/medical" element={<SimplePage pageName="Medical" />} />
+        <Route path="/medical" element={<MedicalAssessment />} />
         <Route path="/analysis" element={<SimplePage pageName="Analysis" />} />
         <Route path="/athlete" element={<Athletes />} />
         <Route path="/workloads" element={<SimplePage pageName="Workload" />} />
@@ -30,7 +30,7 @@ function App() {
         <Route path="/forms/form_answers_sets/forms/:formId" element={<Screen03_FormResponsesForTemplate />} />
         <Route path="/forms/form_answers_sets/:answerSetId" element={<Screen04_FormAnswerSet />} />
         <Route path="/medical-assessment" element={<MedicalAssessment />} />
-        <Route path="/forms/:formId/fill/:athleteId" element={<FormFillPage />} />
+        <Route path="/form-fill/:athleteId" element={<FormFillView />} />
         <Route path="/forms/:formId/build" element={<Screen02_FormBuilder />} />
         <Route path="/planning" element={<CalendarPage />} />
         <Route path="/messages" element={<Messaging />} />

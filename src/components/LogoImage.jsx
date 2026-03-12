@@ -90,7 +90,7 @@ function LogoImage({
           textAlign: 'center',
           padding: '4px'
         }}>
-          {type === 'team' ? 'TEAM' : 'LOGO'}
+          {type === 'team' ? "Team" : "Logo"}
         </span>
       </div>
     )

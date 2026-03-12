@@ -10,7 +10,7 @@ import {
   IconButton,
   Button
 } from '@mui/material'
-import { ExpandMoreOutlined, MoreVertOutlined, DragIndicatorOutlined, CheckCircle, RadioButtonUnchecked } from '@mui/icons-material'
+import { ExpandMoreOutlined, MoreVertOutlined, DragIndicatorOutlined, CheckCircleOutlined, RadioButtonUncheckedOutlined } from '@mui/icons-material'
 
 export default function MenuTree({ form, selectedQuestionId, onSelectQuestion, mode = 'build', completionByQuestionId = {} }) {
   const [expanded, setExpanded] = React.useState(() => (mode === 'review' ? (form.sections || []).map(s => s.id) : []))
@@ -120,9 +120,9 @@ export default function MenuTree({ form, selectedQuestionId, onSelectQuestion, m
                                     <DragIndicatorOutlined fontSize="small" />
                                   ) : (
                                     completionByQuestionId[q.id] ? (
-                                      <CheckCircle fontSize="small" sx={{ color: 'var(--color-success, #2e7d32)' }} />
+                                      <CheckCircleOutlined fontSize="small" sx={{ color: 'var(--color-success)' }} />
                                     ) : (
-                                      <RadioButtonUnchecked fontSize="small" sx={{ color: 'var(--color-border-primary)' }} />
+                                      <RadioButtonUncheckedOutlined fontSize="small" sx={{ color: 'var(--color-border-primary)' }} />
                                     )
                                   )}
                                   <Typography variant="body1" sx={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

@@ -108,6 +108,13 @@
   --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.15);
   --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.2);
+  --shadow-dialog: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-nav: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  /* Overlays — translucent tints that cannot be expressed as solid hex tokens */
+  --color-overlay-surface: rgba(0, 0, 0, 0.04);
+  --color-overlay-hover: rgba(255, 255, 255, 0.05);
+  --color-overlay-active: rgba(255, 255, 255, 0.1);
   
   /* Layout */
   --layout-nav-width: 240px;

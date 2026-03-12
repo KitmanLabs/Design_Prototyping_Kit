@@ -484,7 +484,7 @@ function EditScheduleDrawer({
             }}
           >
             <Button
-              variant="outlined"
+              variant="contained"
               onClick={handleClose}
               sx={{
                 borderColor: 'var(--color-border-primary)',
@@ -506,7 +506,7 @@ function EditScheduleDrawer({
               onClick={handleSaveClick}
               sx={{
                 backgroundColor: 'var(--color-primary)',
-                color: '#ffffff',
+                color: 'var(--color-white)',
                 fontFamily: 'var(--font-family-primary)',
                 fontSize: 'var(--font-size-sm)',
                 fontWeight: 600,
@@ -553,13 +553,13 @@ function EditScheduleDrawer({
                 color: 'var(--color-text-secondary)'
               }}
             >
-              Are you sure you want to update this assignment? Changes will apply to future deliveries only. Past and in-progress won't be affected.
+              Are you sure you want to update this assignment? Changes will apply to future deliveries only. Past and in-progress won&apos;t be affected.
             </DialogContentText>
           </DialogContent>
           <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
             <Button
               onClick={() => setConfirmModalOpen(false)}
-              variant="outlined"
+              variant="contained"
               sx={{
                 borderColor: 'var(--color-border-primary)',
                 color: 'var(--color-text-primary)',
@@ -581,7 +581,7 @@ function EditScheduleDrawer({
               autoFocus
               sx={{
                 backgroundColor: 'var(--color-primary)',
-                color: '#ffffff',
+                color: 'var(--color-white)',
                 fontFamily: 'var(--font-family-primary)',
                 fontSize: 'var(--font-size-sm)',
                 fontWeight: 600,
