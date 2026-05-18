@@ -161,6 +161,30 @@ export const atlClubData = {
   ],
 }
 
+// ─── Named staff (Atlanta United FC) ─────────────────────────────────────────
+export const atlNamedStaff = [
+  { id: 'ats1',  last: 'Pineda',        first: 'Gonzalo',   role: 'Head Coach' },
+  { id: 'ats2',  last: 'Morais',        first: 'Renato',    role: 'Assistant Coach' },
+  { id: 'ats3',  last: 'de la Torre',   first: 'Carlos',    role: 'Goalkeeper Coach' },
+  { id: 'ats4',  last: 'Whitfield',     first: 'Damani',    role: 'Fitness Coach' },
+  { id: 'ats5',  last: 'Patel',         first: 'Anaya',     role: 'Head Physiotherapist' },
+  { id: 'ats6',  last: 'Nguyen',        first: 'Michael',   role: 'Team Physician' },
+  { id: 'ats7',  last: 'Stevens',       first: 'Jordan',    role: 'Sports Scientist' },
+  { id: 'ats8',  last: 'Rodriguez',     first: 'Camila',    role: 'Nutritionist' },
+  { id: 'ats9',  last: 'Washington',    first: 'Derek',     role: 'Video Analyst' },
+  { id: 'ats10', last: 'Murphy',        first: 'Sean',      role: 'Kit Manager' },
+  { id: 'ats11', last: 'Chen',          first: 'Sofia',     role: 'Academy Director' },
+  { id: 'ats12', last: 'Fitzgerald',    first: 'Tom',       role: 'Head of Academy' },
+]
+
+// ─── First team players (flat list) ───────────────────────────────────────────
+export const atlFirstTeamFlat = [
+  ...atlPlayers.firstTeam.Goalkeeper,
+  ...atlPlayers.firstTeam.Defender,
+  ...atlPlayers.firstTeam.Midfielder,
+  ...atlPlayers.firstTeam.Forward,
+]
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 // Get all player IDs from a position map
 export function getAllIdsInPositions(positions) {
