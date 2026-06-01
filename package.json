@@ -85,7 +85,7 @@
     "stylelint-plugin-design-system": "file:./stylelint-plugin-design-system",
     "vite": "^7.1.9",
     "vite-plugin-flow": "^0.2.1",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.0"
   },
   "husky": {
     "hooks": {
