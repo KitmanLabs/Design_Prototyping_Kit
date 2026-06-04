@@ -59,7 +59,7 @@
     "react-dom": "^18.2.0",
     "react-filepond": "^7.1.3",
     "react-i18next": "^14.0.0",
-    "react-router-dom": "^6.2.1",
+    "react-router-dom": "^6.30.4",
     "remirror": "^2.0.0",
     "reselect": "^4.1.8"
   },
