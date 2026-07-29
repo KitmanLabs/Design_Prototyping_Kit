@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add medications — Standalone Prototype</title>
+
+  <!-- React 18 UMD -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Emotion (MUI styling engine) -->
+  <script crossorigin src="https://unpkg.com/@emotion/react@11/dist/emotion-react.umd.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@emotion/styled@11/dist/emotion-styled.umd.min.js"></script>
+
+  <!-- MUI Material UMD -->
+  <script crossorigin src="https://unpkg.com/@mui/material@5/umd/material-ui.production.min.js"></script>
+
+  <!-- Babel standalone for inline JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root {
+      --color-primary: #1D2635;
+      --color-primary-hover: #2c3648;
+      --color-secondary: #F1F2F3;
+      --color-text-primary: #1a1a1a;
+      --color-text-secondary: #666666;
+      --color-text-muted: #999999;
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #F3F4F7;
+      --color-border-primary: #e0e0e0;
+      --color-border-secondary: #f0f0f0;
+      --color-success: #28a745;
+      --color-success-light: #d4edda;
+      --color-success-dark: #155724;
+      --color-warning: #ffc107;
+      --color-warning-light: #fff3cd;
+      --color-warning-dark: #856404;
+      --color-error: #dc3545;
+      --color-error-light: #f8d7da;
+      --color-error-dark: #721c24;
+      --color-info: #999999;
+      --color-info-light: #f0f0f0;
+      --color-info-dark: #555555;
+      /* OPEN DECISION: placeholder highlight for a Brand name/drug field that
+         conflicts with a player's allergy/medical alert. One-line change. */
+      --field-conflict-highlight: #FFB020;
+      --font-family-primary: 'Open Sans', sans-serif;
+      --font-size-xs: 12px;
+      --font-size-sm: 14px;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --radius-md: 8px;
+      --button-primary-bg: var(--color-primary);
+      --button-primary-color: #ffffff;
+      --button-primary-hover-bg: var(--color-primary-hover);
+      --button-secondary-bg: var(--color-secondary);
+      --button-secondary-color: var(--color-text-primary);
+    }
+    * { box-sizing: border-box; }
+    html, body, #root { height: 100%; margin: 0; }
+    body { font-family: var(--font-family-primary); background: var(--color-background-secondary); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/plain" id="app-source">
+    const { useMemo, useRef, useState, useEffect } = React;
+    const {
+      Box, Typography, Breadcrumbs, Link, Button, ButtonGroup, Menu, MenuItem, Divider,
+      TextField, Chip, Popover, Stack, Snackbar, Alert, Checkbox, FormControlLabel, Switch,
+      Avatar, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Autocomplete,
+      Table, TableHead, TableBody, TableRow, TableCell,
+    } = MaterialUI;
+
+    // ─── Inline SVG icon helper (no icon-font dependency needed for a single file) ──
+    function Icon({ path, size = 20, sx }) {
+      return (
+        <Box component="span" sx={{ display: 'inline-flex', ...sx }}>
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+            <path d={path} />
+          </svg>
+        </Box>
+      );
+    }
+    const ICONS = {
+      chevronDown: 'M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z',
+      chevronLeft: 'M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z',
+      close: 'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
+      warning: 'M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z',
+      attach: 'M16.5 6v11.5a4 4 0 0 1-8 0V5a2.5 2.5 0 0 1 5 0v10.5a1 1 0 0 1-2 0V6H10v9.5a2.5 2.5 0 0 0 5 0V5a4 4 0 0 0-8 0v12.5a5.5 5.5 0 0 0 11 0V6h-1.5z',
+    };
+
+    // ─── Mock data ────────────────────────────────────────────────────────────
+    const ALERT_SEVERITY = { SEVERE: 'severe', MODERATE: 'moderate', INFO: 'info' };
+    const SEVERITY_ORDER = [ALERT_SEVERITY.SEVERE, ALERT_SEVERITY.MODERATE, ALERT_SEVERITY.INFO];
+
+    const DEFAULT_MEDICATION_FIELDS = {
+      // Locked in the safety-warnings modal edit view.
+      dispenser: '', dispensingDate: '', injuryIllness: '',
+      // Editable "medication section" — moves together when the drug changes.
+      // Starts empty: a conflict should only ever appear once the user
+      // actively picks a medication, never as a side effect of a prefill.
+      brandName: '', isUnlistedMedication: false, lot: '', amountDispensed: '',
+      direction: '', dose: '', frequencyPerDay: '', route: '', isAsDirected: false, startDate: '', endDate: '',
+      // Out of the modal edit view entirely.
+      note: '', documentName: '',
+    };
+
+    const LOCKED_FIELD_KEYS = ['dispenser', 'dispensingDate', 'injuryIllness'];
+    const EDITABLE_FIELD_KEYS = ['brandName', 'isUnlistedMedication', 'lot', 'amountDispensed', 'direction', 'dose', 'frequencyPerDay', 'route', 'isAsDirected', 'startDate', 'endDate'];
+
+    function allergy(label, severity) { return { id: `${label}-allergy`, label, severity, type: 'Allergy' }; }
+    function alert_(label, severity) { return { id: `${label}-alert`, label, severity, type: 'Medical alert' }; }
+
+    const PLAYERS = [
+      {
+        id: 'dwayne-cook', name: 'Dwayne Cook', position: 'Linebacker',
+        allergies: [allergy('Celebrex', ALERT_SEVERITY.SEVERE), allergy('Cashews', ALERT_SEVERITY.SEVERE), allergy('Peanuts', ALERT_SEVERITY.MODERATE)],
+        medicalAlerts: [alert_('Cardiac', ALERT_SEVERITY.SEVERE)],
+      },
+      {
+        id: 'gordan-morales', name: 'Gordan Morales', position: 'Goalkeeper',
+        allergies: [allergy('Ibuprofen', ALERT_SEVERITY.MODERATE), allergy('Penicillin', ALERT_SEVERITY.MODERATE)],
+        medicalAlerts: [alert_('Warfarin', ALERT_SEVERITY.MODERATE), alert_('Latex', ALERT_SEVERITY.INFO)],
+      },
+      {
+        id: 'bruno-bullard', name: 'Bruno Bullard', position: 'Defensive End',
+        allergies: [allergy('Bees', ALERT_SEVERITY.INFO), allergy('Shellfish', ALERT_SEVERITY.INFO)],
+        medicalAlerts: [alert_('Asthma', ALERT_SEVERITY.INFO), alert_('Diabetes', ALERT_SEVERITY.INFO)],
+      },
+      {
+        id: 'marcus-webb', name: 'Marcus Webb', position: 'Cornerback',
+        allergies: [allergy('Celebrex', ALERT_SEVERITY.SEVERE), allergy('Soy', ALERT_SEVERITY.MODERATE)],
+        medicalAlerts: [alert_('Hypertension', ALERT_SEVERITY.MODERATE), alert_('Latex', ALERT_SEVERITY.INFO)],
+      },
+      {
+        id: 'jalen-pierce', name: 'Jalen Pierce', position: 'Wide Receiver',
+        allergies: [], medicalAlerts: [],
+      },
+    ];
+
+    const DISPENSER_OPTIONS = ['Dr. Sarah Chen', 'Physio - Mark Byrne', 'Team doctor'];
+    const INJURY_ILLNESS_OPTIONS = ['None', 'Hamstring strain', 'Ankle sprain', 'Illness - flu', 'Lower back pain'];
+    const DRUG_OPTIONS = ['Ibuprofen 400mg', 'Paracetamol 500mg', 'Aspirin 300mg', 'Amoxicillin 500mg', 'Diclofenac 50mg'];
+    const FREQUENCY_OPTIONS = ['1', '2', '3', '4'];
+    const ROUTE_OPTIONS = ['Oral', 'Topical', 'Intravenous', 'Intramuscular', 'Inhaled'];
+
+    const INTERACTION_RULES = [
+      { alertLabel: 'warfarin', drugKeyword: 'aspirin', reasonSuffix: (player) => `has a major interaction with ${player.name}'s warfarin` },
+    ];
+
+    // Mock safety validation — returns null when clean, or a warning descriptor.
+    function validateMedicationForPlayer(player, brandName) {
+      const drug = (brandName || '').toLowerCase();
+
+      const allergyConflict = player.allergies.find((a) => drug.includes(a.label.toLowerCase()));
+      if (allergyConflict) {
+        return {
+          playerId: player.id,
+          chipLabel: 'Allergy',
+          medication: (brandName || '').split(' ')[0],
+          reasonSuffix: `clashes with ${player.name}'s ${allergyConflict.label} allergy.`,
+        };
+      }
+
+      for (const rule of INTERACTION_RULES) {
+        const alertHit = player.medicalAlerts.find((a) => a.label.toLowerCase() === rule.alertLabel);
+        if (alertHit && drug.includes(rule.drugKeyword)) {
+          return { playerId: player.id, chipLabel: 'Interaction', medication: (brandName || '').split(' ')[0], reasonSuffix: rule.reasonSuffix(player) };
+        }
+      }
+
+      return null;
+    }
+
+    function severityForChipLabel(chipLabel) {
+      return chipLabel === 'Allergy' ? ALERT_SEVERITY.SEVERE : ALERT_SEVERITY.MODERATE;
+    }
+
+    // ─── Shared bits ──────────────────────────────────────────────────────────
+    const SEVERITY_STYLES = {
+      [ALERT_SEVERITY.SEVERE]: { backgroundColor: 'var(--color-error-light)', color: 'var(--color-error-dark)' },
+      [ALERT_SEVERITY.MODERATE]: { backgroundColor: 'var(--color-warning-light)', color: 'var(--color-warning-dark)' },
+      [ALERT_SEVERITY.INFO]: { backgroundColor: 'var(--color-info-light)', color: 'var(--color-info-dark)' },
+    };
+
+    function MedicationAlertChip({ label, severity = ALERT_SEVERITY.INFO, ...props }) {
+      return (
+        <Chip
+          label={label}
+          size="small"
+          sx={{ fontWeight: 'var(--font-weight-medium)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', ...SEVERITY_STYLES[severity] }}
+          {...props}
+        />
+      );
+    }
+
+    function highestSeverityAlert(alerts) {
+      for (const severity of SEVERITY_ORDER) {
+        const hit = alerts.find((a) => a.severity === severity);
+        if (hit) return hit;
+      }
+      return null;
+    }
+
+    // Header chip row: one chip (highest severity) + "+N" overflow, click to
+    // open a popover grouped into Allergies / Medical Alerts sections.
+    function PlayerAlertChips({ player }) {
+      const [anchorEl, setAnchorEl] = useState(null);
+      const allAlerts = [...player.allergies, ...player.medicalAlerts];
+      if (allAlerts.length === 0) return null;
+
+      const shown = highestSeverityAlert(allAlerts);
+      const overflow = allAlerts.length - 1;
+      const open = Boolean(anchorEl);
+
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <MedicationAlertChip label={shown.label} severity={shown.severity} />
+          {overflow > 0 && (
+            <Chip
+              size="small"
+              onClick={(e) => setAnchorEl(e.currentTarget)}
+              label={`+${overflow}`}
+              sx={{ backgroundColor: 'var(--color-background-secondary)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-medium)', cursor: 'pointer' }}
+            />
+          )}
+          <Popover
+            open={open}
+            anchorEl={anchorEl}
+            onClose={() => setAnchorEl(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          >
+            <Box sx={{ p: 2, minWidth: 220 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, fontFamily: 'var(--font-family-primary)' }}>{player.name}</Typography>
+                <IconButton size="small" onClick={() => setAnchorEl(null)}><Icon path={ICONS.close} size={16} /></IconButton>
+              </Box>
+              <Typography variant="caption" sx={{ display: 'block', color: 'var(--color-text-muted)', fontWeight: 600, fontFamily: 'var(--font-family-primary)', mb: 0.5, mt: 1 }}>Allergies</Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
+                {player.allergies.length === 0
+                  ? <Typography variant="body2" sx={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-family-primary)' }}>None recorded</Typography>
+                  : player.allergies.map((a) => <MedicationAlertChip key={a.id} label={a.label} severity={a.severity} />)}
+              </Box>
+              <Typography variant="caption" sx={{ display: 'block', color: 'var(--color-text-muted)', fontWeight: 600, fontFamily: 'var(--font-family-primary)', mb: 0.5, mt: 1 }}>Medical Alerts</Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {player.medicalAlerts.length === 0
+                  ? <Typography variant="body2" sx={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-family-primary)' }}>None recorded</Typography>
+                  : player.medicalAlerts.map((a) => <MedicationAlertChip key={a.id} label={a.label} severity={a.severity} />)}
+              </Box>
+            </Box>
+          </Popover>
+        </Box>
+      );
+    }
+
+    function MedicationAutocomplete({ value, onChange, label = 'Brand name/drug', size = 'small', sx, ...props }) {
+      return (
+        <Autocomplete
+          size={size}
+          options={DRUG_OPTIONS}
+          value={value || null}
+          onChange={(_, newValue) => onChange(newValue || '')}
+          renderInput={(params) => <TextField {...params} variant="filled" size={size} label={label} sx={sx} />}
+          {...props}
+        />
+      );
+    }
+
+    // The "medication section" — fields that move together when the drug changes.
+    // Shared between the grid column and the modal's inline row editor.
+    function EditableMedicationFields({ values, onChange, hasConflict }) {
+      const set = (field) => (e) => onChange(field, e.target.value);
+      const conflictSx = hasConflict
+        ? { '& .MuiFilledInput-root': { backgroundColor: 'var(--field-conflict-highlight)', '&:hover': { backgroundColor: 'var(--field-conflict-highlight)' }, '&.Mui-focused': { backgroundColor: 'var(--field-conflict-highlight)' } } }
+        : undefined;
+
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          {values.isUnlistedMedication ? (
+            <TextField variant="filled" size="small" label="Brand name/drug" value={values.brandName} onChange={set('brandName')} sx={conflictSx} />
+          ) : (
+            <MedicationAutocomplete value={values.brandName} onChange={(newValue) => onChange('brandName', newValue)} sx={conflictSx} />
+          )}
+          <Typography
+            variant="caption"
+            onClick={() => onChange('isUnlistedMedication', !values.isUnlistedMedication)}
+            sx={{ color: 'var(--color-primary)', fontFamily: 'var(--font-family-primary)', fontWeight: 'var(--font-weight-medium)', cursor: 'pointer', mt: -0.75, '&:hover': { textDecoration: 'underline' } }}
+          >
+            {values.isUnlistedMedication ? '← Choose from list' : '+ Unlisted medication'}
+          </Typography>
+
+          <TextField variant="filled" size="small" label="Lot" value={values.lot} onChange={set('lot')} />
+          <TextField variant="filled" size="small" label="Amount dispensed" value={values.amountDispensed} onChange={set('amountDispensed')} />
+          <TextField variant="filled" size="small" label="Direction" value={values.direction} onChange={set('direction')} />
+
+          {!values.isAsDirected && (
+            <>
+              <TextField variant="filled" size="small" label="Dose" value={values.dose} onChange={set('dose')} />
+              <TextField select variant="filled" size="small" label="Frequency per day" value={values.frequencyPerDay} onChange={set('frequencyPerDay')}>
+                {FREQUENCY_OPTIONS.map((o) => <MenuItem key={o} value={o}>{o}</MenuItem>)}
+              </TextField>
+            </>
+          )}
+
+          <TextField select variant="filled" size="small" label="Route" value={values.route} onChange={set('route')}>
+            {ROUTE_OPTIONS.map((o) => <MenuItem key={o} value={o}>{o}</MenuItem>)}
+          </TextField>
+
+          <FormControlLabel
+            control={<Checkbox size="small" checked={values.isAsDirected} onChange={(e) => onChange('isAsDirected', e.target.checked)} />}
+            label={<Typography variant="body2" sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>As directed</Typography>}
+            sx={{ mr: 0 }}
+          />
+
+          <TextField variant="filled" size="small" label="Start date" type="date" InputLabelProps={{ shrink: true }} value={values.startDate} onChange={set('startDate')} />
+          <TextField variant="filled" size="small" label="End date" type="date" InputLabelProps={{ shrink: true }} value={values.endDate} onChange={set('endDate')} />
+        </Box>
+      );
+    }
+
+    function AlertSummaryField({ label, alerts }) {
+      const value = alerts.length === 0 ? '' : alerts.map((a) => a.label).join(', ');
+      return (
+        <TextField
+          variant="filled"
+          size="small"
+          label={label}
+          value={value}
+          placeholder="None recorded"
+          disabled
+          InputLabelProps={{ shrink: true }}
+        />
+      );
+    }
+
+    // Full per-player column: Allergies -> Medical Alerts -> Dispenser -> ... -> "+ Add another medication"
+    function MedicationFieldsColumn({ player, values, onChange, hasConflict }) {
+      const set = (field) => (e) => onChange(field, e.target.value);
+      const fileInputRef = useRef(null);
+
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          <AlertSummaryField label="Allergies" alerts={player.allergies} />
+          <AlertSummaryField label="Medical Alerts" alerts={player.medicalAlerts} />
+
+          <TextField select variant="filled" size="small" label="Dispenser" value={values.dispenser} onChange={set('dispenser')}>
+            {DISPENSER_OPTIONS.map((o) => <MenuItem key={o} value={o}>{o}</MenuItem>)}
+          </TextField>
+          <TextField variant="filled" size="small" label="Dispensing date" type="date" InputLabelProps={{ shrink: true }} value={values.dispensingDate} onChange={set('dispensingDate')} />
+          <TextField select variant="filled" size="small" label="Injury/Illness" value={values.injuryIllness} onChange={set('injuryIllness')}>
+            {INJURY_ILLNESS_OPTIONS.map((o) => <MenuItem key={o} value={o}>{o}</MenuItem>)}
+          </TextField>
+
+          <EditableMedicationFields values={values} onChange={onChange} hasConflict={hasConflict} />
+
+          <TextField variant="filled" size="small" label="Note" multiline minRows={2} value={values.note} onChange={set('note')} />
+
+          <input ref={fileInputRef} type="file" hidden onChange={(e) => onChange('documentName', e.target.files?.[0]?.name || '')} />
+          <Button
+            variant="contained" disableElevation onClick={() => fileInputRef.current?.click()}
+            sx={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-secondary-color)', textTransform: 'none', fontWeight: 'var(--font-weight-medium)', justifyContent: 'flex-start' }}
+          >
+            <Icon path={ICONS.attach} size={16} sx={{ mr: 1 }} />
+            {values.documentName || 'Attach document'}
+          </Button>
+
+          <Typography
+            variant="caption"
+            title="Multiple medications per order — coming soon"
+            sx={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-family-primary)', fontWeight: 'var(--font-weight-medium)', cursor: 'not-allowed' }}
+          >
+            + Add another medication
+          </Typography>
+        </Box>
+      );
+    }
+
+    // ─── Screen 3: inline "Add Players" search + expanding panel ───────────
+    function AddPlayersPanel({ selectedIds, onDone }) {
+      const [open, setOpen] = useState(false);
+      const [draftSelected, setDraftSelected] = useState(selectedIds);
+      const [autoSync, setAutoSync] = useState(false);
+
+      useEffect(() => { if (open) setDraftSelected(selectedIds); }, [open, selectedIds]);
+
+      const toggle = (id) => setDraftSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+      const handleDone = () => { onDone(draftSelected, autoSync); setOpen(false); };
+
+      return (
+        <Box sx={{ position: 'relative', width: 360 }}>
+          <TextField
+            fullWidth
+            variant="filled"
+            size="small"
+            placeholder="Add Players"
+            onClick={() => setOpen(true)}
+            value={selectedIds.length > 0 ? `${selectedIds.length} player${selectedIds.length !== 1 ? 's' : ''} selected` : ''}
+            InputProps={{ readOnly: true }}
+          />
+          {open && (
+            <Box
+              sx={{
+                position: 'absolute', top: '100%', left: 0, mt: 0.5, width: 360, zIndex: 20,
+                backgroundColor: 'var(--color-background-primary)', border: '1px solid var(--color-border-primary)',
+                borderRadius: 'var(--radius-md)', boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1.5 }}>
+                <Chip label={`Selected (${draftSelected.length})`} size="small" sx={{ backgroundColor: 'var(--color-background-secondary)', fontFamily: 'var(--font-family-primary)', fontWeight: 500 }} />
+                <FormControlLabel
+                  control={<Switch size="small" checked={autoSync} onChange={(e) => setAutoSync(e.target.checked)} />}
+                  label={<Typography variant="caption" sx={{ fontFamily: 'var(--font-family-primary)', color: 'var(--color-text-secondary)' }}>Auto sync new players</Typography>}
+                />
+              </Box>
+              <Divider />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1 }}>
+                <Icon path={ICONS.chevronLeft} size={16} sx={{ color: 'var(--color-text-secondary)' }} />
+                <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)' }}>Back</Typography>
+                <Typography variant="body2" sx={{ ml: 'auto', fontWeight: 600, fontFamily: 'var(--font-family-primary)', color: 'var(--color-text-primary)' }}>Active roster</Typography>
+              </Box>
+              <Divider />
+              <Box sx={{ maxHeight: 280, overflowY: 'auto' }}>
+                {PLAYERS.map((p) => (
+                  <Box key={p.id} onClick={() => toggle(p.id)} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2, py: 1, cursor: 'pointer', '&:hover': { backgroundColor: 'var(--color-background-secondary)' } }}>
+                    <Checkbox size="small" checked={draftSelected.includes(p.id)} onChange={() => toggle(p.id)} onClick={(e) => e.stopPropagation()} />
+                    <Avatar sx={{ width: 28, height: 28, fontSize: 12 }}>{p.name.split(' ').map((n) => n[0]).join('')}</Avatar>
+                    <Typography variant="body2" sx={{ fontFamily: 'var(--font-family-primary)' }}>{p.name}</Typography>
+                  </Box>
+                ))}
+              </Box>
+              <Divider />
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 2, py: 1.5 }}>
+                <Button
+                  variant="contained" disableElevation onClick={handleDone}
+                  sx={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-color)', textTransform: 'none', fontWeight: 'var(--font-weight-medium)', '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' } }}
+                >
+                  Done
+                </Button>
+              </Box>
+            </Box>
+          )}
+        </Box>
+      );
+    }
+
+    function ConflictBanner() {
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1.25, backgroundColor: 'var(--color-warning-light)', borderRadius: 'var(--radius-md)', mb: 2 }}>
+          <Icon path={ICONS.warning} size={20} sx={{ color: 'var(--color-warning-dark)', display: 'flex', alignItems: 'center' }} />
+          <Typography variant="body2" sx={{ color: 'var(--color-warning-dark)', fontFamily: 'var(--font-family-primary)', fontWeight: 'var(--font-weight-medium)', lineHeight: 1, display: 'flex', alignItems: 'center' }}>
+            Safety warnings detected — review before saving.
+          </Typography>
+        </Box>
+      );
+    }
+
+    // ─── Screen 5: Review safety warnings modal ─────────────────────────────
+    const GRID_COLUMNS = '160px 1fr 240px';
+    const LOCKED_FIELD_LABELS = { dispenser: 'Dispenser', dispensingDate: 'Dispensing date', injuryIllness: 'Injury/Illness' };
+
+    function pickFields(source, keys) {
+      const picked = {};
+      keys.forEach((k) => { picked[k] = source[k]; });
+      return picked;
+    }
+
+    function WarningRow({ warning, playerFields, isEditing, onStartEdit, onCancelEdit, onSaveEdit, onAcknowledge }) {
+      const [draft, setDraft] = useState(() => pickFields(playerFields, EDITABLE_FIELD_KEYS));
+      useEffect(() => { if (isEditing) setDraft(pickFields(playerFields, EDITABLE_FIELD_KEYS)); }, [isEditing, playerFields]);
+
+      const acknowledged = warning.status === 'acknowledged';
+      const resolved = warning.status === 'resolved';
+      const locked = acknowledged || resolved;
+
+      return (
+        <Box sx={{ border: '1px solid var(--color-border-primary)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: GRID_COLUMNS, gap: 2, alignItems: 'center', p: 1.5, opacity: acknowledged ? 0.5 : 1, backgroundColor: locked ? 'var(--color-background-secondary)' : 'transparent' }}>
+            <Typography variant="body2" sx={{ fontWeight: 600, fontFamily: 'var(--font-family-primary)', color: 'var(--color-text-primary)' }}>{warning.playerName}</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+              <MedicationAlertChip label={warning.medication.toLowerCase()} severity={warning.severity} />
+              <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>{warning.reasonSuffix}</Typography>
+            </Box>
+            {resolved ? (
+              <Chip label="Resolved" size="small" sx={{ backgroundColor: 'var(--color-success-light)', color: 'var(--color-success-dark)', fontWeight: 'var(--font-weight-medium)', fontFamily: 'var(--font-family-primary)', justifySelf: 'start' }} />
+            ) : isEditing ? (
+              <Typography variant="caption" sx={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-family-primary)' }}>Editing…</Typography>
+            ) : (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'flex-start' }}>
+                <FormControlLabel
+                  disabled={acknowledged}
+                  control={<Checkbox size="small" checked={acknowledged} onChange={() => onAcknowledge(warning.playerId)} />}
+                  label={<Typography variant="body2" sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>I acknowledge this risk</Typography>}
+                  sx={{ mr: 0 }}
+                />
+                {!acknowledged && (
+                  <Button variant="text" onClick={() => onStartEdit(warning.playerId)}
+                    sx={{ textTransform: 'none', fontFamily: 'var(--font-family-primary)', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-primary)', p: 0, minWidth: 0 }}>
+                    Edit medication
+                  </Button>
+                )}
+              </Box>
+            )}
+          </Box>
+
+          {isEditing && (
+            <Box sx={{ borderTop: '1px solid var(--color-border-primary)', backgroundColor: 'var(--color-background-secondary)', p: 2, display: 'flex', gap: 3 }}>
+              <Box sx={{ minWidth: 180 }}>
+                <Typography variant="caption" sx={{ display: 'block', color: 'var(--color-text-muted)', fontFamily: 'var(--font-family-primary)', fontWeight: 'var(--font-weight-medium)', mb: 1 }}>
+                  Locked — unrelated to the medication
+                </Typography>
+                {LOCKED_FIELD_KEYS.map((key) => (
+                  <Box key={key} sx={{ mb: 1 }}>
+                    <Typography variant="caption" sx={{ display: 'block', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)' }}>{LOCKED_FIELD_LABELS[key]}</Typography>
+                    <Typography variant="body2" sx={{ fontFamily: 'var(--font-family-primary)', color: 'var(--color-text-primary)' }}>{playerFields[key] || '—'}</Typography>
+                  </Box>
+                ))}
+              </Box>
+              <Box sx={{ width: 280 }}>
+                <EditableMedicationFields values={draft} onChange={(field, value) => setDraft((prev) => ({ ...prev, [field]: value }))} />
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignSelf: 'flex-start' }}>
+                <Button variant="contained" disableElevation onClick={() => onSaveEdit(warning.playerId, draft)}
+                  sx={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-color)', textTransform: 'none', fontWeight: 'var(--font-weight-medium)', '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' } }}>Save</Button>
+                <Button variant="contained" disableElevation onClick={() => onCancelEdit(warning.playerId)}
+                  sx={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-secondary-color)', textTransform: 'none', fontWeight: 'var(--font-weight-medium)' }}>Cancel</Button>
+              </Box>
+            </Box>
+          )}
+        </Box>
+      );
+    }
+
+    function ReviewSafetyWarningsModal({ open, onClose, warnings, getPlayerFields, onAcknowledge, onSaveEdit, onConfirm }) {
+      const [editingPlayerId, setEditingPlayerId] = useState(null);
+      useEffect(() => { if (!open) setEditingPlayerId(null); }, [open]);
+
+      const hasPending = warnings.some((w) => w.status === 'pending');
+      const confirmDisabled = editingPlayerId !== null || hasPending;
+
+      const handleSaveEdit = (playerId, updatedFields) => { setEditingPlayerId(null); onSaveEdit(playerId, updatedFields); };
+
+      return (
+        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+          <DialogTitle sx={{ pb: 0.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography variant="h6" sx={{ fontWeight: 'var(--font-weight-semibold)', fontFamily: 'var(--font-family-primary)' }}>Review safety warnings</Typography>
+              <IconButton size="small" onClick={onClose}><Icon path={ICONS.close} size={18} /></IconButton>
+            </Box>
+            <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)', mt: 0.5 }}>
+              Acknowledge each flagged issue, or edit the medication, to continue.
+            </Typography>
+          </DialogTitle>
+          <DialogContent dividers>
+            <Box sx={{ display: 'grid', gridTemplateColumns: GRID_COLUMNS, gap: 2, px: 1.5, pb: 1 }}>
+              <Typography variant="caption" sx={{ color: 'var(--color-text-secondary)', fontWeight: 'var(--font-weight-medium)', fontFamily: 'var(--font-family-primary)' }}>Player</Typography>
+              <Typography variant="caption" sx={{ color: 'var(--color-text-secondary)', fontWeight: 'var(--font-weight-medium)', fontFamily: 'var(--font-family-primary)' }}>Reason</Typography>
+              <Typography variant="caption" sx={{ color: 'var(--color-text-secondary)', fontWeight: 'var(--font-weight-medium)', fontFamily: 'var(--font-family-primary)' }}>Acknowledge</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              {warnings.map((warning) => (
+                <WarningRow
+                  key={warning.playerId}
+                  warning={warning}
+                  playerFields={getPlayerFields(warning.playerId)}
+                  isEditing={editingPlayerId === warning.playerId}
+                  onStartEdit={setEditingPlayerId}
+                  onCancelEdit={() => setEditingPlayerId(null)}
+                  onSaveEdit={handleSaveEdit}
+                  onAcknowledge={onAcknowledge}
+                />
+              ))}
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 2, justifyContent: 'space-between' }}>
+            <Button variant="text" onClick={onClose} sx={{ textTransform: 'none', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)' }}>Back</Button>
+            <Button variant="contained" disableElevation disabled={confirmDisabled} onClick={onConfirm}
+              sx={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-color)', textTransform: 'none', fontWeight: 'var(--font-weight-medium)', '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' } }}>
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+      );
+    }
+
+    // ─── Screen 1: entry-point split button ─────────────────────────────────
+    function AddMedicationSplitButton({ onAddSingle, onAddBulk }) {
+      const anchorRef = useRef(null);
+      const [menuOpen, setMenuOpen] = useState(false);
+      const primaryButtonSx = { backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-color)', textTransform: 'none', fontWeight: 'var(--font-weight-medium)', fontFamily: 'var(--font-family-primary)', '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' } };
+      return (
+        <>
+          <ButtonGroup ref={anchorRef} variant="contained" disableElevation size="small">
+            <Button size="small" variant="contained" disableElevation onClick={() => setMenuOpen(true)} sx={primaryButtonSx}>Add medication</Button>
+            <Button size="small" variant="contained" disableElevation onClick={() => setMenuOpen(true)} aria-label="More medication actions"
+              sx={{ ...primaryButtonSx, px: 0.5, minWidth: 32, borderLeft: '1px solid rgba(255,255,255,0.24)' }}>
+              <Icon path={ICONS.chevronDown} size={18} />
+            </Button>
+          </ButtonGroup>
+          <Menu anchorEl={anchorRef.current} open={menuOpen} onClose={() => setMenuOpen(false)}>
+            <MenuItem onClick={() => { setMenuOpen(false); onAddSingle && onAddSingle(); }} sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>Add single medication</MenuItem>
+            <Divider />
+            <MenuItem onClick={() => { setMenuOpen(false); onAddBulk && onAddBulk(); }} sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>Add multiple medications</MenuItem>
+          </Menu>
+        </>
+      );
+    }
+
+    function AddMedicationModal({ open, onClose, player }) {
+      const [fields, setFields] = useState(DEFAULT_MEDICATION_FIELDS);
+      useEffect(() => { if (open) setFields(DEFAULT_MEDICATION_FIELDS); }, [open, player]);
+      if (!player) return null;
+      return (
+        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+          <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Typography variant="h6" sx={{ fontWeight: 'var(--font-weight-semibold)', fontFamily: 'var(--font-family-primary)' }}>Add medication</Typography>
+            <IconButton size="small" onClick={onClose}><Icon path={ICONS.close} size={18} /></IconButton>
+          </DialogTitle>
+          <DialogContent dividers>
+            <Box sx={{ mb: 2.5 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, fontFamily: 'var(--font-family-primary)', color: 'var(--color-text-primary)' }}>{player.name}</Typography>
+              <Typography variant="caption" sx={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)' }}>{player.position}</Typography>
+            </Box>
+            <MedicationFieldsColumn player={player} values={fields} onChange={(field, value) => setFields((prev) => ({ ...prev, [field]: value }))} hasConflict={Boolean(validateMedicationForPlayer(player, fields.brandName))} />
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 2 }}>
+            <Button variant="contained" disableElevation onClick={onClose} sx={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-secondary-color)', textTransform: 'none', fontWeight: 'var(--font-weight-medium)' }}>Cancel</Button>
+            <Button variant="contained" disableElevation onClick={onClose} sx={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-color)', textTransform: 'none', fontWeight: 'var(--font-weight-medium)', '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' } }}>Save</Button>
+          </DialogActions>
+        </Dialog>
+      );
+    }
+
+    // ─── Screens 2-5: bulk flow ──────────────────────────────────────────────
+    const COLUMN_WIDTH = 280;
+    function buildRowsForIds(ids, previousRows = {}) {
+      const next = {};
+      ids.forEach((id) => { next[id] = previousRows[id] || { ...DEFAULT_MEDICATION_FIELDS }; });
+      return next;
+    }
+
+    function AddMedicationsBulk({ onBack }) {
+      const [selectedIds, setSelectedIds] = useState([]);
+      const [medicationRows, setMedicationRows] = useState({});
+      const [warnings, setWarnings] = useState([]);
+      const [warningsModalOpen, setWarningsModalOpen] = useState(false);
+      const [toast, setToast] = useState({ open: false, message: '' });
+
+      const selectedPlayers = useMemo(() => selectedIds.map((id) => PLAYERS.find((p) => p.id === id)).filter(Boolean), [selectedIds]);
+      const getPlayerFields = (playerId) => medicationRows[playerId] || DEFAULT_MEDICATION_FIELDS;
+
+      // Live, grid-level conflict check — drives the persistent banner and the
+      // per-field highlight, independent of whether the modal has been opened.
+      const hasAnyLiveConflict = selectedPlayers.some((player) => Boolean(validateMedicationForPlayer(player, getPlayerFields(player.id).brandName)));
+
+      const handleFieldChange = (playerId, field, value) => {
+        setMedicationRows((prev) => ({ ...prev, [playerId]: { ...(prev[playerId] || DEFAULT_MEDICATION_FIELDS), [field]: value } }));
+      };
+
+      const handleSelectorDone = (newSelectedIds) => {
+        setSelectedIds(newSelectedIds);
+        setMedicationRows((prev) => buildRowsForIds(newSelectedIds, prev));
+      };
+
+      const handleAcknowledgeWarning = (playerId) => {
+        setWarnings((prev) => prev.map((w) => (w.playerId === playerId ? { ...w, status: 'acknowledged' } : w)));
+      };
+
+      const handleSaveEditWarning = (playerId, updatedFields) => {
+        setMedicationRows((prev) => ({ ...prev, [playerId]: { ...(prev[playerId] || DEFAULT_MEDICATION_FIELDS), ...updatedFields } }));
+        const player = PLAYERS.find((p) => p.id === playerId);
+        const conflict = validateMedicationForPlayer(player, updatedFields.brandName);
+        if (!conflict) {
+          setWarnings((prev) => prev.map((w) => (w.playerId === playerId ? { ...w, status: 'resolved' } : w)));
+          setTimeout(() => { setWarnings((prev) => prev.filter((w) => w.playerId !== playerId)); }, 1200);
+          return;
+        }
+        setWarnings((prev) => prev.map((w) => (w.playerId === playerId
+          ? { ...w, chipLabel: conflict.chipLabel, medication: conflict.medication, reasonSuffix: conflict.reasonSuffix, severity: severityForChipLabel(conflict.chipLabel), status: 'pending' }
+          : w)));
+      };
+
+      const resetOrder = () => {
+        setSelectedIds([]);
+        setMedicationRows({});
+        setWarnings([]);
+      };
+
+      const handleConfirmWarnings = () => {
+        const count = warnings.length;
+        setWarningsModalOpen(false);
+        setToast({ open: true, message: `${selectedPlayers.length} medication${selectedPlayers.length !== 1 ? 's' : ''} ordered` });
+        resetOrder();
+      };
+
+      const handleSave = () => {
+        const results = selectedPlayers.map((player) => ({ player, conflict: validateMedicationForPlayer(player, getPlayerFields(player.id).brandName) }));
+        const conflicted = results.filter((r) => r.conflict);
+
+        if (conflicted.length === 0) {
+          setToast({ open: true, message: `${selectedPlayers.length} medication${selectedPlayers.length !== 1 ? 's' : ''} ordered` });
+          resetOrder();
+          return;
+        }
+
+        setWarnings(conflicted.map(({ player, conflict }) => ({
+          playerId: player.id, playerName: player.name, chipLabel: conflict.chipLabel, medication: conflict.medication,
+          reasonSuffix: conflict.reasonSuffix, severity: severityForChipLabel(conflict.chipLabel), status: 'pending',
+        })));
+        setWarningsModalOpen(true);
+      };
+
+      return (
+        <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--color-background-primary)' }}>
+          <Box sx={{ px: 3, pt: 2.5, pb: 2, borderBottom: '1px solid var(--color-border-primary)', flexShrink: 0 }}>
+            <Breadcrumbs sx={{ mb: 1, '& .MuiBreadcrumbs-separator': { color: 'var(--color-text-muted)' } }}>
+              <Link component="button" underline="hover" onClick={onBack} sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>Medical</Link>
+              <Typography sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-primary)', fontWeight: 600 }}>Add Medications</Typography>
+            </Breadcrumbs>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography variant="h5" sx={{ fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)' }}>Add Medications</Typography>
+              <Button
+                variant="contained" disableElevation disabled={selectedIds.length === 0} onClick={handleSave}
+                sx={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-color)', textTransform: 'none', fontWeight: 'var(--font-weight-medium)', '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' } }}
+              >
+                Save
+              </Button>
+            </Box>
+          </Box>
+
+          <Box sx={{ px: 3, py: 2, borderBottom: '1px solid var(--color-border-secondary)', flexShrink: 0 }}>
+            <AddPlayersPanel selectedIds={selectedIds} onDone={handleSelectorDone} />
+          </Box>
+
+          <Box sx={{ flex: 1, overflow: 'auto', px: 3, py: 3 }}>
+            {selectedPlayers.length > 0 && hasAnyLiveConflict && <ConflictBanner />}
+            {selectedPlayers.length === 0 ? null : (
+              <Box sx={{ display: 'flex', gap: 3, minWidth: 'max-content' }}>
+                {selectedPlayers.map((player) => {
+                  const fields = getPlayerFields(player.id);
+                  const hasConflict = Boolean(validateMedicationForPlayer(player, fields.brandName));
+                  return (
+                    <Box key={player.id} sx={{ width: COLUMN_WIDTH, flexShrink: 0, p: 2, border: '1px solid var(--color-border-primary)', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--color-background-primary)' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 2, minHeight: 32 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, fontFamily: 'var(--font-family-primary)', color: 'var(--color-text-primary)' }}>{player.name}</Typography>
+                        <PlayerAlertChips player={player} />
+                      </Box>
+                      <MedicationFieldsColumn player={player} values={fields} onChange={(field, value) => handleFieldChange(player.id, field, value)} hasConflict={hasConflict} />
+                    </Box>
+                  );
+                })}
+              </Box>
+            )}
+          </Box>
+
+          <ReviewSafetyWarningsModal
+            open={warningsModalOpen}
+            onClose={() => setWarningsModalOpen(false)}
+            warnings={warnings}
+            getPlayerFields={getPlayerFields}
+            onAcknowledge={handleAcknowledgeWarning}
+            onSaveEdit={handleSaveEditWarning}
+            onConfirm={handleConfirmWarnings}
+          />
+
+          <Snackbar open={toast.open} autoHideDuration={3000} onClose={() => setToast((t) => ({ ...t, open: false }))} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+            <Alert severity="success" onClose={() => setToast((t) => ({ ...t, open: false }))} sx={{ fontFamily: 'var(--font-family-primary)' }}>{toast.message}</Alert>
+          </Snackbar>
+        </Box>
+      );
+    }
+
+    // ─── Entry point screen (mirrors the real Medications tab) ─────────────
+    const SINGLE_FLOW_DEMO_PLAYER = PLAYERS.find((p) => p.id === 'gordan-morales');
+
+    const MEDICATION_LOG_ROWS = [
+      { medication: 'Ibuprofen 200mg tablet', quantity: '2', reason: 'Leg Bursitis', note: 'Take after training as needed', prescriber: 'Dr. James Carter', source: 'Logged', startDate: 'Sep 10, 2025', endDate: 'Dec 08, 2025', status: 'Inactive' },
+      { medication: 'Ibuprofen 200mg tablet', quantity: '21 capsules', reason: 'Ankle OS Trigonum left', note: 'Take three times daily as needed', prescriber: 'Dr. Laura Mitchell', source: 'Logged', startDate: 'Aug 15, 2025', endDate: 'Sep 30, 2025', status: 'Inactive' },
+      { medication: 'Cold and Sinus relief', quantity: '14 tablets', reason: 'Ankle OS Trigonum left', note: 'Once daily for inflammation', prescriber: 'Dr. Robert Hayes', source: 'Logged', startDate: 'Aug 22, 2025', endDate: 'Sep 14, 2025', status: 'Inactive' },
+    ];
+
+    const LOG_COLUMNS = ['Medication', 'Quantity', 'Reason', 'Note', 'Prescriber', 'Source', 'Start date', 'End Date', 'Status'];
+    const LOG_ROW_KEYS = ['medication', 'quantity', 'reason', 'note', 'prescriber', 'source', 'startDate', 'endDate', 'status'];
+
+    function MedicationLogTable() {
+      return (
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              {LOG_COLUMNS.map((col) => (
+                <TableCell key={col} sx={{ fontFamily: 'var(--font-family-primary)', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-xs)' }}>{col}</TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {MEDICATION_LOG_ROWS.map((row, i) => (
+              <TableRow key={i}>
+                {LOG_ROW_KEYS.map((key) => (
+                  <TableCell key={key} sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-primary)' }}>
+                    {key === 'status'
+                      ? <Chip label={row.status} size="small" sx={{ backgroundColor: 'var(--color-background-secondary)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)', fontWeight: 'var(--font-weight-medium)' }} />
+                      : row[key]}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      );
+    }
+
+    function MedicationsEntryPoint({ onOpenBulk }) {
+      const [singleOpen, setSingleOpen] = useState(false);
+      return (
+        <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--color-background-primary)' }}>
+          <Box sx={{ px: 3, pt: 3, pb: 2 }}>
+            <Typography variant="h5" sx={{ fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)' }}>Medical</Typography>
+          </Box>
+          <Divider />
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 3, py: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)' }}>Medications</Typography>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button variant="contained" disableElevation sx={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-secondary-color)', textTransform: 'none', fontWeight: 'var(--font-weight-medium)' }}>Stock Management</Button>
+              <AddMedicationSplitButton onAddSingle={() => setSingleOpen(true)} onAddBulk={onOpenBulk} />
+              <Button variant="contained" disableElevation sx={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-secondary-color)', textTransform: 'none', fontWeight: 'var(--font-weight-medium)' }}>Medication Report</Button>
+            </Box>
+          </Box>
+          <Box sx={{ flex: 1, overflow: 'auto', px: 3, pb: 3 }}>
+            <MedicationLogTable />
+          </Box>
+          <AddMedicationModal open={singleOpen} onClose={() => setSingleOpen(false)} player={SINGLE_FLOW_DEMO_PLAYER} />
+        </Box>
+      );
+    }
+
+    function App() {
+      const [screen, setScreen] = useState('entry');
+      if (screen === 'bulk') return <AddMedicationsBulk onBack={() => setScreen('entry')} />;
+      return <MedicationsEntryPoint onOpenBulk={() => setScreen('bulk')} />;
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+
+  <!--
+    Babel-standalone's auto script-tag loader defaults preset-react to the
+    "automatic" JSX runtime, which injects `import ... from "react/jsx-runtime"`.
+    That import can't execute in a plain (non-module) script, so we transform
+    and run the source manually here, forcing the classic runtime instead.
+  -->
+  <script>
+    (function () {
+      const source = document.getElementById('app-source').textContent;
+      const compiled = Babel.transform(source, {
+        presets: [['react', { runtime: 'classic' }]],
+      }).code;
+      const script = document.createElement('script');
+      script.text = compiled;
+      document.body.appendChild(script);
+    })();
+  </script>
+</body>
+</html>

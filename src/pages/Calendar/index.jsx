@@ -8,6 +8,7 @@ import EventDetailsDialog from '../../components/EventDetailsDialog';
 import AddEventSidebar from '../../components/AddEventSidebar';
 import AddSessionDrawer from '../../components/AddSessionDrawer';
 import AddGameDrawer from '../../components/AddGameDrawer';
+import BlastMessageDrawer from '../Messaging/BlastMessageDrawer';
 import calendarEventsData from '../../data/calendar_events.json';
 import athletesData from '../../data/athletes.json';
 import staffData from '../../data/users_staff.json';
@@ -25,6 +26,7 @@ const CalendarPage = () => {
   const [tooltip, setTooltip] = useState({ show: false, event: null, position: { x: 0, y: 0 } });
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [detailsEvent, setDetailsEvent] = useState(null);
+  const [blastEvent, setBlastEvent] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date('2025-09-01'));
   const calendarRef = useRef(null);
 
@@ -401,6 +403,18 @@ const CalendarPage = () => {
           setDetailsOpen(false);
           setDetailsEvent(null);
         }}
+        onSendMessage={(ev) => {
+          setBlastEvent(ev);
+          setDetailsOpen(false);
+        }}
+        athletes={athletesData}
+        staff={staffData}
+      />
+      <BlastMessageDrawer
+        open={Boolean(blastEvent)}
+        sourceEvent={blastEvent}
+        onClose={() => setBlastEvent(null)}
+        onSent={() => setBlastEvent(null)}
         athletes={athletesData}
         staff={staffData}
       />

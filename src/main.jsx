@@ -40,6 +40,15 @@ const theme = createTheme({
     MuiAutocomplete:  { defaultProps: { size: 'small' } },
     MuiChip:          { defaultProps: { size: 'small' } },
     MuiIconButton:    { defaultProps: { size: 'small' } },
+    MuiFilledInput: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#F3F4F7',
+          '&:hover': { backgroundColor: '#F3F4F7' },
+          '&.Mui-focused': { backgroundColor: '#F3F4F7' },
+        },
+      },
+    },
   },
 })
 

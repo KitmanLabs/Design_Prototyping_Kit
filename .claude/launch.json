@@ -6,6 +6,18 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 3001
+    },
+    {
+      "name": "Sharing Hub Prototype",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "sharing-hub-prototype", "run", "dev"],
+      "port": 3012
+    },
+    {
+      "name": "Share Record Prototype V2",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "share-record-prototype-v2", "run", "dev", "--", "--port", "3013"],
+      "port": 3013
     }
   ]
 }

@@ -9,13 +9,15 @@ import {
   GridToolbarExport,
   GridToolbarQuickFilter,
 } from '@mui/x-data-grid';
-import { 
-  DeleteOutlined, 
+import {
+  DeleteOutlined,
   AssignmentOutlined,
-  PersonOutlined, 
+  PersonOutlined,
   EditOutlined,
   FitnessCenterOutlined,
-  MedicalServicesOutlined
+  MedicalServicesOutlined,
+  MoreVertOutlined,
+  ShareOutlined,
 } from '@mui/icons-material';
 import athletesData from '../data/athletes.json';
 import '../styles/design-tokens.css';
@@ -46,11 +48,27 @@ const BulkActionsToolbar = React.forwardRef(({ numSelected, onBulkAction }, ref)
       </Typography>
       
       <Box sx={{ display: 'flex', gap: 2 }}>
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 1, 
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            cursor: 'pointer',
+            '&:hover': {
+              color: 'var(--color-primary)'
+            }
+          }}
+          onClick={() => onBulkAction('share')}
+        >
+          <ShareOutlined fontSize="small" />
+          <Typography variant="body2">Share profile</Typography>
+        </Box>
+
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
             cursor: 'pointer',
             '&:hover': {
               color: 'var(--color-primary)'
@@ -140,13 +158,44 @@ const CustomToolbar = React.forwardRef((props, ref) => {
 
 CustomToolbar.displayName = 'CustomToolbar';
 
-const AthleteDataGrid = ({ 
-  data = athletesData, 
+const RowActionsMenu = ({ row, onShareProfile }) => {
+  const [anchor, setAnchor] = useState(null);
+  return (
+    <>
+      <IconButton
+        size="small"
+        onClick={(e) => { e.stopPropagation(); setAnchor(e.currentTarget); }}
+      >
+        <MoreVertOutlined fontSize="small" />
+      </IconButton>
+      <Menu
+        anchorEl={anchor}
+        open={Boolean(anchor)}
+        onClose={() => setAnchor(null)}
+        onClick={(e) => e.stopPropagation()}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <MenuItem
+          onClick={() => { setAnchor(null); onShareProfile?.(row); }}
+          sx={{ fontSize: 14 }}
+        >
+          Share profile
+        </MenuItem>
+      </Menu>
+    </>
+  );
+};
+
+const AthleteDataGrid = ({
+  data = athletesData,
   height = 600,
   showToolbar = true,
   groupingEnabled = true,
   onBulkAction,
-  ...props 
+  onRowClick,
+  onShareProfile,
+  ...props
 }) => {
   // Ensure data is always an array and filter out any null/undefined entries
   const safeData = useMemo(() => {
@@ -255,8 +304,20 @@ const AthleteDataGrid = ({
       type: 'date',
       width: 140,
       valueGetter: (value) => value ? new Date(value) : null,
+    },
+    {
+      field: 'actions',
+      headerName: '',
+      width: 50,
+      sortable: false,
+      filterable: false,
+      groupable: false,
+      disableColumnMenu: true,
+      renderCell: (params) => (
+        <RowActionsMenu row={params.row} onShareProfile={onShareProfile} />
+      ),
     }
-  ], []);
+  ], [onShareProfile]);
   // Pagination temporarily disabled to avoid footer runtime issue
   
   const [selectedRows, setSelectedRows] = useState([]);
@@ -327,6 +388,7 @@ const AthleteDataGrid = ({
             }
           },
         }}
+        onRowClick={onRowClick}
         initialState={{
           columns: {
             columnVisibilityModel: {},
@@ -344,6 +406,7 @@ AthleteDataGrid.propTypes = {
   showToolbar: PropTypes.bool,
   groupingEnabled: PropTypes.bool,
   onBulkAction: PropTypes.func,
+  onShareProfile: PropTypes.func,
 };
 
 export default AthleteDataGrid;

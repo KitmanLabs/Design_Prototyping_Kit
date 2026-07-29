@@ -9,16 +9,20 @@ import {
   ListItemIcon,
   ListItemText,
   Paper,
+  Button,
 } from '@mui/material';
-import { LocationOnOutlined } from '@mui/icons-material';
+import { LocationOnOutlined, LocationOn, SearchOutlined } from '@mui/icons-material';
 import { useJsApiLoader, Autocomplete, GoogleMap, Marker } from '@react-google-maps/api';
-import { GOOGLE_MAPS_API_KEY } from '../config/googleMaps';
-
-const libraries = ['places'];
+import { GOOGLE_MAPS_API_KEY, GOOGLE_MAPS_LIBRARIES } from '../config/googleMaps';
 
 const mapContainerStyle = {
   width: '100%',
   height: '140px',
+};
+
+const pickerMapContainerStyle = {
+  width: '100%',
+  height: '100%',
 };
 
 const defaultCenter = {
@@ -64,7 +68,7 @@ const formFieldStyles = {
   },
 };
 
-const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
+const LocationPicker = ({ value, onChange, onLocationChange, savedLocations = [] }) => {
   const [searchValue, setSearchValue] = useState(value || '');
   const [showSavedLocations, setShowSavedLocations] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -74,9 +78,19 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
   const autocompleteRef = useRef(null);
   const inputRef = useRef(null);
 
+  // ─── Map picker ("Choose on map") — fixed centre pin, map pans beneath ──
+  const [mapPickerOpen, setMapPickerOpen] = useState(false);
+  const [pickerCenter, setPickerCenter] = useState(defaultCenter);
+  const [pickerAddress, setPickerAddress] = useState('');
+  const [pickerLoading, setPickerLoading] = useState(false);
+  const [pinDragging, setPinDragging] = useState(false);
+  const pickerMapRef = useRef(null);
+  const pickerAutocompleteRef = useRef(null);
+  const geocoderRef = useRef(null);
+
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
-    libraries,
+    libraries: GOOGLE_MAPS_LIBRARIES,
   });
 
   // Mock location suggestions with coordinates for demo purposes
@@ -141,10 +155,11 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
       lng: location.lng,
     };
     setSelectedLocation(locationData);
-    
+
     // Update map center if coordinates are available
     if (location.lat && location.lng) {
       setMapCenter({ lat: location.lat, lng: location.lng });
+      onLocationChange?.({ address: fullAddress, lat: location.lat, lng: location.lng });
     }
     
     // Update the input field if it exists
@@ -215,10 +230,11 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
           lng: lng,
         };
         setSelectedLocation(locationData);
-        
+
         // Update map center if coordinates are available
         if (lat && lng) {
           setMapCenter({ lat, lng });
+          onLocationChange?.({ address: place.formatted_address, lat, lng });
         }
       } else if (place.name) {
         setSearchValue(place.name);
@@ -239,13 +255,75 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
           lng: lng,
         };
         setSelectedLocation(locationData);
-        
+
         // Update map center if coordinates are available
         if (lat && lng) {
           setMapCenter({ lat, lng });
+          onLocationChange?.({ address: place.name, lat, lng });
         }
       }
     }
+  };
+
+  // ─── Map picker ("Choose on map") ──────────────────────────────────────
+  const openMapPicker = () => {
+    const start = (selectedLocation?.lat && selectedLocation?.lng)
+      ? { lat: selectedLocation.lat, lng: selectedLocation.lng }
+      : mapCenter;
+    setPickerCenter(start);
+    setPickerAddress('');
+    setPickerLoading(true);
+    setMapPickerOpen(true);
+  };
+
+  const reverseGeocodePickerCenter = (center) => {
+    if (!window.google) return;
+    if (!geocoderRef.current) geocoderRef.current = new window.google.maps.Geocoder();
+    setPickerLoading(true);
+    setPickerAddress('');
+    geocoderRef.current.geocode({ location: center }, (results, status) => {
+      setPickerLoading(false);
+      if (status === 'OK' && results?.[0]) {
+        setPickerAddress(results[0].formatted_address);
+      } else {
+        setPickerAddress(`${center.lat.toFixed(4)}, ${center.lng.toFixed(4)}`);
+      }
+    });
+  };
+
+  const handlePickerDragStart = () => setPinDragging(true);
+
+  const handlePickerIdle = () => {
+    setPinDragging(false);
+    if (!pickerMapRef.current) return;
+    const center = pickerMapRef.current.getCenter();
+    const next = { lat: center.lat(), lng: center.lng() };
+    setPickerCenter(next);
+    reverseGeocodePickerCenter(next);
+  };
+
+  const handlePickerPlaceChanged = () => {
+    if (!pickerAutocompleteRef.current) return;
+    const place = pickerAutocompleteRef.current.getPlace();
+    const lat = place.geometry?.location?.lat();
+    const lng = place.geometry?.location?.lng();
+    if (lat && lng) {
+      pickerMapRef.current?.panTo({ lat, lng });
+    }
+  };
+
+  const handleCancelMapPicker = () => setMapPickerOpen(false);
+
+  const handleConfirmMapPicker = () => {
+    const finalAddress = pickerAddress || `${pickerCenter.lat.toFixed(4)}, ${pickerCenter.lng.toFixed(4)}`;
+    setSearchValue(finalAddress);
+    onChange(finalAddress);
+    onLocationChange?.({ address: finalAddress, lat: pickerCenter.lat, lng: pickerCenter.lng });
+    setSelectedLocation({ name: finalAddress, address: finalAddress, fullAddress: finalAddress, lat: pickerCenter.lat, lng: pickerCenter.lng });
+    setMapCenter(pickerCenter);
+    setShowSavedLocations(false);
+    setShowSuggestions(false);
+    setMapPickerOpen(false);
   };
 
   const handleFocus = () => {
@@ -299,6 +377,150 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
     />
   );
 
+  // ─── Map picker overlay ("Choose on map") — reuses this component's own
+  // container (the drawer/sidebar it already sits in), not a new overlay type ──
+  if (mapPickerOpen) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 520 }}>
+        <TextField
+          fullWidth
+          variant="filled"
+          placeholder="Search address"
+          InputLabelProps={{ shrink: true }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <SearchOutlined sx={{ color: 'var(--color-text-secondary)', fontSize: '20px' }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ ...formFieldStyles, mb: 2 }}
+        />
+        {isLoaded ? (
+          <Autocomplete
+            onLoad={(autocomplete) => { pickerAutocompleteRef.current = autocomplete; }}
+            onPlaceChanged={handlePickerPlaceChanged}
+            options={{ fields: ['geometry'], types: ['establishment', 'geocode'] }}
+          >
+            <TextField
+              fullWidth
+              variant="filled"
+              placeholder="Search address"
+              InputLabelProps={{ shrink: true }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <SearchOutlined sx={{ color: 'var(--color-text-secondary)', fontSize: '20px' }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ ...formFieldStyles, mb: 2 }}
+            />
+          </Autocomplete>
+        ) : (
+          <TextField
+            fullWidth
+            variant="filled"
+            placeholder="Search address"
+            disabled
+            InputLabelProps={{ shrink: true }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <SearchOutlined sx={{ color: 'var(--color-text-secondary)', fontSize: '20px' }} />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ ...formFieldStyles, mb: 2 }}
+          />
+        )}
+
+        <Box sx={{ position: 'relative', flex: 1, minHeight: 420, borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
+          {isLoaded ? (
+            <GoogleMap
+              mapContainerStyle={pickerMapContainerStyle}
+              center={pickerCenter}
+              zoom={15}
+              onLoad={(map) => { pickerMapRef.current = map; }}
+              onDragStart={handlePickerDragStart}
+              onIdle={handlePickerIdle}
+              options={{
+                disableDefaultUI: false,
+                zoomControl: true,
+                gestureHandling: 'greedy',
+                clickableIcons: false,
+              }}
+            />
+          ) : (
+            <Box sx={{ width: '100%', height: '100%', bgcolor: 'var(--color-background-tertiary)' }} />
+          )}
+
+          {/* Fixed centre pin — a static overlay, never a google.maps.Marker.
+              Anchored by its tip: shifted up by its own height so the tip sits on the true centre. */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              pointerEvents: 'none',
+              transform: pinDragging ? 'translate(-50%, calc(-100% - 6px))' : 'translate(-50%, -100%)',
+              transition: 'transform 150ms ease',
+            }}
+          >
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: pinDragging ? -10 : -3,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: pinDragging ? 18 : 12,
+                height: pinDragging ? 6 : 4,
+                borderRadius: '50%',
+                bgcolor: 'rgba(0,0,0,0.35)',
+                filter: 'blur(1px)',
+                transition: 'all 150ms ease',
+              }}
+            />
+            <LocationOn sx={{ fontSize: 40, color: '#EA4335', display: 'block' }} />
+          </Box>
+        </Box>
+
+        <Box sx={{ pt: 2, borderTop: '1px solid var(--color-border-primary)', mt: 2 }}>
+          <Typography
+            sx={{
+              fontSize: '16px', fontWeight: 600, color: 'var(--color-text-primary)',
+              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+            }}
+          >
+            {pickerLoading || !pickerAddress ? 'Locating…' : pickerAddress}
+          </Typography>
+          <Typography sx={{ fontSize: '13px', color: 'var(--color-text-secondary)', mt: 0.25 }}>
+            {pickerCenter.lat.toFixed(4)}, {pickerCenter.lng.toFixed(4)}
+          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5, mt: 2 }}>
+            <Button
+              onClick={handleCancelMapPicker}
+              sx={{ color: 'var(--color-primary)', textTransform: 'none', fontSize: '15px', fontWeight: 600, '&:hover': { backgroundColor: 'var(--color-background-secondary)' } }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmMapPicker}
+              disabled={pickerLoading}
+              sx={{
+                backgroundColor: 'var(--color-primary)', color: '#fff', textTransform: 'none',
+                fontSize: '16px', fontWeight: 600, height: 52, borderRadius: '6px', px: 3,
+                '&:hover': { backgroundColor: 'var(--color-primary-hover)' },
+              }}
+            >
+              Confirm location
+            </Button>
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <Box>
       {/* Header */}
@@ -332,6 +554,17 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
       ) : (
         renderTextField()
       )}
+
+      <Button
+        onClick={openMapPicker}
+        startIcon={<LocationOnOutlined sx={{ fontSize: '18px' }} />}
+        sx={{
+          mt: 1, color: 'var(--color-primary)', textTransform: 'none', fontSize: '14px', fontWeight: 600,
+          padding: 0, minWidth: 0, '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
+        }}
+      >
+        Choose on map
+      </Button>
 
       {/* Saved Locations and Search Suggestions */}
       {showSavedLocations && (hasFilteredLocations || hasSuggestions) && (

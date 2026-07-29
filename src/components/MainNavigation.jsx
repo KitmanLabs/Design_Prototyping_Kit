@@ -1,21 +1,6 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-
-// Reference public assets directly by URL path (without /public prefix)
-const KitmanLogo = '/assets/logos/Kitman Labs base.png'
-
-import {
-  Drawer,
-  Box,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  IconButton,
-  Tooltip
-} from '@mui/material'
+import { Box, Drawer, Typography, Tooltip } from '@mui/material'
 import {
   LocalHospitalOutlined,
   AnalyticsOutlined,
@@ -26,288 +11,275 @@ import {
   HistoryOutlined,
   SettingsOutlined,
   HelpOutlined,
-  ChevronLeftOutlined,
-  ChevronRightOutlined,
-  ChatOutlined
+  ChatOutlined,
 } from '@mui/icons-material'
 import '../styles/design-tokens.css'
 
-// Navigation items configuration
-const navigationItems = [
-  { 
-    id: 'medical', 
-    label: 'Medical', 
-    icon: LocalHospitalOutlined, 
-    path: '/medical',
-    section: 'main'
-  },
-  { 
-    id: 'analysis', 
-    label: 'Analysis', 
-    icon: AnalyticsOutlined, 
-    path: '/analysis',
-    section: 'main'
-  },
-  { 
-    id: 'athletes', 
-    label: 'Athletes', 
-    icon: PeopleOutlined, 
-    path: '/athlete',
-    section: 'main'
-  },
-  { 
-    id: 'workload', 
-    label: 'Workload', 
-    icon: FitnessCenterOutlined, 
-    path: '/workloads',
-    section: 'main'
-  },
-  { 
-    id: 'forms', 
-    label: 'Forms', 
-    icon: AssignmentOutlined, 
-    path: '/forms',
-    section: 'main'
-  },
-  { 
-    id: 'calendar', 
-    label: 'Calendar', 
-    icon: CalendarMonthOutlined, 
-    path: '/planning',
-    section: 'main'
-  },
-  { 
-    id: 'messages', 
-    label: 'Messages', 
-    icon: ChatOutlined, 
-    path: '/messages',
-    section: 'main'
-  },
-  { 
-    id: 'activity-log', 
-    label: 'Activity log', 
-    icon: HistoryOutlined, 
-    path: '/activity',
-    section: 'main'
-  },
-  { 
-    id: 'admin', 
-    label: 'Admin', 
-    icon: SettingsOutlined, 
-    path: '/settings',
-    section: 'main'
-  }
+const KitmanLogo = '/assets/logos/Kitman Labs base.png'
+
+const ICON_WIDTH = 60
+const PANEL_WIDTH = 240
+
+// Items in the main icon sidebar
+const MAIN_ITEMS = [
+  { id: 'medical',   label: 'Medical',      icon: LocalHospitalOutlined,  path: '/medical' },
+  { id: 'analysis',  label: 'Analysis',     icon: AnalyticsOutlined,      path: '/analysis' },
+  { id: 'athletes',  label: 'Athletes',     icon: PeopleOutlined,         panel: 'athletes' },
+  { id: 'workload',  label: 'Workload',     icon: FitnessCenterOutlined,  path: '/workloads' },
+  { id: 'forms',     label: 'Forms',        icon: AssignmentOutlined,     path: '/forms' },
+  { id: 'calendar',  label: 'Calendar',     icon: CalendarMonthOutlined,  path: '/planning' },
+  { id: 'messages',  label: 'Messages',     icon: ChatOutlined,           path: '/messages' },
+  { id: 'activity',  label: 'Activity log', icon: HistoryOutlined,        path: '/activity' },
 ]
 
-const bottomItems = [
-  { 
-    id: 'help', 
-    label: 'Help', 
-    icon: HelpOutlined, 
-    path: '/help'
-  }
+const BOTTOM_ITEMS = [
+  { id: 'help',  label: 'Help',  icon: HelpOutlined,     path: '/help' },
+  { id: 'admin', label: 'Admin', icon: SettingsOutlined, panel: 'admin' },
 ]
 
-const DRAWER_WIDTH = 240
-const DRAWER_WIDTH_COLLAPSED = 60
+const PANELS = {
+  athletes: {
+    title: 'Athletes',
+    links: [
+      { label: 'Athletes',            path: '/athlete' },
+      { label: 'Availability',        path: '#' },
+      { label: 'Availability report', path: '#' },
+      { label: 'Screenings',          path: '#' },
+    ],
+  },
+  admin: {
+    title: 'Administration',
+    links: [
+      { label: 'Manage athletes',      path: '/manage-athletes' },
+      { label: 'Manage staff users',   path: '#' },
+      { label: 'Manage alerts',        path: '#' },
+      { label: 'Manage games',         path: '#' },
+      { label: 'Organisation settings',path: '#' },
+      { label: 'Analytics',            path: '#' },
+      { label: 'Order management',     path: '#' },
+      { label: 'Exports',              path: '#' },
+      { label: 'Imports',              path: '#' },
+      { label: 'Stock management',     path: '#' },
+      { label: 'Fixture management',   path: '#' },
+      { label: 'Logic builder',        path: '#' },
+      { label: 'Labels',               path: '#' },
+      { label: 'Athlete groups',       path: '#' },
+      { label: 'Email log',            path: '#' },
+    ],
+  },
+}
 
-function MainNavigation({ 
-  isOpen = true, 
-  onToggle, 
-  variant = 'permanent',
-  ...props 
-}) {
+// Determine which panel should be open for a given pathname
+function getPanelFromPath(pathname) {
+  if (pathname.startsWith('/manage-athletes') || pathname === '/settings') return 'admin'
+  if (pathname === '/athlete' || pathname.startsWith('/athlete/')) return 'athletes'
+  return null
+}
+
+// Is this icon currently "active" (route match or its panel is open)
+function isIconActive(item, pathname, openPanel) {
+  if (item.panel) return openPanel === item.panel
+  if (item.path === '/forms') return pathname.startsWith('/forms')
+  return pathname === item.path
+}
+
+// ─── Icon sidebar button ──────────────────────────────────────────────────────
+function IconButton_({ item, active, onClick }) {
+  const Icon = item.icon
+  return (
+    <Tooltip title={item.label} placement="right" arrow>
+      <Box
+        onClick={onClick}
+        sx={{
+          width: ICON_WIDTH,
+          height: 44,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          position: 'relative',
+          flexShrink: 0,
+          backgroundColor: active ? 'rgba(255,255,255,0.12)' : 'transparent',
+          '&:hover': { backgroundColor: active ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.07)' },
+          '&::before': active ? {
+            content: '""',
+            position: 'absolute',
+            left: 0,
+            top: '25%',
+            bottom: '25%',
+            width: 3,
+            backgroundColor: '#fff',
+            borderRadius: '0 2px 2px 0',
+          } : {},
+        }}
+      >
+        <Icon sx={{ fontSize: 20, color: active ? '#fff' : 'rgba(255,255,255,0.65)' }} />
+      </Box>
+    </Tooltip>
+  )
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+export default function MainNavigation() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const handleItemClick = (item) => {
-    navigate(item.path)
+  const [openPanel, setOpenPanel] = useState(() => getPanelFromPath(location.pathname))
+
+  // Keep panel in sync when the user navigates via URL
+  useEffect(() => {
+    const panel = getPanelFromPath(location.pathname)
+    if (panel && panel !== openPanel) {
+      setOpenPanel(panel)
+    }
+  }, [location.pathname]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function handleIconClick(item) {
+    if (item.panel) {
+      setOpenPanel(prev => (prev === item.panel ? null : item.panel))
+    } else if (item.path) {
+      navigate(item.path)
+    }
   }
 
-  const renderNavItem = (item, isCollapsed = false) => {
-    const isActive = item.path === '/forms'
-      ? (location.pathname === '/forms' || location.pathname.startsWith('/forms/'))
-      : location.pathname === item.path
-    const IconComponent = item.icon
-
-    return (
-      <ListItem 
-        key={item.id} 
-        disablePadding 
-        sx={{ display: 'block' }}
-      >
-        <Tooltip 
-          title={isCollapsed ? item.label : ''} 
-          placement="right"
-          disableHoverListener={!isCollapsed}
-        >
-          <ListItemButton
-            onClick={() => handleItemClick(item)}
-            sx={{
-              height: 40,
-              justifyContent: isCollapsed ? 'center' : 'initial',
-              pl: 2,
-              py: 1,
-              ml: 1, mr: 0,
-              mb: 0.5,
-              position: 'relative',
-              backgroundColor: isActive ? 'var(--color-overlay-hover)' : 'transparent',
-              color: 'var(--color-white)',
-              '&::before': isActive ? {
-                content: '""',
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                bottom: 0,
-                width: '3px',
-                backgroundColor: 'var(--color-white)',
-                borderRadius: '0 2px 2px 0'
-              } : {},
-              '&:hover': {
-                backgroundColor: 'var(--color-overlay-active)',
-                color: 'var(--color-white)'
-              },
-              transition: 'all 0.2s ease'
-            }}
-          >
-            <ListItemIcon
-              sx={{
-                minWidth: 0,
-                mr: isCollapsed ? 0 : 2,
-                justifyContent: 'center',
-                color: 'inherit'
-              }}
-            >
-              <IconComponent sx={{ fontSize: 20 }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary={item.label}
-              sx={{ 
-                opacity: isCollapsed ? 0 : 1,
-                '& .MuiTypography-root': {
-                  fontSize: '14px',
-                  fontWeight: 400,
-                  textTransform: 'none'
-                }
-              }} 
-            />
-          </ListItemButton>
-        </Tooltip>
-      </ListItem>
-    )
+  function handleLinkClick(path) {
+    if (path && path !== '#') navigate(path)
   }
 
-  const drawerContent = (
+  const drawerWidth = openPanel ? ICON_WIDTH + PANEL_WIDTH : ICON_WIDTH
+  const panelData = openPanel ? PANELS[openPanel] : null
+  const pathname = location.pathname
+
+  // ── Icon sidebar ────────────────────────────────────────────────────────────
+  const iconSidebar = (
     <Box
       sx={{
-        width: isOpen ? DRAWER_WIDTH : DRAWER_WIDTH_COLLAPSED,
+        width: ICON_WIDTH,
+        flexShrink: 0,
         height: '100%',
-        minHeight: 0,
-        // eslint-disable-next-line design-system/no-hardcoded-colors
-        background: 'linear-gradient(180deg, #000000 0%, #111111 40%, #000000 70%, #040037ff 90%, #040037ff 100%)',
-        color: 'var(--color-white)',
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden'
+        // eslint-disable-next-line design-system/no-hardcoded-colors
+        background: 'linear-gradient(180deg, #000 0%, #111 40%, #000 70%, #040037ff 90%, #040037ff 100%)',
+        borderRight: openPanel ? '1px solid rgba(255,255,255,0.08)' : 'none',
       }}
     >
-      {/* Header with Logo - fixed, no shrink */}
-      <Box
-        sx={{
-          flexShrink: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: isOpen ? 'flex-start' : 'center',
-          p: 2,
-          minHeight: 32
-        }}
-      >
-        <Box
+      {/* Logo */}
+      <Box sx={{ height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <img src={KitmanLogo} alt="Kitman Labs" style={{ height: 28, width: 'auto', objectFit: 'contain' }} />
+      </Box>
+
+      {/* Main nav icons */}
+      <Box sx={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', py: 0.5 }}>
+        {MAIN_ITEMS.map(item => (
+          <IconButton_
+            key={item.id}
+            item={item}
+            active={isIconActive(item, pathname, openPanel)}
+            onClick={() => handleIconClick(item)}
+          />
+        ))}
+      </Box>
+
+      {/* Bottom icons */}
+      <Box sx={{ flexShrink: 0, pb: 1 }}>
+        {BOTTOM_ITEMS.map(item => (
+          <IconButton_
+            key={item.id}
+            item={item}
+            active={isIconActive(item, pathname, openPanel)}
+            onClick={() => handleIconClick(item)}
+          />
+        ))}
+      </Box>
+    </Box>
+  )
+
+  // ── Expanded panel ──────────────────────────────────────────────────────────
+  const expandedPanel = panelData && (
+    <Box
+      sx={{
+        width: PANEL_WIDTH,
+        flexShrink: 0,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        // eslint-disable-next-line design-system/no-hardcoded-colors
+        backgroundColor: '#1a2035',
+        overflowY: 'auto',
+      }}
+    >
+      {/* Panel title */}
+      <Box sx={{ px: 2, pt: 2.5, pb: 1.5, flexShrink: 0 }}>
+        <Typography
           sx={{
-            width: isOpen ? 'auto' : 32,
-            height: 32,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: 11,
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: 0.8,
           }}
         >
-          <img
-            src={KitmanLogo}
-            alt="Kitman labs"
-            style={{
-              height: '100%',
-              width: 'auto',
-              objectFit: 'contain'
-            }}
-          />
-        </Box>
+          {panelData.title}
+        </Typography>
       </Box>
 
-      {/* Main Navigation Items - scrollable middle with minHeight 0 so flex allows overflow */}
-      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', overflowX: 'hidden' }}>
-        <List sx={{ py: 1 }}>
-          {navigationItems.map((item) => renderNavItem(item, !isOpen))}
-        </List>
-      </Box>
-
-      {/* Bottom Items - fixed at bottom, no shrink */}
-      <Box sx={{ flexShrink: 0 }}>
-        <List sx={{ py: 1 }}>
-          {bottomItems.map((item) => renderNavItem(item, !isOpen))}
-        </List>
-        
-        {/* Collapse/Expand Button - Only at bottom, left aligned */}
-        <Box sx={{ p: 1, textAlign: 'left', pl: 2 }}>
-          <IconButton
-            onClick={onToggle}
-            sx={{
-              // eslint-disable-next-line design-system/no-hardcoded-colors
-              color: '#9ca3af',
-              '&:hover': { color: 'var(--color-white)' },
-              p: 0.5
-            }}
-          >
-            {isOpen ? <ChevronLeftOutlined /> : <ChevronRightOutlined />}
-          </IconButton>
-        </Box>
+      {/* Panel links */}
+      <Box sx={{ flex: 1, overflowY: 'auto' }}>
+        {panelData.links.map(link => {
+          const active = link.path !== '#' && pathname.startsWith(link.path)
+          return (
+            <Box
+              key={link.label}
+              onClick={() => handleLinkClick(link.path)}
+              sx={{
+                px: 2,
+                py: 1,
+                mx: 0.5,
+                cursor: link.path !== '#' ? 'pointer' : 'default',
+                backgroundColor: active ? '#1976d2' : 'transparent',
+                borderRadius: 0,
+                '&:hover': {
+                  backgroundColor: active ? '#1976d2' : 'rgba(255,255,255,0.06)',
+                },
+                transition: 'background-color 0.12s',
+              }}
+            >
+              <Typography
+                sx={{
+                  color: active ? '#fff' : 'rgba(255,255,255,0.75)',
+                  fontWeight: active ? 600 : 400,
+                  fontSize: 14,
+                }}
+              >
+                {link.label}
+              </Typography>
+            </Box>
+          )
+        })}
       </Box>
     </Box>
   )
 
   return (
     <Drawer
-      variant={variant}
-      open={isOpen}
-      onClose={onToggle}
+      variant="permanent"
       sx={{
-        width: isOpen ? DRAWER_WIDTH : DRAWER_WIDTH_COLLAPSED,
+        width: drawerWidth,
         flexShrink: 0,
-        mr: 0,
         '& .MuiDrawer-paper': {
-          marginRight: 0,
-          width: isOpen ? DRAWER_WIDTH : DRAWER_WIDTH_COLLAPSED,
+          width: drawerWidth,
           boxSizing: 'border-box',
           border: 'none',
-          boxShadow: 'var(--shadow-nav)',
-          transition: 'none',
-          height: '100vh',
-          maxHeight: '100vh',
+          overflow: 'hidden',
           display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden'
-        }
+          flexDirection: 'row',
+          height: '100vh',
+        },
       }}
-      {...props}
     >
-      {drawerContent}
+      {iconSidebar}
+      {expandedPanel}
     </Drawer>
   )
 }
-
-MainNavigation.propTypes = {
-  isOpen: PropTypes.bool,
-  onToggle: PropTypes.func,
-  variant: PropTypes.oneOf(['permanent', 'persistent', 'temporary'])
-}
-
-export default MainNavigation

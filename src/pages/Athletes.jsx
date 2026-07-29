@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Box, Typography, Paper, Alert, Snackbar } from '@mui/material'
-import { AthleteDataGrid } from '../components'
+import { AthleteDataGrid, ShareProfileDrawer } from '../components'
 import athletesData from '../data/athletes.json'
 import '../styles/design-tokens.css'
 
@@ -10,14 +10,20 @@ import '../styles/design-tokens.css'
  */
 function Athletes() {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' })
+  const [shareDrawer, setShareDrawer] = useState({ open: false, athletes: [] })
 
   const handleBulkAction = (action, selectedRows) => {
     const selectedAthletes = athletesData.filter(athlete => selectedRows.includes(athlete.id))
     const count = selectedAthletes.length
-    
+
+    if (action === 'share') {
+      setShareDrawer({ open: true, athletes: selectedAthletes })
+      return
+    }
+
     let message = ''
     let severity = 'info'
-    
+
     switch (action) {
       case 'view':
         message = `Viewing ${count} selected athlete${count > 1 ? 's' : ''}`
@@ -46,8 +52,18 @@ function Athletes() {
         message = `Unknown action: ${action}`
         severity = 'error'
     }
-    
+
     setSnackbar({ open: true, message, severity })
+  }
+
+  const handleShareProfile = (athlete) => {
+    setShareDrawer({ open: true, athletes: [athlete] })
+  }
+
+  const handleShare = ({ athletes }) => {
+    setShareDrawer({ open: false, athletes: [] })
+    const count = athletes.length
+    setSnackbar({ open: true, message: `Profile shared for ${count} athlete${count > 1 ? 's' : ''}`, severity: 'success' })
   }
 
   return (
@@ -60,15 +76,23 @@ function Athletes() {
           overflow: 'hidden'
         }}
       >
-        <AthleteDataGrid 
+        <AthleteDataGrid
           data={athletesData}
           height={700}
           showToolbar={true}
           groupingEnabled={true}
           onBulkAction={handleBulkAction}
+          onShareProfile={handleShareProfile}
         />
       </Paper>
-      
+
+      <ShareProfileDrawer
+        open={shareDrawer.open}
+        athletes={shareDrawer.athletes}
+        onClose={() => setShareDrawer({ open: false, athletes: [] })}
+        onShare={handleShare}
+      />
+
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}

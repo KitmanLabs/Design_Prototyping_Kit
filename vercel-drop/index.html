@@ -1,0 +1,1044 @@
+<!-- AI Form Summary Prototype — Prototype 1 -->
+<!-- Deploy to Vercel as a static site, no build required -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Form Summary — Prototype 1</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
+  <!-- React -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Emotion (required by MUI) -->
+  <script crossorigin src="https://unpkg.com/@emotion/react@11/dist/emotion-react.umd.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@emotion/styled@11/dist/emotion-styled.umd.min.js"></script>
+  <!-- MUI -->
+  <script crossorigin src="https://unpkg.com/@mui/material@5/umd/material-ui.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@mui/icons-material@5/umd/material-ui-icons.production.min.js"></script>
+  <!-- Babel standalone (transpiles JSX in the browser) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root {
+      --color-primary: #3B4960;
+      --color-primary-hover: #2f3a4d;
+      --color-primary-dark: #232b3a;
+      --color-secondary: #F1F2F3;
+      --color-text-primary: #333333;
+      --color-text-secondary: #666666;
+      --color-text-muted: #999999;
+      --color-text-disabled: #cccccc;
+      --color-white: #ffffff;
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f8f9fa;
+      --color-background-tertiary: #f0f0f0;
+      --color-background-hover: #f5f5f5;
+      --color-border-primary: #e0e0e0;
+      --color-border-secondary: #f0f0f0;
+      --color-border-focus: #3B4960;
+      --color-success: #2e7d32;
+      --color-warning: #ed6c02;
+      --color-error: #d32f2f;
+      --color-ai-purple: #3c3489;
+      --color-ai-purple-bg: #eeedfe;
+      --font-family-primary: 'Roboto', -apple-system, sans-serif;
+      --font-size-xs: 12px;
+      --font-size-sm: 14px;
+      --font-size-md: 16px;
+      --font-size-lg: 18px;
+      --font-size-2xl: 24px;
+      --font-weight-medium: 500;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+    }
+    * { box-sizing: border-box; }
+    html, body, #root { height: 100%; margin: 0; }
+    body { font-family: var(--font-family-primary); background: var(--color-background-primary); }
+    #loading { display: flex; align-items: center; justify-content: center; height: 100%;
+      font-family: var(--font-family-primary); color: var(--color-text-secondary); font-size: 14px; }
+    @keyframes aiPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  </style>
+</head>
+<body>
+  <div id="root"><div id="loading">Loading prototype…</div></div>
+
+  <script type="text/babel" data-presets="react" id="app-code">
+    const { useState, useEffect, useMemo } = React;
+    const MUI = window.MaterialUI;
+    const ICONS = window.MaterialUIIcons || {};
+    const {
+      ThemeProvider, createTheme, CssBaseline,
+      Box, AppBar, Toolbar, Typography, IconButton, Avatar, Menu, MenuItem, Badge,
+      Select, FormControl, InputLabel, Drawer, Divider, TextField, Stack, Chip,
+      Checkbox, Collapse, InputAdornment, LinearProgress, Tooltip, Alert, Link,
+      Button, Popover, Snackbar, CircularProgress, Fab,
+      Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+      Tabs, Tab
+    } = MUI;
+
+    // Icons are rendered from the Material Icons font (ligatures), so they work
+    // without the @mui/icons-material UMD bundle (which is not published).
+    // window.MaterialUIIcons is used automatically when present, otherwise we
+    // fall back to the font — either way every icon renders.
+    const makeIcon = (ligature, muiName) => {
+      const Svg = ICONS[muiName];
+      if (Svg) return Svg;
+      return function FontIcon(props) {
+        const p = props || {};
+        const sx = p.sx || {};
+        const size = sx.fontSize != null ? sx.fontSize : (p.fontSize === 'small' ? 20 : p.fontSize === 'large' ? 36 : 24);
+        return (
+          <Box component="span" className="material-icons" sx={{
+            ...sx, fontSize: size, lineHeight: 1, width: '1em', height: '1em',
+            color: 'inherit', userSelect: 'none', display: 'inline-flex',
+            alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>{ligature}</Box>
+        );
+      };
+    };
+    const AutoAwesomeOutlined = makeIcon('auto_awesome', 'AutoAwesomeOutlined');
+    const CloseOutlined = makeIcon('close', 'CloseOutlined');
+    const SearchOutlined = makeIcon('search', 'SearchOutlined');
+    const NotificationsOutlined = makeIcon('notifications', 'NotificationsOutlined');
+    const KeyboardArrowDownOutlined = makeIcon('keyboard_arrow_down', 'KeyboardArrowDownOutlined');
+    const KeyboardArrowRightOutlined = makeIcon('keyboard_arrow_right', 'KeyboardArrowRightOutlined');
+    const ExpandLessOutlined = makeIcon('expand_less', 'ExpandLessOutlined');
+    const ExpandMoreOutlined = makeIcon('expand_more', 'ExpandMoreOutlined');
+    const ArrowDropDownOutlined = makeIcon('arrow_drop_down', 'ArrowDropDownOutlined');
+    const InfoOutlined = makeIcon('info', 'InfoOutlined');
+    const WarningAmberOutlined = makeIcon('warning', 'WarningAmberOutlined');
+    const ScheduleOutlined = makeIcon('schedule', 'ScheduleOutlined');
+    const CheckOutlined = makeIcon('check', 'CheckOutlined');
+    const CheckCircleOutlined = makeIcon('check_circle', 'CheckCircleOutlined');
+    const RefreshOutlined = makeIcon('refresh', 'RefreshOutlined');
+    const ChatBubbleOutlined = makeIcon('chat_bubble_outline', 'ChatBubbleOutlineOutlined');
+    const DashboardOutlined = makeIcon('dashboard', 'DashboardOutlined');
+    const GroupsOutlined = makeIcon('groups', 'GroupsOutlined');
+    const DescriptionOutlined = makeIcon('description', 'DescriptionOutlined');
+    const CalendarMonthOutlined = makeIcon('calendar_month', 'CalendarMonthOutlined');
+    const BarChartOutlined = makeIcon('bar_chart', 'BarChartOutlined');
+    const SettingsOutlined = makeIcon('settings', 'SettingsOutlined');
+
+    /* ============================== MOCK DATA ============================== */
+    const CURRENT_USER = { name: 'Sarah Mitchell', email: 'sarah.mitchell@example.com' };
+    const SQUADS = ['First Team', 'Reserve Team', 'Academy U21'];
+
+    const FORMS_TABLE = [
+      { id: 'medical-assessment', form: 'Medical Assessment', productArea: 'Medical', category: 'Medical', description: 'General medical assessment', owner: 'Dr. Benjamin Carter', lastUpdated: '24 Feb 2026' },
+      { id: 'preseason-assessment', form: 'Preseason Assessment', productArea: 'Performance', category: 'Screening', description: 'Preseason physical and mental assessment', owner: 'Coach Michael Thompson', lastUpdated: '30 Jan 2026' },
+      { id: 'end-of-season-survey', form: 'End-of-Season Survey', productArea: 'General', category: 'Wellbeing', description: 'Feedback survey for the end of the season', owner: 'Jennifer Rodriguez', lastUpdated: '25 Nov 2025' },
+      { id: 'scholarship-reviews', form: 'Scholarship Reviews', productArea: 'Medical', category: 'Other', description: 'This form outlines a structured review process', owner: 'Professor David Evans', lastUpdated: '7 May 2025' },
+      { id: 'daily-wellness', form: 'Daily Wellness Check', productArea: 'Performance', category: 'Wellbeing', description: 'Daily readiness and wellness questionnaire', owner: 'Daniel Wilson', lastUpdated: '15 Jan 2026' },
+      { id: 'post-game-rpe', form: 'Post-Game RPE', productArea: 'Performance', category: 'Other', description: 'Rate of perceived exertion after matches', owner: 'Coach Christopher Moore', lastUpdated: '10 Jan 2026' },
+      { id: 'injury-followup', form: 'Injury Follow-up', productArea: 'Medical', category: 'Other', description: 'Post-injury assessment and clearance', owner: 'Dr. Matthew Hall', lastUpdated: '20 Feb 2026' },
+      { id: 'preseason-medical', form: 'Pre-Season Medical Screening', productArea: 'Medical', category: 'Medical', description: 'Baseline health and fitness screening', owner: 'Dr. Sarah Mitchell', lastUpdated: '18 Feb 2026' },
+      { id: 'consent-release', form: 'Consent and Data Release', productArea: 'General', category: 'Other', description: 'Player consent for data use and media', owner: 'Evelyn Grant', lastUpdated: '2 Feb 2026' },
+      { id: 'training-load', form: 'Training Load Monitoring', productArea: 'Performance', category: 'Wellbeing', description: 'Weekly load and recovery tracking', owner: 'Andrew Kim', lastUpdated: '12 Jan 2026' },
+    ];
+
+    const SELECTOR_TEAMS = ['All teams', 'First Team', 'Reserve Team'];
+    const SELECTOR_ATHLETES = [
+      { id: 'sa-1', name: 'Luis Abram', nationality: 'PER', team: 'First Team' },
+      { id: 'sa-2', name: 'Derrick Abubakar', nationality: 'USA', team: 'Reserve Team' },
+      { id: 'sa-3', name: 'Thiago Almada', nationality: 'ARG', team: 'First Team' },
+      { id: 'sa-4', name: 'Osvaldo Alonso', nationality: 'CUB', team: 'Reserve Team' },
+      { id: 'sa-5', name: 'Machop Chol', nationality: 'AUS', team: 'First Team' },
+      { id: 'sa-6', name: 'Harry Anderson', nationality: 'USA', team: 'Reserve Team' },
+      { id: 'sa-7', name: 'Bill Bryson', nationality: 'GBR', team: 'First Team' },
+      { id: 'sa-8', name: 'Bernard William', nationality: 'USA', team: 'Reserve Team' },
+      { id: 'sa-9', name: 'Eric Xavier', nationality: 'BRA', team: 'First Team' },
+      { id: 'sa-10', name: 'Marcus Johnson', nationality: 'USA', team: 'First Team' },
+      { id: 'sa-11', name: 'Jordan Peters', nationality: 'CAN', team: 'Reserve Team' },
+      { id: 'sa-12', name: 'Darius Webb', nationality: 'USA', team: 'First Team' },
+      { id: 'sa-13', name: 'Kofi Mensah', nationality: 'GHA', team: 'Reserve Team' },
+      { id: 'sa-14', name: 'Luca Rossi', nationality: 'ITA', team: 'First Team' },
+      { id: 'sa-15', name: 'Ahmed Hassan', nationality: 'EGY', team: 'Reserve Team' },
+      { id: 'sa-16', name: "Ryan O'Brien", nationality: 'IRL', team: 'First Team' },
+    ];
+
+    const FORM_CATEGORIES = ['All categories', 'Medical', 'Training', 'Assessment', 'Rehabilitation', 'Wellness', 'Administrative'];
+    const SELECTOR_FORMS = [
+      { id: 'medical-assessment', name: 'Medical Assessment', category: 'Medical' },
+      { id: 'preseason-assessment', name: 'Preseason Assessment', category: 'Assessment' },
+      { id: 'training', name: 'Training', category: 'Training' },
+      { id: 'end-of-season-survey', name: 'End of Season Survey', category: 'Assessment' },
+      { id: 'transfer-screening', name: 'Transfer Screening', category: 'Medical' },
+      { id: 'wellness-check', name: 'Wellness Check', category: 'Wellness' },
+      { id: 'psychological-health-check', name: 'Psychological Health Check', category: 'Wellness' },
+      { id: 'strength-assessment', name: 'Strength Assessment', category: 'Assessment' },
+    ];
+    const FORM_NAME_TO_ID = Object.fromEntries(SELECTOR_FORMS.map((f) => [f.name, f.id]));
+    const PLAYER_FORM_NAMES = {
+      'Harry Anderson': ['Medical Assessment', 'Preseason Assessment'],
+      'Bill Bryson': ['Medical Assessment', 'Training'],
+      'Bernard William': ['Preseason Assessment', 'End of Season Survey'],
+      'Eric Xavier': ['Transfer Screening', 'Medical Assessment'],
+      'Marcus Johnson': ['Training', 'Wellness Check'],
+      'Jordan Peters': ['Medical Assessment', 'Psychological Health Check'],
+      'Darius Webb': ['End of Season Survey', 'Strength Assessment'],
+      'Kofi Mensah': ['Medical Assessment', 'Transfer Screening'],
+      'Luca Rossi': ['Preseason Assessment', 'Training'],
+      'Ahmed Hassan': ['Wellness Check', 'Medical Assessment'],
+      "Ryan O'Brien": ['Strength Assessment', 'Preseason Assessment'],
+      'Thiago Almada': ['Transfer Screening', 'End of Season Survey'],
+      'Osvaldo Alonso': ['Medical Assessment', 'Training'],
+      'Machop Chol': ['Psychological Health Check', 'Wellness Check'],
+      'Derrick Abubakar': ['Medical Assessment', 'Preseason Assessment'],
+      'Luis Abram': ['Training', 'Strength Assessment'],
+    };
+    const PLAYER_FORM_MAP = (() => {
+      const m = {};
+      SELECTOR_ATHLETES.forEach((a) => {
+        m[a.id] = (PLAYER_FORM_NAMES[a.name] || []).map((n) => FORM_NAME_TO_ID[n]).filter(Boolean);
+      });
+      return m;
+    })();
+    const getPlayerById = (id) => SELECTOR_ATHLETES.find((a) => a.id === id);
+    const getSelectorFormById = (id) => SELECTOR_FORMS.find((f) => f.id === id);
+    const getFormsForPlayers = (ids) => {
+      if (!ids.length) return [];
+      const set = new Set();
+      ids.forEach((pid) => (PLAYER_FORM_MAP[pid] || []).forEach((fid) => set.add(fid)));
+      return SELECTOR_FORMS.filter((f) => set.has(f.id));
+    };
+    const getPlayersForForm = (formId, selectedIds) => {
+      let players = SELECTOR_ATHLETES.filter((a) => (PLAYER_FORM_MAP[a.id] || []).includes(formId));
+      if (selectedIds) {
+        const sel = new Set(selectedIds);
+        players = players.filter((a) => sel.has(a.id));
+      }
+      return players;
+    };
+
+    const DATE_PRESETS = [
+      { id: 'today', label: 'Today' },
+      { id: 'last-7', label: 'Last 7 days' },
+      { id: 'last-30', label: 'Last 30 days' },
+      { id: 'last-6m', label: 'Last 6 months' },
+      { id: 'last-2y', label: 'Last 2 years' },
+      { id: 'custom', label: 'Custom' },
+    ];
+
+    const AI_SUMMARY_HISTORY = [
+      { id: 1, title: 'Medical Assessment · Preseason Assessment', subtitle: '22 players · Last 30 days · Today, 09:00', status: 'ready' },
+      { id: 2, title: 'Wellness Check · Psychological Health Check', subtitle: '14 players · Last 7 days · Yesterday, 14:30', status: 'ready' },
+      { id: 3, title: 'End of Season Survey', subtitle: '8 players · Last 6 months · 12 Jun, 11:00', status: 'ready' },
+      { id: 4, title: 'Strength Assessment · Training', subtitle: '6 players · Last 30 days · Generating…', status: 'generating' },
+    ];
+
+    const SUMMARY_FINDINGS = [
+      { type: 'info', title: 'Concussion History', body: 'Significant history of concussion. Sustained a concussion in high school (2012) resulting in loss of consciousness and hospitalization for concussion on March 11, 2025.' },
+      { type: 'info', title: 'Musculoskeletal History', body: 'Right Low Back: History of imaging (X-ray, MRI, CT, or bone scan) performed on December 24, 2024 for chronic issues.' },
+      { type: 'warn', title: 'Vaccination Status', body: 'Incomplete vaccination history — Mumps: Unknown, Pneumonia: Tetanus: No' },
+    ];
+    const IMMEDIATE_ACTIONS = [
+      'Player should be immediately held from all contact and throwing activities.',
+      'Urgent comprehensive orthopedic evaluation of the right shoulder is required.',
+      'Urgent comprehensive neurological evaluation including a detailed concussion assessment is required.',
+    ];
+    const DIAGNOSTIC_STEPS = [
+      'Obtain an MRI of the right shoulder to assess rotator cuff integrity and extent of injury.',
+      'Conduct a full neuropsychological assessment (e.g. ImPACT testing) and a thorough neurological examination.',
+      'Review medical records from the March 11, 2025 concussion hospitalization.',
+    ];
+
+    /* ============================== STYLES ============================== */
+    const fieldStyles = {
+      '& .MuiFilledInput-root': {
+        backgroundColor: 'var(--color-background-secondary)', borderRadius: 'var(--radius-sm)',
+        '&:hover': { backgroundColor: 'var(--color-background-tertiary)' },
+        '&.Mui-focused': { backgroundColor: 'var(--color-background-primary)' },
+        '&:before': { borderBottom: '1px solid var(--color-border-primary)' },
+        '&:hover:not(.Mui-disabled):before': { borderBottom: '1px solid var(--color-border-focus)' },
+        '&.Mui-focused:after': { borderBottom: '2px solid var(--color-border-focus)' },
+      },
+      '& .MuiInputBase-input': { color: 'var(--color-text-primary)', fontSize: 'var(--font-size-sm)' },
+    };
+    const labelSx = { fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)', fontWeight: 500, color: 'var(--color-text-primary)' };
+    const mutedSx = { fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)' };
+    const checkboxSx = { color: 'var(--color-text-secondary)', '&.Mui-checked': { color: 'var(--color-primary)' } };
+    const bulletSx = { fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-primary)', lineHeight: 1.6, mb: 0.5 };
+    const navyBtnSx = {
+      textTransform: 'none', fontFamily: 'var(--font-family-primary)',
+      bgcolor: 'var(--color-primary)', color: 'var(--color-white)',
+      '&:hover': { bgcolor: 'var(--color-primary-hover)' },
+      '&.Mui-disabled': { bgcolor: 'var(--color-border-primary)', color: 'var(--color-text-secondary)' },
+    };
+    const greyOutlinedBtnSx = {
+      textTransform: 'none', fontFamily: 'var(--font-family-primary)', color: 'var(--color-text-secondary)',
+      backgroundColor: 'transparent', border: '1px solid var(--color-border-primary)', boxShadow: 'none',
+      '&:hover': { borderColor: 'var(--color-text-secondary)', backgroundColor: 'transparent', boxShadow: 'none' },
+    };
+    const textBtnSx = {
+      textTransform: 'none', fontFamily: 'var(--font-family-primary)', color: 'var(--color-text-secondary)',
+      backgroundColor: 'transparent', boxShadow: 'none', '&:hover': { backgroundColor: 'transparent', boxShadow: 'none' },
+    };
+    const greySecondaryBtnSx = {
+      textTransform: 'none', fontFamily: 'var(--font-family-primary)',
+      backgroundColor: 'var(--color-border-primary)', color: 'var(--color-text-primary)', boxShadow: 'none',
+      '&:hover': { backgroundColor: 'var(--color-text-disabled)', boxShadow: 'none' },
+    };
+    const headerTitleSx = { fontWeight: 600, fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-lg)', color: 'var(--color-text-primary)' };
+    const headerMoreChipSx = { height: 20, fontFamily: 'var(--font-family-primary)', fontSize: '11px', fontWeight: 600, bgcolor: 'var(--color-background-secondary)', color: 'var(--color-text-secondary)', cursor: 'default', '& .MuiChip-label': { px: '8px' } };
+    const menuItemSx = { fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' };
+
+    /* ============================== SMALL COMPONENTS ============================== */
+    function PillToggle({ label, selected, onClick }) {
+      return (
+        <Box onClick={onClick} sx={{
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 0.5,
+          minWidth: 80, height: 34, px: 1.5, borderRadius: 999, cursor: 'pointer',
+          fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)', fontWeight: 500,
+          bgcolor: selected ? 'var(--color-primary)' : 'var(--color-background-secondary)',
+          color: selected ? 'var(--color-white)' : 'var(--color-text-secondary)',
+          '&:hover': { bgcolor: selected ? 'var(--color-primary-hover)' : 'var(--color-background-tertiary)' },
+        }}>
+          {selected && <CheckOutlined sx={{ fontSize: 16 }} />}
+          {label}
+        </Box>
+      );
+    }
+
+    function DayPill({ label, selected, onClick }) {
+      return (
+        <Box onClick={onClick} sx={{
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          minWidth: 42, height: 32, px: 1, borderRadius: 999, cursor: 'pointer',
+          fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', fontWeight: 500,
+          bgcolor: selected ? 'var(--color-primary)' : 'var(--color-background-secondary)',
+          color: selected ? 'var(--color-white)' : 'var(--color-text-secondary)',
+          '&:hover': { bgcolor: selected ? 'var(--color-primary-hover)' : 'var(--color-background-tertiary)' },
+        }}>{label}</Box>
+      );
+    }
+
+    function StepHeader({ index, title, complete, active, summary, onClick }) {
+      return (
+        <Box onClick={onClick} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2, py: 1.5, cursor: 'pointer' }}>
+          <Box sx={{
+            width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, fontSize: 'var(--font-size-xs)', fontWeight: 600, fontFamily: 'var(--font-family-primary)',
+            bgcolor: complete || active ? 'var(--color-primary)' : 'var(--color-background-tertiary)',
+            color: complete || active ? 'var(--color-white)' : 'var(--color-text-secondary)',
+          }}>
+            {complete ? <CheckCircleOutlined sx={{ fontSize: 16 }} /> : index}
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography sx={labelSx}>{title}</Typography>
+            {!active && summary && (
+              <Typography sx={{ ...mutedSx, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{summary}</Typography>
+            )}
+          </Box>
+          {active
+            ? <KeyboardArrowDownOutlined fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
+            : <KeyboardArrowRightOutlined fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />}
+        </Box>
+      );
+    }
+
+    /* date helpers (native inputs, YYYY-MM-DD) */
+    const fmt = (d) => d.toISOString().slice(0, 10);
+    const presetRange = (id) => {
+      const end = new Date();
+      const start = new Date();
+      if (id === 'last-7') start.setDate(end.getDate() - 7);
+      else if (id === 'last-30') start.setDate(end.getDate() - 30);
+      else if (id === 'last-6m') start.setMonth(end.getMonth() - 6);
+      else if (id === 'last-2y') start.setFullYear(end.getFullYear() - 2);
+      return [fmt(start), fmt(end)];
+    };
+    const prettyDate = (str) => {
+      if (!str) return '';
+      const d = new Date(str + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+    };
+    const weekdayName = (str) => {
+      if (!str) return 'Monday';
+      return new Date(str + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' });
+    };
+    const prettyTime = (str) => {
+      if (!str) return '9:00 AM';
+      const [h, m] = str.split(':');
+      const hh = parseInt(h, 10);
+      const ap = hh >= 12 ? 'PM' : 'AM';
+      const h12 = hh % 12 === 0 ? 12 : hh % 12;
+      return `${h12}:${m} ${ap}`;
+    };
+
+    /* ============================== AI SUMMARY DRAWER ============================== */
+    function AiSummaryDrawer({ open, onClose, initialSummary }) {
+      const [activeStep, setActiveStep] = useState(1);
+      const [selectorOpen, setSelectorOpen] = useState(false);
+      const [playerSearch, setPlayerSearch] = useState('');
+      const [selectedPlayers, setSelectedPlayers] = useState(new Set());
+      const [teamFilter, setTeamFilter] = useState('All teams');
+      const [sortOrder, setSortOrder] = useState('az');
+      const [athleteListOpen, setAthleteListOpen] = useState(true);
+      const [formSearch, setFormSearch] = useState('');
+      const [selectedForms, setSelectedForms] = useState(new Set());
+      const [formCategory, setFormCategory] = useState('All categories');
+      const [formSort, setFormSort] = useState('az');
+      const [datePreset, setDatePreset] = useState(null);
+      const [fromDate, setFromDate] = useState('');
+      const [toDate, setToDate] = useState('');
+      const [repeatEnabled, setRepeatEnabled] = useState(false);
+      const [schedTitle, setSchedTitle] = useState('');
+      const [schedDate, setSchedDate] = useState('');
+      const [schedTime, setSchedTime] = useState('');
+      const [recurrence, setRecurrence] = useState('none');
+      const [weeklyDays, setWeeklyDays] = useState(new Set());
+      const [customInterval, setCustomInterval] = useState(1);
+      const [customUnit, setCustomUnit] = useState('days');
+      const [notifyChannels, setNotifyChannels] = useState(new Set());
+      const [generating, setGenerating] = useState(false);
+      const [summary, setSummary] = useState(false);
+      const [bannerDismissed, setBannerDismissed] = useState(false);
+
+      const resetAll = () => {
+        setActiveStep(1); setSelectorOpen(false); setPlayerSearch(''); setSelectedPlayers(new Set());
+        setTeamFilter('All teams'); setSortOrder('az'); setAthleteListOpen(true);
+        setFormSearch(''); setSelectedForms(new Set()); setFormCategory('All categories'); setFormSort('az');
+        setDatePreset(null); setFromDate(''); setToDate('');
+        setRepeatEnabled(false); setSchedTitle(''); setSchedDate(''); setSchedTime('');
+        setRecurrence('none'); setWeeklyDays(new Set()); setCustomInterval(1); setCustomUnit('days');
+        setNotifyChannels(new Set()); setGenerating(false); setSummary(false); setBannerDismissed(false);
+      };
+
+      useEffect(() => { if (open) { resetAll(); if (initialSummary) setSummary(true); } }, [open, initialSummary]);
+
+      const toggleIn = (setter) => (id) => setter((prev) => {
+        const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next;
+      });
+      const togglePlayer = toggleIn(setSelectedPlayers);
+      const toggleForm = toggleIn(setSelectedForms);
+      const toggleWeeklyDay = toggleIn(setWeeklyDays);
+      const toggleNotify = toggleIn(setNotifyChannels);
+
+      const visibleAthletes = useMemo(() => {
+        const q = playerSearch.trim().toLowerCase();
+        const surname = (n) => n.trim().split(' ').slice(-1)[0].toLowerCase();
+        let list = SELECTOR_ATHLETES.filter((a) =>
+          (!q || a.name.toLowerCase().includes(q)) && (teamFilter === 'All teams' || a.team === teamFilter));
+        list = [...list].sort((a, b) => surname(a.name).localeCompare(surname(b.name)));
+        if (sortOrder === 'za') list.reverse();
+        return list;
+      }, [playerSearch, teamFilter, sortOrder]);
+
+      const allVisibleSelected = visibleAthletes.length > 0 && visibleAthletes.every((a) => selectedPlayers.has(a.id));
+      const someVisibleSelected = visibleAthletes.some((a) => selectedPlayers.has(a.id));
+      const toggleSelectAllVisible = () => setSelectedPlayers((prev) => {
+        const next = new Set(prev);
+        if (allVisibleSelected) visibleAthletes.forEach((a) => next.delete(a.id));
+        else visibleAthletes.forEach((a) => next.add(a.id));
+        return next;
+      });
+
+      const visibleForms = useMemo(() => {
+        const q = formSearch.trim().toLowerCase();
+        let list = getFormsForPlayers([...selectedPlayers]);
+        if (q) list = list.filter((f) => f.name.toLowerCase().includes(q));
+        if (formCategory !== 'All categories') list = list.filter((f) => f.category === formCategory);
+        list = [...list].sort((a, b) => a.name.localeCompare(b.name));
+        if (formSort === 'za') list.reverse();
+        return list;
+      }, [formSearch, formCategory, formSort, selectedPlayers]);
+
+      const step1Complete = selectedPlayers.size > 0;
+      const step2Complete = selectedForms.size > 0;
+      const dateLabel = useMemo(() => {
+        if (datePreset && datePreset !== 'custom') return DATE_PRESETS.find((p) => p.id === datePreset)?.label || '';
+        if (fromDate && toDate) return `${prettyDate(fromDate)} – ${prettyDate(toDate)}`;
+        return '';
+      }, [datePreset, fromDate, toDate]);
+      const step3Complete = dateLabel.length > 0;
+      const canGenerate = step1Complete && step2Complete && step3Complete;
+
+      const step1Summary = selectedPlayers.size === 0 ? '' :
+        (selectedPlayers.size === 1 ? getPlayerById([...selectedPlayers][0])?.name : `${selectedPlayers.size} players selected`);
+      const step2Summary = selectedForms.size === 0 ? '' :
+        (selectedForms.size === 1 ? getSelectorFormById([...selectedForms][0])?.name : `${selectedForms.size} forms selected`);
+
+      const applyPreset = (id) => {
+        setDatePreset(id);
+        if (id === 'custom') return;
+        if (id === 'today') { const t = fmt(new Date()); setFromDate(t); setToDate(t); return; }
+        const [s, e] = presetRange(id); setFromDate(s); setToDate(e);
+      };
+
+      const handleGenerate = () => {
+        setGenerating(true); setSummary(false);
+        const delay = 5000 + Math.random() * 5000;
+        setTimeout(() => { setSummary(true); setGenerating(false); }, delay);
+      };
+
+      const recurrenceDayName = weekdayName(schedDate);
+      const firstRunDate = schedDate ? prettyDate(schedDate) : 'today';
+      const firstRunTime = prettyTime(schedTime);
+
+      const summaryFormNames = [...selectedForms].map((id) => getSelectorFormById(id)?.name).filter(Boolean);
+      const summaryPlayerNames = [...selectedPlayers].map((id) => getPlayerById(id)?.name).filter(Boolean);
+      const tooltipList = (names) => (<Box sx={{ py: 0.25 }}>{names.map((n, i) => <Box key={i} sx={{ whiteSpace: 'nowrap' }}>{n}</Box>)}</Box>);
+
+      const renderHeaderTitle = () => {
+        if (!(summary && !generating)) return <Typography sx={{ flex: 1, ...headerTitleSx }}>{summary || generating ? 'Player response summary' : 'Create AI summary'}</Typography>;
+        if (summaryFormNames.length === 0 && summaryPlayerNames.length === 0) return <Typography sx={{ flex: 1, ...headerTitleSx }}>Player response summary</Typography>;
+        const fF = summaryFormNames.slice(0, 2), fR = summaryFormNames.slice(2);
+        const pF = summaryPlayerNames.slice(0, 2), pR = summaryPlayerNames.slice(2);
+        return (
+          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0.5, minWidth: 0 }}>
+            <Typography component="span" sx={headerTitleSx}>Summary of {fF.join(', ')}</Typography>
+            {fR.length > 0 && <Tooltip arrow title={tooltipList(fR)}><Chip size="small" label={`+${fR.length} more`} sx={headerMoreChipSx} /></Tooltip>}
+            {summaryPlayerNames.length > 0 && <Typography component="span" sx={headerTitleSx}>· {pF.join(', ')}</Typography>}
+            {pR.length > 0 && <Tooltip arrow title={tooltipList(pR)}><Chip size="small" label={`+${pR.length} more`} sx={headerMoreChipSx} /></Tooltip>}
+          </Box>
+        );
+      };
+
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 600;
+
+      return (
+        <Drawer anchor={isMobile ? 'bottom' : 'right'} open={open} onClose={onClose} ModalProps={{ keepMounted: true }}
+          PaperProps={{ sx: { width: isMobile ? '100vw' : 494, maxWidth: '100vw', height: isMobile ? '92vh' : '100vh' } }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            {/* Header */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2.5, py: 2, borderBottom: '1px solid var(--color-border-primary)' }}>
+              <AutoAwesomeOutlined sx={{ fontSize: 20, color: 'var(--color-primary)', flexShrink: 0 }} />
+              {renderHeaderTitle()}
+              <IconButton onClick={onClose} size="small" aria-label="Close" sx={{ flexShrink: 0 }}><CloseOutlined fontSize="small" /></IconButton>
+            </Box>
+
+            {/* Body */}
+            <Box sx={{ flex: 1, overflowY: 'auto' }}>
+              {generating ? (
+                <Box>
+                  <LinearProgress sx={{ backgroundColor: 'var(--color-ai-purple-bg)', '& .MuiLinearProgress-bar': { backgroundColor: 'var(--color-ai-purple)' } }} />
+                  <Box sx={{ px: 3, py: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 1.5 }}>
+                    <AutoAwesomeOutlined sx={{ fontSize: 48, color: 'var(--color-ai-purple)' }} />
+                    <Typography sx={{ ...labelSx, fontWeight: 600, fontSize: 'var(--font-size-md)' }}>Generating your summary…</Typography>
+                    <Typography sx={{ ...mutedSx, fontSize: '13px', maxWidth: 340, lineHeight: 1.6 }}>
+                      This may take a moment, especially for large selections. You can close this drawer and check back — tap the ✦ AI Summary button when you're ready to view your results.
+                    </Typography>
+                    <Button variant="contained" disableElevation onClick={onClose} sx={{ ...textBtnSx, mt: 1 }}>Close</Button>
+                  </Box>
+                </Box>
+              ) : summary ? (
+                <Box sx={{ p: 2.5 }}>
+                  {repeatEnabled && !bannerDismissed && (
+                    <Alert icon={<ScheduleOutlined fontSize="small" />} severity="info" onClose={() => setBannerDismissed(true)}
+                      sx={{ mb: 2, py: 0, alignItems: 'center', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', bgcolor: 'var(--color-ai-purple-bg)', color: 'var(--color-ai-purple)', '& .MuiAlert-icon': { color: 'var(--color-ai-purple)' } }}>
+                      This summary is also scheduled — next run {firstRunDate} at {firstRunTime}
+                      <Link component="button" onClick={() => { setSummary(false); setActiveStep(0); }} sx={{ ml: 1, fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-ai-purple)' }}>Edit schedule</Link>
+                    </Alert>
+                  )}
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, px: 1, py: 0.25, borderRadius: 999, bgcolor: 'var(--color-ai-purple-bg)', mb: 1 }}>
+                    <AutoAwesomeOutlined sx={{ fontSize: 14, color: 'var(--color-ai-purple)' }} />
+                    <Typography sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-ai-purple)' }}>AI generated</Typography>
+                  </Box>
+                  <Typography sx={{ ...mutedSx, mb: 2 }}>22 players · 2 forms · Last 30 days</Typography>
+                  <Stack spacing={2.5}>
+                    <Box>
+                      <Typography sx={{ ...labelSx, fontWeight: 600, fontSize: 'var(--font-size-md)', mb: 1 }}>Athlete Medical Summary</Typography>
+                      <Stack spacing={1.5}>
+                        {SUMMARY_FINDINGS.map((f, i) => (
+                          <Box key={i} sx={{ display: 'flex', gap: 1 }}>
+                            {f.type === 'warn'
+                              ? <WarningAmberOutlined sx={{ fontSize: 18, color: 'var(--color-warning)', mt: '2px', flexShrink: 0 }} />
+                              : <InfoOutlined sx={{ fontSize: 18, color: 'var(--color-primary)', mt: '2px', flexShrink: 0 }} />}
+                            <Box>
+                              <Typography sx={{ ...labelSx, fontWeight: 600 }}>{f.title}</Typography>
+                              <Typography sx={bulletSx}>{f.body}</Typography>
+                            </Box>
+                          </Box>
+                        ))}
+                      </Stack>
+                    </Box>
+                    <Box>
+                      <Typography sx={{ ...labelSx, fontWeight: 600, fontSize: 'var(--font-size-md)', mb: 1 }}>Recommendations</Typography>
+                      <Typography sx={{ ...labelSx, fontWeight: 600, mb: 0.5 }}>Immediate Actions</Typography>
+                      <Box component="ul" sx={{ m: 0, pl: 2.5, mb: 1.5 }}>
+                        {IMMEDIATE_ACTIONS.map((t, i) => <Typography key={i} component="li" sx={bulletSx}>{t}</Typography>)}
+                      </Box>
+                      <Typography sx={{ ...labelSx, fontWeight: 600, mb: 0.5 }}>Diagnostic Next Steps</Typography>
+                      <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
+                        {DIAGNOSTIC_STEPS.map((t, i) => <Typography key={i} component="li" sx={bulletSx}>{t}</Typography>)}
+                      </Box>
+                    </Box>
+                    <Typography sx={{ ...mutedSx, fontStyle: 'italic', mt: 1 }}>AI-generated summaries can contain mistakes. Review before acting on clinical or performance decisions.</Typography>
+                  </Stack>
+                </Box>
+              ) : (
+                <Stack divider={<Divider />}>
+                  {/* STEP 1 — PLAYERS */}
+                  <Box>
+                    <StepHeader index={1} title="Select players" complete={step1Complete && activeStep !== 1} active={activeStep === 1} summary={step1Summary} onClick={() => setActiveStep(1)} />
+                    <Collapse in={activeStep === 1}>
+                      <Box sx={{ px: 2, pb: 2 }}>
+                        {!selectorOpen ? (
+                          <Box onClick={() => setSelectorOpen(true)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minHeight: 48, px: 1.5, py: 1, cursor: 'pointer', bgcolor: 'var(--color-background-secondary)', borderTopLeftRadius: 'var(--radius-sm)', borderTopRightRadius: 'var(--radius-sm)', borderBottom: '1px solid var(--color-border-primary)', '&:hover': { bgcolor: 'var(--color-background-tertiary)', borderBottom: '1px solid var(--color-border-focus)' } }}>
+                            <Box sx={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 0.5, minWidth: 0 }}>
+                              {selectedPlayers.size === 0
+                                ? <Typography sx={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>Select players…</Typography>
+                                : [...selectedPlayers].map((id) => { const a = getPlayerById(id); return a ? <Chip key={id} size="small" label={a.name} onDelete={(e) => { e.stopPropagation(); togglePlayer(id); }} sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', bgcolor: 'var(--color-background-tertiary)' }} /> : null; })}
+                            </Box>
+                            <ArrowDropDownOutlined sx={{ color: 'var(--color-text-secondary)' }} />
+                          </Box>
+                        ) : (
+                          <Box sx={{ bgcolor: 'var(--color-background-primary)', border: '1px solid var(--color-border-primary)', borderRadius: 'var(--radius-sm)', p: 1.5 }}>
+                            <TextField fullWidth size="small" variant="filled" placeholder="Search" value={playerSearch} onChange={(e) => setPlayerSearch(e.target.value)} sx={{ ...fieldStyles, mb: 1.5 }}
+                              InputProps={{ endAdornment: <InputAdornment position="end"><IconButton size="small" onClick={() => setPlayerSearch('')} aria-label="Clear"><CloseOutlined fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} /></IconButton></InputAdornment> }} />
+                            <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
+                              <FormControl size="small" variant="filled" sx={{ ...fieldStyles, flex: 1 }}>
+                                <InputLabel sx={menuItemSx}>Team</InputLabel>
+                                <Select value={teamFilter} label="Team" onChange={(e) => setTeamFilter(e.target.value)} sx={menuItemSx}>
+                                  {SELECTOR_TEAMS.map((t) => <MenuItem key={t} value={t} sx={menuItemSx}>{t}</MenuItem>)}
+                                </Select>
+                              </FormControl>
+                              <FormControl size="small" variant="filled" sx={{ ...fieldStyles, flex: 1 }}>
+                                <InputLabel sx={menuItemSx}>Sort</InputLabel>
+                                <Select value={sortOrder} label="Sort" onChange={(e) => setSortOrder(e.target.value)} sx={menuItemSx}>
+                                  <MenuItem value="az" sx={menuItemSx}>A–Z</MenuItem>
+                                  <MenuItem value="za" sx={menuItemSx}>Z–A</MenuItem>
+                                </Select>
+                              </FormControl>
+                            </Box>
+                            <Chip label={`Selected (${selectedPlayers.size})`} size="small" sx={{ mb: 1.5, bgcolor: 'var(--color-primary)', color: 'var(--color-white)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', fontWeight: 600 }} />
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                              <Typography sx={{ ...mutedSx, fontSize: '13px' }}>All players</Typography>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                                <Typography sx={{ ...mutedSx, fontSize: '13px' }}>Select all</Typography>
+                                <Checkbox size="small" checked={allVisibleSelected} indeterminate={!allVisibleSelected && someVisibleSelected} onChange={toggleSelectAllVisible} sx={checkboxSx} />
+                                <Divider orientation="vertical" flexItem sx={{ mx: 0.5, my: 0.75 }} />
+                                <IconButton size="small" onClick={() => setAthleteListOpen((v) => !v)} aria-label="Toggle player list">
+                                  {athleteListOpen ? <ExpandLessOutlined fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} /> : <ExpandMoreOutlined fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />}
+                                </IconButton>
+                              </Box>
+                            </Box>
+                            <Divider />
+                            <Collapse in={athleteListOpen}>
+                              <Box sx={{ maxHeight: 250, overflowY: 'auto' }}>
+                                {visibleAthletes.length === 0 && <Typography sx={{ ...mutedSx, textAlign: 'center', py: 2 }}>No players found</Typography>}
+                                {visibleAthletes.map((a, i) => (
+                                  <Box key={a.id}>
+                                    {i > 0 && <Divider />}
+                                    <Box onClick={() => togglePlayer(a.id)} sx={{ display: 'flex', alignItems: 'center', px: 0.5, py: 0.75, cursor: 'pointer', bgcolor: 'var(--color-background-primary)', '&:hover': { bgcolor: 'var(--color-background-hover)' } }}>
+                                      <Checkbox size="small" checked={selectedPlayers.has(a.id)} sx={{ ...checkboxSx, mr: 0.5 }} />
+                                      <Avatar sx={{ width: 32, height: 32, mr: 1.25, fontSize: '14px', bgcolor: 'var(--color-border-primary)', color: 'var(--color-white)' }}>{a.name[0]}</Avatar>
+                                      <Typography sx={{ flex: 1, fontFamily: 'var(--font-family-primary)', fontSize: '14px', color: 'var(--color-text-primary)' }}>{a.name}</Typography>
+                                      <Typography sx={{ ...mutedSx, fontSize: '13px' }}>{a.nationality}</Typography>
+                                    </Box>
+                                  </Box>
+                                ))}
+                              </Box>
+                            </Collapse>
+                            <Divider />
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', position: 'sticky', bottom: 0, bgcolor: 'var(--color-background-primary)', pt: 1.5 }}>
+                              <Button variant="contained" size="small" disableElevation disabled={selectedPlayers.size === 0} onClick={() => { setSelectorOpen(false); setActiveStep(2); }} sx={navyBtnSx}>Done</Button>
+                            </Box>
+                          </Box>
+                        )}
+                      </Box>
+                    </Collapse>
+                  </Box>
+
+                  {/* STEP 2 — FORMS */}
+                  <Box>
+                    <StepHeader index={2} title="Select forms" complete={step2Complete && activeStep !== 2} active={activeStep === 2} summary={step2Summary} onClick={() => step1Complete && setActiveStep(2)} />
+                    <Collapse in={activeStep === 2}>
+                      <Box sx={{ px: 2, pb: 2 }}>
+                        <TextField fullWidth size="small" variant="filled" placeholder="Search forms" value={formSearch} onChange={(e) => setFormSearch(e.target.value)} sx={{ ...fieldStyles, mb: 1.5 }}
+                          InputProps={{ endAdornment: <InputAdornment position="end"><SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} /></InputAdornment> }} />
+                        <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
+                          <FormControl size="small" variant="filled" sx={{ ...fieldStyles, flex: 1 }}>
+                            <InputLabel sx={menuItemSx}>Category</InputLabel>
+                            <Select value={formCategory} label="Category" onChange={(e) => setFormCategory(e.target.value)} sx={menuItemSx}>
+                              {FORM_CATEGORIES.map((c) => <MenuItem key={c} value={c} sx={menuItemSx}>{c}</MenuItem>)}
+                            </Select>
+                          </FormControl>
+                          <FormControl size="small" variant="filled" sx={{ ...fieldStyles, flex: 1 }}>
+                            <InputLabel sx={menuItemSx}>Sort</InputLabel>
+                            <Select value={formSort} label="Sort" onChange={(e) => setFormSort(e.target.value)} sx={menuItemSx}>
+                              <MenuItem value="az" sx={menuItemSx}>A–Z</MenuItem>
+                              <MenuItem value="za" sx={menuItemSx}>Z–A</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Box>
+                        <Chip label={`Selected (${selectedForms.size})`} size="small" sx={{ mb: 1.5, bgcolor: 'var(--color-primary)', color: 'var(--color-white)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', fontWeight: 600 }} />
+                        <Box sx={{ border: '1px solid var(--color-border-secondary)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', maxHeight: 300, overflowY: 'auto' }}>
+                          {visibleForms.length === 0 && <Typography sx={{ ...mutedSx, textAlign: 'center', py: 2 }}>{selectedPlayers.size === 0 ? 'Select players first' : 'No forms found'}</Typography>}
+                          {visibleForms.map((f, i) => {
+                            const assoc = getPlayersForForm(f.id, [...selectedPlayers]);
+                            const first2 = assoc.slice(0, 2), rest = assoc.slice(2);
+                            return (
+                              <Box key={f.id}>
+                                {i > 0 && <Divider />}
+                                <Box onClick={() => toggleForm(f.id)} sx={{ display: 'flex', alignItems: 'flex-start', px: 1, py: 0.75, cursor: 'pointer', '&:hover': { bgcolor: 'var(--color-background-hover)' } }}>
+                                  <Checkbox size="small" checked={selectedForms.has(f.id)} sx={{ ...checkboxSx, mr: 0.5, mt: '-2px' }} />
+                                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                      <Typography sx={{ flex: 1, fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-primary)' }}>{f.name}</Typography>
+                                      <Chip size="small" label={f.category} sx={{ height: 20, fontFamily: 'var(--font-family-primary)', fontSize: '11px', bgcolor: 'var(--color-background-secondary)', color: 'var(--color-text-secondary)', '& .MuiChip-label': { px: '8px' } }} />
+                                    </Box>
+                                    {assoc.length > 0 && (
+                                      <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0.5, mt: 0.25 }}>
+                                        <Typography sx={{ fontFamily: 'var(--font-family-primary)', fontSize: '12px', color: 'var(--color-text-secondary)' }}>{first2.map((p) => p.name).join(' · ')}</Typography>
+                                        {rest.length > 0 && (
+                                          <Tooltip arrow title={tooltipList(rest.map((p) => p.name))}>
+                                            <Chip size="small" icon={<InfoOutlined sx={{ fontSize: 12 }} />} label={`+${rest.length} more`} onClick={(e) => e.stopPropagation()} sx={{ height: 18, fontFamily: 'var(--font-family-primary)', fontSize: '11px', bgcolor: 'var(--color-background-secondary)', color: 'var(--color-text-secondary)', cursor: 'pointer', '& .MuiChip-label': { px: '6px' }, '& .MuiChip-icon': { ml: '4px', color: 'inherit' } }} />
+                                          </Tooltip>
+                                        )}
+                                      </Box>
+                                    )}
+                                  </Box>
+                                </Box>
+                              </Box>
+                            );
+                          })}
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                          <Button variant="contained" size="small" disableElevation disabled={!step2Complete} onClick={() => setActiveStep(3)} sx={navyBtnSx}>Done</Button>
+                        </Box>
+                      </Box>
+                    </Collapse>
+                  </Box>
+
+                  {/* STEP 3 — DATE RANGE */}
+                  <Box>
+                    <StepHeader index={3} title="Choose date range" complete={step3Complete && activeStep !== 3} active={activeStep === 3} summary={dateLabel} onClick={() => step1Complete && step2Complete && setActiveStep(3)} />
+                    <Collapse in={activeStep === 3}>
+                      <Box sx={{ px: 2, pb: 2 }}>
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                          <TextField fullWidth size="small" variant="filled" type="date" label="From" value={fromDate} onChange={(e) => { setFromDate(e.target.value); setDatePreset('custom'); }} InputLabelProps={{ shrink: true }} sx={fieldStyles} />
+                          <Typography sx={labelSx}>–</Typography>
+                          <TextField fullWidth size="small" variant="filled" type="date" label="To" value={toDate} onChange={(e) => { setToDate(e.target.value); setDatePreset('custom'); }} InputLabelProps={{ shrink: true }} sx={fieldStyles} />
+                        </Box>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 1.5 }}>
+                          {DATE_PRESETS.map((p) => {
+                            const sel = datePreset === p.id;
+                            return <Chip key={p.id} label={p.label} size="small" onClick={() => applyPreset(p.id)} sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', cursor: 'pointer', bgcolor: sel ? 'var(--color-primary)' : 'var(--color-background-secondary)', color: sel ? 'var(--color-white)' : 'var(--color-text-primary)', '&:hover': { bgcolor: sel ? 'var(--color-primary-hover)' : 'var(--color-background-tertiary)' } }} />;
+                          })}
+                        </Box>
+                        <Button variant="contained" size="small" disableElevation disabled={!step3Complete} onClick={() => setActiveStep(4)} fullWidth sx={{ ...navyBtnSx, mt: 2 }}>Done</Button>
+                      </Box>
+                    </Collapse>
+                  </Box>
+
+                  {/* SCHEDULE */}
+                  <Box sx={{ px: 2, py: 2 }}>
+                    <Button variant="contained" disableElevation onClick={() => setRepeatEnabled((v) => !v)} sx={greySecondaryBtnSx}>Add schedule</Button>
+                    <Collapse in={repeatEnabled}>
+                      <Stack spacing={2} sx={{ mt: 1.5 }}>
+                        <TextField fullWidth size="small" variant="filled" label="Schedule title" placeholder="e.g. Weekly Medical Review" value={schedTitle} onChange={(e) => setSchedTitle(e.target.value)} sx={fieldStyles} />
+                        <TextField fullWidth size="small" variant="filled" type="date" label="Start date" value={schedDate} onChange={(e) => setSchedDate(e.target.value)} InputLabelProps={{ shrink: true }} sx={fieldStyles} />
+                        <TextField fullWidth size="small" variant="filled" type="time" label="Start time" value={schedTime} onChange={(e) => setSchedTime(e.target.value)} InputLabelProps={{ shrink: true }} sx={fieldStyles} />
+                        <Box>
+                          <FormControl size="small" variant="filled" fullWidth sx={fieldStyles}>
+                            <InputLabel sx={menuItemSx}>Recurrence</InputLabel>
+                            <Select value={recurrence} label="Recurrence" onChange={(e) => setRecurrence(e.target.value)} sx={menuItemSx}>
+                              <MenuItem value="none" sx={menuItemSx}>Does not repeat</MenuItem>
+                              <MenuItem value="daily" sx={menuItemSx}>Daily</MenuItem>
+                              <MenuItem value="weekly" sx={menuItemSx}>Weekly</MenuItem>
+                              <MenuItem value="everyday" sx={menuItemSx}>Every {recurrenceDayName}</MenuItem>
+                              <MenuItem value="custom" sx={menuItemSx}>Custom</MenuItem>
+                            </Select>
+                          </FormControl>
+                          {recurrence === 'weekly' && (
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 1.5 }}>
+                              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => <DayPill key={d} label={d} selected={weeklyDays.has(d)} onClick={() => toggleWeeklyDay(d)} />)}
+                            </Box>
+                          )}
+                          {recurrence === 'custom' && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1.5 }}>
+                              <Typography sx={labelSx}>Every</Typography>
+                              <TextField type="number" size="small" variant="filled" value={customInterval} onChange={(e) => setCustomInterval(e.target.value)} inputProps={{ min: 1 }} sx={{ ...fieldStyles, width: 72 }} />
+                              <TextField select size="small" variant="filled" value={customUnit} onChange={(e) => setCustomUnit(e.target.value)} sx={{ ...fieldStyles, minWidth: 110 }}>
+                                <MenuItem value="days">days</MenuItem>
+                                <MenuItem value="weeks">weeks</MenuItem>
+                              </TextField>
+                            </Box>
+                          )}
+                        </Box>
+                        <Box>
+                          <Typography sx={{ ...mutedSx, mb: 0.75 }}>Notify by</Typography>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            {['Email', 'SMS', 'In-app'].map((ch) => <PillToggle key={ch} label={ch} selected={notifyChannels.has(ch)} onClick={() => toggleNotify(ch)} />)}
+                          </Box>
+                        </Box>
+                      </Stack>
+                    </Collapse>
+                  </Box>
+                </Stack>
+              )}
+            </Box>
+
+            {/* Footer */}
+            {!generating && (
+              <React.Fragment>
+                <Divider />
+                <Box sx={{ px: 2.5, py: 2 }}>
+                  {summary ? (
+                    <Stack direction="row" spacing={1.5}>
+                      <Button variant="contained" disableElevation fullWidth sx={greyOutlinedBtnSx}>Export PDF</Button>
+                      <Button variant="contained" disableElevation fullWidth onClick={handleGenerate} sx={navyBtnSx}><RefreshOutlined sx={{ fontSize: 16, mr: 0.5 }} /> Regenerate</Button>
+                    </Stack>
+                  ) : (
+                    <Button variant="contained" disableElevation fullWidth disabled={!canGenerate} onClick={handleGenerate} sx={{ ...navyBtnSx, fontWeight: 700 }}>
+                      <AutoAwesomeOutlined sx={{ fontSize: 16, mr: 0.5 }} /> {repeatEnabled ? 'Create & schedule' : 'Generate summary'}
+                    </Button>
+                  )}
+                </Box>
+              </React.Fragment>
+            )}
+          </Box>
+        </Drawer>
+      );
+    }
+
+    /* ============================== TOP BAR AI HISTORY ============================== */
+    function AiHistoryPopover({ anchorEl, onClose, onPick }) {
+      const [search, setSearch] = useState('');
+      const list = AI_SUMMARY_HISTORY.filter((h) => h.title.toLowerCase().includes(search.trim().toLowerCase()));
+      return (
+        <Popover open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={onClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          slotProps={{ paper: { sx: { width: 360, mt: 1, borderRadius: 'var(--radius-md)' } } }}>
+          <Box sx={{ px: 2, pt: 2, pb: 1 }}>
+            <Typography sx={{ fontFamily: 'var(--font-family-primary)', fontWeight: 600, fontSize: 'var(--font-size-md)', color: 'var(--color-text-primary)', mb: 1.5 }}>AI Summaries</Typography>
+            <TextField fullWidth size="small" variant="filled" placeholder="Search summaries…" value={search} onChange={(e) => setSearch(e.target.value)} sx={fieldStyles}
+              InputProps={{ endAdornment: <InputAdornment position="end"><SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} /></InputAdornment> }} />
+          </Box>
+          <Divider />
+          <Box sx={{ maxHeight: 360, overflowY: 'auto' }}>
+            {list.length === 0 && <Typography sx={{ ...mutedSx, textAlign: 'center', py: 3, fontSize: 'var(--font-size-sm)' }}>No summaries found</Typography>}
+            {list.map((item, i) => (
+              <Box key={item.id}>
+                {i > 0 && <Divider />}
+                <Box onClick={() => onPick(item)} sx={{ display: 'flex', alignItems: 'center', gap: 1.25, px: 2, py: 1.25, cursor: 'pointer', '&:hover': { bgcolor: 'var(--color-background-hover)' } }}>
+                  <AutoAwesomeOutlined sx={{ fontSize: 18, color: 'var(--color-ai-purple)', flexShrink: 0, ...(item.status === 'generating' ? { animation: 'aiPulse 1.4s ease-in-out infinite' } : {}) }} />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)', fontWeight: 500, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</Typography>
+                    <Typography sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)' }}>{item.subtitle}</Typography>
+                  </Box>
+                  {item.status === 'ready'
+                    ? <Chip size="small" label="Ready" sx={{ height: 22, fontFamily: 'var(--font-family-primary)', fontSize: '11px', fontWeight: 600, bgcolor: 'var(--color-success)', color: 'var(--color-white)' }} />
+                    : <Chip size="small" icon={<CircularProgress size={12} sx={{ color: 'var(--color-white)' }} />} label="Generating" sx={{ height: 22, fontFamily: 'var(--font-family-primary)', fontSize: '11px', fontWeight: 600, bgcolor: 'var(--color-warning)', color: 'var(--color-white)', '& .MuiChip-icon': { ml: '6px' } }} />}
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </Popover>
+      );
+    }
+
+    /* ============================== SIDEBAR ============================== */
+    function Sidebar() {
+      const items = [DashboardOutlined, BarChartOutlined, GroupsOutlined, DescriptionOutlined, CalendarMonthOutlined, SettingsOutlined];
+      return (
+        <Box sx={{ width: 56, bgcolor: 'var(--color-primary-dark)', display: 'flex', flexDirection: 'column', alignItems: 'center', py: 1.5, gap: 0.5, flexShrink: 0 }}>
+          <Avatar sx={{ width: 34, height: 34, bgcolor: 'var(--color-white)', color: 'var(--color-primary)', fontWeight: 700, mb: 1 }}>K</Avatar>
+          {items.map((Ic, i) => (
+            <IconButton key={i} sx={{ color: i === 3 ? 'var(--color-white)' : 'rgba(255,255,255,0.6)', bgcolor: i === 3 ? 'rgba(255,255,255,0.12)' : 'transparent', borderRadius: 'var(--radius-sm)' }}>
+              <Ic fontSize="small" />
+            </IconButton>
+          ))}
+        </Box>
+      );
+    }
+
+    /* ============================== FORMS PAGE ============================== */
+    function FormsPage({ onOpenAiSummary }) {
+      const [tab, setTab] = useState(0);
+      const [search, setSearch] = useState('');
+      const [category, setCategory] = useState('');
+      const rows = FORMS_TABLE.filter((r) =>
+        (!search || r.form.toLowerCase().includes(search.toLowerCase())) &&
+        (!category || r.category === category));
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: 'var(--color-background-primary)' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3, pt: 2, pb: 1 }}>
+            <Typography sx={{ fontWeight: 600, fontSize: 'var(--font-size-2xl)', color: 'var(--color-text-primary)' }}>Forms</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Button variant="contained" disableElevation onClick={onOpenAiSummary} sx={{ ...greyOutlinedBtnSx, fontWeight: 700 }}><AutoAwesomeOutlined sx={{ fontSize: 16, mr: 0.5 }} /> AI summary</Button>
+              <Button variant="contained" disableElevation sx={{ ...navyBtnSx, fontWeight: 700 }}>Create form</Button>
+            </Box>
+          </Box>
+          <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ px: 3, pt: 1, minHeight: 44, borderBottom: '1px solid var(--color-border-primary)', '& .MuiTab-root': { minHeight: 44, textTransform: 'none', fontWeight: 600, fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }, '& .Mui-selected': { color: 'var(--color-primary)' }, '& .MuiTabs-indicator': { backgroundColor: 'var(--color-primary)' } }}>
+              <Tab label="Forms" /><Tab label="Scheduling Overview" /><Tab label="Completed" /><Tab label="Compliance" /><Tab label="Tryouts" />
+            </Tabs>
+            <Box sx={{ px: 3, py: 1.5, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              <TextField size="small" variant="filled" placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} sx={{ ...fieldStyles, minWidth: 260 }}
+                InputProps={{ endAdornment: <InputAdornment position="end"><SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} /></InputAdornment> }} />
+              <FormControl size="small" variant="filled" sx={{ ...fieldStyles, minWidth: 220 }}>
+                <InputLabel sx={menuItemSx}>Category</InputLabel>
+                <Select value={category} label="Category" onChange={(e) => setCategory(e.target.value)} sx={menuItemSx}>
+                  <MenuItem value="" sx={menuItemSx}>All</MenuItem>
+                  <MenuItem value="Medical" sx={menuItemSx}>Medical</MenuItem>
+                  <MenuItem value="Wellbeing" sx={menuItemSx}>Wellbeing</MenuItem>
+                  <MenuItem value="Screening" sx={menuItemSx}>Screening</MenuItem>
+                  <MenuItem value="Other" sx={menuItemSx}>Other</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <TableContainer sx={{ flex: 1, minHeight: 0, px: 1 }}>
+              <Table stickyHeader size="small">
+                <TableHead>
+                  <TableRow>
+                    {['Form', 'Product area', 'Category', 'Description', 'Owner', 'Last updated'].map((h) => (
+                      <TableCell key={h} sx={{ fontFamily: 'var(--font-family-primary)', fontWeight: 600, color: 'var(--color-text-primary)', fontSize: 'var(--font-size-sm)' }}>{h}</TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map((r) => (
+                    <TableRow key={r.id} hover sx={{ cursor: 'pointer' }}>
+                      <TableCell sx={{ fontFamily: 'var(--font-family-primary)', fontWeight: 600, color: 'var(--color-primary)', fontSize: 'var(--font-size-sm)' }}>{r.form}</TableCell>
+                      <TableCell sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>{r.productArea}</TableCell>
+                      <TableCell sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>{r.category}</TableCell>
+                      <TableCell sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>{r.description}</TableCell>
+                      <TableCell sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>{r.owner}</TableCell>
+                      <TableCell sx={{ fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-sm)' }}>{r.lastUpdated}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Box>
+      );
+    }
+
+    /* ============================== APP (LAYOUT) ============================== */
+    const theme = createTheme({
+      typography: { fontFamily: "'Roboto', sans-serif" },
+      palette: { primary: { main: '#3B4960' } },
+    });
+
+    function App() {
+      const [squad, setSquad] = useState(SQUADS[0]);
+      const [userMenu, setUserMenu] = useState(null);
+      const [aiAnchor, setAiAnchor] = useState(null);
+      const [bellAnchor, setBellAnchor] = useState(null);
+      const [createOpen, setCreateOpen] = useState(false);
+      const [historySummaryOpen, setHistorySummaryOpen] = useState(false);
+      const [snackOpen, setSnackOpen] = useState(false);
+      const [intercom, setIntercom] = useState(false);
+
+      const onPickHistory = (item) => {
+        setAiAnchor(null);
+        if (item.status === 'ready') setHistorySummaryOpen(true);
+        else setSnackOpen(true);
+      };
+
+      return (
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Box sx={{ display: 'flex', height: '100vh' }}>
+            <Sidebar />
+            <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <AppBar position="sticky" elevation={1} sx={{ bgcolor: 'var(--color-background-primary)', color: 'var(--color-text-primary)', borderBottom: '1px solid var(--color-border-primary)' }}>
+                <Toolbar sx={{ justifyContent: 'space-between' }}>
+                  <Typography sx={{ fontWeight: 500, fontSize: '14px', color: 'var(--color-text-secondary)' }}>Forms</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Select value={squad} onChange={(e) => setSquad(e.target.value)} size="small" sx={{ fontSize: '14px', minWidth: 150, bgcolor: 'var(--color-white)', '& .MuiOutlinedInput-notchedOutline': { border: 'none' } }}>
+                      {SQUADS.map((s) => <MenuItem key={s} value={s} sx={menuItemSx}>{s}</MenuItem>)}
+                    </Select>
+                    <IconButton onClick={(e) => setBellAnchor(e.currentTarget)} sx={{ color: 'var(--color-text-secondary)' }}>
+                      <Badge badgeContent={3} color="error"><NotificationsOutlined /></Badge>
+                    </IconButton>
+                    <IconButton aria-label="AI summaries" onClick={(e) => setAiAnchor(e.currentTarget)} sx={{ color: 'var(--color-text-secondary)' }}>
+                      <AutoAwesomeOutlined />
+                    </IconButton>
+                    <Avatar onClick={(e) => setUserMenu(e.currentTarget)} sx={{ width: 32, height: 32, bgcolor: 'var(--color-primary)', fontSize: '14px', cursor: 'pointer' }}>
+                      {CURRENT_USER.name.split(' ').map((n) => n[0]).join('')}
+                    </Avatar>
+                    <Menu anchorEl={userMenu} open={Boolean(userMenu)} onClose={() => setUserMenu(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} transformOrigin={{ vertical: 'top', horizontal: 'right' }}>
+                      <MenuItem onClick={() => setUserMenu(null)} sx={menuItemSx}>Profile</MenuItem>
+                      <MenuItem onClick={() => setUserMenu(null)} sx={menuItemSx}>Settings</MenuItem>
+                      <MenuItem onClick={() => setUserMenu(null)} sx={menuItemSx}>Logout</MenuItem>
+                    </Menu>
+                  </Box>
+                </Toolbar>
+              </AppBar>
+
+              <Box sx={{ flex: 1, overflow: 'auto' }}>
+                <FormsPage onOpenAiSummary={() => setCreateOpen(true)} />
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Drawers / overlays */}
+          <AiSummaryDrawer open={createOpen} onClose={() => setCreateOpen(false)} />
+          <AiSummaryDrawer open={historySummaryOpen} initialSummary onClose={() => setHistorySummaryOpen(false)} />
+          <AiHistoryPopover anchorEl={aiAnchor} onClose={() => setAiAnchor(null)} onPick={onPickHistory} />
+
+          {/* Notification bell panel */}
+          <Popover open={Boolean(bellAnchor)} anchorEl={bellAnchor} onClose={() => setBellAnchor(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            slotProps={{ paper: { sx: { width: 320, mt: 1, borderRadius: 'var(--radius-md)' } } }}>
+            <Box sx={{ px: 2, py: 1.5 }}><Typography sx={{ fontFamily: 'var(--font-family-primary)', fontWeight: 600, fontSize: 'var(--font-size-md)' }}>Notifications</Typography></Box>
+            <Divider />
+            {[
+              { t: 'Medical Assessment due', s: '5 players have outstanding forms' },
+              { t: 'AI summary ready', s: 'Wellness Check · Today 09:00' },
+              { t: 'Schedule reminder', s: 'Weekly Medical Review runs tomorrow' },
+            ].map((n, i) => (
+              <Box key={i} sx={{ px: 2, py: 1.25, borderTop: i ? '1px solid var(--color-border-secondary)' : 'none' }}>
+                <Typography sx={{ ...labelSx, fontWeight: 600 }}>{n.t}</Typography>
+                <Typography sx={mutedSx}>{n.s}</Typography>
+              </Box>
+            ))}
+          </Popover>
+
+          {/* Intercom bubble */}
+          <Fab onClick={() => setIntercom(true)} aria-label="messenger" sx={{ position: 'fixed', bottom: 24, right: 24, bgcolor: 'var(--color-primary-dark)', color: 'var(--color-white)', zIndex: 9999, '&:hover': { bgcolor: 'var(--color-primary)' } }}>
+            <ChatBubbleOutlined />
+          </Fab>
+
+          <Snackbar open={intercom} autoHideDuration={3000} onClose={() => setIntercom(false)} message="Intercom would open here" anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} />
+          <Snackbar open={snackOpen} autoHideDuration={5000} onClose={() => setSnackOpen(false)} message="Your AI summary is still generating. Please check back in a few minutes — you'll see it here when it's ready." anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} />
+        </ThemeProvider>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    window.__APP_BOOTED = true;
+  </script>
+
+  <!-- Bootstrap: transpile the JSX with Babel's CLASSIC runtime (React.createElement)
+       so it runs as a plain in-page script with no ES-module imports. -->
+  <script>
+    (function boot() {
+      if (window.__APP_BOOTED) return;
+      if (!window.Babel) { setTimeout(boot, 40); return; }
+      var el = document.getElementById('app-code');
+      if (!el) { setTimeout(boot, 40); return; }
+      el.type = 'text/plain'; // prevent Babel's auto-runner from reprocessing with the automatic JSX runtime
+      try {
+        var out = window.Babel.transform(el.textContent, {
+          // CLASSIC runtime → React.createElement (no "import react/jsx-runtime")
+          presets: [['react', { runtime: 'classic' }]]
+        }).code;
+        (0, eval)(out);
+      } catch (e) {
+        console.error('Prototype boot error:', e);
+        var root = document.getElementById('root');
+        if (root) {
+          root.innerHTML =
+            '<div style="padding:24px;font-family:Roboto,sans-serif;color:#d32f2f;">' +
+            '<strong>Failed to start prototype.</strong><br/>' +
+            '<pre style="white-space:pre-wrap;color:#666;font-size:13px;">' +
+            String(e && e.message || e).replace(/[<>&]/g, function (c) {
+              return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c];
+            }) + '</pre></div>';
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

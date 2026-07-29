@@ -6,7 +6,11 @@
   --color-primary-hover: #2f3a4d;
   --color-primary-light: #f2f3f5;
   --color-primary-dark: #232b3a;
-  
+
+  /* AI accent (purple) — used by AI summary generation states */
+  --color-ai-purple: #3c3489;
+  --color-ai-purple-bg: #eeedfe;
+
   /* Secondary Colors */
   --color-secondary: #F1F2F3;
   --color-secondary-hover: #e8e9ea;

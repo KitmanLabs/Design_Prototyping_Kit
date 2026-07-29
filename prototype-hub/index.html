@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFL Medical — Prototype hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1D2635;
+    --navy-mid: #3B4960;
+    --accent: #005293;
+    --grey-fill: #F3F4F7;
+    --border: #E8EAED;
+    --text-muted: #5F7089;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Open Sans', sans-serif;
+    background: #FAFBFC;
+    color: var(--navy-mid);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+  }
+  .wrap { max-width: 880px; width: 100%; }
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+    margin: 0 0 8px;
+  }
+  h1 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #172B4D;
+    margin: 0 0 12px;
+  }
+  .subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin: 0 0 40px;
+    max-width: 560px;
+    line-height: 1.5;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 640px) {
+    .cards { grid-template-columns: 1fr; }
+  }
+  a.card {
+    display: block;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  a.card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px rgba(0, 82, 147, 0.08);
+    transform: translateY(-2px);
+  }
+  a.card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .card-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 10px;
+  }
+  .card-title {
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--navy);
+    margin: 0 0 10px;
+  }
+  .card-desc {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0 0 18px;
+  }
+  .card-cta {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-cta svg { transition: transform 0.15s ease; }
+  a.card:hover .card-cta svg { transform: translateX(3px); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="eyebrow">NFL Medical prototypes</p>
+    <h1>Review queue relocation</h1>
+    <p class="subtitle">Two prototypes for review — the Review Queue relocated into eForms, and the source-form side-by-side view added to Medical. Select either to open it.</p>
+
+    <div class="cards">
+      <a class="card" href="https://eforms-landing-deploy.vercel.app/" target="_blank" rel="noopener">
+        <p class="card-label">eForms</p>
+        <p class="card-title">Review queue</p>
+        <p class="card-desc">Review Queue now lives under eForms as its own tab, with bulk accept/reject and field-level filtering.</p>
+        <span class="card-cta">Open prototype
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <a class="card" href="https://record-approvals-v2-deploy.vercel.app/" target="_blank" rel="noopener">
+        <p class="card-label">Medical</p>
+        <p class="card-title">Source side-by-side</p>
+        <p class="card-desc">View a submitted eForm alongside the athlete record from the Medical roster, to corroborate a value at a glance.</p>
+        <span class="card-cta">Open prototype
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

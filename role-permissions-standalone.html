@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Role Permissions — Standalone Prototype</title>
+
+  <!-- React 18 UMD -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Emotion (MUI styling engine) -->
+  <script crossorigin src="https://unpkg.com/@emotion/react@11/dist/emotion-react.umd.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@emotion/styled@11/dist/emotion-styled.umd.min.js"></script>
+
+  <!-- MUI Material UMD -->
+  <script crossorigin src="https://unpkg.com/@mui/material@5/umd/material-ui.production.min.js"></script>
+
+  <!-- Babel standalone for inline JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root {
+      --color-primary: #3B4960;
+      --color-secondary: #F1F2F3;
+      --color-border-primary: #e2e4e8;
+    }
+    * { box-sizing: border-box; }
+    html, body, #root { height: 100%; margin: 0; }
+    body { font-family: "Roboto", "Helvetica", "Arial", sans-serif; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, createContext, useContext } = React;
+    const {
+      Box, Typography, Tabs, Tab, Chip, IconButton, Menu, MenuItem, Checkbox, Divider,
+      Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
+      Snackbar, Alert, Table, TableHead, TableBody, TableRow, TableCell,
+      TableContainer, Paper, TextField, InputAdornment, FormControl, Select,
+      Avatar, Radio, RadioGroup, FormControlLabel, Tooltip,
+    } = MaterialUI;
+
+    // ─── Inline SVG icon helper ─────────────────────────────────────────────
+    function Icon({ path, size = 22, color = 'currentColor', sx }) {
+      return (
+        <Box component="span" sx={{ display: 'inline-flex', ...sx }}>
+          <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+            <path d={path} />
+          </svg>
+        </Box>
+      );
+    }
+    const ICONS = {
+      moreVert: 'M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z',
+      archive: 'M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z',
+      edit: 'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z',
+      back: 'M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z',
+      search: 'M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z',
+      calendar: 'M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z',
+      arrowDown: 'M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z',
+      settings: 'M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z',
+      chevronsRight: 'M5.59 7.41L10.18 12l-4.59 4.59L7 18l6-6-6-6zM11.59 7.41L16.18 12l-4.59 4.59L13 18l6-6-6-6z',
+    };
+
+    // ─── Permission definitions ─────────────────────────────────────────────
+    const PERMISSIONS = {
+      General: ['View Athletes','View Dashboard','Manage Dashboard','View Absence','Manage Absence','View Availability Report','View Activity Log','View Past Athletes','View Trial Athletes','View Athletes Area','Manage Ancillary Date Range','Add Ancillary Data'],
+      Settings: ['Manage Athletes','Manage Staff Users','Settings Questionnaire','Organisation Settings','Manage Athlete Emergency Contacts','Labels Admin','View Labels','Groups Admin','View Groups','Assign Labels','View Staff Users'],
+      Analysis: ['Analysis Athlete View','Analysis Squad View','Analysis Injury View','Graph Viewer','Graph Builder','View Analytical Dashboard','Manage Analytical Dashboard','Report on Labels and Groups','Enable Historic Athletes on Reporting','Power BI Reports','Access Labels and Groups in Reporting','Enable Historic Athletes'],
+      'Athlete Screening': ['Questionnaire Create','Questionnaires Admin','Questionnaire Comments','Delete Form Submission'],
+      Medical: ['View Issues','Issues Admin','Manage Availability','View Availability','Medical Graphing','Export Medical Data','View Medical History','Diagnostic Admin','Medical Module','Create Modifications','Edit Modifications','View Medical Notes','Create Medical Notes','Edit Medical Notes','Archive Medical Notes','Create Medical Forms','View Medical Forms','Edit Medical Forms','View Allergy','Create Medical Documents','View OSHA','Manage OSHA','Dispense stock','View stock','Add stock','Remove Stock','Archive Diagnostic','Delete Attachment','Archive Issue','Archive Medical Documents','Log Medication','Archive Medication','Medical Documents Edit','Edit Medication','Edit Medical Alert','Edit Allergy','View Medications','Medications Admin'],
+      Workloads: ['Workload View','Games Admin','Training Sessions Admin','Manage workloads','Create Games','Edit Games'],
+      Kiosk: ['Forms'],
+      Messaging: ['View Messaging','Create Direct Message','Create Private Channel','Create Public Channel','Messaging Admin'],
+      Efile: ['Send Efile','View Efile','View Efile Archive','Manage Efile Contacts'],
+      Notes: ['Medical Notes','Create Private Notes','Private Notes Admin'],
+      'Injury Surveillance': ['Injury Surveillance Admin'],
+      'Logic Builder': ['Logic Builder Admin - Medical'],
+      eForms: ['Submit eForms','View eForms','Edit eForms','Delete eForms','Manage eForms Templates','View eForms tryout','Export eForms'],
+      'My iP': ['My iP View','My iP Create','My iP Demo View'],
+      Bodyweight: ['Bodyweight App','View Bodyweight'],
+    };
+    const ALL_PERMISSIONS = Object.values(PERMISSIONS).flat();
+
+    const SYSTEM_ROLES = {
+      'Account Admin': ALL_PERMISSIONS,
+      Staff: ['View Athletes','View Dashboard','View Absence','View Availability','Questionnaire Create','Questionnaire Comments','View Issues'],
+      Doctor: ['View Athletes','View Dashboard','View Absence','View Availability Report','View Issues','Issues Admin','Manage Availability','View Availability','Medical Graphing','View Medical History','Diagnostic Admin','Medical Module','View Medical Notes','Create Medical Notes','View Medical Forms','View Allergy','View Medications'],
+      Psychologist: ['View Athletes','View Dashboard','View Absence','View Issues','View Availability','View Medical History','Questionnaire Create','Questionnaire Comments','View Medical Notes'],
+      'Athletic Trainer / Therapist': ['View Athletes','View Dashboard','View Absence','View Availability Report','View Issues','Issues Admin','Manage Availability','View Availability','Medical Graphing','View Medical History','View Medical Notes','Create Medical Notes','Create Modifications','Edit Modifications'],
+      Coach: ['View Athletes','View Dashboard','View Absence','View Availability Report','View Issues','View Availability','Workload View','View Messaging','Questionnaire Create','Questionnaire Comments'],
+    };
+    const SYSTEM_ROLE_NAMES = Object.keys(SYSTEM_ROLES);
+
+    const INITIAL_ROLES = [
+      { id:1, name:'Doctor – Export Access', basedOn:'Doctor', members:3, status:'Active', lastModified:'2026-05-14', permissions:[...SYSTEM_ROLES['Doctor'],'Export Medical Data','Create Medical Forms'] },
+      { id:2, name:'Head Coach', basedOn:'Coach', members:2, status:'Active', lastModified:'2026-04-22', permissions:['View Athletes','View Dashboard','View Absence','View Availability Report','View Issues','View Availability','Workload View','View Messaging'] },
+      { id:3, name:'Assistant Coach', basedOn:'Coach', members:4, status:'Active', lastModified:'2026-04-22', permissions:['View Athletes','View Dashboard','View Absence','View Availability Report','View Issues','View Availability'] },
+      { id:4, name:'Athletic Trainer', basedOn:'Athletic Trainer / Therapist', members:6, status:'Active', lastModified:'2026-03-10', permissions:['View Athletes','View Dashboard','View Absence','View Availability Report','View Issues','Issues Admin','Manage Availability','View Availability','Medical Graphing','View Medical History','View Medical Notes'] },
+      { id:5, name:'Psychologist', basedOn:'Psychologist', members:2, status:'Active', lastModified:'2026-03-01', permissions:['View Athletes','View Dashboard','View Absence','View Issues','View Availability','View Medical History','Questionnaire Create','Questionnaire Comments','View Medical Notes'] },
+      { id:6, name:'Club Physiotherapist', basedOn:'Athletic Trainer / Therapist', members:3, status:'Active', lastModified:'2026-02-18', permissions:['View Athletes','View Dashboard','View Absence','View Availability Report','View Issues','Issues Admin','Manage Availability','View Availability','Medical Graphing','View Medical History'] },
+      { id:7, name:'Legacy Doctor Role', basedOn:'Doctor', members:0, status:'Archived', lastModified:'2025-11-03', permissions:['View Athletes','View Dashboard','View Issues','Issues Admin','Manage Availability','View Availability','Medical Graphing','View Medical History','Diagnostic Admin','Medical Module','View Medical Notes','View Medical Forms'] },
+    ];
+
+    const STAFF = [
+      { id:1, name:'Form Builder', username:'fbuilder', role:'Form Builder', email:'tcoe+fbuilder@kitmanlabs.com', created:'March 25, 2026', status:'Active' },
+      { id:2, name:'Test 2 2', username:'t2x', role:'Club Athletic Trainer', email:'jonathan@kitmanlabs.com', created:'March 4, 2025', status:'Active' },
+      { id:3, name:'Jon Adamson', username:'jadamson', role:'Club Athletic Trainer', email:'jadamson@kitmanlabs.com', created:'October 3, 2022', status:'Active' },
+      { id:4, name:'Grisha Alexander Arnold', username:'galexanderarnold', role:'Club Athletic Trainer', email:'glevinerozenvayn@kitmanlabs.com', created:'September 20, 2022', status:'Active' },
+      { id:5, name:'Gustavo Amendola', username:'gbrazil', role:'Club Athletic Trainer', email:'gustavo+nfl@kitmanlabs.com', created:'October 27, 2022', status:'Active' },
+      { id:6, name:'Club Athletic Trainer', username:'cathletictrainer', role:'Club Athletic Trainer', email:'stuart@kitmanlabs.com', created:'November 3, 2022', status:'Active' },
+      { id:7, name:'Jeremy Baxter', username:'jbaxter', role:'Doctor', email:'adowns+texansnfldemo@kitmanlabs.com', created:'November 26, 2022', status:'Active' },
+      { id:8, name:'Bill Bergin', username:'bbergin', role:'Head Coach', email:'bill.bergin@nfl.com', created:'September 15, 2022', status:'Active' },
+      { id:9, name:'Billius Bergin', username:'bbergin1', role:'Assistant Coach', email:'bbergin+nfl@kitmanlabs.com', created:'November 17, 2022', status:'Active' },
+      { id:10, name:'Diarmaid Brennan', username:'dbrennan', role:'Psychologist', email:'dbrennan+nfldemo@kitmanlabs.com', created:'March 11, 2025', status:'Active' },
+      { id:11, name:'Ezron Bryson', username:'ebryson', role:'Athletic Trainer', email:'email@email.com', created:'November 26, 2022', status:'Active' },
+      { id:12, name:'Carla Mendez', username:'cmendez', role:'Club Physiotherapist', email:'cmendez+nfl@kitmanlabs.com', created:'January 14, 2023', status:'Inactive' },
+    ];
+    function initials(name) {
+      const parts = name.trim().split(/\s+/);
+      if (parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+      return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+    }
+    function formatDate(str) {
+      const d = new Date(str);
+      return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    }
+    function today() { return new Date().toISOString().slice(0,10); }
+
+    // ─── Roles context ──────────────────────────────────────────────────────
+    const RolesContext = createContext(null);
+    function RolesProvider({ children }) {
+      const [roles, setRoles] = useState(INITIAL_ROLES);
+      const updateRolePermissions = (id, permissions) =>
+        setRoles(prev => prev.map(r => r.id===id ? {...r, permissions:[...permissions], lastModified:today()} : r));
+      const archiveRole = (id) =>
+        setRoles(prev => prev.map(r => r.id===id ? {...r, status:'Archived', lastModified:today()} : r));
+      const getRolePermissions = (name) => {
+        const custom = roles.find(r => r.name===name);
+        if (custom) return custom.permissions;
+        if (SYSTEM_ROLES[name]) return SYSTEM_ROLES[name];
+        return [];
+      };
+      const value = {
+        roles,
+        customRoles: roles.filter(r => r.status==='Active'),
+        systemRoleNames: SYSTEM_ROLE_NAMES,
+        updateRolePermissions, archiveRole, getRolePermissions,
+      };
+      return <RolesContext.Provider value={value}>{children}</RolesContext.Provider>;
+    }
+    const useRoles = () => useContext(RolesContext);
+
+    const NAVY = '#0b1b3a';
+    const NAVY_GRADIENT = 'linear-gradient(180deg, #0b1b3a 0%, #0a1730 50%, #0c1d3f 100%)';
+    const RED = '#d32f2f';
+
+    // ─── App shell ──────────────────────────────────────────────────────────
+    const ADMIN_ITEMS = ['Manage Players','Manage Staff Users','Manage Games','Organisation Settings','Exports','Stock Management','Labels','Player Groups'];
+    function AppShell({ activeAdminItem, onAdminNavigate, children }) {
+      const [adminOpen, setAdminOpen] = useState(false);
+      const railIcon = (path, onClick, active) => (
+        <Box onClick={onClick} sx={{ width:40, height:40, borderRadius:1, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', color:'white', bgcolor: active?RED:'transparent', '&:hover':{ bgcolor: active?RED:'rgba(255,255,255,0.08)' } }}>
+          <Icon path={path} />
+        </Box>
+      );
+      return (
+        <Box sx={{ display:'flex', height:'100vh', overflow:'hidden', bgcolor:'white' }}>
+          {/* Icon rail */}
+          <Box sx={{ width:64, flexShrink:0, background:NAVY_GRADIENT, display:'flex', flexDirection:'column', alignItems:'center', py:1.5, gap:0.5 }}>
+            <Box sx={{ width:38, height:38, borderRadius:'6px', bgcolor:'white', display:'flex', alignItems:'center', justifyContent:'center', mb:1.5, fontWeight:800, fontSize:11, color:NAVY, border:'1px solid #c8102e' }}>NFL</Box>
+            {railIcon('M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z')}
+            {railIcon(ICONS.settings, () => setAdminOpen(o => !o), adminOpen)}
+            <Box sx={{ flex:1 }} />
+            {railIcon(ICONS.chevronsRight)}
+          </Box>
+
+          {/* Administration panel */}
+          {adminOpen && (
+            <Box sx={{ width:300, flexShrink:0, background:NAVY_GRADIENT, color:'white', py:3 }}>
+              <Typography sx={{ px:3, mb:2, fontWeight:700, fontSize:22, color:'white' }}>Administration</Typography>
+              {ADMIN_ITEMS.map(item => {
+                const isActive = item===activeAdminItem;
+                return (
+                  <Box key={item}
+                    onClick={() => { if (item==='Manage Staff Users' || item==='Organisation Settings') onAdminNavigate(item); }}
+                    sx={{ px:3, py:1.5, cursor:'pointer', bgcolor:isActive?RED:'transparent', fontWeight:isActive?700:400, fontSize:16, color:'white', '&:hover':{ bgcolor:isActive?RED:'rgba(255,255,255,0.08)' } }}>
+                    {item}
+                  </Box>
+                );
+              })}
+            </Box>
+          )}
+
+          {/* Main column */}
+          <Box sx={{ flex:1, minWidth:0, display:'flex', flexDirection:'column', overflow:'hidden' }}>
+            <Box sx={{ height:64, flexShrink:0, borderBottom:'1px solid var(--color-border-primary)', display:'flex', alignItems:'center', justifyContent:'space-between', px:3, bgcolor:'white' }}>
+              <Box sx={{ display:'flex', alignItems:'center', gap:1, bgcolor:NAVY, color:'white', px:2, py:0.75, borderRadius:1, cursor:'pointer', fontWeight:600, fontSize:14 }}>
+                Player list <Icon path={ICONS.chevronsRight} size={18} />
+              </Box>
+              <Box sx={{ display:'flex', alignItems:'center', gap:2 }}>
+                <Box sx={{ width:26, height:26, borderRadius:'4px', bgcolor:'white', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:9, color:NAVY, border:'1px solid #c8102e' }}>NFL</Box>
+                <Box sx={{ display:'flex', alignItems:'center', gap:0.5, cursor:'pointer' }}>
+                  <Typography sx={{ fontWeight:600, fontSize:15 }}>Active Roster</Typography>
+                  <Icon path={ICONS.arrowDown} size={20} sx={{ color:'text.secondary' }} />
+                </Box>
+                <Avatar sx={{ width:36, height:36, bgcolor:'grey.300', color:'text.secondary', fontSize:13, fontWeight:600 }}>LV</Avatar>
+              </Box>
+            </Box>
+            <Box sx={{ flex:1, overflow:'auto', bgcolor:'white' }}>{children}</Box>
+          </Box>
+        </Box>
+      );
+    }
+
+    // ─── Permission grid ──────────────────────────────────────────────────────
+    function PermissionGrid({ permissions, isEditMode, onToggle, onSelectAll }) {
+      const categories = Object.entries(PERMISSIONS);
+      if (!isEditMode) {
+        const enabled = categories.map(([c,p]) => ({ category:c, perms:p.filter(x => permissions.has(x)) })).filter(x => x.perms.length>0);
+        const cols = [[],[],[]];
+        enabled.forEach((e,i) => cols[i%3].push(e));
+        return (
+          <Box sx={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:4, alignItems:'start' }}>
+            {cols.map((col,ci) => (
+              <Box key={ci}>
+                {col.map(({category,perms}) => (
+                  <Box key={category} sx={{ mb:4 }}>
+                    <Typography variant="body2" fontWeight={700} sx={{ mb:1.25 }}>{category}</Typography>
+                    {perms.map(perm => (
+                      <Typography key={perm} variant="body2" sx={{ fontSize:13, py:0.5, lineHeight:1.4 }}>{perm}</Typography>
+                    ))}
+                  </Box>
+                ))}
+              </Box>
+            ))}
+          </Box>
+        );
+      }
+      const cols = [[],[],[]];
+      categories.forEach((e,i) => cols[i%3].push(e));
+      return (
+        <Box sx={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:4, alignItems:'start' }}>
+          {cols.map((col,ci) => (
+            <Box key={ci}>
+              {col.map(([category,perms]) => {
+                const allChecked = perms.every(p => permissions.has(p));
+                return (
+                  <Box key={category} sx={{ mb:4 }}>
+                    <Box sx={{ display:'flex', alignItems:'center', justifyContent:'space-between', mb:1.5 }}>
+                      <Typography variant="body2" fontWeight={700}>{category}</Typography>
+                      <Box component="button" onClick={() => onSelectAll(category, perms, allChecked)} sx={{ bgcolor:'transparent', border:'none', cursor:'pointer', color:'var(--color-primary)', fontSize:13, fontWeight:600, fontFamily:'inherit', p:0, '&:hover':{ textDecoration:'underline' } }}>
+                        {allChecked ? 'Deselect all' : 'Select all'}
+                      </Box>
+                    </Box>
+                    {perms.map(perm => {
+                      const checked = permissions.has(perm);
+                      return (
+                        <Box key={perm} onClick={() => onToggle(perm)} sx={{ display:'flex', alignItems:'center', gap:1, py:0.625, cursor:'pointer', borderRadius:0.5, '&:hover':{ bgcolor:'rgba(0,0,0,0.03)' } }}>
+                          <Checkbox size="small" checked={checked} onChange={() => onToggle(perm)} onClick={e => e.stopPropagation()} sx={{ p:0.25, flexShrink:0, '&.Mui-checked':{ color:'var(--color-primary)' } }} />
+                          <Typography variant="body2" sx={{ fontSize:13 }}>{perm}</Typography>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                );
+              })}
+            </Box>
+          ))}
+        </Box>
+      );
+    }
+
+    // ─── Row menu ─────────────────────────────────────────────────────────────
+    function RowMenu({ row, onEdit, onArchive }) {
+      const [anchor, setAnchor] = useState(null);
+      return (
+        <>
+          <IconButton size="small" onClick={e => { e.stopPropagation(); setAnchor(e.currentTarget); }}>
+            <Icon path={ICONS.moreVert} size={18} />
+          </IconButton>
+          <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={() => setAnchor(null)} onClick={e => e.stopPropagation()}>
+            <MenuItem onClick={() => { setAnchor(null); onEdit(row); }}><Icon path={ICONS.edit} size={16} sx={{ mr:1 }} /> Edit</MenuItem>
+            {row.status==='Active' && (
+              <MenuItem onClick={() => { setAnchor(null); onArchive(row); }} sx={{ color:'text.secondary' }}><Icon path={ICONS.archive} size={16} sx={{ mr:1 }} /> Archive</MenuItem>
+            )}
+          </Menu>
+        </>
+      );
+    }
+
+    // ─── Role detail (Screen 2) ─────────────────────────────────────────────
+    function RoleDetail({ role, onBack }) {
+      const { updateRolePermissions, archiveRole } = useRoles();
+      const [isEditMode, setIsEditMode] = useState(false);
+      const [permissions, setPermissions] = useState(() => new Set(role.permissions));
+      const [editPermissions, setEditPermissions] = useState(null);
+      const [toast, setToast] = useState(false);
+      const [menuAnchor, setMenuAnchor] = useState(null);
+      const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
+      const active = isEditMode ? editPermissions : permissions;
+
+      const startEdit = () => { setEditPermissions(new Set(permissions)); setIsEditMode(true); };
+      const cancelEdit = () => { setEditPermissions(null); setIsEditMode(false); };
+      const toggle = (perm) => setEditPermissions(prev => { const n=new Set(prev); n.has(perm)?n.delete(perm):n.add(perm); return n; });
+      const selectAll = (cat, perms, allChecked) => setEditPermissions(prev => { const n=new Set(prev); perms.forEach(p => allChecked?n.delete(p):n.add(p)); return n; });
+      const save = () => { setPermissions(editPermissions); updateRolePermissions(role.id,[...editPermissions]); setEditPermissions(null); setIsEditMode(false); setToast(true); };
+      const confirmArchive = () => { setArchiveDialogOpen(false); archiveRole(role.id); onBack(); };
+
+      return (
+        <Box sx={{ p:4, pb:12 }}>
+          <Box sx={{ display:'flex', alignItems:'center', gap:0.5, mb:2 }}>
+            <Box component="button" onClick={onBack} sx={{ bgcolor:'transparent', border:'none', cursor:'pointer', color:'text.secondary', fontSize:13, fontFamily:'inherit', p:0, display:'flex', alignItems:'center', gap:0.5, '&:hover':{ color:'text.primary' } }}>
+              <Icon path={ICONS.back} size={14} /> Organisation Settings
+            </Box>
+            <Typography variant="caption" color="text.disabled">/</Typography>
+            <Box component="button" onClick={onBack} sx={{ bgcolor:'transparent', border:'none', cursor:'pointer', color:'text.secondary', fontSize:13, fontFamily:'inherit', p:0, '&:hover':{ color:'text.primary' } }}>Role Permissions</Box>
+            <Typography variant="caption" color="text.disabled">/</Typography>
+            <Typography variant="caption" sx={{ fontSize:13, color:'text.primary' }}>{role.name}</Typography>
+          </Box>
+
+          <Box sx={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', mb:0.75 }}>
+            <Box>
+              <Typography variant="h5" fontWeight={700} sx={{ mb:0.5 }}>{role.name}</Typography>
+              <Box sx={{ display:'flex', alignItems:'center', gap:1.5 }}>
+                <Chip label={`Based on: ${role.basedOn}`} size="small" sx={{ bgcolor:'grey.100', color:'text.secondary', fontSize:12, fontWeight:500 }} />
+              </Box>
+            </Box>
+            <Box sx={{ display:'flex', alignItems:'center', gap:1 }}>
+              {!isEditMode && (
+                <Box component="button" onClick={startEdit} sx={{ px:2, py:0.75, bgcolor:'transparent', border:'1px solid var(--color-border-primary)', borderRadius:1, cursor:'pointer', fontWeight:600, fontSize:13, color:'text.primary', fontFamily:'inherit', '&:hover':{ bgcolor:'grey.50', borderColor:'text.secondary' } }}>Edit permissions</Box>
+              )}
+              <IconButton size="small" onClick={e => setMenuAnchor(e.currentTarget)}><Icon path={ICONS.moreVert} size={18} /></IconButton>
+              <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
+                {role.status==='Active' && (
+                  <MenuItem onClick={() => { setMenuAnchor(null); setArchiveDialogOpen(true); }} sx={{ color:'text.secondary' }}><Icon path={ICONS.archive} size={16} sx={{ mr:1 }} /> Archive role</MenuItem>
+                )}
+              </Menu>
+            </Box>
+          </Box>
+
+          <Divider sx={{ my:3 }} />
+          <PermissionGrid permissions={active} isEditMode={isEditMode} onToggle={toggle} onSelectAll={selectAll} />
+
+          {isEditMode && (
+            <Box sx={{ position:'fixed', bottom:0, left:0, right:0, bgcolor:'white', borderTop:'1px solid var(--color-border-primary)', px:4, py:2, display:'flex', justifyContent:'flex-end', gap:1.5, zIndex:1200 }}>
+              <Box component="button" onClick={cancelEdit} sx={{ px:2.5, py:0.875, bgcolor:'transparent', border:'1px solid var(--color-border-primary)', borderRadius:1, cursor:'pointer', fontWeight:600, fontSize:14, color:'text.secondary', fontFamily:'inherit', '&:hover':{ bgcolor:'grey.50' } }}>Cancel</Box>
+              <Box component="button" onClick={save} sx={{ px:2.5, py:0.875, bgcolor:'var(--color-primary)', color:'white', border:'none', borderRadius:1, cursor:'pointer', fontWeight:700, fontSize:14, fontFamily:'inherit', '&:hover':{ opacity:0.9 } }}>Save changes</Box>
+            </Box>
+          )}
+
+          <Snackbar open={toast} autoHideDuration={4000} onClose={(_,r) => { if (r!=='clickaway') setToast(false); }} anchorOrigin={{ vertical:'top', horizontal:'right' }}>
+            <Alert severity="success" onClose={() => setToast(false)} sx={{ minWidth:280 }}>Role updated successfully.</Alert>
+          </Snackbar>
+
+          <Dialog open={archiveDialogOpen} onClose={() => setArchiveDialogOpen(false)} maxWidth="xs" fullWidth>
+            <DialogTitle sx={{ fontWeight:700 }}>Archive role</DialogTitle>
+            <DialogContent><DialogContentText>Are you sure you want to archive <strong>{role.name}</strong>? Staff members currently using this role will not be affected, but the role will no longer be available to assign to new users.</DialogContentText></DialogContent>
+            <DialogActions sx={{ px:3, pb:2.5, gap:1 }}>
+              <Box component="button" onClick={() => setArchiveDialogOpen(false)} sx={{ px:2, py:0.75, bgcolor:'transparent', border:'1px solid var(--color-border-primary)', borderRadius:1, cursor:'pointer', fontWeight:600, fontSize:14, color:'text.secondary', fontFamily:'inherit', '&:hover':{ bgcolor:'grey.50' } }}>Cancel</Box>
+              <Box component="button" onClick={confirmArchive} sx={{ px:2, py:0.75, bgcolor:'var(--color-primary)', color:'white', border:'none', borderRadius:1, cursor:'pointer', fontWeight:700, fontSize:14, fontFamily:'inherit', '&:hover':{ opacity:0.9 } }}>Archive role</Box>
+            </DialogActions>
+          </Dialog>
+        </Box>
+      );
+    }
+
+    // ─── Role list (Screen 1) ─────────────────────────────────────────────────
+    function RolePermissionsList({ rows, onEdit, onArchive }) {
+      const [search, setSearch] = useState('');
+      const [dateFrom, setDateFrom] = useState('');
+      const [statusFilter, setStatusFilter] = useState('All');
+      const colSx = { fontWeight:600, fontSize:13, color:'text.secondary', borderBottom:'2px solid var(--color-border-primary)', py:1.25, px:2 };
+      const cellSx = { fontSize:14, py:1.25, px:2, borderBottom:'1px solid var(--color-border-primary)' };
+
+      const filtered = [...rows.filter(r => r.status==='Active'), ...rows.filter(r => r.status==='Archived')].filter(row => {
+        const ms = search.trim()==='' || row.name.toLowerCase().includes(search.toLowerCase()) || row.basedOn.toLowerCase().includes(search.toLowerCase());
+        const md = dateFrom==='' || row.lastModified >= dateFrom;
+        const mst = statusFilter==='All' || row.status===statusFilter;
+        return ms && md && mst;
+      });
+
+      return (
+        <Box>
+          <Box sx={{ display:'flex', alignItems:'center', gap:1.5, mb:2 }}>
+            <TextField size="small" placeholder="Search" value={search} onChange={e => setSearch(e.target.value)} sx={{ width:280, bgcolor:'grey.100', borderRadius:1, '& fieldset':{ border:'none' } }}
+              InputProps={{ endAdornment: <InputAdornment position="end"><Icon path={ICONS.search} size={18} sx={{ color:'text.disabled' }} /></InputAdornment> }} />
+            <TextField size="small" type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} sx={{ width:190, bgcolor:'grey.100', borderRadius:1, '& fieldset':{ border:'none' } }}
+              InputProps={{ endAdornment: <InputAdornment position="end"><Icon path={ICONS.calendar} size={18} sx={{ color:'text.disabled' }} /></InputAdornment> }} />
+            <FormControl size="small" sx={{ width:160, bgcolor:'grey.100', borderRadius:1, '& fieldset':{ border:'none' } }}>
+              <Select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+                <MenuItem value="All">All</MenuItem>
+                <MenuItem value="Active">Active</MenuItem>
+                <MenuItem value="Archived">Archived</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+
+          <TableContainer component={Paper} elevation={0} sx={{ border:'1px solid var(--color-border-primary)', borderRadius:1 }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ bgcolor:'grey.50' }}>
+                  <TableCell sx={colSx}>Role name</TableCell>
+                  <TableCell sx={colSx}>Based on</TableCell>
+                  <TableCell sx={colSx}>Status</TableCell>
+                  <TableCell sx={colSx}>Last modified</TableCell>
+                  <TableCell sx={{ ...colSx, width:48 }} />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filtered.map(row => (
+                  <TableRow key={row.id} hover onClick={() => onEdit(row)} sx={{ cursor:'pointer', opacity: row.status==='Archived'?0.6:1 }}>
+                    <TableCell sx={cellSx}><Typography variant="body2" fontWeight={500}>{row.name}</Typography></TableCell>
+                    <TableCell sx={{ ...cellSx, color:'text.secondary' }}>{row.basedOn}</TableCell>
+                    <TableCell sx={cellSx}>
+                      <Chip label={row.status} size="small" sx={{ bgcolor: row.status==='Active'?'rgba(16,185,129,0.12)':'rgba(0,0,0,0.08)', color: row.status==='Active'?'#065f46':'text.secondary', fontWeight:600, fontSize:12 }} />
+                    </TableCell>
+                    <TableCell sx={{ ...cellSx, color:'text.secondary' }}>{formatDate(row.lastModified)}</TableCell>
+                    <TableCell sx={{ ...cellSx, p:0.5 }} onClick={e => e.stopPropagation()}>
+                      <RowMenu row={row} onEdit={onEdit} onArchive={onArchive} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {filtered.length===0 && (
+                  <TableRow><TableCell colSpan={5} sx={{ ...cellSx, textAlign:'center', py:4, color:'text.secondary' }}>No roles match the current filters.</TableCell></TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      );
+    }
+
+    const ORG_TABS = ['Appearance','Workload','Security','Calendar','Notifications','Role Permissions'];
+    function OrganisationSettings() {
+      const { roles, archiveRole } = useRoles();
+      const [tabIndex, setTabIndex] = useState(5);
+      const [selectedRole, setSelectedRole] = useState(null);
+      const [archiveTarget, setArchiveTarget] = useState(null);
+      const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
+      const liveRole = selectedRole ? roles.find(r => r.id===selectedRole.id) : null;
+      const confirmArchive = () => { archiveRole(archiveTarget.id); setArchiveDialogOpen(false); setArchiveTarget(null); };
+
+      const tabsEl = (value, onChange) => (
+        <Tabs value={value} onChange={onChange} sx={{ mb:3, borderBottom:'1px solid var(--color-border-primary)', '& .MuiTab-root':{ textTransform:'none', fontSize:14, minHeight:44, px:2 }, '& .Mui-selected':{ color:'var(--color-primary)', fontWeight:600 }, '& .MuiTabs-indicator':{ bgcolor:'var(--color-primary)' } }}>
+          {ORG_TABS.map(t => <Tab key={t} label={t} />)}
+        </Tabs>
+      );
+
+      if (liveRole) {
+        return (
+          <Box sx={{ p:4 }}>
+            <Typography variant="h4" fontWeight={700} sx={{ mb:3 }}>Organisation Settings</Typography>
+            {tabsEl(5, (_,v) => { if (v!==5) setSelectedRole(null); })}
+            <RoleDetail role={liveRole} onBack={() => setSelectedRole(null)} />
+          </Box>
+        );
+      }
+      return (
+        <Box sx={{ p:4 }}>
+          <Typography variant="h4" fontWeight={700} sx={{ mb:3 }}>Organisation Settings</Typography>
+          {tabsEl(tabIndex, (_,v) => setTabIndex(v))}
+          {tabIndex!==5 && (
+            <Box sx={{ py:4, color:'text.secondary' }}><Typography variant="body2">{ORG_TABS[tabIndex]} settings — select the <strong>Role Permissions</strong> tab to continue.</Typography></Box>
+          )}
+          {tabIndex===5 && (
+            <Box>
+              <Box sx={{ mb:2.5 }}>
+                <Typography variant="h6" fontWeight={700} sx={{ mb:0.25 }}>Role Permissions</Typography>
+                <Typography variant="body2" color="text.secondary">Manage custom permission sets based on standard system roles.</Typography>
+              </Box>
+              <RolePermissionsList rows={roles} onEdit={setSelectedRole} onArchive={r => { setArchiveTarget(r); setArchiveDialogOpen(true); }} />
+            </Box>
+          )}
+          <Dialog open={archiveDialogOpen} onClose={() => setArchiveDialogOpen(false)} maxWidth="xs" fullWidth>
+            <DialogTitle sx={{ fontWeight:700 }}>Archive role</DialogTitle>
+            <DialogContent><DialogContentText>Are you sure you want to archive <strong>{archiveTarget?.name}</strong>? Staff members currently using this role will not be affected.</DialogContentText></DialogContent>
+            <DialogActions sx={{ px:3, pb:2.5, gap:1 }}>
+              <Box component="button" onClick={() => setArchiveDialogOpen(false)} sx={{ px:2, py:0.75, bgcolor:'transparent', border:'1px solid var(--color-border-primary)', borderRadius:1, cursor:'pointer', fontWeight:600, fontSize:14, color:'text.secondary', fontFamily:'inherit', '&:hover':{ bgcolor:'grey.50' } }}>Cancel</Box>
+              <Box component="button" onClick={confirmArchive} sx={{ px:2, py:0.75, bgcolor:'var(--color-primary)', color:'white', border:'none', borderRadius:1, cursor:'pointer', fontWeight:700, fontSize:14, fontFamily:'inherit', '&:hover':{ opacity:0.9 } }}>Archive role</Box>
+            </DialogActions>
+          </Dialog>
+        </Box>
+      );
+    }
+
+    // ─── Manage Staff Users (Screen 3) ────────────────────────────────────────
+    function ManageStaffUsers({ onOpenStaff }) {
+      const [tab, setTab] = useState(0);
+      const [search, setSearch] = useState('');
+      const statusFilter = tab===0 ? 'Active' : 'Inactive';
+      const rows = STAFF.filter(s => s.status===statusFilter && (s.name.toLowerCase().includes(search.toLowerCase()) || s.username.toLowerCase().includes(search.toLowerCase()) || s.email.toLowerCase().includes(search.toLowerCase())));
+      const colSx = { fontWeight:600, fontSize:13, color:'text.secondary', borderBottom:'1px solid var(--color-border-primary)', py:1.5, px:2 };
+      const cellSx = { fontSize:14, py:1.5, px:2, borderBottom:'1px solid var(--color-border-primary)', color:'text.secondary' };
+      return (
+        <Box sx={{ p:4 }}>
+          <Box sx={{ display:'flex', alignItems:'center', justifyContent:'space-between', mb:3 }}>
+            <Typography variant="h4" fontWeight={700}>Manage Staff Users</Typography>
+            <Box component="button" sx={{ px:2.5, py:1, bgcolor:NAVY, color:'white', border:'none', borderRadius:1, cursor:'pointer', fontWeight:600, fontSize:14, fontFamily:'inherit', '&:hover':{ opacity:0.9 } }}>Create New User</Box>
+          </Box>
+          <Tabs value={tab} onChange={(_,v) => setTab(v)} sx={{ mb:3, borderBottom:'1px solid var(--color-border-primary)', '& .MuiTab-root':{ textTransform:'none', fontSize:15, minHeight:44, px:0, mr:3 }, '& .Mui-selected':{ color:'var(--color-primary)', fontWeight:600 }, '& .MuiTabs-indicator':{ bgcolor:'var(--color-primary)' } }}>
+            <Tab label="Active" /><Tab label="Inactive" />
+          </Tabs>
+          <Box sx={{ border:'1px solid var(--color-border-primary)', borderRadius:2, p:3 }}>
+            <Typography variant="h6" fontWeight={700} sx={{ mb:2 }}>{statusFilter} users</Typography>
+            <TextField size="small" placeholder="Search" value={search} onChange={e => setSearch(e.target.value)} sx={{ mb:2, width:320, bgcolor:'grey.100', borderRadius:1, '& fieldset':{ border:'none' } }}
+              InputProps={{ endAdornment: <InputAdornment position="end"><Icon path={ICONS.search} size={18} sx={{ color:'text.disabled' }} /></InputAdornment> }} />
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={colSx}>Staff name</TableCell>
+                  <TableCell sx={colSx}>Username</TableCell>
+                  <TableCell sx={colSx}>Role</TableCell>
+                  <TableCell sx={colSx}>Email</TableCell>
+                  <TableCell sx={colSx}>Creation Date</TableCell>
+                  <TableCell sx={{ ...colSx, width:48 }} />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map(s => (
+                  <TableRow key={s.id} hover onClick={() => onOpenStaff(s)} sx={{ cursor:'pointer' }}>
+                    <TableCell sx={{ ...cellSx, color:'text.primary' }}>
+                      <Box sx={{ display:'flex', alignItems:'center', gap:1.5 }}>
+                        <Avatar sx={{ width:30, height:30, bgcolor:'grey.200', color:'text.secondary', fontSize:11, fontWeight:600 }}>{initials(s.name)}</Avatar>
+                        <Typography variant="body2" fontWeight={600}>{s.name}</Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell sx={cellSx}>{s.username}</TableCell>
+                    <TableCell sx={cellSx}>{s.role}</TableCell>
+                    <TableCell sx={cellSx}>{s.email}</TableCell>
+                    <TableCell sx={cellSx}>{s.created}</TableCell>
+                    <TableCell sx={{ ...cellSx, p:0.5 }} onClick={e => e.stopPropagation()}>
+                      <IconButton size="small" onClick={() => onOpenStaff(s)}><Icon path={ICONS.edit} size={16} sx={{ color:'text.secondary' }} /></IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {rows.length===0 && (
+                  <TableRow><TableCell colSpan={6} sx={{ ...cellSx, textAlign:'center', py:4 }}>No {statusFilter.toLowerCase()} users found.</TableCell></TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Box>
+        </Box>
+      );
+    }
+
+    // ─── Staff profile (Screen 4) ─────────────────────────────────────────────
+    function StaffProfile({ staff, onBack }) {
+      const { customRoles, systemRoleNames, getRolePermissions } = useRoles();
+      const [status, setStatus] = useState(staff.status);
+      const [role, setRole] = useState(staff.role);
+      const [menuAnchor, setMenuAnchor] = useState(null);
+      const [toast, setToast] = useState(false);
+      const open = Boolean(menuAnchor);
+      const active = new Set(getRolePermissions(role));
+      const categories = Object.entries(PERMISSIONS);
+      const cols = [[],[],[]];
+      categories.forEach((e,i) => cols[i%3].push(e));
+      const selectRole = (name) => { setRole(name); setMenuAnchor(null); };
+
+      return (
+        <Box sx={{ p:4, pb:10 }}>
+          <Box component="button" onClick={onBack} sx={{ bgcolor:'transparent', border:'none', cursor:'pointer', color:'text.secondary', fontSize:13, fontFamily:'inherit', p:0, mb:2, display:'flex', alignItems:'center', gap:0.5, '&:hover':{ color:'text.primary' } }}>
+            <Icon path={ICONS.back} size={14} /> Back to Manage Staff Users
+          </Box>
+          <Box sx={{ display:'flex', alignItems:'center', gap:2.5, mb:3 }}>
+            <Avatar sx={{ width:72, height:72, bgcolor:'grey.200', color:'text.secondary', fontSize:26, fontWeight:700 }}>{initials(staff.name)}</Avatar>
+            <Box>
+              <Typography variant="h5" fontWeight={700}>{staff.name}</Typography>
+              <Typography variant="body2" color="text.secondary">Username: <Box component="span" fontWeight={600} color="text.primary">{staff.username}</Box></Typography>
+            </Box>
+          </Box>
+          <Divider sx={{ mb:3 }} />
+          <Typography variant="h6" fontWeight={700} sx={{ mb:1.5 }}>Account</Typography>
+          <Typography variant="body2" fontWeight={600} color="text.secondary" sx={{ mb:1 }}>Status</Typography>
+          <RadioGroup value={status} onChange={e => setStatus(e.target.value)}>
+            <FormControlLabel value="Active" control={<Radio size="small" sx={{ '&.Mui-checked':{ color:'var(--color-primary)' } }} />} label="Active" />
+            <FormControlLabel value="Inactive" control={<Radio size="small" sx={{ '&.Mui-checked':{ color:'var(--color-primary)' } }} />} label="Inactive" />
+          </RadioGroup>
+          <Divider sx={{ my:3 }} />
+          <Typography variant="h6" fontWeight={700} sx={{ mb:2 }}>Personal Details</Typography>
+          <Box sx={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:4, mb:1, maxWidth:900 }}>
+            <Box>
+              <Typography variant="body2" fontWeight={600} color="text.secondary" sx={{ mb:0.75 }}>Date of birth</Typography>
+              <TextField size="small" fullWidth placeholder="Nothing selected" sx={{ bgcolor:'grey.100', borderRadius:1, '& fieldset':{ border:'1px solid var(--color-border-primary)' } }}
+                InputProps={{ endAdornment: <InputAdornment position="end"><Icon path={ICONS.calendar} size={18} sx={{ color:'text.disabled' }} /></InputAdornment> }} />
+            </Box>
+            <Box>
+              <Typography variant="body2" fontWeight={600} color="text.secondary" sx={{ mb:0.75 }}>Mobile number</Typography>
+              <Box sx={{ display:'flex', gap:1 }}>
+                <TextField size="small" placeholder="Select a country..." sx={{ width:160 }} />
+                <TextField size="small" fullWidth sx={{ bgcolor:'grey.100', '& fieldset':{ border:'1px solid var(--color-border-primary)' } }} />
+              </Box>
+              <FormControlLabel sx={{ mt:1 }} control={<Checkbox size="small" sx={{ '&.Mui-checked':{ color:'var(--color-primary)' } }} />} label={<Typography variant="body2">Mobile number verified</Typography>} />
+            </Box>
+          </Box>
+          <Divider sx={{ my:3 }} />
+          <Typography variant="h6" fontWeight={700} sx={{ mb:2 }}>Permissions</Typography>
+          <Box onClick={e => setMenuAnchor(e.currentTarget)} sx={{ display:'flex', alignItems:'center', justifyContent:'space-between', width:480, px:2, py:1.25, mb:3, border:'1px solid var(--color-border-primary)', borderRadius:1, cursor:'pointer', bgcolor:'white', '&:hover':{ borderColor:'text.secondary' } }}>
+            <Typography variant="body2">{role}</Typography>
+            <Icon path={ICONS.arrowDown} size={20} sx={{ color:'text.secondary', transform: open?'rotate(180deg)':'none', transition:'transform 0.15s' }} />
+          </Box>
+          <Menu anchorEl={menuAnchor} open={open} onClose={() => setMenuAnchor(null)} anchorOrigin={{ vertical:'bottom', horizontal:'left' }} transformOrigin={{ vertical:'top', horizontal:'left' }} PaperProps={{ sx:{ width:480, maxHeight:420, mt:-0.5 } }}>
+            <Box sx={{ px:2, py:0.75, bgcolor:'rgba(59,73,96,0.06)', borderBottom:'1px solid var(--color-border-primary)' }}>
+              <Typography variant="caption" fontWeight={700} sx={{ color:'var(--color-primary)', textTransform:'uppercase', letterSpacing:0.5, fontSize:10 }}>Your organisation's custom roles</Typography>
+            </Box>
+            {customRoles.map(r => (
+              <MenuItem key={r.id} selected={role===r.name} onClick={() => selectRole(r.name)} sx={{ py:1.25, px:2, fontSize:14, '&.Mui-selected':{ bgcolor:NAVY, color:'white', '&:hover':{ bgcolor:NAVY } } }}>{r.name}</MenuItem>
+            ))}
+            <Box sx={{ px:2, py:0.75, bgcolor:'grey.100', borderTop:'1px solid var(--color-border-primary)', borderBottom:'1px solid var(--color-border-primary)' }}>
+              <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform:'uppercase', letterSpacing:0.5, fontSize:10 }}>System roles</Typography>
+            </Box>
+            {systemRoleNames.map(name => (
+              <MenuItem key={name} selected={role===name} onClick={() => selectRole(name)} sx={{ py:1.25, px:2, fontSize:14, '&.Mui-selected':{ bgcolor:NAVY, color:'white', '&:hover':{ bgcolor:NAVY } } }}>{name}</MenuItem>
+            ))}
+          </Menu>
+          <Box sx={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:4, alignItems:'start' }}>
+            {cols.map((col,ci) => (
+              <Box key={ci}>
+                {col.map(([category,perms]) => (
+                  <Box key={category} sx={{ mb:4 }}>
+                    <Typography variant="body2" fontWeight={700} sx={{ mb:1.25 }}>{category}</Typography>
+                    {perms.map(perm => {
+                      const checked = active.has(perm);
+                      return (
+                        <Box key={perm} sx={{ display:'flex', alignItems:'center', gap:1, py:0.5 }}>
+                          <Checkbox size="small" checked={checked} disabled sx={{ p:0.25, flexShrink:0, '&.Mui-disabled':{ color: checked?'var(--color-primary)':'rgba(0,0,0,0.26)' } }} />
+                          <Typography variant="body2" sx={{ fontSize:13, color: checked?'text.primary':'text.disabled' }}>{perm}</Typography>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                ))}
+              </Box>
+            ))}
+          </Box>
+          <Box sx={{ position:'sticky', bottom:0, mt:4, mx:-4, px:4, py:2, bgcolor:'white', borderTop:'1px solid var(--color-border-primary)', display:'flex', justifyContent:'flex-end', gap:1.5 }}>
+            <Box component="button" onClick={onBack} sx={{ px:2.5, py:0.875, bgcolor:'transparent', border:'1px solid var(--color-border-primary)', borderRadius:1, cursor:'pointer', fontWeight:600, fontSize:14, color:'text.secondary', fontFamily:'inherit', '&:hover':{ bgcolor:'grey.50' } }}>Cancel</Box>
+            <Box component="button" onClick={() => setToast(true)} sx={{ px:2.5, py:0.875, bgcolor:'var(--color-primary)', color:'white', border:'none', borderRadius:1, cursor:'pointer', fontWeight:700, fontSize:14, fontFamily:'inherit', '&:hover':{ opacity:0.9 } }}>Save</Box>
+          </Box>
+          <Snackbar open={toast} autoHideDuration={4000} onClose={(_,r) => { if (r!=='clickaway') setToast(false); }} anchorOrigin={{ vertical:'top', horizontal:'right' }}>
+            <Alert severity="success" onClose={() => setToast(false)} sx={{ minWidth:280 }}>Role updated successfully.</Alert>
+          </Snackbar>
+        </Box>
+      );
+    }
+
+    // ─── Connected app ──────────────────────────────────────────────────────
+    function ConnectedApp() {
+      const [screen, setScreen] = useState('org-settings');
+      const [selectedStaff, setSelectedStaff] = useState(null);
+      const activeAdminItem = screen==='org-settings' ? 'Organisation Settings' : 'Manage Staff Users';
+      const navigate = (item) => {
+        if (item==='Manage Staff Users') { setScreen('staff-list'); setSelectedStaff(null); }
+        else if (item==='Organisation Settings') { setScreen('org-settings'); setSelectedStaff(null); }
+      };
+      return (
+        <AppShell activeAdminItem={activeAdminItem} onAdminNavigate={navigate}>
+          {screen==='org-settings' && <OrganisationSettings />}
+          {screen==='staff-list' && <ManageStaffUsers onOpenStaff={s => { setSelectedStaff(s); setScreen('staff-profile'); }} />}
+          {screen==='staff-profile' && selectedStaff && <StaffProfile staff={selectedStaff} onBack={() => { setScreen('staff-list'); setSelectedStaff(null); }} />}
+        </AppShell>
+      );
+    }
+
+    const theme = MaterialUI.createTheme({ palette: { primary: { main: '#3B4960' } } });
+    function App() {
+      return (
+        <MaterialUI.ThemeProvider theme={theme}>
+          <MaterialUI.CssBaseline />
+          <RolesProvider><ConnectedApp /></RolesProvider>
+        </MaterialUI.ThemeProvider>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

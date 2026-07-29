@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coach app — Standalone Mobile Prototype</title>
+
+  <!-- React 18 UMD -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Emotion (MUI styling engine) -->
+  <script crossorigin src="https://unpkg.com/@emotion/react@11/dist/emotion-react.umd.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@emotion/styled@11/dist/emotion-styled.umd.min.js"></script>
+
+  <!-- MUI Material UMD -->
+  <script crossorigin src="https://unpkg.com/@mui/material@5/umd/material-ui.production.min.js"></script>
+
+  <!-- Babel standalone for inline JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@500&display=swap');
+    * { box-sizing: border-box; }
+    html, body, #root { height: 100%; margin: 0; }
+    body {
+      font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #000;
+    }
+    /* every weight is medium (500) — never bold, per brand */
+    * { font-weight: 500 !important; }
+
+    #root {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #111;
+      overflow: hidden;
+    }
+    .phone-frame {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      background: #000;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+    }
+    @media (max-width: 430px) {
+      #root { background: #000; }
+      .phone-frame { width: 100vw; height: 100vh; border-radius: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/plain" id="app-source">
+    const { useState, useMemo, useEffect } = React;
+    const {
+      Box, Typography, Button, IconButton, TextField, MenuItem, Select, FormControl,
+      Checkbox, Drawer, Collapse, ThemeProvider, createTheme, CssBaseline,
+    } = MaterialUI;
+
+    /* ─── Theme — copied from index.html (colours, typography, component defaults) ── */
+    const theme = createTheme({
+      palette: {
+        primary:   { main: '#3B4960', dark: '#2f3a4d' },
+        secondary: { main: '#F1F2F3' },
+        background: { default: '#F3F4F7' },
+        text:      { primary: '#333333', secondary: '#666666' },
+      },
+      shape: { borderRadius: 6 },
+      typography: {
+        fontFamily: "'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontWeightLight: 500, fontWeightRegular: 500, fontWeightMedium: 500, fontWeightBold: 500,
+        button: { textTransform: 'none', fontWeight: 500 },
+        allVariants: { fontWeight: 500 },
+      },
+      components: {
+        MuiButton: {
+          defaultProps: { variant: 'contained', size: 'small', disableElevation: true },
+          styleOverrides: { root: { textTransform: 'none', borderRadius: 6, fontWeight: 500 } },
+        },
+        MuiTextField:  { defaultProps: { variant: 'filled', size: 'small' } },
+        MuiSelect:     { defaultProps: { variant: 'filled', size: 'small' } },
+        MuiFilledInput: {
+          defaultProps: { disableUnderline: true },
+          styleOverrides: {
+            root: {
+              backgroundColor: '#F3F4F7', borderRadius: 6, overflow: 'hidden',
+              '&:hover': { backgroundColor: '#ECEEF2' },
+              '&.Mui-focused': { backgroundColor: '#ECEEF2', boxShadow: '0 0 0 2px rgba(59,73,96,0.35)' },
+            },
+            input: { fontSize: 14, fontWeight: 500, paddingTop: 9, paddingBottom: 9 },
+          },
+        },
+        MuiCheckbox: { defaultProps: { size: 'small' }, styleOverrides: { root: { color: '#B4B8C0', '&.Mui-checked': { color: '#3B4960' } } } },
+        MuiMenuItem: { styleOverrides: { root: { fontSize: 14, fontWeight: 500 } } },
+      },
+    });
+
+    /* ─── Inline SVG icons — copied from index.html ───────────────────────── */
+    function Icon({ path, size = 20, color = 'currentColor', sx }) {
+      return (
+        <Box component="span" sx={{ display: 'inline-flex', lineHeight: 0, ...sx }}>
+          <svg width={size} height={size} viewBox="0 0 24 24" fill={color}><path d={path} /></svg>
+        </Box>
+      );
+    }
+    const P = {
+      analytics: 'M5 9.2h3V19H5zM10.6 5h3v14h-3zm5.6 8H19v6h-2.8z',
+      network: 'M12 2a3 3 0 0 0-1 5.83V10H7a2 2 0 0 0-2 2v1.17a3 3 0 1 0 2 0V12h10v1.17a3 3 0 1 0 2 0V12a2 2 0 0 0-2-2h-4V7.83A3 3 0 0 0 12 2z',
+      medical: 'M10 3h4v5h5v4h-5v5h-4v-5H5V8h5z',
+      drop: 'M12 3s6 6.5 6 11a6 6 0 1 1-12 0c0-4.5 6-11 6-11z',
+      clipboard: 'M9 2h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2a1 1 0 0 1 1-1zm0 3v1h6V5H9z',
+      calendar: 'M7 2v2H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zM5 9h14v10H5V9z',
+      inbox: 'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 9h4a4 4 0 0 0 8 0h4V6H4v7z',
+      folder: 'M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z',
+      person: 'M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4 0-8 2-8 5v3h16v-3c0-3-4-5-8-5z',
+      document: 'M6 2h8l6 6v14H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm7 1.5V9h5.5L13 3.5z',
+      settings: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 4l-2 .3a7 7 0 0 1-.6 1.5l1.2 1.6-1.4 1.4-1.6-1.2a7 7 0 0 1-1.5.6L14 20h-2l-.3-2a7 7 0 0 1-1.5-.6l-1.6 1.2-1.4-1.4 1.2-1.6a7 7 0 0 1-.6-1.5L4 12v-2l2-.3a7 7 0 0 1 .6-1.5L5.4 6.6l1.4-1.4 1.6 1.2a7 7 0 0 1 1.5-.6L12 4h2l.3 2a7 7 0 0 1 1.5.6l1.6-1.2 1.4 1.4-1.2 1.6a7 7 0 0 1 .6 1.5L21 10z',
+      help: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-2h2zm1.8-6.3-.9.9c-.5.5-.9 1-.9 2.4h-2v-.5c0-1 .4-1.9 1.1-2.6l1.2-1.2A1.6 1.6 0 1 0 10.4 8H8.4A3.6 3.6 0 1 1 15 10.7z',
+      chevronDown: 'M7.4 8.6 12 13.2l4.6-4.6L18 10l-6 6-6-6z',
+      chevronUp: 'M7.4 15.4 12 10.8l4.6 4.6L18 14l-6-6-6 6z',
+      chevronLeft: 'M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z',
+      chevronRight: 'M8.6 7.4 10 6l6 6-6 6-1.4-1.4L13.2 12z',
+      close: 'M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z',
+      filter: 'M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z',
+      search: 'M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z',
+      pin: 'M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z',
+      bell: 'M12 22a2.4 2.4 0 0 0 2.4-2.4H9.6A2.4 2.4 0 0 0 12 22zm7-6v-5a7 7 0 0 0-5.3-6.8V3.5a1.7 1.7 0 0 0-3.4 0v.7A7 7 0 0 0 5 11v5l-2 2v1h18v-1l-2-2z',
+      send: 'M2 21l21-9L2 3v7l15 2-15 2z',
+      clock: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11h5v-2h-4V6h-2v7z',
+      add: 'M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z',
+      check: 'M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z',
+      trash: 'M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z',
+    };
+
+    /* ─── Mock data — copied from index.html ──────────────────────────────── */
+    const ORGS = [
+      { id: 'atl', name: 'KL Atlanta', color: '#EE1C25', squads: [
+        { id: 'atl-kls', name: 'KLS' }, { id: 'atl-klsnp', name: 'KLS Next Pro' }, { id: 'atl-test', name: 'Test' },
+        { id: 'atl-u13ad', name: 'U13 AD' }, { id: 'atl-u14', name: 'U14' }, { id: 'atl-u14ad', name: 'U14 AD' },
+        { id: 'atl-u15ad', name: 'U15 AD' }, { id: 'atl-u16', name: 'U16' }, { id: 'atl-u17', name: 'U17' },
+        { id: 'atl-u18', name: 'U18' }, { id: 'atl-first', name: 'First team' },
+      ]},
+      { id: 'bos', name: 'KL Boston', color: '#0B6E4F', squads: [
+        { id: 'bos-first', name: 'First team' }, { id: 'bos-reserves', name: 'Reserves' },
+        { id: 'bos-u19', name: 'U19' }, { id: 'bos-u17', name: 'U17' },
+      ]},
+      { id: 'chi', name: 'KL Chicago', color: '#1565C0', squads: [
+        { id: 'chi-first', name: 'First team' }, { id: 'chi-acad', name: 'Academy' }, { id: 'chi-u18', name: 'U18' },
+      ]},
+      { id: 'den', name: 'KL Denver', color: '#6A1B9A', squads: [
+        { id: 'den-first', name: 'First team' }, { id: 'den-u21', name: 'U21' }, { id: 'den-u17', name: 'U17' },
+      ]},
+    ];
+    const SQUAD_BY_ID = {};
+    ORGS.forEach(o => o.squads.forEach(s => { SQUAD_BY_ID[s.id] = { ...s, orgId: o.id, orgName: o.name }; }));
+
+    const SQUAD_PALETTE = ['#005293', '#00897B', '#6A1B9A', '#EF6C00', '#C2185B', '#00838F', '#5D4037', '#2E7D32', '#455A64', '#AD1457', '#3949AB'];
+    const squadColor = (squadId) => {
+      const keys = Object.keys(SQUAD_BY_ID);
+      const idx = keys.indexOf(squadId);
+      return SQUAD_PALETTE[(idx >= 0 ? idx : 0) % SQUAD_PALETTE.length];
+    };
+
+    const TYPE_COLORS = {
+      Game: '#3B5BDB',
+      Training: '#28a745',
+      Travel: '#EF6C00',
+      Medical: '#dc3545',
+      Meeting: '#6A1B9A',
+      Recovery: '#00838F',
+    };
+
+    /* Needed only because SEED_EVENTS references specific locations below */
+    const LOCATION_SUGGESTIONS = [
+      { name: 'Mercedes-Benz Stadium', address: '1 AMB Dr NW, Atlanta, GA 30313' },
+      { name: 'Children’s Healthcare Training Ground', address: '4045 Vaughan Rd, Marietta, GA 30066' },
+      { name: 'Piedmont Park Athletic Fields', address: '400 Park Dr NE, Atlanta, GA 30306' },
+      { name: 'Emory Sports Medicine Complex', address: '1968 Hawks Ln, Brookhaven, GA 30329' },
+      { name: 'Atlanta Silverbacks Park', address: '3200 Atlanta Silverbacks Way, Atlanta, GA 30340' },
+      { name: 'Kennesaw State Soccer Stadium', address: '590 Cobb Ave NW, Kennesaw, GA 30144' },
+    ];
+
+    const ATHLETE_NAMES = ['Marco Silva', 'Diego Ferreira', 'Josh Lambert', 'Tyler Brooks', 'Andre Costa', 'Liam O’Neill', 'Samir Haddad', 'Noah Bennett', 'Kai Robinson', 'Owen Mitchell', 'Rafael Gomes', 'Ethan Walsh'];
+    const STAFF_NAMES = ['Coach D. Carroll', 'Dr. Amelia Reyes', 'S&C Lead M. Turner', 'Physio J. Park', 'Analyst R. Cole'];
+    const rosterForSquad = (squadId) => {
+      const seed = Object.keys(SQUAD_BY_ID).indexOf(squadId) + 1;
+      const athletes = ATHLETE_NAMES.filter((_, i) => (i + seed) % 2 === 0).slice(0, 6)
+        .map((n, i) => ({ id: `${squadId}-a${i}`, name: n, type: 'athlete' }));
+      const staff = STAFF_NAMES.slice(0, 3).map((n, i) => ({ id: `${squadId}-s${i}`, name: n, type: 'staff' }));
+      return [...athletes, ...staff];
+    };
+
+    let _eid = 0;
+    const ev = (day, orgId, squadId, type, title, start, end, extra = {}) => ({
+      id: `ev-${_eid++}`, day, orgId, squadId, type, title, start, end,
+      location: extra.location || null, reminders: extra.reminders || [], notes: extra.notes || '',
+      attendees: extra.attendees || rosterForSquad(squadId),
+    });
+    const SEED_EVENTS = [
+      ev(2, 'atl', 'atl-first', 'Training', 'First team training', '09:00', '11:00', { location: LOCATION_SUGGESTIONS[1], reminders: ['1 hour before'] }),
+      ev(2, 'atl', 'atl-u17', 'Training', 'U17 technical session', '16:00', '17:30'),
+      ev(6, 'atl', 'atl-first', 'Recovery', 'Recovery & pool', '10:00', '11:00'),
+      ev(7, 'atl', 'atl-test', 'Meeting', 'Sports science review', '13:00', '14:00', { reminders: ['30 minutes before'] }),
+      ev(9, 'atl', 'atl-first', 'Game', 'vs Orlando City', '19:30', '21:30', { location: LOCATION_SUGGESTIONS[0], reminders: ['1 day before', '3 hours before'] }),
+      ev(10, 'atl', 'atl-u16', 'Training', 'U16 conditioning', '15:30', '17:00'),
+      ev(13, 'atl', 'atl-first', 'Medical', 'Screening — hamstring', '08:30', '10:00', { location: LOCATION_SUGGESTIONS[3] }),
+      ev(15, 'atl', 'atl-first', 'Training', 'First team training', '09:00', '11:00', { location: LOCATION_SUGGESTIONS[1], reminders: ['1 hour before'] }),
+      ev(15, 'atl', 'atl-u18', 'Training', 'U18 match prep', '16:00', '17:30'),
+      ev(16, 'atl', 'atl-first', 'Travel', 'Travel to Nashville', '12:00', '18:00'),
+      ev(17, 'atl', 'atl-first', 'Game', 'vs Nashville SC', '20:00', '22:00', { location: { name: 'GEODIS Park', address: '501 Benton Ave, Nashville, TN 37203' }, reminders: ['1 day before'] }),
+      ev(21, 'atl', 'atl-u14', 'Training', 'U14 development', '16:00', '17:30'),
+      ev(23, 'atl', 'atl-first', 'Meeting', 'Squad planning', '11:00', '12:00'),
+      ev(24, 'atl', 'atl-first', 'Training', 'First team training', '09:00', '11:00', { location: LOCATION_SUGGESTIONS[1] }),
+      ev(28, 'atl', 'atl-first', 'Recovery', 'Recovery session', '10:00', '11:00'),
+      ev(9, 'bos', 'bos-first', 'Game', 'vs New England', '19:00', '21:00', { location: { name: 'Gillette Stadium', address: '1 Patriot Pl, Foxborough, MA 02035' } }),
+      ev(15, 'bos', 'bos-first', 'Training', 'First team training', '10:00', '12:00'),
+      ev(22, 'bos', 'bos-u19', 'Training', 'U19 session', '16:00', '17:30'),
+      ev(15, 'chi', 'chi-first', 'Meeting', 'Recruitment review', '14:00', '15:00'),
+      ev(18, 'chi', 'chi-acad', 'Training', 'Academy session', '15:00', '16:30'),
+    ];
+
+    /* ─── Calendar helpers (fresh, self-contained) ─────────────────────────── */
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const DOW_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const TODAY = { y: 2026, m: 6, d: 15 }; // 15 July 2026
+
+    function buildWeek(baseDate) {
+      const jsDow = baseDate.getDay();
+      const mondayOffset = (jsDow + 6) % 7;
+      const monday = new Date(baseDate);
+      monday.setDate(baseDate.getDate() - mondayOffset);
+      return Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        return {
+          key: i, label: DOW_LABELS[i], day: d.getDate(),
+          isToday: d.getFullYear() === TODAY.y && d.getMonth() === TODAY.m && d.getDate() === TODAY.d,
+        };
+      });
+    }
+
+    const darkFieldSx = {
+      '& .MuiFilledInput-root': { backgroundColor: '#2C2C2E', borderRadius: 1.5 },
+      '& .MuiFilledInput-root:hover': { backgroundColor: '#333335' },
+      '& .MuiFilledInput-root.Mui-focused': { backgroundColor: '#333335' },
+      '& .MuiFilledInput-input': { color: '#fff' },
+      '& .MuiSelect-select': { color: '#fff' },
+      '& .MuiInputBase-input::placeholder': { color: '#8E8E93', opacity: 1 },
+    };
+
+    function FieldLabelDark({ children }) {
+      return <Typography sx={{ fontSize: 12, color: '#8E8E93', mb: 0.5 }}>{children}</Typography>;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       STATUS BAR + BOTTOM NAV
+       ═══════════════════════════════════════════════════════════════════════ */
+    function StatusBar() {
+      return (
+        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 44, display: 'flex', alignItems: 'flex-end', px: 2.5, pb: 1, zIndex: 30 }}>
+          <Typography sx={{ color: '#fff', fontSize: 12 }}>16:57</Typography>
+        </Box>
+      );
+    }
+
+    const NAV_TABS = [
+      { key: 'athletes', label: 'Athletes', icon: P.person },
+      { key: 'calendar', label: 'Calendar', icon: P.calendar },
+      { key: 'messages', label: 'Messages', icon: P.inbox },
+      { key: 'settings', label: 'Settings', icon: P.settings },
+    ];
+
+    function BottomNav({ active, onChange }) {
+      return (
+        <Box sx={{
+          position: 'absolute', left: 0, right: 0, bottom: 0, bgcolor: '#1C1C1E', borderTop: '1px solid #2C2C2E',
+          display: 'flex', pt: 1, pb: 2, zIndex: 30,
+        }}>
+          {NAV_TABS.map(tab => {
+            const isActive = tab.key === active;
+            const color = isActive ? '#3B5BDB' : '#666';
+            return (
+              <Box key={tab.key} onClick={() => onChange(tab.key)} sx={{
+                flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, cursor: 'pointer',
+              }}>
+                <Icon path={tab.icon} size={22} color={color} />
+                <Typography sx={{ fontSize: 10, color }}>{tab.label}</Typography>
+              </Box>
+            );
+          })}
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       CALENDAR TAB
+       ═══════════════════════════════════════════════════════════════════════ */
+    function CalendarHeader({ monthLabel, onPrev, onNext, onAdd }) {
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1.5, position: 'relative' }}>
+          <Box sx={{ flex: 1 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+            <IconButton size="small" onClick={onPrev}><Icon path={P.chevronLeft} size={18} color="#fff" /></IconButton>
+            <Typography sx={{ color: '#fff', fontSize: 16 }}>{monthLabel}</Typography>
+            <IconButton size="small" onClick={onNext}><Icon path={P.chevronRight} size={18} color="#fff" /></IconButton>
+          </Box>
+          <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+            <Box onClick={onAdd} sx={{ bgcolor: '#3B5BDB', color: '#fff', borderRadius: 16, px: 1.75, py: 0.6, fontSize: 13, cursor: 'pointer' }}>
+              Add
+            </Box>
+          </Box>
+        </Box>
+      );
+    }
+
+    function WeekStrip({ days, selectedDay, onSelectDay }) {
+      return (
+        <Box sx={{ display: 'flex', px: 1.5, py: 1, gap: 0.25 }}>
+          {days.map(d => {
+            const isSelected = d.day === selectedDay;
+            return (
+              <Box key={d.key} onClick={() => onSelectDay(d.day)} sx={{
+                flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, py: 1, cursor: 'pointer',
+              }}>
+                <Typography sx={{ fontSize: 10, color: '#8E8E93' }}>{d.label}</Typography>
+                <Box sx={{
+                  width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  bgcolor: d.isToday ? '#3B5BDB' : 'transparent',
+                  border: (!d.isToday && isSelected) ? '1px solid #3B5BDB' : '1px solid transparent',
+                }}>
+                  <Typography sx={{ fontSize: 14, color: '#fff' }}>{d.day}</Typography>
+                </Box>
+              </Box>
+            );
+          })}
+        </Box>
+      );
+    }
+
+    function EventCard({ event, onClick }) {
+      const color = TYPE_COLORS[event.type] || squadColor(event.squadId);
+      const squad = SQUAD_BY_ID[event.squadId];
+      return (
+        <Box onClick={() => onClick(event)} sx={{
+          display: 'flex', gap: 0, bgcolor: '#1C1C1E', border: '1px solid #2C2C2E', borderRadius: 2, mb: 1.5,
+          overflow: 'hidden', cursor: 'pointer',
+        }}>
+          <Box sx={{ width: 4, bgcolor: color, flexShrink: 0 }} />
+          <Box sx={{ py: 1.25, px: 1.5, flex: 1, minWidth: 0 }}>
+            <Typography sx={{ color: '#fff', fontSize: 14, mb: 0.25 }}>{event.title}</Typography>
+            <Typography sx={{ color: '#8E8E93', fontSize: 12 }}>{event.start} – {event.end} · {squad ? squad.name : ''}</Typography>
+            {event.location && <Typography sx={{ color: '#8E8E93', fontSize: 12, mt: 0.25 }}>{event.location.name}</Typography>}
+          </Box>
+        </Box>
+      );
+    }
+
+    function EventList({ events, onSelect }) {
+      if (!events.length) {
+        return <Typography sx={{ color: '#8E8E93', fontSize: 13, textAlign: 'center', mt: 5 }}>No events this day</Typography>;
+      }
+      return (
+        <Box sx={{ px: 2, pt: 1 }}>
+          {events.map(e => <EventCard key={e.id} event={e} onClick={onSelect} />)}
+        </Box>
+      );
+    }
+
+    function initials(name) {
+      return name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('');
+    }
+
+    function EventDetailSheet({ event, onClose }) {
+      if (!event) return null;
+      const color = TYPE_COLORS[event.type] || squadColor(event.squadId);
+      const attendees = event.attendees || [];
+      return (
+        <Drawer anchor="bottom" open={Boolean(event)} onClose={onClose}
+          PaperProps={{ sx: { bgcolor: '#1C1C1E', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%' } }}>
+          <Box sx={{ height: 4, bgcolor: color }} />
+          <Box sx={{ p: 2.5 }}>
+            <Typography sx={{ color: '#fff', fontSize: 18, mb: 0.5 }}>{event.title}</Typography>
+            <Typography sx={{ color: '#8E8E93', fontSize: 13, mb: 1.5 }}>{event.start} – {event.end}</Typography>
+            {event.location && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                <Icon path={P.pin} size={16} color="#8E8E93" />
+                <Typography sx={{ color: '#fff', fontSize: 13 }}>{event.location.name}</Typography>
+              </Box>
+            )}
+            <Box sx={{ display: 'flex', gap: 1, mb: 2.5, flexWrap: 'wrap' }}>
+              {attendees.slice(0, 8).map(a => (
+                <Box key={a.id} sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: '#2C2C2E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography sx={{ color: '#fff', fontSize: 12 }}>{initials(a.name)}</Typography>
+                </Box>
+              ))}
+              {attendees.length > 8 && (
+                <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: '#2C2C2E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography sx={{ color: '#8E8E93', fontSize: 11 }}>+{attendees.length - 8}</Typography>
+                </Box>
+              )}
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button onClick={onClose} sx={{ flex: 1, bgcolor: '#3B5BDB', '&:hover': { bgcolor: '#2f47a8' } }}>Message participants</Button>
+              <Button onClick={onClose} sx={{ flex: 1, bgcolor: '#2C2C2E', color: '#fff', '&:hover': { bgcolor: '#3A3A3C' } }}>Edit event</Button>
+            </Box>
+          </Box>
+        </Drawer>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       ADD EVENT — 3-STEP BOTTOM SHEET
+       ═══════════════════════════════════════════════════════════════════════ */
+    const ADD_STEPS = ['Group', 'Participants', 'Details'];
+    const COACH_CUSTOM_GROUPS = [
+      { id: 'group-travel-a', name: 'Travel Party A' },
+      { id: 'group-tournament', name: 'Tournament Squad' },
+    ];
+    const COACH_TYPES = Object.keys(TYPE_COLORS);
+
+    function GroupStep({ selected, onSelect }) {
+      const [expanded, setExpanded] = useState(() => new Set(['atl']));
+      const toggle = (id) => setExpanded(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+      const isSelected = (type, id) => selected && selected.type === type && selected.id === id;
+
+      return (
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Typography sx={{ fontSize: 11, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: 0.5, mb: 1 }}>Custom groups</Typography>
+          {COACH_CUSTOM_GROUPS.map(g => (
+            <Box key={g.id} onClick={() => onSelect({ type: 'custom', id: g.id, name: g.name, orgId: 'atl', squadId: 'atl-first' })}
+              sx={{
+                display: 'flex', alignItems: 'center', gap: 1, py: 1.25, px: 1, mb: 0.5, borderRadius: 1.5, cursor: 'pointer',
+                bgcolor: isSelected('custom', g.id) ? '#132540' : 'transparent',
+              }}>
+              <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#3B5BDB' }} />
+              <Typography sx={{ color: '#fff', fontSize: 14 }}>{g.name}</Typography>
+            </Box>
+          ))}
+
+          <Typography sx={{ fontSize: 11, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: 0.5, mt: 2.5, mb: 1 }}>Organisations</Typography>
+          {ORGS.map(org => {
+            const open = expanded.has(org.id);
+            return (
+              <Box key={org.id}>
+                <Box onClick={() => toggle(org.id)} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1.25, cursor: 'pointer' }}>
+                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: org.color }} />
+                  <Typography sx={{ color: '#fff', fontSize: 14, flex: 1 }}>{org.name}</Typography>
+                  <Icon path={open ? P.chevronUp : P.chevronDown} size={16} color="#8E8E93" />
+                </Box>
+                <Collapse in={open}>
+                  <Box sx={{ pl: 2.5 }}>
+                    {org.squads.map(s => (
+                      <Box key={s.id} onClick={() => onSelect({ type: 'squad', id: s.id, name: s.name, orgId: org.id, squadId: s.id })}
+                        sx={{
+                          display: 'flex', alignItems: 'center', gap: 1, py: 1, px: 1, borderRadius: 1.5, cursor: 'pointer',
+                          bgcolor: isSelected('squad', s.id) ? '#132540' : 'transparent',
+                        }}>
+                        <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: squadColor(s.id) }} />
+                        <Typography sx={{ color: '#fff', fontSize: 13 }}>{s.name}</Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                </Collapse>
+              </Box>
+            );
+          })}
+        </Box>
+      );
+    }
+
+    function ParticipantsStep({ group, participantIds, setParticipantIds }) {
+      const roster = useMemo(() => group ? rosterForSquad(group.squadId) : [], [group]);
+      const athletes = roster.filter(a => a.type === 'athlete');
+      const staff = roster.filter(a => a.type === 'staff');
+      const toggle = (id) => setParticipantIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+
+      const Row = ({ person }) => (
+        <Box key={person.id} onClick={() => toggle(person.id)} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1, cursor: 'pointer' }}>
+          <Checkbox checked={participantIds.has(person.id)} onChange={() => toggle(person.id)}
+            sx={{ p: 0.5, color: '#666', '&.Mui-checked': { color: '#3B5BDB' } }} />
+          <Typography sx={{ color: '#fff', fontSize: 14 }}>{person.name}</Typography>
+        </Box>
+      );
+
+      return (
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Typography sx={{ color: '#fff', fontSize: 15, mb: 1.5 }}>Participants for {group ? group.name : ''}</Typography>
+          <Typography sx={{ color: '#8E8E93', fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, mb: 0.5 }}>Athletes</Typography>
+          {athletes.map(a => <Row key={a.id} person={a} />)}
+          <Typography sx={{ color: '#8E8E93', fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, mt: 2, mb: 0.5 }}>Staff</Typography>
+          {staff.map(s => <Row key={s.id} person={s} />)}
+        </Box>
+      );
+    }
+
+    function DetailsStep({ type, setType, title, setTitle, date, setDate, start, setStart, location, setLocation }) {
+      return (
+        <Box sx={{ px: 2, py: 1.5, display: 'flex', flexDirection: 'column', gap: 1.75 }}>
+          <Box>
+            <FieldLabelDark>Type</FieldLabelDark>
+            <FormControl fullWidth sx={darkFieldSx}>
+              <Select value={type} displayEmpty onChange={(e) => setType(e.target.value)}
+                renderValue={(v) => v || <Box component="span" sx={{ color: '#8E8E93' }}>Select a type</Box>}>
+                {COACH_TYPES.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box>
+            <FieldLabelDark>Title</FieldLabelDark>
+            <TextField fullWidth placeholder="Event name" value={title} onChange={(e) => setTitle(e.target.value)} sx={darkFieldSx} />
+          </Box>
+          <Box>
+            <FieldLabelDark>Date</FieldLabelDark>
+            <TextField fullWidth type="date" value={date} onChange={(e) => setDate(e.target.value)} sx={darkFieldSx} />
+          </Box>
+          <Box>
+            <FieldLabelDark>Start time</FieldLabelDark>
+            <TextField fullWidth type="time" value={start} onChange={(e) => setStart(e.target.value)} sx={darkFieldSx} />
+          </Box>
+          <Box>
+            <FieldLabelDark>Location</FieldLabelDark>
+            <TextField fullWidth placeholder="Add a location" value={location} onChange={(e) => setLocation(e.target.value)} sx={darkFieldSx} />
+          </Box>
+        </Box>
+      );
+    }
+
+    function AddEventSheet({ open, onClose, onCreate }) {
+      const [step, setStep] = useState(1);
+      const [group, setGroup] = useState(null);
+      const [participantIds, setParticipantIds] = useState(() => new Set());
+      const [type, setType] = useState('');
+      const [title, setTitle] = useState('');
+      const [date, setDate] = useState('2026-07-15');
+      const [start, setStart] = useState('09:00');
+      const [location, setLocation] = useState('');
+
+      useEffect(() => {
+        if (group) setParticipantIds(new Set(rosterForSquad(group.squadId).map(r => r.id)));
+      }, [group]);
+
+      const reset = () => {
+        setStep(1); setGroup(null); setParticipantIds(new Set());
+        setType(''); setTitle(''); setDate('2026-07-15'); setStart('09:00'); setLocation('');
+      };
+      const close = () => { reset(); onClose(); };
+
+      const canNext1 = Boolean(group);
+      const canCreate = title.trim() && type;
+
+      const goBack = () => { if (step === 1) { close(); return; } setStep(s => s - 1); };
+      const goNext = () => {
+        if (step === 1 && !canNext1) return;
+        if (step < 3) { setStep(s => s + 1); return; }
+        if (!canCreate || !group) return;
+        const dayNum = date ? Number(date.split('-')[2]) : 15;
+        const roster = rosterForSquad(group.squadId);
+        const attendees = roster.filter(a => participantIds.has(a.id));
+        onCreate({
+          id: `ev-${Date.now()}`, day: dayNum, orgId: group.orgId, squadId: group.squadId, type,
+          title: title.trim(), start, end: start, location: location.trim() ? { name: location.trim(), address: '' } : null,
+          reminders: [], notes: '', attendees: attendees.length ? attendees : roster,
+        });
+        reset();
+        onClose();
+      };
+
+      return (
+        <Drawer anchor="bottom" open={open} onClose={close}
+          PaperProps={{ sx: { bgcolor: '#1C1C1E', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '88%', display: 'flex', flexDirection: 'column' } }}>
+          <Box sx={{ px: 2.5, py: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #2C2C2E' }}>
+            <Typography sx={{ color: '#fff', fontSize: 16 }}>New event</Typography>
+            <IconButton size="small" onClick={close}><Icon path={P.close} size={20} color="#8E8E93" /></IconButton>
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 1, px: 2, py: 1.25, borderBottom: '1px solid #2C2C2E' }}>
+            {ADD_STEPS.map((label, i) => {
+              const n = i + 1;
+              const state = n === step ? 'active' : n < step ? 'done' : 'upcoming';
+              return (
+                <Box key={label} sx={{ px: 1.25, py: 0.5, borderRadius: 10, bgcolor: state === 'active' ? '#3B5BDB' : 'transparent' }}>
+                  <Typography sx={{ fontSize: 12, color: state === 'active' ? '#fff' : state === 'done' ? '#3B5BDB' : '#666' }}>
+                    {`${n}. ${label}`}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
+
+          <Box sx={{ flex: 1, overflowY: 'auto' }}>
+            {step === 1 && <GroupStep selected={group} onSelect={setGroup} />}
+            {step === 2 && <ParticipantsStep group={group} participantIds={participantIds} setParticipantIds={setParticipantIds} />}
+            {step === 3 && (
+              <DetailsStep type={type} setType={setType} title={title} setTitle={setTitle}
+                date={date} setDate={setDate} start={start} setStart={setStart}
+                location={location} setLocation={setLocation} />
+            )}
+          </Box>
+
+          <Box sx={{ px: 2, py: 2, borderTop: '1px solid #2C2C2E', display: 'flex', gap: 1 }}>
+            <Button onClick={goBack} sx={{ bgcolor: '#2C2C2E', color: '#fff', '&:hover': { bgcolor: '#3A3A3C' } }}>Back</Button>
+            {step < 3 ? (
+              <Button disabled={step === 1 && !canNext1} onClick={goNext}
+                sx={{ flex: 1, bgcolor: '#3B5BDB', '&:hover': { bgcolor: '#2f47a8' }, '&.Mui-disabled': { bgcolor: '#2C2C2E', color: '#666' } }}>
+                Next
+              </Button>
+            ) : (
+              <Button disabled={!canCreate} onClick={goNext}
+                sx={{ flex: 1, bgcolor: '#3B5BDB', '&:hover': { bgcolor: '#2f47a8' }, '&.Mui-disabled': { bgcolor: '#2C2C2E', color: '#666' } }}>
+                Create event
+              </Button>
+            )}
+          </Box>
+        </Drawer>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       CALENDAR TAB (combines header, week strip, list, sheets)
+       ═══════════════════════════════════════════════════════════════════════ */
+    function CalendarTab() {
+      const [weekOffset, setWeekOffset] = useState(0);
+      const [selectedDay, setSelectedDay] = useState(TODAY.d);
+      const [activeEvent, setActiveEvent] = useState(null);
+      const [addOpen, setAddOpen] = useState(false);
+      const [events, setEvents] = useState(SEED_EVENTS);
+
+      const baseDate = useMemo(() => {
+        const d = new Date(TODAY.y, TODAY.m, TODAY.d);
+        d.setDate(d.getDate() + weekOffset * 7);
+        return d;
+      }, [weekOffset]);
+      const week = useMemo(() => buildWeek(baseDate), [baseDate]);
+      const monthLabel = `${MONTHS[baseDate.getMonth()]} ${baseDate.getFullYear()}`;
+
+      const dayEvents = useMemo(
+        () => events.filter(e => e.day === selectedDay).sort((a, b) => a.start.localeCompare(b.start)),
+        [events, selectedDay]
+      );
+
+      const handleCreate = (evt) => { setEvents(prev => [...prev, evt]); setSelectedDay(evt.day); };
+
+      return (
+        <Box sx={{ position: 'absolute', top: 44, left: 0, right: 0, bottom: 0, overflowY: 'auto', pb: '96px' }}>
+          <CalendarHeader monthLabel={monthLabel}
+            onPrev={() => setWeekOffset(w => w - 1)} onNext={() => setWeekOffset(w => w + 1)}
+            onAdd={() => setAddOpen(true)} />
+          <WeekStrip days={week} selectedDay={selectedDay} onSelectDay={setSelectedDay} />
+          <EventList events={dayEvents} onSelect={setActiveEvent} />
+          <EventDetailSheet event={activeEvent} onClose={() => setActiveEvent(null)} />
+          <AddEventSheet open={addOpen} onClose={() => setAddOpen(false)} onCreate={handleCreate} />
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       PLACEHOLDER TABS
+       ═══════════════════════════════════════════════════════════════════════ */
+    function PlaceholderTab({ label }) {
+      return (
+        <Box sx={{ position: 'absolute', top: 44, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Typography sx={{ color: '#8E8E93', fontSize: 15 }}>{label}</Typography>
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       APP
+       ═══════════════════════════════════════════════════════════════════════ */
+    function App() {
+      const [tab, setTab] = useState('calendar');
+      return (
+        <ThemeProvider theme={theme}>
+          <Box className="phone-frame">
+            <StatusBar />
+            {tab === 'calendar' && <CalendarTab />}
+            {tab === 'athletes' && <PlaceholderTab label="Athletes" />}
+            {tab === 'messages' && <PlaceholderTab label="Messages" />}
+            {tab === 'settings' && <PlaceholderTab label="Settings" />}
+            <BottomNav active={tab} onChange={setTab} />
+          </Box>
+        </ThemeProvider>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+
+  <!-- Force Babel's classic JSX runtime so it runs in a plain script tag -->
+  <script>
+    (function () {
+      const source = document.getElementById('app-source').textContent;
+      const compiled = Babel.transform(source, { presets: [['react', { runtime: 'classic' }]] }).code;
+      const script = document.createElement('script');
+      script.text = compiled;
+      document.body.appendChild(script);
+    })();
+  </script>
+</body>
+</html>

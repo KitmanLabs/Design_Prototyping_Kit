@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendar upgrade v1 — Standalone Prototype</title>
+
+  <!-- React 18 UMD -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Emotion (MUI styling engine) -->
+  <script crossorigin src="https://unpkg.com/@emotion/react@11/dist/emotion-react.umd.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@emotion/styled@11/dist/emotion-styled.umd.min.js"></script>
+
+  <!-- MUI Material UMD -->
+  <script crossorigin src="https://unpkg.com/@mui/material@5/umd/material-ui.production.min.js"></script>
+
+  <!-- Babel standalone for inline JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@500&display=swap');
+    :root {
+      --navy: #1D2635;
+      --navy-hover: #2c3648;
+      --blue: #3B4960;
+      --blue-hover: #364358;
+      --org-red: #EE1C25;
+      --grey-fill: #F3F4F7;
+      --grey-fill-hover: #ECEEF2;
+      --secondary: #F1F2F3;
+      --secondary-hover: #E6E7EA;
+      --today: #E9EFF6;
+      --border: #e0e0e0;
+      --text-primary: #333333;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    html, body, #root { height: 100%; margin: 0; }
+    #root { font-size: 18px; }
+    body {
+      font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--grey-fill);
+      color: var(--text-primary);
+    }
+    /* every weight is medium (500) — never bold, per brand */
+    * { font-weight: 500 !important; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/plain" id="app-source">
+    const { useState, useMemo, useRef, useEffect } = React;
+    const {
+      Box, Typography, Button, IconButton, TextField, MenuItem, Select, FormControl,
+      Checkbox, Popover, Menu, Drawer, Dialog, Collapse, Divider, Chip, Snackbar,
+      Alert, InputAdornment, ThemeProvider, createTheme, CssBaseline, Fade, ClickAwayListener, Badge, Avatar, Tooltip,
+    } = MaterialUI;
+
+    /* ─── Theme — MLS palette, filled inputs, weight 500 only ─────────────── */
+    const theme = createTheme({
+      palette: {
+        primary:   { main: '#3B4960', dark: '#2f3a4d' },
+        secondary: { main: '#F1F2F3' },
+        background: { default: '#F3F4F7' },
+        text:      { primary: '#333333', secondary: '#666666' },
+      },
+      shape: { borderRadius: 6 },
+      typography: {
+        fontSize: 18,
+        fontFamily: "'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontWeightLight: 500, fontWeightRegular: 500, fontWeightMedium: 500, fontWeightBold: 500,
+        button: { textTransform: 'none', fontWeight: 500 },
+        allVariants: { fontWeight: 500 },
+      },
+      components: {
+        MuiButton: {
+          defaultProps: { variant: 'contained', size: 'small', disableElevation: true },
+          styleOverrides: { root: { textTransform: 'none', borderRadius: 6, fontWeight: 500 } },
+        },
+        MuiTextField:  { defaultProps: { variant: 'filled', size: 'small' } },
+        MuiSelect:     { defaultProps: { variant: 'filled', size: 'small' } },
+        MuiFilledInput: {
+          defaultProps: { disableUnderline: true },
+          styleOverrides: {
+            root: {
+              backgroundColor: '#F3F4F7', borderRadius: 6, overflow: 'hidden',
+              '&:hover': { backgroundColor: '#ECEEF2' },
+              '&.Mui-focused': { backgroundColor: '#ECEEF2', boxShadow: '0 0 0 2px rgba(59,73,96,0.35)' },
+            },
+            input: { fontSize: 18, fontWeight: 500, paddingTop: 9, paddingBottom: 9 },
+          },
+        },
+        MuiCheckbox: { defaultProps: { size: 'small' }, styleOverrides: { root: { color: '#B4B8C0', '&.Mui-checked': { color: '#3B4960' } } } },
+        MuiMenuItem: { styleOverrides: { root: { fontSize: 18, fontWeight: 500 } } },
+      },
+    });
+
+    /* ─── Inline SVG icons (no icon-font dependency) ──────────────────────── */
+    function Icon({ path, size = 20, color = 'currentColor', sx }) {
+      return (
+        <Box component="span" sx={{ display: 'inline-flex', lineHeight: 0, ...sx }}>
+          <svg width={size} height={size} viewBox="0 0 24 24" fill={color}><path d={path} /></svg>
+        </Box>
+      );
+    }
+    const P = {
+      analytics: 'M5 9.2h3V19H5zM10.6 5h3v14h-3zm5.6 8H19v6h-2.8z',
+      network: 'M12 2a3 3 0 0 0-1 5.83V10H7a2 2 0 0 0-2 2v1.17a3 3 0 1 0 2 0V12h10v1.17a3 3 0 1 0 2 0V12a2 2 0 0 0-2-2h-4V7.83A3 3 0 0 0 12 2z',
+      medical: 'M10 3h4v5h5v4h-5v5h-4v-5H5V8h5z',
+      drop: 'M12 3s6 6.5 6 11a6 6 0 1 1-12 0c0-4.5 6-11 6-11z',
+      clipboard: 'M9 2h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2a1 1 0 0 1 1-1zm0 3v1h6V5H9z',
+      calendar: 'M7 2v2H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zM5 9h14v10H5V9z',
+      inbox: 'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 9h4a4 4 0 0 0 8 0h4V6H4v7z',
+      folder: 'M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z',
+      person: 'M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4 0-8 2-8 5v3h16v-3c0-3-4-5-8-5z',
+      document: 'M6 2h8l6 6v14H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm7 1.5V9h5.5L13 3.5z',
+      settings: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 4l-2 .3a7 7 0 0 1-.6 1.5l1.2 1.6-1.4 1.4-1.6-1.2a7 7 0 0 1-1.5.6L14 20h-2l-.3-2a7 7 0 0 1-1.5-.6l-1.6 1.2-1.4-1.4 1.2-1.6a7 7 0 0 1-.6-1.5L4 12v-2l2-.3a7 7 0 0 1 .6-1.5L5.4 6.6l1.4-1.4 1.6 1.2a7 7 0 0 1 1.5-.6L12 4h2l.3 2a7 7 0 0 1 1.5.6l1.6-1.2 1.4 1.4-1.2 1.6a7 7 0 0 1 .6 1.5L21 10z',
+      help: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-2h2zm1.8-6.3-.9.9c-.5.5-.9 1-.9 2.4h-2v-.5c0-1 .4-1.9 1.1-2.6l1.2-1.2A1.6 1.6 0 1 0 10.4 8H8.4A3.6 3.6 0 1 1 15 10.7z',
+      chevronDown: 'M7.4 8.6 12 13.2l4.6-4.6L18 10l-6 6-6-6z',
+      chevronUp: 'M7.4 15.4 12 10.8l4.6 4.6L18 14l-6-6-6 6z',
+      chevronLeft: 'M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z',
+      chevronRight: 'M8.6 7.4 10 6l6 6-6 6-1.4-1.4L13.2 12z',
+      chevronDoubleRight: 'M2.6 7.4 4 6l6 6-6 6-1.4-1.4L8.2 12zM10.6 7.4 12 6l6 6-6 6-1.4-1.4L16.2 12z',
+      close: 'M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z',
+      filter: 'M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z',
+      search: 'M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z',
+      pin: 'M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z',
+      bell: 'M12 22a2.4 2.4 0 0 0 2.4-2.4H9.6A2.4 2.4 0 0 0 12 22zm7-6v-5a7 7 0 0 0-5.3-6.8V3.5a1.7 1.7 0 0 0-3.4 0v.7A7 7 0 0 0 5 11v5l-2 2v1h18v-1l-2-2z',
+      send: 'M2 21l21-9L2 3v7l15 2-15 2z',
+      chatBubbleOutline: 'M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2zm0 2v11.2L6.8 14H20V6H4z',
+      clock: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11h5v-2h-4V6h-2v7z',
+      add: 'M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z',
+      check: 'M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z',
+      trash: 'M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z',
+    };
+
+    /* ─── Mock data — Kitman Labs demo orgs (MLS-style) ───────────────────── */
+    const ORGS = [
+      { id: 'atl', name: 'KL Atlanta', color: '#EE1C25', squads: [
+        { id: 'atl-kls', name: 'KLS' }, { id: 'atl-klsnp', name: 'KLS Next Pro' }, { id: 'atl-test', name: 'Test' },
+        { id: 'atl-u13ad', name: 'U13 AD' }, { id: 'atl-u14', name: 'U14' }, { id: 'atl-u14ad', name: 'U14 AD' },
+        { id: 'atl-u15ad', name: 'U15 AD' }, { id: 'atl-u16', name: 'U16' }, { id: 'atl-u17', name: 'U17' },
+        { id: 'atl-u18', name: 'U18' }, { id: 'atl-first', name: 'First team' },
+      ]},
+      { id: 'bos', name: 'KL Boston', color: '#0B6E4F', squads: [
+        { id: 'bos-first', name: 'First team' }, { id: 'bos-reserves', name: 'Reserves' },
+        { id: 'bos-u19', name: 'U19' }, { id: 'bos-u17', name: 'U17' },
+      ]},
+      { id: 'chi', name: 'KL Chicago', color: '#1565C0', squads: [
+        { id: 'chi-first', name: 'First team' }, { id: 'chi-acad', name: 'Academy' }, { id: 'chi-u18', name: 'U18' },
+      ]},
+      { id: 'den', name: 'KL Denver', color: '#6A1B9A', squads: [
+        { id: 'den-first', name: 'First team' }, { id: 'den-u21', name: 'U21' }, { id: 'den-u17', name: 'U17' },
+      ]},
+    ];
+    ORGS.forEach((o, i) => { o.avatar = `./avatars/avatar-${i + 1}.png`; });
+    const ORG_BY_ID = Object.fromEntries(ORGS.map(o => [o.id, o]));
+    const SQUAD_BY_ID = {};
+    ORGS.forEach(o => o.squads.forEach(s => { SQUAD_BY_ID[s.id] = { ...s, orgId: o.id, orgName: o.name }; }));
+
+    const SQUAD_PALETTE = ['#005293', '#00897B', '#6A1B9A', '#EF6C00', '#C2185B', '#00838F', '#5D4037', '#2E7D32', '#455A64', '#AD1457', '#3949AB'];
+    const squadColor = (squadId) => {
+      const keys = Object.keys(SQUAD_BY_ID);
+      const idx = keys.indexOf(squadId);
+      return SQUAD_PALETTE[(idx >= 0 ? idx : 0) % SQUAD_PALETTE.length];
+    };
+
+    const DEFAULT_TYPES = ['Squad session', 'Individual session', 'Game', 'Event'];
+
+    const TYPE_COLORS = {
+      Game: '#3B5BDB',
+      Training: '#28a745',
+      Travel: '#EF6C00',
+      Medical: '#dc3545',
+      Meeting: '#6A1B9A',
+      Recovery: '#00838F',
+      'Squad session': '#00897B',
+      'Individual session': '#5D4037',
+      'Event': '#C2185B',
+      'Academy Day': '#455A64',
+    };
+    const TYPE_COLOR_FALLBACKS = ['#005293', '#00897B', '#6A1B9A', '#EF6C00', '#C2185B', '#00838F', '#5D4037', '#2E7D32', '#455A64', '#AD1457', '#3949AB'];
+    const contrastText = (hex) => {
+      const h = hex.replace('#', '');
+      const r = parseInt(h.substring(0, 2), 16), g = parseInt(h.substring(2, 4), 16), b = parseInt(h.substring(4, 6), 16);
+      return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5 ? '#172B4D' : '#FFFFFF';
+    };
+
+    const LOCATION_SUGGESTIONS = [
+      { name: 'Mercedes-Benz Stadium', address: '1 AMB Dr NW, Atlanta, GA 30313' },
+      { name: 'Children’s Healthcare Training Ground', address: '4045 Vaughan Rd, Marietta, GA 30066' },
+      { name: 'Piedmont Park Athletic Fields', address: '400 Park Dr NE, Atlanta, GA 30306' },
+      { name: 'Emory Sports Medicine Complex', address: '1968 Hawks Ln, Brookhaven, GA 30329' },
+      { name: 'Atlanta Silverbacks Park', address: '3200 Atlanta Silverbacks Way, Atlanta, GA 30340' },
+      { name: 'Kennesaw State Soccer Stadium', address: '590 Cobb Ave NW, Kennesaw, GA 30144' },
+      { name: 'Bray, Ireland', address: 'Bray, Co. Wicklow, Ireland' },
+      { name: 'Bray Sports Centre', address: 'Vevay Rd, Bray, Co. Wicklow' },
+      { name: 'Bray Wanderers FC', address: 'Carlisle Grounds, Bray, Co. Wicklow' },
+    ];
+
+    const REMINDER_OPTIONS = ['15 minutes before', '30 minutes before', '1 hour before', '3 hours before', '1 day before', '2 days before'];
+
+    /* Rosters for attendee pre-fill (broadcast) */
+    const ATHLETE_NAMES = ['Marco Silva', 'Diego Ferreira', 'Josh Lambert', 'Tyler Brooks', 'Andre Costa', 'Liam O’Neill', 'Samir Haddad', 'Noah Bennett', 'Kai Robinson', 'Owen Mitchell', 'Rafael Gomes', 'Ethan Walsh'];
+    const STAFF_NAMES = ['Coach D. Carroll', 'Dr. Amelia Reyes', 'S&C Lead M. Turner', 'Physio J. Park', 'Analyst R. Cole'];
+    const rosterForSquad = (squadId) => {
+      const seed = Object.keys(SQUAD_BY_ID).indexOf(squadId) + 1;
+      const athletes = ATHLETE_NAMES.filter((_, i) => (i + seed) % 2 === 0).slice(0, 6)
+        .map((n, i) => ({ id: `${squadId}-a${i}`, name: n, type: 'athlete' }));
+      const staff = STAFF_NAMES.slice(0, 3).map((n, i) => ({ id: `${squadId}-s${i}`, name: n, type: 'staff' }));
+      return [...athletes, ...staff];
+    };
+
+    /* ─── Mock data for the Add Event "Select group" picker (CHANGE 1) ────── */
+    const GROUP_PICKER_CUSTOM_GROUPS = [
+      { id: 'group-travel-a', name: 'Travelling Party A' },
+      { id: 'group-academy-coaches', name: 'Academy Coaches' },
+      { id: 'group-medical-team', name: 'Medical Team' },
+    ];
+
+    /* Seed events across July 2026 (month is 0-indexed = 6) */
+    let _eid = 0;
+    const ev = (day, orgId, squadId, type, title, start, end, extra = {}) => ({
+      id: `ev-${_eid++}`, day, orgId, squadId, type, title, start, end,
+      location: extra.location || null, reminders: extra.reminders || [], notes: extra.notes || '',
+      attendees: extra.attendees || rosterForSquad(squadId),
+    });
+    /* High-density, multi-org seed data for July 2026 — ~80 events, busy weekdays / lighter weekends */
+    const SEED_ORG_SQUADS = ORGS.flatMap(o => o.squads.map(s => ({ orgId: o.id, squadId: s.id })));
+    const SEED_TYPES = ['Squad session', 'Individual session', 'Game', 'Event', 'Academy Day'];
+    const SEED_TITLES_BY_TYPE = {
+      'Squad session': ['First team training', 'Squad review', 'Recovery session'],
+      'Individual session': ['Individual rehab'],
+      'Game': ['Match day', 'U17 vs Austin FC'],
+      'Event': ['Staff meeting'],
+      'Academy Day': ['Academy Day'],
+    };
+    const SEED_START_TIMES = ['07:00', '08:00', '09:00', '09:30', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '15:30', '16:00', '17:00', '17:30', '18:00', '19:00', '19:30', '20:00'];
+    // [day, event count] — Thu 2/9, Wed 15, Thu 23/30 are busy club-wide days (8-12); weekends (Sat/Sun) sit at 2-4
+    const SEED_DAY_PLAN = [
+      [1, 1], [2, 9], [3, 1], [4, 3], [5, 2], [6, 1], [7, 1], [8, 1], [9, 9], [10, 1],
+      [11, 3], [12, 4], [13, 1], [14, 1], [15, 9], [16, 1], [17, 1], [18, 2], [19, 3], [20, 1],
+      [21, 1], [22, 1], [23, 9], [24, 1], [25, 2], [26, 3], [27, 1], [28, 1], [29, 1], [30, 9], [31, 1],
+    ];
+    const SEED_EVENTS = [];
+    let _seedIdx = 0;
+    SEED_DAY_PLAN.forEach(([day, count]) => {
+      for (let i = 0; i < count; i++) {
+        const { orgId, squadId } = SEED_ORG_SQUADS[_seedIdx % SEED_ORG_SQUADS.length];
+        const type = SEED_TYPES[_seedIdx % SEED_TYPES.length];
+        const titles = SEED_TITLES_BY_TYPE[type];
+        const title = titles[_seedIdx % titles.length];
+        const start = SEED_START_TIMES[_seedIdx % SEED_START_TIMES.length];
+        const [sh, sm] = start.split(':').map(Number);
+        const endTotal = sh * 60 + sm + 90;
+        const end = `${String(Math.floor(endTotal / 60) % 24).padStart(2, '0')}:${String(endTotal % 60).padStart(2, '0')}`;
+        SEED_EVENTS.push(ev(day, orgId, squadId, type, title, start, end));
+        _seedIdx++;
+      }
+    });
+
+    /* ─── Calendar helpers ─────────────────────────────────────────────────── */
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const TODAY = { y: 2026, m: 6, d: 15 }; // 15 July 2026
+
+    // Monday-first 6-week grid for a given year/month
+    function buildGrid(year, month) {
+      const first = new Date(year, month, 1);
+      const jsDow = first.getDay();               // 0 = Sun
+      const lead = (jsDow + 6) % 7;               // days from previous month to show
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysPrev = new Date(year, month, 0).getDate();
+      const cells = [];
+      for (let i = 0; i < 42; i++) {
+        const dayNum = i - lead + 1;
+        if (dayNum < 1) cells.push({ day: daysPrev + dayNum, inMonth: false, m: month - 1 });
+        else if (dayNum > daysInMonth) cells.push({ day: dayNum - daysInMonth, inMonth: false, m: month + 1 });
+        else cells.push({ day: dayNum, inMonth: true, m: month });
+      }
+      return cells;
+    }
+
+    /* ─── Small reusable field label ──────────────────────────────────────── */
+    function FieldLabel({ children, required }) {
+      return (
+        <Typography sx={{ fontSize: 17, color: 'var(--text-secondary)', mb: 0.5 }}>
+          {children}{required && <Box component="span" sx={{ color: 'var(--org-red)', ml: 0.25 }}>*</Box>}
+        </Typography>
+      );
+    }
+
+    /* ─── Secondary (grey) toolbar button ─────────────────────────────────── */
+    function GreyButton({ children, onClick, sx, ...rest }) {
+      return (
+        <Button onClick={onClick} sx={{
+          bgcolor: '#F3F4F7', color: 'var(--navy)',
+          '&:hover': { bgcolor: '#E8EAED' },
+          minWidth: 0, px: 2.75, height: 52, fontSize: 16, fontWeight: 600,
+          textTransform: 'none', borderRadius: '6px', ...sx,
+        }} {...rest}>{children}</Button>
+      );
+    }
+
+    /* ─── Shared primary-button + drawer-field styling (GLOBAL BUTTON / DRAWER INPUT pass) ── */
+    const PRIMARY_BTN_SX = {
+      bgcolor: '#3B4960', color: '#fff', fontSize: 16, fontWeight: 600,
+      textTransform: 'none', borderRadius: '6px', height: 52, px: 2.75,
+      '&:hover': { bgcolor: '#364358' },
+    };
+    const DRAWER_FIELD_SX = {
+      '& .MuiFilledInput-root': {
+        height: 48, borderRadius: '4px 4px 0 0', backgroundColor: '#F3F4F7', boxShadow: 'none',
+        borderBottom: '1px solid #E8EAED',
+        '&:hover': { backgroundColor: '#ECEEF2' },
+        '&.Mui-focused': { backgroundColor: '#ECEEF2', boxShadow: 'none', borderBottom: '2px solid #3B4960' },
+      },
+      '& .MuiFilledInput-input': { fontSize: 15, color: '#172B4D' },
+      '& .MuiFilledInput-input::placeholder': { color: '#5F7089', opacity: 1, fontSize: 15 },
+      '& .MuiInputLabel-root': { fontSize: 15, fontWeight: 400, color: '#5F7089' },
+      '& .MuiSelect-icon': { color: '#5F7089', fontSize: 20 },
+      '& .MuiSvgIcon-root': { color: '#5F7089', fontSize: 20 },
+    };
+    const DRAWER_FIELD_MULTILINE_SX = {
+      ...DRAWER_FIELD_SX,
+      '& .MuiFilledInput-root': { ...DRAWER_FIELD_SX['& .MuiFilledInput-root'], height: 'auto', borderRadius: '4px' },
+    };
+    const DRAWER_DIVIDER_SX = { my: 3, borderColor: '#E8EAED' };
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       NAV RAIL
+       ═══════════════════════════════════════════════════════════════════════ */
+    function NavRail() {
+      const items = [
+        { icon: P.analytics }, { icon: P.network }, { icon: P.medical }, { icon: P.drop },
+        { icon: P.clipboard }, { icon: P.calendar, active: true }, { icon: P.inbox },
+        { icon: P.folder }, { icon: P.person }, { icon: P.document }, { icon: P.settings },
+      ];
+      return (
+        <Box sx={{
+          width: 60, display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0,
+          background: 'linear-gradient(180deg, #0A1428 0%, #0F2545 45%, #1B4A8A 100%)',
+          boxShadow: '2px 0 8px rgba(0,0,0,0.15)',
+        }}>
+          {/* org crest */}
+          <Box sx={{ width: '100%', height: 60, bgcolor: '#06101F', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: 'var(--org-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #C8151C' }}>
+              <Typography sx={{ color: '#fff', fontSize: 17 }}>KL</Typography>
+            </Box>
+          </Box>
+          {items.map((it, i) => (
+            <Box key={i} sx={{
+              width: '100%', height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', position: 'relative',
+              bgcolor: it.active ? 'rgba(255,255,255,0.10)' : 'transparent',
+              borderLeft: it.active ? '4px solid #FFB81C' : '4px solid transparent',
+              '&:hover': { bgcolor: it.active ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.06)' },
+            }}>
+              <Icon path={it.icon} size={20} color="#fff" />
+            </Box>
+          ))}
+          <Box sx={{ flex: 1 }} />
+          <Box sx={{ height: 48, display: 'flex', alignItems: 'center' }}><Icon path={P.help} size={20} color="#fff" /></Box>
+          <Box sx={{ height: 48, display: 'flex', alignItems: 'center' }}>
+            <Icon path={P.chevronDoubleRight} size={20} color="#fff" />
+          </Box>
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       ORG MULTI-SELECT  (CHANGE 2) — reuses the org-selector accordion pattern
+       ═══════════════════════════════════════════════════════════════════════ */
+    function OrgSelector({ selectedOrgIds, selectedSquadIds, onOrgToggle, anchorLabelColor }) {
+      const [anchor, setAnchor] = useState(null);
+      const [expanded, setExpanded] = useState(() => new Set(['atl']));
+
+      const label = useMemo(() => {
+        const ids = [...selectedOrgIds];
+        if (ids.length === 0) return 'Select organisation';
+        if (ids.length === 1) return ORG_BY_ID[ids[0]].name;
+        return `${ORG_BY_ID[ids[0]].name} +${ids.length - 1}`;
+      }, [selectedOrgIds]);
+
+      const toggleExpand = (id) => setExpanded(prev => {
+        const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n;
+      });
+
+      return (
+        <>
+          <Box onClick={(e) => setAnchor(e.currentTarget)} sx={{
+            bgcolor: 'var(--org-red)', color: '#fff', height: 30, borderRadius: '4px',
+            px: 2, minWidth: 250, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', gap: 1, '&:hover': { bgcolor: '#D4141B' },
+          }}>
+            <Typography sx={{ fontSize: 18, color: '#fff' }}>{label}</Typography>
+            <Icon path={P.chevronDown} size={23} color="#fff" />
+          </Box>
+
+          <Popover open={Boolean(anchor)} anchorEl={anchor} onClose={() => setAnchor(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+            PaperProps={{ sx: { mt: 1, width: 340, maxHeight: 460, borderRadius: 2, boxShadow: '0 8px 28px rgba(0,0,0,0.16)' } }}>
+            <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid var(--border)' }}>
+              <Typography sx={{ fontSize: 18, color: 'var(--text-primary)' }}>Organisations in view</Typography>
+              <Typography sx={{ fontSize: 16, color: 'var(--text-secondary)' }}>Pick one or more to see their calendars together</Typography>
+            </Box>
+            <Box sx={{ overflowY: 'auto', maxHeight: 360 }}>
+              {ORGS.map(org => {
+                const isOn = selectedOrgIds.has(org.id);
+                const isOpen = expanded.has(org.id);
+                const squadCount = org.squads.filter(s => selectedSquadIds.has(s.id)).length;
+                return (
+                  <Box key={org.id} sx={{ borderBottom: '1px solid var(--border)' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', px: 1, py: 0.75 }}>
+                      <Checkbox checked={isOn} onChange={() => onOrgToggle(org.id)} />
+                      <Box onClick={() => onOrgToggle(org.id)} sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1, cursor: 'pointer', minWidth: 0 }}>
+                        <Avatar src={org.avatar} variant="circular" sx={{ width: 24, height: 24, bgcolor: 'transparent', flexShrink: 0, '& img': { objectFit: 'contain' } }} />
+                        <Typography sx={{ fontSize: 18, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{org.name}</Typography>
+                        <Typography sx={{ fontSize: 16, color: 'var(--text-muted)' }}>{org.squads.length} squads</Typography>
+                      </Box>
+                      <IconButton size="small" onClick={() => toggleExpand(org.id)}>
+                        <Icon path={isOpen ? P.chevronUp : P.chevronDown} size={23} color="var(--text-secondary)" />
+                      </IconButton>
+                    </Box>
+                    <Collapse in={isOpen}>
+                      <Box sx={{ pl: 4.5, pr: 2, pb: 1 }}>
+                        {org.squads.map(s => (
+                          <Typography key={s.id} sx={{ fontSize: 17, color: selectedSquadIds.has(s.id) ? 'var(--text-primary)' : 'var(--text-muted)', py: 0.25, display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                            <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: squadColor(s.id) }} />{s.name}
+                          </Typography>
+                        ))}
+                      </Box>
+                    </Collapse>
+                  </Box>
+                );
+              })}
+            </Box>
+          </Popover>
+        </>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       TOP BAR
+       ═══════════════════════════════════════════════════════════════════════ */
+    function TopBar({ selectedOrgIds, selectedSquadIds, onOrgToggle }) {
+      return (
+        <Box sx={{ height: 64, bgcolor: '#fff', borderBottom: '1px solid #E8EAED', display: 'flex', alignItems: 'center', px: 3, flexShrink: 0 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+            <Typography sx={{ fontSize: 16, fontWeight: 400, color: '#5F7089' }}>Calendar</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer', ml: 3 }}>
+              <Icon path={P.person} size={20} color="#172B4D" />
+              <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#172B4D' }}>Player list</Typography>
+              <Icon path={P.chevronDoubleRight} size={18} color="#172B4D" />
+            </Box>
+          </Box>
+          <OrgSelector selectedOrgIds={selectedOrgIds} selectedSquadIds={selectedSquadIds} onOrgToggle={onOrgToggle} />
+          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, cursor: 'pointer' }}>
+              <Box sx={{ width: 22, height: 22, borderRadius: '50%', bgcolor: 'var(--org-red)', border: '1.5px solid #C8151C' }} />
+              <Typography sx={{ fontSize: 18, color: 'var(--text-primary)' }}>Test</Typography>
+              <Icon path={P.chevronDown} size={21} color="var(--text-secondary)" />
+            </Box>
+            <Box sx={{ width: '1px', height: 24, bgcolor: '#E8EAED' }} />
+            <Box sx={{ width: 30, height: 30, borderRadius: '50%', bgcolor: '#DDE1E7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Typography sx={{ fontSize: 16, color: 'var(--navy)' }}>LV</Typography>
+            </Box>
+          </Box>
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       TOOLBAR (Show Filters / Today / arrows / month / view / Add)
+       ═══════════════════════════════════════════════════════════════════════ */
+    function Toolbar({ showFilters, onToggleFilters, filterBadge, monthLabel, onNav, onAdd }) {
+      const [addAnchor, setAddAnchor] = useState(null);
+      const [viewAnchor, setViewAnchor] = useState(null);
+      const [view, setView] = useState('Month');
+      return (
+        <Box sx={{ minHeight: 72, bgcolor: '#fff', display: 'flex', alignItems: 'center', px: 3, position: 'relative', flexShrink: 0 }}>
+          {/* left */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+            <Badge badgeContent={filterBadge} sx={{
+              '& .MuiBadge-badge': { bgcolor: '#1D2635', color: '#fff', fontSize: 11 },
+            }}>
+              <GreyButton onClick={onToggleFilters} sx={{ gap: 0.5, bgcolor: showFilters ? '#E8EAED' : '#F3F4F7' }}>
+                Show filters <Icon path={P.filter} size={22} />
+              </GreyButton>
+            </Badge>
+            <GreyButton onClick={() => onNav('today')}>Today</GreyButton>
+            <GreyButton onClick={() => onNav('prev')} sx={{ minWidth: 52, width: 52, px: 0 }}><Icon path={P.chevronLeft} size={22} /></GreyButton>
+            <GreyButton onClick={() => onNav('next')} sx={{ minWidth: 52, width: 52, px: 0 }}><Icon path={P.chevronRight} size={22} /></GreyButton>
+          </Box>
+
+          {/* center month */}
+          <Box sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Typography variant="h1" sx={{ fontSize: 28, fontWeight: 700, color: '#172B4D' }}>{monthLabel}</Typography>
+            <Icon path={P.chevronDown} size={20} color="#172B4D" />
+          </Box>
+
+          {/* right */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, justifyContent: 'flex-end' }}>
+            <Box sx={{ width: '1px', height: 24, bgcolor: '#E8EAED' }} />
+            <GreyButton onClick={(e) => setViewAnchor(e.currentTarget)} sx={{ gap: 0.5 }}>
+              {view} <Icon path={P.chevronDown} size={22} />
+            </GreyButton>
+            <Button onClick={(e) => setAddAnchor(e.currentTarget)} sx={{ ...PRIMARY_BTN_SX, gap: 0.5 }}>
+              Add <Icon path={P.chevronDown} size={22} />
+            </Button>
+          </Box>
+
+          <Menu anchorEl={viewAnchor} open={Boolean(viewAnchor)} onClose={() => setViewAnchor(null)}>
+            {['Month', 'Week', 'Day', 'List'].map(v => (
+              <MenuItem key={v} onClick={() => { setView(v); setViewAnchor(null); }}>{v}</MenuItem>
+            ))}
+          </Menu>
+          <Menu anchorEl={addAnchor} open={Boolean(addAnchor)} onClose={() => setAddAnchor(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} transformOrigin={{ vertical: 'top', horizontal: 'right' }}>
+            {['Event', 'Session', 'Game'].map(t => (
+              <MenuItem key={t} onClick={() => { setAddAnchor(null); onAdd(t); }}>{t}</MenuItem>
+            ))}
+          </Menu>
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       FILTERS PANEL — Squads grouped by org (CHANGE 2) + dynamic Types (CHANGE 1)
+       ═══════════════════════════════════════════════════════════════════════ */
+    function FilterSection({ title, count, expanded, onToggle, children }) {
+      return (
+        <Box sx={{ borderBottom: '1px solid var(--border)' }}>
+          <Box onClick={onToggle} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1.5, cursor: 'pointer' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+              <Typography sx={{ fontSize: 18, color: 'var(--text-primary)' }}>{title}</Typography>
+              <Typography sx={{ fontSize: 17, color: 'var(--text-muted)' }}>{count}</Typography>
+            </Box>
+            <Icon path={expanded ? P.chevronUp : P.chevronDown} size={26} color="var(--text-secondary)" />
+          </Box>
+          <Collapse in={expanded}><Box sx={{ px: 2, pb: 2 }}>{children}</Box></Collapse>
+        </Box>
+      );
+    }
+
+    function SelectClear({ onAll, onClear }) {
+      const link = { fontSize: 17, color: 'var(--blue)', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } };
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+          <Typography sx={link} onClick={onAll}>Select all</Typography>
+          <Typography sx={{ fontSize: 17, color: 'var(--text-muted)' }}>|</Typography>
+          <Typography sx={link} onClick={onClear}>Clear</Typography>
+        </Box>
+      );
+    }
+
+    function SquadRow({ label, checked, onToggle, color }) {
+      return (
+        <Box onClick={onToggle} sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', py: 0.25 }}>
+          <Checkbox checked={checked} onChange={onToggle} sx={{ p: 0.5, mr: 1 }} />
+          {color && <Box sx={{ width: 8, height: 8, borderRadius: '2px', bgcolor: color, mr: 1, flexShrink: 0 }} />}
+          <Typography sx={{ fontSize: 18, color: 'var(--text-primary)' }}>{label}</Typography>
+        </Box>
+      );
+    }
+
+    function FiltersPanel({ onClose, selectedOrgIds, onOrgToggle, selectedSquadIds, setSelectedSquadIds, types, selectedTypes, setSelectedTypes, typeColors }) {
+      const [orgsOpen, setOrgsOpen] = useState(true);
+      const [squadsOpen, setSquadsOpen] = useState(true);
+      const [typesOpen, setTypesOpen] = useState(true);
+      const [search, setSearch] = useState('');
+      const [globalSearch, setGlobalSearch] = useState('');
+      const [showMore, setShowMore] = useState(false);
+      const [openOrgGroups, setOpenOrgGroups] = useState(() => new Set([...selectedOrgIds]));
+
+      const orgsInView = ORGS.filter(o => selectedOrgIds.has(o.id));
+      const multiOrg = orgsInView.length > 1;
+      const match = (s) => s.toLowerCase().includes(search.toLowerCase());
+      const globalMatch = (s) => s.toLowerCase().includes(globalSearch.toLowerCase());
+      const searchFieldSx = {
+        '& .MuiFilledInput-root': {
+          height: 56, borderRadius: '4px 4px 0 0', backgroundColor: '#F3F4F7', boxShadow: 'none',
+          borderBottom: '1px solid #B3BAC5',
+          '&:hover': { backgroundColor: '#F3F4F7', borderBottom: '1px solid #5F7089' },
+          '&.Mui-focused': { backgroundColor: '#EDEFF3', boxShadow: 'none', borderBottom: '2px solid #172B4D' },
+        },
+        '& .MuiFilledInput-input': { fontSize: 16, fontWeight: 400, color: '#172B4D' },
+        '& .MuiFilledInput-input::placeholder': { color: '#5F7089', opacity: 1, fontSize: 16, fontWeight: 400, fontStyle: 'normal' },
+      };
+
+      const toggleSquad = (id) => setSelectedSquadIds(prev => {
+        const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n;
+      });
+      const setSquadsBulk = (ids, on) => setSelectedSquadIds(prev => {
+        const n = new Set(prev); ids.forEach(id => on ? n.add(id) : n.delete(id)); return n;
+      });
+      const toggleOrgGroup = (id) => setOpenOrgGroups(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+
+      const toggleType = (t) => setSelectedTypes(prev => {
+        const n = new Set(prev); n.has(t) ? n.delete(t) : n.add(t); return n;
+      });
+
+      const allVisibleSquadIds = orgsInView.flatMap(o => o.squads.filter(s => match(s.name) && globalMatch(s.name)).map(s => s.id));
+
+      return (
+        <Box sx={{ width: 360, bgcolor: '#fff', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', flexShrink: 0, height: '100%' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1.75, borderBottom: '1px solid var(--border)' }}>
+            <Typography sx={{ fontSize: 23, color: 'var(--text-primary)' }}>Filters</Typography>
+            <IconButton size="small" onClick={onClose}><Icon path={P.close} size={26} color="var(--text-secondary)" /></IconButton>
+          </Box>
+
+          <Box sx={{ flex: 1, overflowY: 'auto' }}>
+            <Box sx={{ px: 2, pt: 2 }}>
+              <TextField variant="filled" fullWidth placeholder="Search" value={globalSearch} onChange={(e) => setGlobalSearch(e.target.value)}
+                InputProps={{ endAdornment: <InputAdornment position="end"><Icon path={P.search} size={20} color="#5F7089" /></InputAdornment> }}
+                sx={{ ...searchFieldSx, mb: 3 }} />
+            </Box>
+            {/* ── ORGANISATION ── */}
+            <FilterSection title="Organisation" count={selectedOrgIds.size} expanded={orgsOpen} onToggle={() => setOrgsOpen(!orgsOpen)}>
+              {ORGS.filter(org => globalMatch(org.name)).map(org => (
+                <Box key={org.id} onClick={() => onOrgToggle(org.id)} sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', py: 0.25 }}>
+                  <Checkbox checked={selectedOrgIds.has(org.id)} onChange={() => onOrgToggle(org.id)} onClick={(e) => e.stopPropagation()} sx={{ p: 0.5, mr: 1 }} />
+                  <Avatar src={org.avatar} variant="circular" sx={{ width: 24, height: 24, bgcolor: 'transparent', mr: 1, flexShrink: 0, '& img': { objectFit: 'contain' } }} />
+                  <Typography sx={{ fontSize: 15, color: 'var(--text-primary)' }}>{org.name}</Typography>
+                </Box>
+              ))}
+            </FilterSection>
+
+            {/* ── SQUADS ── */}
+            <FilterSection title="Squads" count={selectedSquadIds.size} expanded={squadsOpen} onToggle={() => setSquadsOpen(!squadsOpen)}>
+              <TextField fullWidth placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)}
+                InputProps={{ endAdornment: <InputAdornment position="end"><Icon path={P.search} size={23} color="var(--text-secondary)" /></InputAdornment> }}
+                sx={{ mb: 1.5 }} />
+              <SelectClear onAll={() => setSquadsBulk(allVisibleSquadIds, true)} onClear={() => setSquadsBulk(allVisibleSquadIds, false)} />
+
+              {multiOrg ? (
+                /* grouped by org — accordion header per org */
+                orgsInView.map(org => {
+                  const squads = org.squads.filter(s => match(s.name) && globalMatch(s.name));
+                  if (!squads.length) return null;
+                  const open = openOrgGroups.has(org.id);
+                  return (
+                    <Box key={org.id} sx={{ mb: 0.5 }}>
+                      <Box onClick={() => toggleOrgGroup(org.id)} sx={{ display: 'flex', alignItems: 'center', gap: 0.75, py: 0.5, cursor: 'pointer' }}>
+                        <Icon path={open ? P.chevronUp : P.chevronDown} size={23} color="var(--text-secondary)" />
+                        <Avatar src={org.avatar} variant="circular" sx={{ width: 24, height: 24, bgcolor: 'transparent', '& img': { objectFit: 'contain' } }} />
+                        <Typography sx={{ fontSize: 17, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.3 }}>{org.name}</Typography>
+                      </Box>
+                      <Collapse in={open}>
+                        <Box sx={{ pl: 2.5 }}>
+                          {squads.map(s => (
+                            <SquadRow key={s.id} label={s.name} color={squadColor(s.id)}
+                              checked={selectedSquadIds.has(s.id)} onToggle={() => toggleSquad(s.id)} />
+                          ))}
+                        </Box>
+                      </Collapse>
+                    </Box>
+                  );
+                })
+              ) : (
+                /* single org — flat list with Show more */
+                (() => {
+                  const org = orgsInView[0];
+                  if (!org) return <Typography sx={{ fontSize: 17, color: 'var(--text-muted)' }}>Select an organisation.</Typography>;
+                  const squads = org.squads.filter(s => match(s.name) && globalMatch(s.name));
+                  const visible = showMore ? squads : squads.slice(0, 8);
+                  return (
+                    <>
+                      {visible.map(s => (
+                        <SquadRow key={s.id} label={s.name} checked={selectedSquadIds.has(s.id)} onToggle={() => toggleSquad(s.id)} />
+                      ))}
+                      {squads.length > 8 && (
+                        <Typography onClick={() => setShowMore(!showMore)} sx={{ fontSize: 17, color: 'var(--blue)', cursor: 'pointer', mt: 0.5, '&:hover': { textDecoration: 'underline' } }}>
+                          {showMore ? 'Show less' : 'Show more'}
+                        </Typography>
+                      )}
+                    </>
+                  );
+                })()
+              )}
+            </FilterSection>
+
+            {/* ── TYPES (dynamic) ── */}
+            <FilterSection title="Types" count={selectedTypes.size} expanded={typesOpen} onToggle={() => setTypesOpen(!typesOpen)}>
+              <SelectClear onAll={() => setSelectedTypes(new Set(types))} onClear={() => setSelectedTypes(new Set())} />
+              {types.filter(t => globalMatch(t)).map(t => (
+                <Box key={t} onClick={() => toggleType(t)} sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', py: 0.25 }}>
+                  <Checkbox checked={selectedTypes.has(t)} onChange={() => toggleType(t)} onClick={(e) => e.stopPropagation()} sx={{ p: 0.5, mr: 1 }} />
+                  <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: typeColors[t], mr: 1, flexShrink: 0 }} />
+                  <Typography sx={{ fontSize: 18, color: 'var(--text-primary)' }}>{t}</Typography>
+                  {!DEFAULT_TYPES.includes(t) && <Chip label="Custom" size="small" sx={{ ml: 1, height: 18, bgcolor: '#E9EFF6', color: 'var(--blue)', borderRadius: '10px', '& .MuiChip-label': { px: 0.75, fontSize: 11 } }} />}
+                </Box>
+              ))}
+            </FilterSection>
+          </Box>
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       CALENDAR GRID
+       ═══════════════════════════════════════════════════════════════════════ */
+    function EventPill({ event, onClick, typeColors }) {
+      const color = typeColors[event.type];
+      const text = contrastText(color);
+      const timeText = text === '#FFFFFF' ? 'rgba(255,255,255,0.8)' : 'rgba(23,43,77,0.7)';
+      const org = ORG_BY_ID[event.orgId];
+      const orgShortName = org.name.replace('KL ', '');
+      return (
+        <Box onClick={(e) => { e.stopPropagation(); onClick(event); }} sx={{
+          display: 'flex', alignItems: 'center', gap: 0.5, px: 1, py: '4px', mb: '3px',
+          borderRadius: '3px', bgcolor: color, borderLeft: `3px solid ${color}`,
+          cursor: 'pointer', overflow: 'hidden',
+        }}>
+          <Typography sx={{ fontSize: 14, color: timeText, flexShrink: 0 }}>{event.start}</Typography>
+          <Typography sx={{ fontSize: 14, color: text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {orgShortName} · {event.title}
+          </Typography>
+        </Box>
+      );
+    }
+
+    function CalendarGrid({ year, month, events, multiOrg, onEventClick, typeColors }) {
+      const cells = useMemo(() => buildGrid(year, month), [year, month]);
+      const eventsByDay = useMemo(() => {
+        const map = {};
+        events.forEach(e => { (map[e.day] = map[e.day] || []).push(e); });
+        Object.values(map).forEach(list => list.sort((a, b) => a.start.localeCompare(b.start)));
+        return map;
+      }, [events]);
+      const [morePopover, setMorePopover] = useState(null);
+
+      const openMore = (e, dow, day, dayEvents) => setMorePopover({ anchorEl: e.currentTarget, dow, day, events: dayEvents });
+      const closeMore = () => setMorePopover(null);
+      const handlePopoverEventClick = (evt) => { closeMore(); onEventClick(evt); };
+
+      return (
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', bgcolor: '#fff', overflow: 'hidden' }}>
+          {/* weekday header */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid var(--border)' }}>
+            {DOW.map(d => (
+              <Typography key={d} sx={{ fontSize: 17, color: 'var(--text-secondary)', textAlign: 'center', py: 1.25 }}>{d}</Typography>
+            ))}
+          </Box>
+          {/* 6 rows */}
+          <Box sx={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gridTemplateRows: 'repeat(6, 1fr)' }}>
+            {cells.map((cell, i) => {
+              const isToday = cell.inMonth && cell.m === TODAY.m && year === TODAY.y && cell.day === TODAY.d;
+              const dayEvents = cell.inMonth ? (eventsByDay[cell.day] || []) : [];
+              const shown = dayEvents.slice(0, 3);
+              const more = dayEvents.length - shown.length;
+              return (
+                <Box key={i} sx={{
+                  borderRight: (i % 7 !== 6) ? '1px solid var(--border)' : 'none',
+                  borderBottom: (i < 35) ? '1px solid var(--border)' : 'none',
+                  bgcolor: isToday ? 'var(--today)' : '#fff', p: 0.75, overflow: 'hidden',
+                  display: 'flex', flexDirection: 'column', minWidth: 0,
+                }}>
+                  <Typography sx={{ fontSize: 17, mb: 0.5, color: cell.inMonth ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                    {cell.day}
+                  </Typography>
+                  <Box sx={{ flex: 1, overflow: 'hidden' }}>
+                    {shown.map(e => <EventPill key={e.id} event={e} onClick={onEventClick} typeColors={typeColors} />)}
+                    {more > 0 && (
+                      <Typography onClick={(e) => openMore(e, DOW[i % 7], cell.day, dayEvents)} sx={{ fontSize: 14, color: 'var(--blue)', cursor: 'pointer', pl: 0.5 }}>
+                        +{more} more
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              );
+            })}
+          </Box>
+
+          <Popover open={Boolean(morePopover)} anchorEl={morePopover?.anchorEl} onClose={closeMore} elevation={3}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+            PaperProps={{ sx: { width: 280, borderRadius: 2, p: 0 } }}>
+            {morePopover && (
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1.5, borderBottom: '1px solid var(--border)' }}>
+                  <Typography sx={{ fontSize: 16, color: 'var(--text-primary)' }}>{morePopover.dow.toUpperCase()} {morePopover.day}</Typography>
+                  <IconButton size="small" onClick={closeMore}><Icon path={P.close} size={20} color="var(--text-secondary)" /></IconButton>
+                </Box>
+                <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
+                  {morePopover.events.map(e => {
+                    const color = typeColors[e.type];
+                    return (
+                      <Box key={e.id} onClick={() => handlePopoverEventClick(e)} sx={{
+                        display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 0.75, cursor: 'pointer',
+                        '&:hover': { bgcolor: '#F3F4F7' },
+                      }}>
+                        <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: color, flexShrink: 0 }} />
+                        <Typography sx={{ fontSize: 14, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {e.start} {e.title}
+                        </Typography>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              </Box>
+            )}
+          </Popover>
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       LOCATION FIELD + MAP PREVIEW  (CHANGE 6)
+       ═══════════════════════════════════════════════════════════════════════ */
+    function MapPreview({ location }) {
+      return (
+        <Box sx={{ mt: 1, borderRadius: 1.5, overflow: 'hidden', border: '1px solid var(--border)' }}>
+          <Box sx={{ position: 'relative', height: 130, bgcolor: '#E8EDF2' }}>
+            <svg width="100%" height="130" viewBox="0 0 400 130" preserveAspectRatio="xMidYMid slice">
+              <rect width="400" height="130" fill="#E8EDF2" />
+              <rect x="30" y="10" width="120" height="55" fill="#D6E8D2" />
+              <rect x="250" y="70" width="130" height="55" fill="#D6E8D2" />
+              <rect x="170" y="15" width="60" height="45" fill="#DCE6F0" />
+              <g stroke="#FFFFFF" strokeWidth="7">
+                <line x1="0" y1="65" x2="400" y2="65" />
+                <line x1="150" y1="0" x2="150" y2="130" />
+                <line x1="245" y1="0" x2="245" y2="130" />
+              </g>
+              <g stroke="#C7D2DC" strokeWidth="2">
+                <line x1="0" y1="30" x2="400" y2="30" />
+                <line x1="0" y1="100" x2="400" y2="100" />
+                <line x1="70" y1="0" x2="70" y2="130" />
+                <line x1="330" y1="0" x2="330" y2="130" />
+              </g>
+            </svg>
+            {/* pin */}
+            <Box sx={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -100%)' }}>
+              <Icon path={P.pin} size={44} color="var(--org-red)" />
+            </Box>
+          </Box>
+          {location && (
+            <Box sx={{ px: 1.5, py: 1, bgcolor: '#fff', display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+              <Icon path={P.pin} size={21} color="var(--blue)" sx={{ mt: '2px' }} />
+              <Box>
+                <Typography sx={{ fontSize: 17, color: 'var(--text-primary)' }}>{location.name}</Typography>
+                <Typography sx={{ fontSize: 16, color: 'var(--text-secondary)' }}>{location.address}</Typography>
+              </Box>
+            </Box>
+          )}
+        </Box>
+      );
+    }
+
+    function LocationField({ value, onChange }) {
+      const [mode, setMode] = useState('search');
+      const [query, setQuery] = useState('');
+      const [open, setOpen] = useState(false);
+      const results = LOCATION_SUGGESTIONS.filter(l =>
+        l.name.toLowerCase().includes(query.toLowerCase()) || l.address.toLowerCase().includes(query.toLowerCase()));
+
+      const [mapQuery, setMapQuery] = useState('');
+      const [mapOpen, setMapOpen] = useState(false);
+      const [mapSelected, setMapSelected] = useState(null);
+      const mapResults = LOCATION_SUGGESTIONS.filter(l =>
+        l.name.toLowerCase().includes(mapQuery.toLowerCase()) || l.address.toLowerCase().includes(mapQuery.toLowerCase()));
+
+      const confirmMapLocation = () => {
+        onChange(mapSelected);
+        setMode('search'); setMapSelected(null); setMapQuery('');
+      };
+
+      return (
+        <Box>
+          <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
+            {[{ key: 'search', label: 'Search address' }, { key: 'map', label: 'Choose on map' }].map(m => {
+              const active = mode === m.key;
+              return (
+                <Box key={m.key} onClick={() => setMode(m.key)} sx={{
+                  flex: 1, textAlign: 'center', borderRadius: '6px', py: 1, cursor: 'pointer',
+                  bgcolor: active ? 'var(--navy)' : 'var(--grey-fill)',
+                }}>
+                  <Typography sx={{ fontSize: 14, color: active ? '#fff' : 'var(--text-primary)' }}>{m.label}</Typography>
+                </Box>
+              );
+            })}
+          </Box>
+
+          {mode === 'search' && (
+            <ClickAwayListener onClickAway={() => setOpen(false)}>
+              <Box sx={{ position: 'relative' }}>
+                <TextField fullWidth placeholder="Search locations…"
+                  value={value ? value.name : query}
+                  onChange={(e) => { setQuery(e.target.value); if (value) onChange(null); setOpen(true); }}
+                  onFocus={() => setOpen(true)}
+                  sx={DRAWER_FIELD_SX}
+                  InputProps={{ endAdornment: <InputAdornment position="end"><Icon path={P.search} size={20} color="#5F7089" /></InputAdornment> }} />
+                {open && !value && (
+                  <Box sx={{ position: 'absolute', zIndex: 20, top: '100%', left: 0, right: 0, mt: 0.5, bgcolor: '#fff', border: '1px solid var(--border)', borderRadius: 1.5, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', maxHeight: 220, overflowY: 'auto' }}>
+                    {results.length === 0 && <Typography sx={{ fontSize: 17, color: 'var(--text-muted)', px: 1.5, py: 1 }}>No matches</Typography>}
+                    {results.map(l => (
+                      <Box key={l.name} onMouseDown={() => { onChange(l); setOpen(false); setQuery(''); }}
+                        sx={{ px: 1.5, py: 1, display: 'flex', gap: 1, cursor: 'pointer', '&:hover': { bgcolor: 'var(--grey-fill)' } }}>
+                        <Icon path={P.pin} size={21} color="var(--text-secondary)" sx={{ mt: '2px' }} />
+                        <Box>
+                          <Typography sx={{ fontSize: 17, color: 'var(--text-primary)' }}>{l.name}</Typography>
+                          <Typography sx={{ fontSize: 16, color: 'var(--text-secondary)' }}>{l.address}</Typography>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+                {value && (
+                  <>
+                    <MapPreview location={value} />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                      <Typography sx={{ fontSize: 13, color: 'var(--text-muted)' }}>Drag to adjust</Typography>
+                      <Typography onClick={() => {}} sx={{ fontSize: 13, color: 'var(--blue)', cursor: 'pointer' }}>Confirm location</Typography>
+                    </Box>
+                  </>
+                )}
+              </Box>
+            </ClickAwayListener>
+          )}
+
+          {mode === 'map' && (
+            <ClickAwayListener onClickAway={() => setMapOpen(false)}>
+              <Box sx={{ position: 'relative' }}>
+                <TextField fullWidth variant="filled" placeholder="Search location… e.g. Bray"
+                  value={mapSelected ? mapSelected.name : mapQuery}
+                  onChange={(e) => { setMapQuery(e.target.value); if (mapSelected) setMapSelected(null); setMapOpen(true); }}
+                  onFocus={() => setMapOpen(true)}
+                  sx={DRAWER_FIELD_SX}
+                  InputProps={{ endAdornment: <InputAdornment position="end"><Icon path={P.search} size={20} color="#5F7089" /></InputAdornment> }} />
+                {mapOpen && !mapSelected && (
+                  <Box sx={{ position: 'absolute', zIndex: 20, top: '100%', left: 0, right: 0, mt: 0.5, bgcolor: '#fff', border: '1px solid var(--border)', borderRadius: 1.5, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', maxHeight: 220, overflowY: 'auto' }}>
+                    {mapResults.length === 0 && <Typography sx={{ fontSize: 17, color: 'var(--text-muted)', px: 1.5, py: 1 }}>No matches</Typography>}
+                    {mapResults.map(l => (
+                      <Box key={l.name} onMouseDown={() => { setMapSelected(l); setMapOpen(false); setMapQuery(''); }}
+                        sx={{ px: 1.5, py: 1, display: 'flex', gap: 1, cursor: 'pointer', '&:hover': { bgcolor: 'var(--grey-fill)' } }}>
+                        <Icon path={P.pin} size={21} color="var(--text-secondary)" sx={{ mt: '2px' }} />
+                        <Box>
+                          <Typography sx={{ fontSize: 17, color: 'var(--text-primary)' }}>{l.name}</Typography>
+                          <Typography sx={{ fontSize: 16, color: 'var(--text-secondary)' }}>{l.address}</Typography>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+                {mapSelected && (
+                  <>
+                    <MapPreview location={mapSelected} />
+                    <Button fullWidth onClick={confirmMapLocation}
+                      sx={{ ...PRIMARY_BTN_SX, mt: 1 }}>
+                      Confirm location
+                    </Button>
+                  </>
+                )}
+              </Box>
+            </ClickAwayListener>
+          )}
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       TYPE COMBOBOX  (CHANGE 1) — pick existing or "Add new type"
+       ═══════════════════════════════════════════════════════════════════════ */
+    function TypeCombo({ types, value, onSelect, onCreate }) {
+      const [query, setQuery] = useState(value || '');
+      const [open, setOpen] = useState(false);
+      useEffect(() => { setQuery(value || ''); }, [value]);
+      const matches = types.filter(t => t.toLowerCase().includes(query.toLowerCase()));
+      const exact = types.some(t => t.toLowerCase() === query.trim().toLowerCase());
+      return (
+        <ClickAwayListener onClickAway={() => setOpen(false)}>
+        <Box sx={{ position: 'relative' }}>
+          <TextField fullWidth placeholder="Select or add a type"
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+            onFocus={() => setOpen(true)}
+            sx={DRAWER_FIELD_SX}
+            InputProps={{ endAdornment: <InputAdornment position="end"><Icon path={P.chevronDown} size={20} color="#5F7089" /></InputAdornment> }} />
+          {open && (
+            <Box sx={{ position: 'absolute', zIndex: 20, top: '100%', left: 0, right: 0, mt: 0.5, bgcolor: '#fff', border: '1px solid var(--border)', borderRadius: 1.5, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', maxHeight: 240, overflowY: 'auto' }}
+              onMouseDown={(e) => e.preventDefault()}>
+              {matches.map(t => (
+                <Box key={t} onMouseDown={() => { onSelect(t); setQuery(t); setOpen(false); }}
+                  sx={{ px: 1.5, py: 1, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', '&:hover': { bgcolor: 'var(--grey-fill)' } }}>
+                  <Typography sx={{ fontSize: 18 }}>{t}</Typography>
+                  {value === t && <Icon path={P.check} size={21} color="var(--blue)" />}
+                </Box>
+              ))}
+              {query.trim() && !exact && (
+                <Box onMouseDown={() => { onCreate(query.trim()); onSelect(query.trim()); setQuery(query.trim()); setOpen(false); }}
+                  sx={{ px: 1.5, py: 1, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 1, borderTop: matches.length ? '1px solid var(--border)' : 'none', '&:hover': { bgcolor: 'var(--grey-fill)' } }}>
+                  <Icon path={P.add} size={21} color="var(--blue)" />
+                  <Typography sx={{ fontSize: 18, color: 'var(--blue)' }}>Add new type &ldquo;{query.trim()}&rdquo;</Typography>
+                </Box>
+              )}
+            </Box>
+          )}
+        </Box>
+        </ClickAwayListener>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       COLOR PICKER MODAL  (CHANGE 2)
+       ═══════════════════════════════════════════════════════════════════════ */
+    function hsvToHex(h, s, v) {
+      s /= 100; v /= 100;
+      const c = v * s;
+      const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+      const m = v - c;
+      let r = 0, g = 0, b = 0;
+      if (h < 60) { r = c; g = x; b = 0; }
+      else if (h < 120) { r = x; g = c; b = 0; }
+      else if (h < 180) { r = 0; g = c; b = x; }
+      else if (h < 240) { r = 0; g = x; b = c; }
+      else if (h < 300) { r = c; g = 0; b = x; }
+      else { r = x; g = 0; b = c; }
+      const toHex = (n) => Math.round((n + m) * 255).toString(16).padStart(2, '0');
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
+    }
+
+    const BRANDING_SWATCHES = [
+      '#3B5BDB', '#1D2635', '#1BBC9C', '#F5A623', '#E85D4A', '#4CAF50', '#1565C0', '#9C27B0',
+      '#1A3A5C', '#C0392B', '#E67E22', '#C0392B', '#8D9E8B', '#1D2635',
+    ];
+
+    function ColorPickerModal({ open, color, onChange, onClose }) {
+      const [tab, setTab] = useState('branding');
+      const [tempColor, setTempColor] = useState(color);
+      const [hex, setHex] = useState(color);
+      const [hue, setHue] = useState(210);
+      const [applyAll, setApplyAll] = useState(false);
+      const [handlePos, setHandlePos] = useState({ x: 220, y: 40 });
+      const canvasRef = useRef(null);
+
+      useEffect(() => { if (open) { setTempColor(color); setHex(color); } }, [open, color]);
+
+      const updateFromCanvas = (x, y, h) => {
+        const newHex = hsvToHex(h, (x / 300) * 100, 100 - (y / 160) * 100);
+        setHex(newHex); setTempColor(newHex);
+      };
+
+      const handleCanvasPointer = (e) => {
+        const rect = canvasRef.current.getBoundingClientRect();
+        const x = Math.max(0, Math.min(300, e.clientX - rect.left));
+        const y = Math.max(0, Math.min(160, e.clientY - rect.top));
+        setHandlePos({ x, y });
+        updateFromCanvas(x, y, hue);
+      };
+
+      const handleHueChange = (h) => { setHue(h); updateFromCanvas(handlePos.x, handlePos.y, h); };
+      const handleHexInput = (v) => { setHex(v); if (/^#[0-9A-Fa-f]{6}$/.test(v)) setTempColor(v); };
+      const handleSelect = () => { onChange(tempColor); onClose(); };
+
+      return (
+        <Dialog open={open} onClose={onClose} PaperProps={{ sx: { width: 400, borderRadius: 2 } }}>
+          <Box sx={{ px: 2.5, py: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border)' }}>
+            <Typography sx={{ fontSize: 21, color: 'var(--text-primary)' }}>Select color</Typography>
+            <IconButton size="small" onClick={onClose}><Icon path={P.close} size={26} color="var(--text-secondary)" /></IconButton>
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 3, px: 2.5, pt: 1.5, borderBottom: '1px solid var(--border)' }}>
+            {['branding', 'custom'].map(t => (
+              <Typography key={t} onClick={() => setTab(t)} sx={{
+                fontSize: 18, textTransform: 'capitalize', cursor: 'pointer', pb: 1.25,
+                color: tab === t ? 'var(--navy)' : 'var(--text-secondary)',
+                borderBottom: tab === t ? '2px solid var(--navy)' : '2px solid transparent',
+              }}>{t}</Typography>
+            ))}
+          </Box>
+
+          <Box sx={{ p: 2.5 }}>
+            {tab === 'branding' ? (
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1.25 }}>
+                {BRANDING_SWATCHES.map((c, i) => {
+                  const selected = tempColor && tempColor.toUpperCase() === c.toUpperCase();
+                  return (
+                    <Box key={`${c}-${i}`} onClick={() => setTempColor(c)} sx={{
+                      width: 44, height: 44, borderRadius: 2, bgcolor: c, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      border: selected ? '2px solid var(--navy)' : '2px solid transparent',
+                      boxShadow: selected ? 'inset 0 0 0 2px #fff' : 'none',
+                    }}>
+                      <Typography sx={{ fontSize: 18, color: '#fff' }}>Aa</Typography>
+                    </Box>
+                  );
+                })}
+              </Box>
+            ) : (
+              <Box>
+                <Box ref={canvasRef} onMouseDown={handleCanvasPointer}
+                  onMouseMove={(e) => { if (e.buttons === 1) handleCanvasPointer(e); }}
+                  sx={{
+                    position: 'relative', width: 300, height: 160, borderRadius: 1.5, overflow: 'hidden',
+                    cursor: 'crosshair', mx: 'auto', backgroundColor: `hsl(${hue}, 100%, 50%)`,
+                  }}>
+                  <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, #fff, rgba(255,255,255,0))' }} />
+                  <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0), #000)' }} />
+                  <Box sx={{
+                    position: 'absolute', left: handlePos.x - 7, top: handlePos.y - 7, width: 14, height: 14, borderRadius: '50%',
+                    border: '2px solid #fff', boxShadow: '0 0 0 1px rgba(0,0,0,0.3)', bgcolor: tempColor, pointerEvents: 'none',
+                  }} />
+                </Box>
+
+                <Box sx={{
+                  mt: 1.5, height: 14, borderRadius: 7, mx: 'auto', width: 300, position: 'relative',
+                  background: 'linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
+                }}>
+                  <input type="range" min="0" max="360" value={hue} onChange={(e) => handleHueChange(Number(e.target.value))}
+                    style={{ width: '100%', height: 14, margin: 0, opacity: 0, cursor: 'pointer', position: 'absolute', top: 0, left: 0 }} />
+                  <Box sx={{ position: 'absolute', left: `calc(${(hue / 360) * 100}% - 7px)`, top: -1, width: 16, height: 16, borderRadius: '50%', bgcolor: '#fff', border: '2px solid var(--border)', pointerEvents: 'none' }} />
+                </Box>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 2 }}>
+                  <Box sx={{ width: 32, height: 32, borderRadius: 1, bgcolor: tempColor, border: '1px solid var(--border)', flexShrink: 0 }} />
+                  <TextField fullWidth value={hex} onChange={(e) => handleHexInput(e.target.value)} placeholder="#000000" />
+                </Box>
+              </Box>
+            )}
+          </Box>
+
+          <Box sx={{ px: 2.5, py: 2, borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box onClick={() => setApplyAll(!applyAll)} sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <Checkbox checked={applyAll} onChange={() => setApplyAll(!applyAll)} sx={{ p: 0.5, mr: 0.5 }} />
+              <Typography sx={{ fontSize: 17, color: 'var(--text-primary)' }}>Apply to all in group</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <GreyButton onClick={onClose}>Cancel</GreyButton>
+              <Button onClick={handleSelect} sx={PRIMARY_BTN_SX}>Select</Button>
+            </Box>
+          </Box>
+        </Dialog>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       GROUP PICKER STEP HELPERS  (CHANGE 1)
+       ═══════════════════════════════════════════════════════════════════════ */
+    function OrgLogo({ org, size = 32 }) {
+      return (
+        <Avatar src={org.avatar} variant="circular" sx={{ width: size, height: size, bgcolor: 'transparent', flexShrink: 0, '& img': { objectFit: 'contain' } }} />
+      );
+    }
+
+    function GroupPickerStep({ selectedCustomIds, onToggleCustom, selectedOrgIds, onToggleOrg }) {
+      const [search, setSearch] = useState('');
+      const match = (s) => s.toLowerCase().includes(search.toLowerCase());
+
+      const visibleCustomGroups = GROUP_PICKER_CUSTOM_GROUPS.filter(g => match(g.name));
+      const visibleOrgs = ORGS.filter(o => match(o.name));
+
+      return (
+        <Box sx={{ px: 2.5, pt: 2, pb: 2 }}>
+          <TextField variant="filled" fullWidth placeholder="Search group/club" value={search} onChange={(e) => setSearch(e.target.value)}
+            InputProps={{ endAdornment: <InputAdornment position="end"><Icon path={P.search} size={23} color="var(--text-secondary)" /></InputAdornment> }}
+            sx={{ mb: 2 }} />
+
+          {visibleCustomGroups.length > 0 && (
+            <>
+              <Typography sx={{ fontSize: 14, color: 'var(--navy)', mb: 1 }}>Custom group</Typography>
+              {visibleCustomGroups.map((g, i) => (
+                <React.Fragment key={g.id}>
+                  <Box onClick={() => onToggleCustom(g.id)} sx={{ display: 'flex', alignItems: 'center', height: 48, gap: 1.5, cursor: 'pointer' }}>
+                    <Checkbox checked={selectedCustomIds.has(g.id)} onChange={() => onToggleCustom(g.id)} onClick={(e) => e.stopPropagation()} />
+                    <Typography sx={{ fontSize: 15, color: 'var(--text-primary)' }}>{g.name}</Typography>
+                  </Box>
+                  {i < visibleCustomGroups.length - 1 && <Divider />}
+                </React.Fragment>
+              ))}
+              <Divider sx={{ my: 1.5 }} />
+            </>
+          )}
+
+          <Typography sx={{ fontSize: 14, color: 'var(--navy)', mb: 1 }}>Club</Typography>
+          {visibleOrgs.map((org, i) => (
+            <React.Fragment key={org.id}>
+              <Box onClick={() => onToggleOrg(org.id)} sx={{ display: 'flex', alignItems: 'center', height: 48, gap: 1.5, cursor: 'pointer' }}>
+                <Checkbox checked={selectedOrgIds.has(org.id)} onChange={() => onToggleOrg(org.id)} onClick={(e) => e.stopPropagation()} />
+                <OrgLogo org={org} />
+                <Typography sx={{ fontSize: 15, color: 'var(--text-primary)' }}>{org.name}</Typography>
+              </Box>
+              {i < visibleOrgs.length - 1 && <Divider />}
+            </React.Fragment>
+          ))}
+        </Box>
+      );
+    }
+
+    function ParticipantsStep({ selectedOrgIds, expandedOrgIds, onToggleExpand, orgParticipantIds, onToggleParticipant, onToggleSelectAllOrg, orgStaffId, onSetStaff }) {
+      const selectedOrgs = ORGS.filter(o => selectedOrgIds.has(o.id));
+
+      return (
+        <Box sx={{ px: 2.5, pt: 2, pb: 2 }}>
+          <Typography sx={{ fontSize: 14, color: 'var(--navy)', mb: 1 }}>Club</Typography>
+          {selectedOrgs.map(org => {
+            const open = expandedOrgIds.has(org.id);
+            const squad = org.squads[0];
+            const roster = squad ? rosterForSquad(squad.id) : [];
+            const athletes = roster.filter(a => a.type === 'athlete');
+            const staff = roster.filter(a => a.type === 'staff');
+            const checkedIds = orgParticipantIds[org.id] || new Set();
+
+            const fieldSx = {
+              '& .MuiFilledInput-root': {
+                height: 56, borderRadius: '4px 4px 0 0', backgroundColor: '#F3F4F7', boxShadow: 'none',
+                borderBottom: '1px solid #B3BAC5',
+                '&:hover': { backgroundColor: '#F3F4F7', borderBottom: '1px solid #5F7089' },
+                '&.Mui-focused': { backgroundColor: '#EDEFF3', boxShadow: 'none', borderBottom: '2px solid #172B4D' },
+              },
+              '& .MuiFilledInput-input': { fontSize: 16, fontWeight: 400, color: '#172B4D' },
+              '& .MuiFilledInput-input::placeholder': { color: '#5F7089', opacity: 1, fontSize: 16, fontWeight: 400, fontStyle: 'normal' },
+              '& .MuiSelect-select': { fontSize: 16, fontWeight: 400, fontStyle: 'normal', color: '#172B4D' },
+              '& .MuiSelect-icon': { color: '#5F7089', fontSize: 20 },
+              '& .MuiSvgIcon-root': { color: '#5F7089', fontSize: 20 },
+            };
+            return (
+              <Box key={org.id}>
+                <Box sx={{ display: 'flex', alignItems: 'center', height: 48, gap: 1.5 }}>
+                  <OrgLogo org={org} />
+                  <Typography sx={{ fontSize: 15, color: 'var(--text-primary)', flex: 1 }}>{org.name}</Typography>
+                  <Box onClick={() => onToggleSelectAllOrg(org.id)} sx={{
+                    bgcolor: '#F3F4F7', '&:hover': { bgcolor: '#E8EAED' },
+                    borderRadius: '999px', height: 36, px: 2, display: 'flex', alignItems: 'center', cursor: 'pointer', flexShrink: 0,
+                  }}>
+                    <Typography sx={{ fontSize: 15, fontWeight: 400, textTransform: 'none', color: '#5F7089' }}>Select all</Typography>
+                  </Box>
+                  <IconButton size="small" onClick={() => onToggleExpand(org.id)}>
+                    <Icon path={open ? P.chevronUp : P.chevronDown} size={23} color="var(--text-muted)" />
+                  </IconButton>
+                </Box>
+                <Divider />
+
+                <Collapse in={open}>
+                  <Box sx={{ pt: 1.5 }}>
+                    <TextField variant="filled" fullWidth placeholder="Search athletes"
+                      InputProps={{ endAdornment: <InputAdornment position="end"><Icon path={P.search} size={20} color="#5F7089" /></InputAdornment> }}
+                      sx={{ ...fieldSx, mb: 1.5 }} />
+
+                    <Box sx={{ display: 'flex', gap: 2, mb: 1.5 }}>
+                      <FormControl variant="filled" size="small" sx={{ ...fieldSx, flex: 1 }}>
+                        <Select defaultValue="All teams">
+                          <MenuItem value="All teams">All teams</MenuItem>
+                          {org.squads.map(s => <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>)}
+                        </Select>
+                      </FormControl>
+                      <FormControl variant="filled" size="small" sx={{ ...fieldSx, flex: 1 }}>
+                        <Select defaultValue="A-Z">
+                          <MenuItem value="A-Z">A-Z</MenuItem>
+                          <MenuItem value="Z-A">Z-A</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Box>
+
+                    {athletes.map((a, i) => (
+                      <React.Fragment key={a.id}>
+                        <Box onClick={() => onToggleParticipant(org.id, a.id)} sx={{ display: 'flex', alignItems: 'center', height: 44, gap: 1.5, cursor: 'pointer' }}>
+                          <Checkbox checked={checkedIds.has(a.id)} onChange={() => onToggleParticipant(org.id, a.id)} onClick={(e) => e.stopPropagation()} />
+                          <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: 'var(--secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <Typography sx={{ fontSize: 12, color: 'var(--text-secondary)' }}>{a.name.split(' ').map(w => w[0]).join('').slice(0, 2)}</Typography>
+                          </Box>
+                          <Typography sx={{ fontSize: 15, color: 'var(--text-primary)' }}>{a.name}</Typography>
+                        </Box>
+                        {i < athletes.length - 1 && <Divider />}
+                      </React.Fragment>
+                    ))}
+
+                    <FormControl variant="filled" fullWidth sx={{
+                      ...fieldSx, mt: 1.5,
+                      '& .MuiSelect-select': { ...fieldSx['& .MuiSelect-select'], color: orgStaffId[org.id] ? '#172B4D' : '#5F7089' },
+                    }}>
+                      <Select displayEmpty value={orgStaffId[org.id] || ''} onChange={(e) => onSetStaff(org.id, e.target.value)}>
+                        <MenuItem value="">Select staff</MenuItem>
+                        {staff.map(s => <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>)}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </Collapse>
+              </Box>
+            );
+          })}
+        </Box>
+      );
+    }
+
+    function addDuration(start, durationLabel) {
+      const mins = { '30m': 30, '1h': 60, '1.5h': 90, '2h': 120 }[durationLabel];
+      if (!mins) return null;
+      const [h, m] = start.split(':').map(Number);
+      const total = h * 60 + m + mins;
+      const eh = Math.floor((total / 60) % 24).toString().padStart(2, '0');
+      const em = (total % 60).toString().padStart(2, '0');
+      return `${eh}:${em}`;
+    }
+
+    const ADD_EVENT_STEPS = ['Select group', 'Select participants', 'Event set up'];
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       ADD EVENT DRAWER  (CHANGES 1, 3, 5, 6 — now a 3-step flow)
+       ═══════════════════════════════════════════════════════════════════════ */
+    function AddEventDrawer({ open, kind, onClose, onSave, types, onCreateType, typeColors, onSetTypeColor }) {
+      const [step, setStep] = useState(1);
+      const [selectedCustomIds, setSelectedCustomIds] = useState(() => new Set());
+      const [selectedOrgIds, setSelectedOrgIds] = useState(() => new Set());
+      const [expandedOrgIds, setExpandedOrgIds] = useState(() => new Set());
+      const [orgParticipantIds, setOrgParticipantIds] = useState({});
+      const [orgStaffId, setOrgStaffId] = useState({});
+      const [title, setTitle] = useState('');
+      const [type, setType] = useState('');
+      const [description, setDescription] = useState('');
+      const [colorModalOpen, setColorModalOpen] = useState(false);
+      const [date, setDate] = useState('2026-07-15');
+      const [start, setStart] = useState('09:00');
+      const [duration, setDuration] = useState('1h');
+      const [customEnd, setCustomEnd] = useState('10:00');
+      const [timezone, setTimezone] = useState('ET');
+      const [repeat, setRepeat] = useState('Never');
+      const [location, setLocation] = useState(null);
+      const [visibility, setVisibility] = useState('All staff');
+      const [attachments, setAttachments] = useState([]);
+      const [attachmentTitle, setAttachmentTitle] = useState('');
+      const [attachmentLink, setAttachmentLink] = useState('');
+      const [notifyChannels, setNotifyChannels] = useState(() => new Set());
+      const [reminderPlayer, setReminderPlayer] = useState('None');
+      const [reminderPush, setReminderPush] = useState('1 min before');
+
+      const selectedOrgList = useMemo(() => ORGS.filter(o => selectedOrgIds.has(o.id)), [selectedOrgIds]);
+      const primaryOrgId = selectedOrgList[0]?.id || 'atl';
+      const primarySquadId = (ORG_BY_ID[primaryOrgId].squads[0] && ORG_BY_ID[primaryOrgId].squads[0].id) || 'atl-first';
+
+      useEffect(() => {
+        setOrgParticipantIds(prev => {
+          const next = { ...prev };
+          selectedOrgIds.forEach(orgId => {
+            if (!next[orgId]) {
+              const squadId = ORG_BY_ID[orgId].squads[0]?.id;
+              next[orgId] = new Set(rosterForSquad(squadId).filter(a => a.type === 'athlete').map(a => a.id));
+            }
+          });
+          return next;
+        });
+      }, [selectedOrgIds]);
+
+      const toggleCustom = (id) => setSelectedCustomIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+      const toggleOrg = (id) => setSelectedOrgIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+      const toggleExpandOrg = (id) => setExpandedOrgIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+      const toggleParticipant = (orgId, athleteId) => setOrgParticipantIds(prev => {
+        const current = new Set(prev[orgId] || []);
+        current.has(athleteId) ? current.delete(athleteId) : current.add(athleteId);
+        return { ...prev, [orgId]: current };
+      });
+      const toggleSelectAllOrg = (orgId) => setOrgParticipantIds(prev => {
+        const squadId = ORG_BY_ID[orgId].squads[0]?.id;
+        const athletes = rosterForSquad(squadId).filter(a => a.type === 'athlete');
+        const current = prev[orgId] || new Set();
+        const allSelected = athletes.every(a => current.has(a.id));
+        return { ...prev, [orgId]: new Set(allSelected ? [] : athletes.map(a => a.id)) };
+      });
+      const setStaffForOrg = (orgId, staffId) => setOrgStaffId(prev => ({ ...prev, [orgId]: staffId }));
+
+      const toggleNotifyChannel = (ch) => setNotifyChannels(prev => { const n = new Set(prev); n.has(ch) ? n.delete(ch) : n.add(ch); return n; });
+      const addAttachment = () => {
+        if (!attachmentTitle.trim()) return;
+        setAttachments(prev => [...prev, { id: `att-${prev.length}-${attachmentTitle.trim()}`, title: attachmentTitle.trim(), link: attachmentLink.trim() }]);
+        setAttachmentTitle(''); setAttachmentLink('');
+      };
+      const removeAttachment = (id) => setAttachments(prev => prev.filter(a => a.id !== id));
+
+      const reset = () => {
+        setStep(1); setSelectedCustomIds(new Set()); setSelectedOrgIds(new Set());
+        setExpandedOrgIds(new Set()); setOrgParticipantIds({}); setOrgStaffId({});
+        setTitle(''); setType(''); setDescription(''); setColorModalOpen(false);
+        setDate('2026-07-15'); setStart('09:00'); setDuration('1h'); setCustomEnd('10:00'); setTimezone('ET'); setRepeat('Never');
+        setLocation(null); setVisibility('All staff'); setAttachments([]); setAttachmentTitle(''); setAttachmentLink('');
+        setNotifyChannels(new Set()); setReminderPlayer('None'); setReminderPush('1 min before');
+      };
+      const close = () => { reset(); onClose(); };
+
+      const displayColour = typeColors[type] || '#3B4960';
+      const canSave = title.trim() && type;
+      const hasGroupSelection = selectedCustomIds.size + selectedOrgIds.size > 0;
+
+      const goBack = () => { if (step === 1) { close(); return; } setStep(s => s - 1); };
+      const goNext = () => {
+        if (step === 1 && !hasGroupSelection) return;
+        if (step === 1) setExpandedOrgIds(new Set(selectedOrgList[0] ? [selectedOrgList[0].id] : []));
+        if (step < 3) setStep(s => s + 1);
+        else save();
+      };
+
+      const save = () => {
+        if (!canSave) return;
+        const dayNum = date ? Number(date.split('-')[2]) : 15;
+        const endTime = duration === 'Custom' ? customEnd : (addDuration(start, duration) || customEnd);
+        const roster = rosterForSquad(primarySquadId);
+        const chosenAthleteIds = orgParticipantIds[primaryOrgId] || new Set();
+        const chosenStaffId = orgStaffId[primaryOrgId];
+        const attendees = roster.filter(a => (a.type === 'athlete' && chosenAthleteIds.has(a.id)) || (a.type === 'staff' && a.id === chosenStaffId));
+        const reminders = [
+          ...(reminderPlayer !== 'None' ? [`Player: ${reminderPlayer}`] : []),
+          `Push: ${reminderPush}`,
+        ];
+        onSave({
+          id: `ev-${Date.now()}`, day: dayNum, orgId: primaryOrgId, squadId: primarySquadId, type,
+          title: title.trim(), start, end: endTime, location, reminders, notes: description,
+          attendees: attendees.length ? attendees : roster,
+          repeat, visibility, attachments, notifyChannels: [...notifyChannels],
+        });
+        reset();
+      };
+
+      return (
+        <Drawer anchor="right" open={open} onClose={close} PaperProps={{ sx: { width: 560 } }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <Box sx={{ px: 2.5, py: 2, borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography sx={{ fontSize: 23, color: 'var(--text-primary)' }}>New {kind.toLowerCase()}</Typography>
+              <IconButton size="small" onClick={close}><Icon path={P.close} size={26} color="var(--text-secondary)" /></IconButton>
+            </Box>
+
+            {/* Stepper */}
+            <Box sx={{ display: 'flex', alignItems: 'center', px: 2.5, py: 2, borderBottom: '1px solid var(--border)', gap: 1 }}>
+              {ADD_EVENT_STEPS.map((label, i) => {
+                const n = i + 1;
+                const state = n < step ? 'done' : n === step ? 'active' : 'upcoming';
+                return (
+                  <React.Fragment key={label}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box sx={{
+                        width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                        bgcolor: state === 'upcoming' ? '#E8EAED' : '#3B4960',
+                      }}>
+                        {state === 'done'
+                          ? <Icon path={P.check} size={14} color="#fff" />
+                          : <Typography sx={{ fontSize: 12, color: state === 'active' ? '#fff' : '#5F7089' }}>{n}</Typography>}
+                      </Box>
+                      <Typography sx={{ fontSize: 14, fontWeight: state === 'active' ? 600 : 400, color: state === 'active' ? '#172B4D' : '#5F7089' }}>{label}</Typography>
+                    </Box>
+                    {n < ADD_EVENT_STEPS.length && <Box sx={{ flex: 1, height: 0, borderTop: `1px solid ${state === 'done' ? '#3B4960' : '#E8EAED'}` }} />}
+                  </React.Fragment>
+                );
+              })}
+            </Box>
+
+            <Box sx={{ flex: 1, overflowY: 'auto' }}>
+              {step === 1 && (
+                <GroupPickerStep selectedCustomIds={selectedCustomIds} onToggleCustom={toggleCustom}
+                  selectedOrgIds={selectedOrgIds} onToggleOrg={toggleOrg} />
+              )}
+
+              {step === 2 && (
+                <ParticipantsStep selectedOrgIds={selectedOrgIds} expandedOrgIds={expandedOrgIds} onToggleExpand={toggleExpandOrg}
+                  orgParticipantIds={orgParticipantIds} onToggleParticipant={toggleParticipant} onToggleSelectAllOrg={toggleSelectAllOrg}
+                  orgStaffId={orgStaffId} onSetStaff={setStaffForOrg} />
+              )}
+
+              {step === 3 && (
+                <Box sx={{ px: 2.5, py: 2 }}>
+                  <Box sx={{ mb: 2 }}>
+                    <FieldLabel required>Event type</FieldLabel>
+                    <TypeCombo types={types} value={type} onSelect={setType} onCreate={onCreateType} />
+                  </Box>
+
+                  <Box sx={{ mb: 2 }}>
+                    <FieldLabel required>Title</FieldLabel>
+                    <TextField fullWidth placeholder={`${kind} name`} value={title} onChange={(e) => setTitle(e.target.value)} sx={DRAWER_FIELD_SX} />
+                  </Box>
+
+                  <Box sx={{ mb: 2 }}>
+                    <FieldLabel>Description</FieldLabel>
+                    <TextField fullWidth multiline rows={3} placeholder="Add details…" value={description} onChange={(e) => setDescription(e.target.value)} sx={DRAWER_FIELD_MULTILINE_SX} />
+                  </Box>
+
+                  <Divider sx={DRAWER_DIVIDER_SX} />
+
+                  <Box sx={{ mb: 2 }}>
+                    <FieldLabel>Date</FieldLabel>
+                    <TextField fullWidth type="date" value={date} onChange={(e) => setDate(e.target.value)} sx={DRAWER_FIELD_SX} />
+                  </Box>
+
+                  <Box sx={{ mb: 2 }}>
+                    <FieldLabel>Start time</FieldLabel>
+                    <TextField fullWidth type="time" value={start} onChange={(e) => setStart(e.target.value)} sx={DRAWER_FIELD_SX} />
+                  </Box>
+
+                  <Box sx={{ mb: 2 }}>
+                    <FieldLabel>Duration</FieldLabel>
+                    <FormControl fullWidth sx={DRAWER_FIELD_SX}>
+                      <Select value={duration} onChange={(e) => setDuration(e.target.value)}>
+                        <MenuItem value="30m">30 min</MenuItem>
+                        <MenuItem value="1h">1 hr</MenuItem>
+                        <MenuItem value="1.5h">1.5 hr</MenuItem>
+                        <MenuItem value="2h">2 hr</MenuItem>
+                        <MenuItem value="Custom">Custom</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
+
+                  {duration === 'Custom' && (
+                    <Box sx={{ mb: 2 }}>
+                      <FieldLabel>End time</FieldLabel>
+                      <TextField fullWidth type="time" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} sx={DRAWER_FIELD_SX} />
+                    </Box>
+                  )}
+
+                  <Box sx={{ mb: 2 }}>
+                    <FieldLabel>Time zone</FieldLabel>
+                    <FormControl fullWidth sx={DRAWER_FIELD_SX}>
+                      <Select value={timezone} onChange={(e) => setTimezone(e.target.value)}>
+                        {['ET', 'CT', 'MT', 'PT', 'GMT'].map(tz => <MenuItem key={tz} value={tz}>{tz}</MenuItem>)}
+                      </Select>
+                    </FormControl>
+                  </Box>
+
+                  <Box sx={{ mb: 2 }}>
+                    <FieldLabel>Repeat</FieldLabel>
+                    <FormControl fullWidth sx={DRAWER_FIELD_SX}>
+                      <Select value={repeat} onChange={(e) => setRepeat(e.target.value)}>
+                        {['Never', 'Daily', 'Weekly', 'Monthly'].map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
+                      </Select>
+                    </FormControl>
+                  </Box>
+
+                  <Box sx={{ mb: 2 }}>
+                    <FieldLabel>Address</FieldLabel>
+                    <LocationField value={location} onChange={setLocation} />
+                  </Box>
+
+                  <Divider sx={DRAWER_DIVIDER_SX} />
+
+                  <Box sx={{ mb: 2 }}>
+                    <FieldLabel>Staff visibility</FieldLabel>
+                    <FormControl fullWidth sx={DRAWER_FIELD_SX}>
+                      <Select value={visibility} onChange={(e) => setVisibility(e.target.value)}>
+                        {['All staff', 'Only selected staff', 'Staff and additional viewers'].map(v => <MenuItem key={v} value={v}>{v}</MenuItem>)}
+                      </Select>
+                    </FormControl>
+                  </Box>
+
+                  <Divider sx={DRAWER_DIVIDER_SX} />
+
+                  <Box sx={{ mb: 2 }}>
+                    <FieldLabel>Attach files</FieldLabel>
+                    <Box sx={{ border: '1px dashed var(--border)', borderRadius: '6px', p: 3, textAlign: 'center', mb: 1.5 }}>
+                      <Icon path={P.add} size={23} color="var(--text-muted)" />
+                      <Typography sx={{ fontSize: 14, color: 'var(--text-muted)' }}>Drag and drop files or browse</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <TextField placeholder="Title" value={attachmentTitle} onChange={(e) => setAttachmentTitle(e.target.value)} sx={{ ...DRAWER_FIELD_SX, flex: 1 }} />
+                      <TextField placeholder="Link (optional)" value={attachmentLink} onChange={(e) => setAttachmentLink(e.target.value)} sx={{ ...DRAWER_FIELD_SX, flex: 1 }} />
+                      <Button onClick={addAttachment} disabled={!attachmentTitle.trim()}
+                        sx={{ ...PRIMARY_BTN_SX, '&.Mui-disabled': { bgcolor: '#C7CBD3', color: '#fff' } }}>
+                        Add
+                      </Button>
+                    </Box>
+                    {attachments.map(a => (
+                      <Box key={a.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 0.75 }}>
+                        <Typography sx={{ fontSize: 14, color: 'var(--text-primary)' }}>{a.title}</Typography>
+                        <IconButton size="small" onClick={() => removeAttachment(a.id)}><Icon path={P.close} size={16} color="var(--text-muted)" /></IconButton>
+                      </Box>
+                    ))}
+                  </Box>
+
+                  <Divider sx={DRAWER_DIVIDER_SX} />
+
+                  <Box sx={{ mb: 2 }}>
+                    <FieldLabel>Notify via</FieldLabel>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      {['Email', 'Push'].map(ch => {
+                        const on = notifyChannels.has(ch);
+                        return (
+                          <Box key={ch} onClick={() => toggleNotifyChannel(ch)} sx={{
+                            bgcolor: on ? 'var(--navy)' : 'var(--grey-fill)', color: on ? '#fff' : 'var(--text-primary)',
+                            borderRadius: 20, px: 1.5, py: 0.5, cursor: 'pointer',
+                          }}>
+                            <Typography sx={{ fontSize: 14, color: 'inherit' }}>{ch}</Typography>
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  </Box>
+
+                  <Divider sx={DRAWER_DIVIDER_SX} />
+
+                  <Box sx={{ mb: 2 }}>
+                    <FieldLabel>Reminders</FieldLabel>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                      <Typography sx={{ fontSize: 15, color: 'var(--text-primary)', width: 60, flexShrink: 0 }}>Player</Typography>
+                      <FormControl fullWidth sx={DRAWER_FIELD_SX}>
+                        <Select value={reminderPlayer} onChange={(e) => setReminderPlayer(e.target.value)}>
+                          {['None', 'All'].map(o => <MenuItem key={o} value={o}>{o}</MenuItem>)}
+                        </Select>
+                      </FormControl>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Typography sx={{ fontSize: 15, color: 'var(--text-primary)', width: 60, flexShrink: 0 }}>Push</Typography>
+                      <FormControl fullWidth sx={DRAWER_FIELD_SX}>
+                        <Select value={reminderPush} onChange={(e) => setReminderPush(e.target.value)}>
+                          {['1 min before', '5 min before', '30 min before', '1 day before', 'Custom'].map(o => <MenuItem key={o} value={o}>{o}</MenuItem>)}
+                        </Select>
+                      </FormControl>
+                    </Box>
+                  </Box>
+
+                  <Box sx={{ mb: 1 }}>
+                    <FieldLabel>Event colour</FieldLabel>
+                    <Box onClick={() => setColorModalOpen(true)} sx={{
+                      display: 'flex', alignItems: 'center', gap: 1.5, bgcolor: 'var(--grey-fill)', borderRadius: '6px', px: 1.5, py: 1, cursor: 'pointer',
+                    }}>
+                      <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: displayColour, flexShrink: 0 }} />
+                      <Typography sx={{ fontSize: 14, color: 'var(--text-primary)', flex: 1 }}>{displayColour}</Typography>
+                      <Icon path={P.chevronDown} size={23} color="var(--text-secondary)" />
+                    </Box>
+                  </Box>
+                </Box>
+              )}
+            </Box>
+
+            <Box sx={{ px: 2.5, py: 2, borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
+              <GreyButton onClick={goBack}>{step === 1 ? 'Cancel' : 'Back'}</GreyButton>
+              {step < 3 ? (
+                <Button disabled={step === 1 && !hasGroupSelection} onClick={goNext}
+                  sx={{ ...PRIMARY_BTN_SX, '&.Mui-disabled': { bgcolor: '#C7CBD3', color: '#fff' } }}>
+                  Next
+                </Button>
+              ) : (
+                <Button disabled={!canSave} onClick={save}
+                  sx={{ ...PRIMARY_BTN_SX, '&.Mui-disabled': { bgcolor: '#C7CBD3', color: '#fff' } }}>
+                  Create event
+                </Button>
+              )}
+            </Box>
+          </Box>
+
+          <ColorPickerModal open={colorModalOpen} color={displayColour}
+            onChange={(hex) => type && onSetTypeColor(type, hex)} onClose={() => setColorModalOpen(false)} />
+        </Drawer>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       EVENT DETAIL DIALOG  (CHANGES 4, 5, 6)
+       ═══════════════════════════════════════════════════════════════════════ */
+    function DetailRow({ icon, children }) {
+      return (
+        <Box sx={{ display: 'flex', gap: 1.25, mb: 1.5, alignItems: 'flex-start' }}>
+          <Icon path={icon} size={23} color="var(--text-secondary)" sx={{ mt: '1px' }} />
+          <Box sx={{ flex: 1 }}>{children}</Box>
+        </Box>
+      );
+    }
+
+    function EventDetailDialog({ event, onClose, onSendMessage }) {
+      const [permissions, setPermissions] = useState('Creator only');
+      if (!event) return null;
+      const org = ORG_BY_ID[event.orgId];
+      const squad = SQUAD_BY_ID[event.squadId];
+      const color = squadColor(event.squadId);
+      return (
+        <Dialog open={Boolean(event)} onClose={onClose} PaperProps={{ sx: { width: 460, maxWidth: '92vw', borderRadius: 2 } }}>
+          <Box sx={{ height: 6, bgcolor: color }} />
+          <Box sx={{ p: 2.5 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+              <Box>
+                <Chip label={event.type} size="small" sx={{ bgcolor: color + '1F', color, mb: 1, '& .MuiChip-label': { fontSize: 16 } }} />
+                <Typography sx={{ fontSize: 20, color: 'var(--text-primary)' }}>{event.title}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Tooltip title="Send message">
+                  <IconButton onClick={() => onSendMessage(event)} sx={{
+                    width: 40, height: 40, borderRadius: '6px', '&:hover': { bgcolor: '#F3F4F7' },
+                  }}>
+                    <Icon path={P.chatBubbleOutline} size={22} color="#3B4960" />
+                  </IconButton>
+                </Tooltip>
+                <IconButton size="small" onClick={onClose}><Icon path={P.close} size={26} color="var(--text-secondary)" /></IconButton>
+              </Box>
+            </Box>
+
+            <DetailRow icon={P.calendar}>
+              <Typography sx={{ fontSize: 18 }}>{event.day} July 2026</Typography>
+              <Typography sx={{ fontSize: 17, color: 'var(--text-secondary)' }}>{event.start} &ndash; {event.end}</Typography>
+            </DetailRow>
+            <DetailRow icon={P.network}>
+              <Typography sx={{ fontSize: 18 }}>{org.name}</Typography>
+              <Typography sx={{ fontSize: 17, color: 'var(--text-secondary)' }}>{squad ? squad.name : ''}</Typography>
+            </DetailRow>
+            <DetailRow icon={P.person}>
+              <Typography sx={{ fontSize: 18 }}>{event.attendees.length} attendees</Typography>
+              <Typography sx={{ fontSize: 17, color: 'var(--text-secondary)' }}>
+                {event.attendees.slice(0, 3).map(a => a.name).join(', ')}{event.attendees.length > 3 ? ` +${event.attendees.length - 3} more` : ''}
+              </Typography>
+            </DetailRow>
+
+            {/* CHANGE 5 — reminders list */}
+            {event.reminders.length > 0 && (
+              <DetailRow icon={P.bell}>
+                <Typography sx={{ fontSize: 18, mb: 0.25 }}>Reminders</Typography>
+                {event.reminders.map((r, i) => (
+                  <Typography key={i} sx={{ fontSize: 17, color: 'var(--text-secondary)' }}>&bull; {r}</Typography>
+                ))}
+              </DetailRow>
+            )}
+
+            {/* CHANGE 3 — permissions */}
+            <DetailRow icon={P.settings}>
+              <Typography sx={{ fontSize: 17, color: 'var(--text-secondary)', mb: 0.5 }}>Who can edit?</Typography>
+              <FormControl size="small" sx={{ minWidth: 220 }}>
+                <Select value={permissions} onChange={(e) => setPermissions(e.target.value)}>
+                  {['Creator only', 'Operations staff', 'Coaches', 'All assigned staff'].map(p => (
+                    <MenuItem key={p} value={p}>{p}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </DetailRow>
+
+            {/* CHANGE 6 — location + map */}
+            {event.location && (
+              <Box sx={{ mb: 1 }}>
+                <DetailRow icon={P.pin}>
+                  <Typography sx={{ fontSize: 18 }}>{event.location.name}</Typography>
+                  <Typography sx={{ fontSize: 17, color: 'var(--text-secondary)' }}>{event.location.address}</Typography>
+                </DetailRow>
+                <MapPreview location={event.location} />
+              </Box>
+            )}
+          </Box>
+
+          <Box sx={{ px: 2.5, py: 2, borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+            <GreyButton onClick={onClose}>Close</GreyButton>
+          </Box>
+        </Dialog>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       BROADCAST COMPOSE MODAL  (CHANGE 4) — reused 2-step flow, pre-filled
+       ═══════════════════════════════════════════════════════════════════════ */
+    function RecipientGroup({ title, items, selected, onToggle, onAll, onClear }) {
+      const [open, setOpen] = useState(true);
+      const selCount = items.filter(i => selected.has(i.id)).length;
+      return (
+        <Box sx={{ border: '1px solid var(--border)', borderRadius: 1.5, mb: 1.5, overflow: 'hidden' }}>
+          <Box onClick={() => setOpen(!open)} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 1.5, py: 1.25, bgcolor: 'var(--grey-fill)', cursor: 'pointer' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Icon path={open ? P.chevronUp : P.chevronDown} size={23} color="var(--text-secondary)" />
+              <Typography sx={{ fontSize: 18 }}>{title}</Typography>
+              <Typography sx={{ fontSize: 17, color: 'var(--text-secondary)' }}>{selCount}/{items.length}</Typography>
+            </Box>
+          </Box>
+          <Collapse in={open}>
+            <Box sx={{ px: 1.5, py: 1 }}>
+              <Box sx={{ display: 'flex', gap: 1, mb: 0.5 }}>
+                <Typography onClick={onAll} sx={{ fontSize: 17, color: 'var(--blue)', cursor: 'pointer' }}>Select all</Typography>
+                <Typography sx={{ fontSize: 17, color: 'var(--text-muted)' }}>|</Typography>
+                <Typography onClick={onClear} sx={{ fontSize: 17, color: 'var(--blue)', cursor: 'pointer' }}>Clear</Typography>
+              </Box>
+              {items.map(i => (
+                <Box key={i.id} onClick={() => onToggle(i.id)} sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', py: 0.25 }}>
+                  <Checkbox checked={selected.has(i.id)} onChange={() => onToggle(i.id)} sx={{ p: 0.5, mr: 1 }} />
+                  <Typography sx={{ fontSize: 18 }}>{i.name}</Typography>
+                </Box>
+              ))}
+            </Box>
+          </Collapse>
+        </Box>
+      );
+    }
+
+    function BroadcastModal({ event, onClose, onSent }) {
+      const [step, setStep] = useState('recipients');
+      const [selected, setSelected] = useState(new Set());
+      const [channels, setChannels] = useState(new Set(['inapp', 'email']));
+      const [subject, setSubject] = useState('');
+      const [body, setBody] = useState('');
+
+      const athletes = useMemo(() => event ? event.attendees.filter(a => a.type === 'athlete') : [], [event]);
+      const staff = useMemo(() => event ? event.attendees.filter(a => a.type === 'staff') : [], [event]);
+
+      // pre-fill all event attendees as recipients
+      useEffect(() => {
+        if (event) {
+          setSelected(new Set(event.attendees.map(a => a.id)));
+          setStep('recipients'); setSubject(`Update: ${event.title}`); setBody('');
+          setChannels(new Set(['inapp', 'email']));
+        }
+      }, [event]);
+
+      if (!event) return null;
+
+      const toggle = (id) => setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+      const bulk = (items, on) => setSelected(prev => { const n = new Set(prev); items.forEach(i => on ? n.add(i.id) : n.delete(i.id)); return n; });
+      const toggleChannel = (c) => setChannels(prev => { const n = new Set(prev); n.has(c) ? n.delete(c) : n.add(c); return n; });
+
+      const total = selected.size;
+      const CHANNELS = [{ id: 'inapp', label: 'In-app' }, { id: 'email', label: 'Email' }, { id: 'sms', label: 'SMS' }];
+
+      const send = () => { onSent(total); };
+
+      return (
+        <Dialog open={Boolean(event)} onClose={onClose} PaperProps={{ sx: { width: 480, maxWidth: '94vw', borderRadius: 2, height: 620, maxHeight: '92vh' } }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <Box sx={{ px: 2.5, py: 1.75, borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {step === 'compose' && <IconButton size="small" onClick={() => setStep('recipients')}><Icon path={P.chevronLeft} size={26} /></IconButton>}
+                <Box>
+                  <Typography sx={{ fontSize: 21, color: 'var(--text-primary)' }}>Broadcast message</Typography>
+                  <Typography sx={{ fontSize: 16, color: 'var(--text-secondary)' }}>{step === 'recipients' ? '1. Select recipients' : '2. Compose message'}</Typography>
+                </Box>
+              </Box>
+              <IconButton size="small" onClick={onClose}><Icon path={P.close} size={26} color="var(--text-secondary)" /></IconButton>
+            </Box>
+
+            {step === 'recipients' ? (
+              <>
+                <Box sx={{ flex: 1, overflowY: 'auto', px: 2.5, py: 2 }}>
+                  <Box sx={{ bgcolor: '#E9EFF6', borderRadius: 1.5, px: 1.5, py: 1, mb: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <Icon path={P.calendar} size={21} color="var(--blue)" />
+                    <Typography sx={{ fontSize: 17, color: 'var(--text-primary)' }}>Pre-filled from &ldquo;{event.title}&rdquo;</Typography>
+                  </Box>
+                  <RecipientGroup title="Athletes" items={athletes} selected={selected} onToggle={toggle}
+                    onAll={() => bulk(athletes, true)} onClear={() => bulk(athletes, false)} />
+                  <RecipientGroup title="Staff" items={staff} selected={selected} onToggle={toggle}
+                    onAll={() => bulk(staff, true)} onClear={() => bulk(staff, false)} />
+                </Box>
+                <Box sx={{ px: 2.5, py: 2, borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Typography sx={{ fontSize: 17, color: 'var(--text-secondary)' }}>{total} selected</Typography>
+                  <Button disabled={total === 0} onClick={() => setStep('compose')} sx={{ ...PRIMARY_BTN_SX, gap: 0.5, '&.Mui-disabled': { bgcolor: '#C7CBD3', color: '#fff' } }}>
+                    Next <Icon path={P.chevronRight} size={22} />
+                  </Button>
+                </Box>
+              </>
+            ) : (
+              <>
+                <Box sx={{ flex: 1, overflowY: 'auto', px: 2.5, py: 2 }}>
+                  <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <Box sx={{ px: 1.25, py: 0.375, bgcolor: 'var(--grey-fill)', borderRadius: 10 }}>
+                      <Typography sx={{ fontSize: 16 }}>{total} recipients</Typography>
+                    </Box>
+                    <Typography onClick={() => setStep('recipients')} sx={{ fontSize: 16, color: 'var(--blue)', cursor: 'pointer' }}>Edit</Typography>
+                  </Box>
+
+                  <Typography sx={{ fontSize: 16, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, mb: 1 }}>Send via</Typography>
+                  <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                    {CHANNELS.map(c => {
+                      const on = channels.has(c.id);
+                      return (
+                        <Box key={c.id} onClick={() => toggleChannel(c.id)} sx={{
+                          px: 1.5, py: 0.75, borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 0.5,
+                          border: `1px solid ${on ? 'var(--blue)' : 'var(--border)'}`, bgcolor: on ? '#E9EFF6' : '#fff',
+                        }}>
+                          {on && <Icon path={P.check} size={15} color="var(--blue)" />}
+                          <Typography sx={{ fontSize: 17, color: on ? 'var(--blue)' : 'var(--text-secondary)' }}>{c.label}</Typography>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+
+                  <Typography sx={{ fontSize: 16, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, mb: 1 }}>Message</Typography>
+                  {channels.has('email') && (
+                    <TextField fullWidth placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} sx={{ mb: 1.5 }} />
+                  )}
+                  <TextField fullWidth multiline rows={6} placeholder="Write your message…" value={body} onChange={(e) => setBody(e.target.value)} />
+                </Box>
+                <Box sx={{ px: 2.5, py: 2, borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                  <GreyButton onClick={onClose}>Cancel</GreyButton>
+                  <Button disabled={channels.size === 0} onClick={send} sx={{ ...PRIMARY_BTN_SX, gap: 0.75, '&.Mui-disabled': { bgcolor: '#C7CBD3', color: '#fff' } }}>
+                    <Icon path={P.send} size={22} /> Send
+                  </Button>
+                </Box>
+              </>
+            )}
+          </Box>
+        </Dialog>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       APP
+       ═══════════════════════════════════════════════════════════════════════ */
+    function App() {
+      const [showFilters, setShowFilters] = useState(true);
+      const [selectedOrgIds, setSelectedOrgIds] = useState(() => new Set(['atl']));
+      const [selectedSquadIds, setSelectedSquadIds] = useState(() => new Set());
+      const [types, setTypes] = useState([...DEFAULT_TYPES, 'Academy Day']);
+      const [selectedTypes, setSelectedTypes] = useState(() => new Set([...DEFAULT_TYPES, 'Academy Day']));
+      const [typeColors, setTypeColors] = useState(() => Object.fromEntries(
+        [...DEFAULT_TYPES, 'Academy Day'].map((t, i) => [t, TYPE_COLORS[t] || TYPE_COLOR_FALLBACKS[i % TYPE_COLOR_FALLBACKS.length]])
+      ));
+      const [events, setEvents] = useState(SEED_EVENTS);
+
+      const [addKind, setAddKind] = useState(null);
+      const [detailEvent, setDetailEvent] = useState(null);
+      const [broadcastEvent, setBroadcastEvent] = useState(null);
+      const [toast, setToast] = useState(null);
+
+      const multiOrg = selectedOrgIds.size > 1;
+
+      // org toggle also selects/deselects that org's squads (single source of truth)
+      const handleOrgToggle = (orgId) => {
+        const org = ORG_BY_ID[orgId];
+        const squadIds = org.squads.map(s => s.id);
+        setSelectedOrgIds(prev => {
+          const n = new Set(prev);
+          if (n.has(orgId)) {
+            n.delete(orgId);
+            setSelectedSquadIds(sq => { const m = new Set(sq); squadIds.forEach(id => m.delete(id)); return m; });
+          } else {
+            n.add(orgId);
+          }
+          return n;
+        });
+      };
+
+      // filter: org in view AND (no squads chosen OR squad chosen) AND type checked
+      const visibleEvents = useMemo(() => events.filter(e => {
+        if (!selectedOrgIds.has(e.orgId)) return false;
+        const squadOk = selectedSquadIds.size === 0 || selectedSquadIds.has(e.squadId);
+        const typeOk = selectedTypes.has(e.type);
+        return squadOk && typeOk;
+      }), [events, selectedOrgIds, selectedSquadIds, selectedTypes]);
+
+      const filterBadge = types.length - selectedTypes.size;
+
+      const createType = (t) => {
+        if (types.includes(t)) return;
+        setTypes(prev => [...prev, t]);
+        setSelectedTypes(prev => new Set([...prev, t]));
+        setTypeColors(prev => ({ ...prev, [t]: TYPE_COLOR_FALLBACKS[types.length % TYPE_COLOR_FALLBACKS.length] }));
+        setToast({ severity: 'info', msg: `Type “${t}” added to the Types filter` });
+      };
+
+      const handleSaveEvent = (evt) => {
+        setEvents(prev => [...prev, evt]);
+        // make sure the org is in view so the new event is visible
+        setSelectedOrgIds(prev => new Set([...prev, evt.orgId]));
+        setAddKind(null);
+        setToast({ severity: 'success', msg: `${addKind || 'Event'} added to the calendar` });
+      };
+
+      const handleSendMessage = (evt) => { setDetailEvent(null); setBroadcastEvent(evt); };
+
+      return (
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Box sx={{ display: 'flex', height: '100%', bgcolor: 'var(--grey-fill)' }}>
+            <NavRail />
+            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+              <TopBar selectedOrgIds={selectedOrgIds} selectedSquadIds={selectedSquadIds} onOrgToggle={handleOrgToggle} />
+              <Toolbar
+                showFilters={showFilters}
+                onToggleFilters={() => setShowFilters(v => !v)}
+                filterBadge={filterBadge}
+                monthLabel="July 2026"
+                onNav={() => {}}
+                onAdd={(kind) => setAddKind(kind)}
+              />
+              <Box sx={{ height: 50, flexShrink: 0 }} />
+              <Box sx={{ flex: 1, display: 'flex', minHeight: 0, borderTop: '1px solid var(--border)' }}>
+                {showFilters && (
+                  <FiltersPanel
+                    onClose={() => setShowFilters(false)}
+                    selectedOrgIds={selectedOrgIds}
+                    onOrgToggle={handleOrgToggle}
+                    selectedSquadIds={selectedSquadIds}
+                    setSelectedSquadIds={setSelectedSquadIds}
+                    types={types}
+                    selectedTypes={selectedTypes}
+                    setSelectedTypes={setSelectedTypes}
+                    typeColors={typeColors}
+                  />
+                )}
+                <CalendarGrid year={2026} month={6} events={visibleEvents} multiOrg={multiOrg} onEventClick={setDetailEvent} typeColors={typeColors} />
+              </Box>
+            </Box>
+          </Box>
+
+          <AddEventDrawer
+            open={Boolean(addKind)}
+            kind={addKind || 'Event'}
+            onClose={() => setAddKind(null)}
+            onSave={handleSaveEvent}
+            types={types}
+            onCreateType={createType}
+            typeColors={typeColors}
+            onSetTypeColor={(t, hex) => setTypeColors(prev => ({ ...prev, [t]: hex }))}
+          />
+
+          <EventDetailDialog event={detailEvent} onClose={() => setDetailEvent(null)} onSendMessage={handleSendMessage} />
+
+          <BroadcastModal
+            event={broadcastEvent}
+            onClose={() => setBroadcastEvent(null)}
+            onSent={(count) => { setBroadcastEvent(null); setToast({ severity: 'success', msg: `Message sent to ${count} recipients` }); }}
+          />
+
+          <Snackbar open={Boolean(toast)} autoHideDuration={3500} onClose={() => setToast(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+            {toast && <Alert severity={toast.severity} onClose={() => setToast(null)} sx={{ '& .MuiAlert-message': { fontSize: 18 } }}>{toast.msg}</Alert>}
+          </Snackbar>
+        </ThemeProvider>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+
+  <!-- Force Babel's classic JSX runtime so it runs in a plain script tag -->
+  <script>
+    (function () {
+      const source = document.getElementById('app-source').textContent;
+      const compiled = Babel.transform(source, { presets: [['react', { runtime: 'classic' }]] }).code;
+      const script = document.createElement('script');
+      script.text = compiled;
+      document.body.appendChild(script);
+    })();
+  </script>
+</body>
+</html>

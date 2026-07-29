@@ -191,6 +191,8 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
     duration: 80,
     timezone: 'Europe/Dublin',
     location: '',
+    locationLat: null,
+    locationLng: null,
     selectedAthletes: [],
     team: '',
     teamScore: '',
@@ -229,6 +231,8 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
         duration: durationMinutes,
         timezone: editingEvent.extendedProps?.timezone || 'Europe/Dublin',
         location: editingEvent.extendedProps?.location || '',
+        locationLat: editingEvent.extendedProps?.locationLat ?? null,
+        locationLng: editingEvent.extendedProps?.locationLng ?? null,
         selectedAthletes: editingEvent.extendedProps?.selectedAthletes || [],
         team: editingEvent.extendedProps?.team || '',
         teamScore: editingEvent.extendedProps?.teamScore || '',
@@ -312,6 +316,8 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
         eventType: 'GAME',
         squad: formData.team || 'First Team',
         location: formData.location,
+        locationLat: formData.locationLat,
+        locationLng: formData.locationLng,
         opposition: formData.opposition,
         competition: formData.competition,
         venue: formData.venue,
@@ -464,6 +470,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                 <LocationPicker
                   value={formData.location}
                   onChange={(value) => handleInputChange('location', value)}
+                  onLocationChange={(loc) => setFormData((prev) => ({ ...prev, locationLat: loc.lat, locationLng: loc.lng }))}
                   savedLocations={savedLocationsData}
                 />
               </Grid>

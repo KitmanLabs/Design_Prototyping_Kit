@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Export Athlete Profiles — Kitman</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    #root { height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@emotion/react@11/dist/emotion-react.umd.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@emotion/styled@11/dist/emotion-styled.umd.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@mui/material@5/umd/material-ui.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useMemo } = React;
+    const {
+      Box, Grid, IconButton, TextField, InputAdornment, Checkbox, Chip, Divider,
+      Button, Paper, Typography, Select, MenuItem, FormControl, InputLabel, Link,
+      Menu, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert,
+      Avatar, Tooltip, Tabs, Tab, Table, TableHead, TableBody, TableRow, TableCell,
+      TableContainer, TablePagination, SvgIcon, createTheme, ThemeProvider, CssBaseline,
+    } = MaterialUI;
+
+    // ── Icons (inline SVG) ────────────────────────────────────────────────────
+    const SearchIcon              = p => <SvgIcon {...p}><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></SvgIcon>;
+    const CloseIcon               = p => <SvgIcon {...p}><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></SvgIcon>;
+    const ChevronRightIcon        = p => <SvgIcon {...p}><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></SvgIcon>;
+    const ArrowDropDownIcon       = p => <SvgIcon {...p}><path d="M7 10l5 5 5-5z"/></SvgIcon>;
+    const DragIndicatorIcon       = p => <SvgIcon {...p}><path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></SvgIcon>;
+    const BookmarkBorderIcon      = p => <SvgIcon {...p}><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2zm0 15l-5-2.18L7 18V5h10v13z"/></SvgIcon>;
+    const TableRowsIcon           = p => <SvgIcon {...p}><path d="M21 8H3V4h18v4zm0 2H3v4h18v-4zm0 6H3v4h18v-4z"/></SvgIcon>;
+    const EditIcon                = p => <SvgIcon {...p}><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></SvgIcon>;
+    const DeleteIcon              = p => <SvgIcon {...p}><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></SvgIcon>;
+    const MoreVertIcon            = p => <SvgIcon {...p}><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></SvgIcon>;
+    const KeyboardArrowDownIcon   = p => <SvgIcon {...p}><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></SvgIcon>;
+    const PersonOutlineIcon       = p => <SvgIcon {...p}><path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></SvgIcon>;
+    const BarChartIcon            = p => <SvgIcon {...p}><path d="M4 9h4v11H4zm12 4h4v7h-4zm-6-9h4v16h-4z"/></SvgIcon>;
+    const PeopleIcon              = p => <SvgIcon {...p}><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></SvgIcon>;
+    const AddCircleIcon           = p => <SvgIcon {...p}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></SvgIcon>;
+    const FitnessCenterIcon       = p => <SvgIcon {...p}><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/></SvgIcon>;
+    const CalendarMonthIcon       = p => <SvgIcon {...p}><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></SvgIcon>;
+    const ChatIcon                = p => <SvgIcon {...p}><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></SvgIcon>;
+    const PhotoIcon               = p => <SvgIcon {...p}><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></SvgIcon>;
+    const PersonIcon              = p => <SvgIcon {...p}><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></SvgIcon>;
+    const SettingsIcon            = p => <SvgIcon {...p}><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></SvgIcon>;
+    const HelpOutlineIcon         = p => <SvgIcon {...p}><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></SvgIcon>;
+    const KeyboardDoubleArrowRightIcon = p => <SvgIcon {...p}><path d="M6.41 6L5 7.41 9.58 12 5 16.59 6.41 18l6-6zM13 6l-1.41 1.41L16.17 12l-4.58 4.59L13 18l6-6z"/></SvgIcon>;
+
+    // ── Data ─────────────────────────────────────────────────────────────────
+    const ATHLETES = [
+      { id: 1, name: 'Herbert Austin',   username: 'haustin',    position: 'Goalkeeper',         squad: 'U16' },
+      { id: 2, name: 'Jen Barber',       username: 'jbarber2',   position: 'Centre Back',        squad: 'U18' },
+      { id: 3, name: 'Myron Barrett',    username: 'mbarrett2',  position: 'Central Midfielder', squad: 'U18' },
+      { id: 4, name: 'Wendell Dow',      username: 'wdow',       position: 'Centre Forward',     squad: 'PGAAC' },
+      { id: 5, name: 'Alejandro Hansen', username: 'ahansen4',   position: 'Goalkeeper',         squad: 'U16' },
+      { id: 6, name: 'Casey Snyder',     username: 'csnyder',    position: 'Left Winger',        squad: 'PGAAC' },
+      { id: 7, name: 'Chester Silva',    username: 'csilva',     position: 'Right Back',         squad: 'PGAAC' },
+    ];
+
+    const TEMPLATES = [
+      { id: 1, name: 'Tour travel pack',        fields: ['Full name', 'Preferred name', 'Date of birth'] },
+      { id: 2, name: 'Emergency & medical card', fields: ['Full name', 'Blood type', 'Medical notes', 'Emergency contact name', 'Emergency contact phone'] },
+      { id: 3, name: 'Guardian consent sheet',  fields: ['Full name', 'Date of birth', 'Emergency contact name', 'Emergency contact phone'] },
+    ];
+
+    const FIELD_GROUPS = [
+      { category: 'Profile basics', fields: ['Full name', 'Preferred name', 'Date of birth', 'Gender', 'Nationality', 'Roster position', 'Squad(s)', 'Age'] },
+      { category: 'Contact',        fields: ['Email', 'Phone', 'Address'] },
+      { category: 'Medical',        fields: ['Blood type', 'Medical notes', 'Emergency contact name', 'Emergency contact phone'] },
+    ];
+
+    const FIELD_CATEGORY = FIELD_GROUPS.reduce((acc, g) => {
+      g.fields.forEach(f => { acc[f] = g.category; });
+      return acc;
+    }, {});
+
+    const MANAGE_ATHLETE_ROWS = Array.from({ length: 13 }, (_, i) => ({
+      id: i + 1,
+      userName: 'Jcdermo',
+      rosterPosition: 'Wing',
+      squads: 'International squad (primary, Ac...',
+      squadsOverflow: 5,
+      creation: '7 Oct 2025',
+      label: 'This is a chip',
+      labelsOverflow: 5,
+    }));
+
+    // ── Theme ─────────────────────────────────────────────────────────────────
+    const C = {
+      navy:    '#1A2133',
+      accent:  '#2850ED',
+      green:   '#22A35C',
+      pageBg:  '#F3F4F7',
+      chipGrey:'#EAECF0',
+      red:     '#D8443C',
+    };
+
+    const exportTheme = createTheme({
+      palette: {
+        primary:    { main: C.accent },
+        success:    { main: C.green },
+        background: { default: C.pageBg, paper: '#FFFFFF' },
+      },
+      typography: { fontFamily: 'Inter, sans-serif' },
+      shape:     { borderRadius: 8 },
+      components: {
+        MuiTextField:   { defaultProps: { variant: 'filled', size: 'small' } },
+        MuiFormControl: { defaultProps: { variant: 'filled', size: 'small' } },
+        MuiSelect:      { defaultProps: { variant: 'filled', size: 'small' } },
+        MuiFilledInput: {
+          styleOverrides: {
+            root: {
+              backgroundColor: C.pageBg,
+              '&:hover':     { backgroundColor: C.pageBg },
+              '&.Mui-focused': { backgroundColor: C.pageBg },
+            },
+          },
+        },
+      },
+    });
+
+    // ── Shared constants ──────────────────────────────────────────────────────
+    const NAVY        = '#1D2635';
+    const FILL        = '#F3F4F7';
+    const BORDER      = '#D0D5DD';
+    const GREY        = '#949BA6';
+    const GREY_ICON   = '#949BA6';
+
+    const DEFAULT_FIELDS = ['Full name', 'Preferred name', 'Date of birth'];
+    const CATEGORIES     = FIELD_GROUPS.map(g => g.category);
+
+    const SQUAD_GROUPS = ATHLETES.reduce((acc, a) => {
+      acc[a.squad] = acc[a.squad] || [];
+      acc[a.squad].push(a);
+      return acc;
+    }, {});
+
+    const NAV_ICONS = [
+      { Icon: AddCircleIcon,     label: 'Add' },
+      { Icon: BarChartIcon,      label: 'Dashboard' },
+      { Icon: PeopleIcon,        label: 'Athletes' },
+      { Icon: CalendarMonthIcon, label: 'Calendar' },
+      { Icon: FitnessCenterIcon, label: 'Workloads' },
+      { Icon: PhotoIcon,         label: 'Media' },
+      { Icon: ChatIcon,          label: 'Messages' },
+      { Icon: PersonIcon,        label: 'Profile' },
+      { Icon: SettingsIcon,      label: 'Settings', active: true },
+    ];
+
+    // ── Sidebar ───────────────────────────────────────────────────────────────
+    function Sidebar() {
+      return (
+        <Box sx={{ width: 52, flexShrink: 0, bgcolor: '#1A2133', display: 'flex', flexDirection: 'column', alignItems: 'center', py: 1.25 }}>
+          <Avatar sx={{ width: 32, height: 32, bgcolor: 'transparent', border: '1px solid #FFFFFF', color: '#FFFFFF', fontWeight: 800, fontSize: 15, mb: 2 }}>K</Avatar>
+          {NAV_ICONS.map(({ Icon, label, active }) => (
+            <Tooltip key={label} title={label} placement="right">
+              <Box sx={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: active ? '#FFFFFF' : GREY_ICON, borderLeft: active ? `3px solid ${C.accent}` : '3px solid transparent', '&:hover': { color: '#FFFFFF' } }}>
+                <Icon sx={{ fontSize: 22 }} />
+              </Box>
+            </Tooltip>
+          ))}
+          <Box sx={{ flex: 1 }} />
+          <Box sx={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: GREY_ICON, '&:hover': { color: '#FFFFFF' } }}>
+            <HelpOutlineIcon sx={{ fontSize: 22 }} />
+          </Box>
+          <Box sx={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: GREY_ICON, '&:hover': { color: '#FFFFFF' } }}>
+            <KeyboardDoubleArrowRightIcon sx={{ fontSize: 22 }} />
+          </Box>
+        </Box>
+      );
+    }
+
+    // ── TopBar ────────────────────────────────────────────────────────────────
+    function TopBar() {
+      return (
+        <Box sx={{ height: 56, flexShrink: 0, bgcolor: '#FFFFFF', borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', px: 2.5, gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary">Manage Athletes</Typography>
+            <PersonOutlineIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+            <Typography variant="body2" color="text.secondary">Player list</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ letterSpacing: 2 }}>›  ›</Typography>
+          </Box>
+          <Box sx={{ flex: 1 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}>
+            <Typography variant="body2" color="text.secondary">Club name</Typography>
+            <KeyboardArrowDownIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+          </Box>
+          <Avatar sx={{ width: 32, height: 32 }} src="https://i.pravatar.cc/64?img=47" alt="User" />
+        </Box>
+      );
+    }
+
+    // ── AppShell ──────────────────────────────────────────────────────────────
+    function AppShell({ children }) {
+      return (
+        <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', bgcolor: '#FFFFFF' }}>
+          <Sidebar />
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+            <TopBar />
+            <Box sx={{ flex: 1, overflow: 'auto', px: 4, py: 3 }}>{children}</Box>
+          </Box>
+        </Box>
+      );
+    }
+
+    // ── ManageAthletesPage ────────────────────────────────────────────────────
+    function ManageAthletesPage({ onOpenExport }) {
+      const [menuAnchor,     setMenuAnchor]     = useState(null);
+      const [downloadAnchor, setDownloadAnchor] = useState(null);
+      const [tab,            setTab]            = useState(0);
+      const [page,           setPage]           = useState(0);
+      const [rowsPerPage,    setRowsPerPage]    = useState(10);
+      const [labels,         setLabels]         = useState('');
+
+      const openExport = () => { setMenuAnchor(null); setDownloadAnchor(null); onOpenExport(); };
+      const rows = MANAGE_ATHLETE_ROWS.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+      return (
+        <Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+            <Typography variant="h5" sx={{ color: NAVY, fontWeight: 400 }}>Manage Athletes</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Button variant="contained" disableElevation sx={{ textTransform: 'none', whiteSpace: 'nowrap', backgroundColor: NAVY, color: '#fff', '&:hover': { backgroundColor: '#11161f' } }}>New Athlete</Button>
+              <Button variant="outlined" color="inherit" sx={{ textTransform: 'none', whiteSpace: 'nowrap', borderColor: '#D0D5DD', color: NAVY }}>Upload Athletes</Button>
+              <Button variant="outlined" color="inherit" sx={{ textTransform: 'none', whiteSpace: 'nowrap', borderColor: '#D0D5DD', color: NAVY }}>Download CSV</Button>
+              <Button variant="outlined" color="inherit" endIcon={<KeyboardArrowDownIcon />} onClick={e => setDownloadAnchor(e.currentTarget)} sx={{ textTransform: 'none', whiteSpace: 'nowrap', borderColor: '#D0D5DD', color: NAVY }}>Download</Button>
+              <IconButton onClick={e => setMenuAnchor(e.currentTarget)}><MoreVertIcon /></IconButton>
+              <Menu anchorEl={downloadAnchor} open={Boolean(downloadAnchor)} onClose={() => setDownloadAnchor(null)}>
+                <MenuItem onClick={openExport}>Export Athletes</MenuItem>
+              </Menu>
+              <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
+                <MenuItem onClick={() => setMenuAnchor(null)}>Configure athlete profile</MenuItem>
+                <MenuItem onClick={openExport}>Export Athletes</MenuItem>
+              </Menu>
+            </Box>
+          </Box>
+
+          <Tabs value={tab} onChange={(e, v) => setTab(v)} TabIndicatorProps={{ sx: { backgroundColor: NAVY } }} sx={{ mb: 3, '& .MuiTab-root': { textTransform: 'none', color: 'text.secondary', '&.Mui-selected': { color: NAVY } } }}>
+            <Tab label="Active" />
+            <Tab label="Inactive" />
+          </Tabs>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+            <TextField variant="filled" size="small" placeholder="Search" sx={{ width: 240 }} InputProps={{ endAdornment: <InputAdornment position="end"><SearchIcon fontSize="small" sx={{ color: 'action.active' }} /></InputAdornment> }} />
+            <FormControl variant="filled" size="small" sx={{ width: 220 }}>
+              <InputLabel>Labels</InputLabel>
+              <Select label="Labels" value={labels} onChange={e => setLabels(e.target.value)}>
+                <MenuItem value="">All labels</MenuItem>
+                <MenuItem value="class-of-2026">Class Of 2026</MenuItem>
+                <MenuItem value="this-is-a-chip">This is a chip</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>User name</TableCell>
+                  <TableCell>Roster Position</TableCell>
+                  <TableCell>Squads</TableCell>
+                  <TableCell>Creation</TableCell>
+                  <TableCell>Labels</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map(row => (
+                  <TableRow key={row.id} hover sx={{ '&:hover': { backgroundColor: '#F5F5F5' } }}>
+                    <TableCell><Typography variant="body2">{row.userName}</Typography></TableCell>
+                    <TableCell><Typography variant="body2">{row.rosterPosition}</Typography></TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                        <Chip label={row.squads} variant="outlined" size="small" sx={{ maxWidth: 220 }} />
+                        {row.squadsOverflow > 0 && <Chip label={`+${row.squadsOverflow}`} variant="outlined" size="small" />}
+                      </Box>
+                    </TableCell>
+                    <TableCell><Typography variant="body2">{row.creation}</Typography></TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                        <Chip label={row.label} variant="filled" size="small" sx={{ backgroundColor: '#EAECF0', color: NAVY }} />
+                        {row.labelsOverflow > 0 && <Chip label={`+${row.labelsOverflow}`} variant="filled" size="small" sx={{ backgroundColor: '#EAECF0', color: NAVY }} />}
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <TablePagination
+            component="div"
+            count={MANAGE_ATHLETE_ROWS.length}
+            page={page}
+            onPageChange={(e, p) => setPage(p)}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={e => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+            rowsPerPageOptions={[10, 25]}
+          />
+        </Box>
+      );
+    }
+
+    // ── ExportModal ───────────────────────────────────────────────────────────
+    function ExportModal({ open, onClose }) {
+      const [playersAnchor,        setPlayersAnchor]        = useState(null);
+      const [selectedAthletes,     setSelectedAthletes]     = useState([]);
+      const [fieldMode,            setFieldMode]            = useState('choose');
+      const [selectedFields,       setSelectedFields]       = useState(DEFAULT_FIELDS);
+      const [fieldSearch,          setFieldSearch]          = useState('');
+      const [category,             setCategory]             = useState('all');
+      const [sort,                 setSort]                 = useState('az');
+      const [templates,            setTemplates]            = useState(TEMPLATES);
+      const [dragIndex,            setDragIndex]            = useState(null);
+      const [showSaveTemplate,     setShowSaveTemplate]     = useState(false);
+      const [templateName,         setTemplateName]         = useState('');
+      const [toast,                setToast]                = useState(false);
+      const [templateToast,        setTemplateToast]        = useState(false);
+      const [templateUpdatedToast, setTemplateUpdatedToast] = useState(false);
+      const [selectedTemplateId,   setSelectedTemplateId]   = useState(null);
+      const [editingTemplateId,    setEditingTemplateId]    = useState(null);
+      const [editTemplateName,     setEditTemplateName]     = useState('');
+      const [originalFields,       setOriginalFields]       = useState([]);
+      const [editFieldSearch,      setEditFieldSearch]      = useState('');
+      const [deleteConfirmId,      setDeleteConfirmId]      = useState(null);
+
+      useEffect(() => {
+        if (open) {
+          setPlayersAnchor(null);
+          setSelectedAthletes([]);
+          setFieldMode('choose');
+          setSelectedFields(DEFAULT_FIELDS);
+          setFieldSearch('');
+          setCategory('all');
+          setSort('az');
+          setTemplates(TEMPLATES);
+          setDragIndex(null);
+          setShowSaveTemplate(false);
+          setTemplateName('');
+          setSelectedTemplateId(null);
+          setEditingTemplateId(null);
+          setEditTemplateName('');
+          setOriginalFields([]);
+          setEditFieldSearch('');
+          setDeleteConfirmId(null);
+        }
+      }, [open]);
+
+      const toggleAthlete  = id => setSelectedAthletes(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+      const selectAllSquad = squad => {
+        const ids   = SQUAD_GROUPS[squad].map(a => a.id);
+        const allIn = ids.every(id => selectedAthletes.includes(id));
+        setSelectedAthletes(prev => allIn ? prev.filter(id => !ids.includes(id)) : [...new Set([...prev, ...ids])]);
+      };
+      const toggleField = field => setSelectedFields(prev => prev.includes(field) ? prev.filter(f => f !== field) : [...prev, field]);
+      const removeField = field => setSelectedFields(prev => prev.filter(f => f !== field));
+
+      const handleDrop = toIndex => {
+        if (dragIndex === null || dragIndex === toIndex) { setDragIndex(null); return; }
+        setSelectedFields(prev => {
+          const next = [...prev];
+          const [moved] = next.splice(dragIndex, 1);
+          next.splice(toIndex, 0, moved);
+          return next;
+        });
+        setDragIndex(null);
+      };
+
+      const saveTemplate = () => {
+        const name = templateName.trim();
+        if (!name) return;
+        const newId = Math.max(0, ...templates.map(t => t.id)) + 1;
+        setTemplates(prev => [...prev, { id: newId, name, fields: [...selectedFields] }]);
+        setShowSaveTemplate(false);
+        setTemplateName('');
+        setTemplateToast(true);
+      };
+
+      const deleteTemplate = id => { setTemplates(prev => prev.filter(t => t.id !== id)); setDeleteConfirmId(null); };
+
+      const selectTemplate = t => {
+        if (editingTemplateId) return;
+        setSelectedTemplateId(t.id);
+        setSelectedFields([...t.fields]);
+      };
+
+      const startEdit = t => {
+        setSelectedTemplateId(t.id);
+        setSelectedFields([...t.fields]);
+        setOriginalFields([...t.fields]);
+        setEditingTemplateId(t.id);
+        setEditTemplateName(t.name);
+        setEditFieldSearch('');
+      };
+
+      const cancelEdit = () => {
+        setSelectedFields([...originalFields]);
+        setEditingTemplateId(null);
+        setEditTemplateName('');
+        setOriginalFields([]);
+      };
+
+      const saveEditTemplate = () => {
+        const name = editTemplateName.trim();
+        if (!name) return;
+        setTemplates(prev => prev.map(t => t.id === editingTemplateId ? { ...t, name, fields: [...selectedFields] } : t));
+        setEditingTemplateId(null);
+        setEditTemplateName('');
+        setOriginalFields([]);
+        setTemplateUpdatedToast(true);
+      };
+
+      const visibleGroups = useMemo(() => {
+        const q = fieldSearch.trim().toLowerCase();
+        return FIELD_GROUPS
+          .filter(g => category === 'all' || g.category === category)
+          .map(g => ({ category: g.category, fields: g.fields.filter(f => !q || f.toLowerCase().includes(q)).sort((a, b) => sort === 'az' ? a.localeCompare(b) : b.localeCompare(a)) }))
+          .filter(g => g.fields.length > 0);
+      }, [fieldSearch, category, sort]);
+
+      const editVisibleGroups = useMemo(() => {
+        const q = editFieldSearch.trim().toLowerCase();
+        return FIELD_GROUPS.map(g => ({ category: g.category, fields: g.fields.filter(f => !q || f.toLowerCase().includes(q)) })).filter(g => g.fields.length > 0);
+      }, [editFieldSearch]);
+
+      const handleExport = () => {
+        setToast(true);
+        setTimeout(() => { setToast(false); onClose(); }, 1500);
+      };
+
+      const segBtnBase = { flex: 1, textTransform: 'none', boxShadow: 'none', '&:hover': { boxShadow: 'none' } };
+      const hasFields  = selectedFields.length > 0;
+
+      return (
+        <>
+          <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 2, minHeight: '80vh', display: 'flex', flexDirection: 'column' } }}>
+            <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 400, color: NAVY }}>Export Athlete Profiles</Typography>
+              <IconButton disableRipple onClick={onClose} sx={{ color: NAVY, '&:hover': { bgcolor: 'transparent' } }}><CloseIcon /></IconButton>
+            </DialogTitle>
+            <Divider />
+
+            <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }}>
+              {/* Athlete selector */}
+              <Box sx={{ px: 3, py: 2, flexShrink: 0 }}>
+                <Typography variant="subtitle2" sx={{ color: NAVY, mb: 1 }}>Athletes</Typography>
+                <Box onClick={e => setPlayersAnchor(e.currentTarget)} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', bgcolor: FILL, borderRadius: '4px 4px 0 0', borderBottom: '1px solid rgba(0,0,0,0.42)', px: 1.5, py: 1.25, cursor: 'pointer' }}>
+                  <Typography fontSize={14} color="text.secondary">Select Players</Typography>
+                  <ArrowDropDownIcon sx={{ color: 'action.active' }} />
+                </Box>
+                <Menu anchorEl={playersAnchor} open={Boolean(playersAnchor)} onClose={() => setPlayersAnchor(null)} PaperProps={{ sx: { width: 420, maxHeight: 360 } }}>
+                  {Object.entries(SQUAD_GROUPS).map(([squad, athletes], gi) => (
+                    <Box key={squad}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1 }}>
+                        <Typography variant="subtitle2" fontWeight={600} color={NAVY}>{squad}</Typography>
+                        <Link component="button" underline="none" onClick={() => selectAllSquad(squad)} sx={{ display: 'flex', alignItems: 'center', color: NAVY, fontSize: 13, fontWeight: 500 }}>
+                          Select all<ChevronRightIcon fontSize="small" />
+                        </Link>
+                      </Box>
+                      {athletes.map(a => (
+                        <Box key={a.id} onClick={() => toggleAthlete(a.id)} sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 0.5, cursor: 'pointer' }}>
+                          <Checkbox size="small" checked={selectedAthletes.includes(a.id)} sx={{ p: 0.5, '&.Mui-checked': { color: NAVY } }} />
+                          <Box>
+                            <Typography variant="body2">{a.name}</Typography>
+                            <Typography fontSize={12} color="text.secondary">{a.position}</Typography>
+                          </Box>
+                        </Box>
+                      ))}
+                      {gi < Object.keys(SQUAD_GROUPS).length - 1 && <Divider sx={{ my: 0.5 }} />}
+                    </Box>
+                  ))}
+                </Menu>
+                {selectedAthletes.length > 0 && (
+                  <Box sx={{ mt: 1.5 }}>
+                    <Chip label={`Selected (${selectedAthletes.length})`} size="small" sx={{ bgcolor: NAVY, color: '#FFFFFF' }} />
+                  </Box>
+                )}
+              </Box>
+
+              <Divider />
+
+              {/* Two-column area */}
+              <Grid container sx={{ flex: 1, minHeight: 0 }}>
+                {/* Left column */}
+                <Grid item xs={6} sx={{ height: '100%', display: 'flex', flexDirection: 'column', borderRight: 1, borderColor: 'divider', overflow: 'hidden' }}>
+                  <Box sx={{ px: 3, pt: 2, flexShrink: 0 }}>
+                    <Typography variant="subtitle2" sx={{ color: NAVY, mb: 1 }}>Fields</Typography>
+                    <Box sx={{ display: 'flex' }}>
+                      <Button disableElevation onClick={() => { setFieldMode('choose'); setSelectedTemplateId(null); setEditingTemplateId(null); }} sx={{ ...segBtnBase, borderRadius: '4px 0 0 4px', bgcolor: fieldMode === 'choose' ? NAVY : '#FFFFFF', color: fieldMode === 'choose' ? '#FFFFFF' : '#555555', border: fieldMode === 'choose' ? 'none' : `1px solid ${BORDER}`, '&:hover': { bgcolor: fieldMode === 'choose' ? NAVY : '#FFFFFF', boxShadow: 'none' } }}>Choose fields</Button>
+                      <Button disableElevation onClick={() => setFieldMode('saved')} sx={{ ...segBtnBase, borderRadius: '0 4px 4px 0', borderLeft: 'none', bgcolor: fieldMode === 'saved' ? NAVY : '#FFFFFF', color: fieldMode === 'saved' ? '#FFFFFF' : '#555555', border: fieldMode === 'saved' ? 'none' : `1px solid ${BORDER}`, '&:hover': { bgcolor: fieldMode === 'saved' ? NAVY : '#FFFFFF', boxShadow: 'none' } }}>Saved template</Button>
+                    </Box>
+                    {fieldMode === 'choose' && (
+                      <>
+                        <TextField fullWidth variant="filled" size="small" placeholder="Search fields" value={fieldSearch} onChange={e => setFieldSearch(e.target.value)} InputProps={{ endAdornment: <InputAdornment position="end"><SearchIcon fontSize="small" sx={{ color: 'action.active' }} /></InputAdornment>, sx: { bgcolor: FILL } }} sx={{ mt: 2 }} />
+                        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                          <FormControl fullWidth size="small">
+                            <InputLabel>Categories</InputLabel>
+                            <Select label="Categories" value={category} onChange={e => setCategory(e.target.value)}>
+                              <MenuItem value="all">All categories</MenuItem>
+                              {CATEGORIES.map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+                            </Select>
+                          </FormControl>
+                          <FormControl fullWidth size="small">
+                            <InputLabel>Sort</InputLabel>
+                            <Select label="Sort" value={sort} onChange={e => setSort(e.target.value)}>
+                              <MenuItem value="az">A-Z</MenuItem>
+                              <MenuItem value="za">Z-A</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Box>
+                      </>
+                    )}
+                  </Box>
+
+                  <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', px: 3, py: 2 }}>
+                    {fieldMode === 'choose' ? (
+                      <>
+                        {visibleGroups.map(group => (
+                          <Box key={group.category} sx={{ mb: 2 }}>
+                            <Typography variant="subtitle2" color={NAVY} sx={{ fontWeight: 400, mb: 0.5 }}>{group.category}</Typography>
+                            {group.fields.map(field => (
+                              <React.Fragment key={field}>
+                                <Box onClick={() => toggleField(field)} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 0.5, cursor: 'pointer' }}>
+                                  <Checkbox size="small" checked={selectedFields.includes(field)} sx={{ p: 0.5, '&.Mui-checked': { color: NAVY } }} />
+                                  <Typography variant="body2">{field}</Typography>
+                                </Box>
+                                <Divider />
+                              </React.Fragment>
+                            ))}
+                          </Box>
+                        ))}
+                        {visibleGroups.length === 0 && <Typography variant="body2" color="text.secondary" textAlign="center" py={3}>No fields match your search.</Typography>}
+                      </>
+                    ) : (
+                      <>
+                        {templates.length === 0 && <Typography variant="body2" color="text.secondary" textAlign="center" py={3}>No saved templates yet.</Typography>}
+                        {templates.map((t, idx) => (
+                          <React.Fragment key={t.id}>
+                            {editingTemplateId === t.id ? (
+                              <Box sx={{ py: 1.5 }}>
+                                <TextField fullWidth variant="filled" size="small" autoFocus value={editTemplateName} onChange={e => setEditTemplateName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') saveEditTemplate(); }} sx={{ mb: 1.5 }} />
+                                <TextField fullWidth variant="filled" size="small" placeholder="Search fields" value={editFieldSearch} onChange={e => setEditFieldSearch(e.target.value)} InputProps={{ endAdornment: <InputAdornment position="end"><SearchIcon fontSize="small" sx={{ color: 'action.active' }} /></InputAdornment>, sx: { bgcolor: FILL } }} sx={{ mb: 1.5 }} />
+                                {editVisibleGroups.map(group => (
+                                  <Box key={group.category} sx={{ mb: 1.5 }}>
+                                    <Typography variant="caption" color={GREY} sx={{ textTransform: 'uppercase', display: 'block', mb: 0.5 }}>{group.category}</Typography>
+                                    {group.fields.map(field => (
+                                      <React.Fragment key={field}>
+                                        <Box onClick={() => toggleField(field)} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 0.5, cursor: 'pointer' }}>
+                                          <Checkbox size="small" checked={selectedFields.includes(field)} sx={{ p: 0.5, '&.Mui-checked': { color: NAVY } }} />
+                                          <Typography variant="body2">{field}</Typography>
+                                        </Box>
+                                        <Divider />
+                                      </React.Fragment>
+                                    ))}
+                                  </Box>
+                                ))}
+                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 1 }}>
+                                  <Button variant="text" onClick={cancelEdit} sx={{ color: GREY, textTransform: 'none' }}>Cancel</Button>
+                                  <Button variant="contained" disableElevation disabled={!editTemplateName.trim()} onClick={saveEditTemplate} sx={{ textTransform: 'none', backgroundColor: NAVY, color: '#fff', '&:hover': { backgroundColor: '#11161f' } }}>Save template</Button>
+                                </Box>
+                              </Box>
+                            ) : (
+                              <Box onClick={() => selectTemplate(t)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, py: 1, pl: 1, cursor: 'pointer', bgcolor: selectedTemplateId === t.id ? FILL : 'transparent', borderLeft: selectedTemplateId === t.id ? `3px solid ${NAVY}` : '3px solid transparent' }}>
+                                <Box sx={{ flex: 1, minWidth: 0 }}>
+                                  <Typography variant="body2" sx={{ color: NAVY, fontWeight: 500 }}>{t.name}</Typography>
+                                  <Typography variant="caption" sx={{ color: GREY }}>{selectedTemplateId === t.id ? selectedFields.length : t.fields.length} fields</Typography>
+                                </Box>
+                                <IconButton size="small" sx={{ color: GREY }} onClick={e => { e.stopPropagation(); startEdit(t); }}><EditIcon fontSize="small" /></IconButton>
+                                <IconButton size="small" sx={{ color: GREY }} onClick={e => { e.stopPropagation(); setDeleteConfirmId(t.id); }}><DeleteIcon fontSize="small" /></IconButton>
+                              </Box>
+                            )}
+                            {idx < templates.length - 1 && <Divider />}
+                          </React.Fragment>
+                        ))}
+                      </>
+                    )}
+                  </Box>
+                </Grid>
+
+                {/* Right column */}
+                <Grid item xs={6} sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                  <Box sx={{ px: 3, pt: 2, flexShrink: 0 }}>
+                    <Typography variant="subtitle2" sx={{ color: NAVY }}>Column order</Typography>
+                    {hasFields && <Typography variant="caption" sx={{ color: GREY, textTransform: 'uppercase', display: 'block', mt: 0.5 }}>Drag to reorder</Typography>}
+                  </Box>
+                  <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', px: 3, py: 2 }}>
+                    {!hasFields ? (
+                      <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                        <TableRowsIcon sx={{ fontSize: 40, color: '#D7DAE0', mb: 1 }} />
+                        <Typography variant="body2" sx={{ color: GREY }}>Select fields on the left to build your export</Typography>
+                      </Box>
+                    ) : (
+                      selectedFields.map((field, idx) => (
+                        <React.Fragment key={field}>
+                          <Paper elevation={0} variant="outlined" draggable onDragStart={() => setDragIndex(idx)} onDragOver={e => e.preventDefault()} onDrop={() => handleDrop(idx)} onDragEnd={() => setDragIndex(null)} sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1, py: 0.75, cursor: 'grab', opacity: dragIndex === idx ? 0.4 : 1 }}>
+                            <DragIndicatorIcon fontSize="small" sx={{ color: GREY }} />
+                            <Typography variant="caption" sx={{ color: GREY, width: 16, textAlign: 'right' }}>{idx + 1}</Typography>
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                              <Typography variant="body2" sx={{ color: NAVY }}>{field}</Typography>
+                              <Typography variant="caption" sx={{ color: GREY }}>{FIELD_CATEGORY[field]}</Typography>
+                            </Box>
+                            <IconButton size="small" onClick={() => removeField(field)} sx={{ color: GREY }}><CloseIcon fontSize="small" /></IconButton>
+                          </Paper>
+                          {idx < selectedFields.length - 1 && <Divider />}
+                        </React.Fragment>
+                      ))
+                    )}
+                  </Box>
+                  {hasFields && (
+                    <Box sx={{ px: 3, py: 2, flexShrink: 0, borderTop: 1, borderColor: 'divider' }}>
+                      {!showSaveTemplate ? (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <BookmarkBorderIcon fontSize="small" sx={{ color: GREY }} />
+                          <Button variant="text" onClick={() => setShowSaveTemplate(true)} sx={{ color: GREY, textTransform: 'none', padding: 0, minWidth: 0 }}>Save as template</Button>
+                        </Box>
+                      ) : (
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          <TextField fullWidth variant="filled" size="small" autoFocus placeholder="e.g. Tour travel pack" value={templateName} onChange={e => setTemplateName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') saveTemplate(); }} />
+                          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                            <Button variant="text" onClick={() => { setShowSaveTemplate(false); setTemplateName(''); }} sx={{ color: GREY, textTransform: 'none' }}>Cancel</Button>
+                            <Button variant="contained" disableElevation disabled={!templateName.trim()} onClick={saveTemplate} sx={{ textTransform: 'none', backgroundColor: NAVY, color: '#fff', '&:hover': { backgroundColor: '#11161f' } }}>Save template</Button>
+                          </Box>
+                        </Box>
+                      )}
+                    </Box>
+                  )}
+                </Grid>
+              </Grid>
+            </DialogContent>
+
+            <Divider />
+            <DialogActions sx={{ px: 3, py: 2, justifyContent: 'space-between' }}>
+              <Button variant="outlined" onClick={onClose} sx={{ textTransform: 'none', borderColor: BORDER, color: NAVY }}>Cancel</Button>
+              <Button variant="contained" disableElevation disabled={selectedAthletes.length === 0 || selectedFields.length === 0} onClick={handleExport} sx={{ textTransform: 'none', backgroundColor: NAVY, color: '#fff', '&:hover': { backgroundColor: '#11161f' } }}>Export CSV</Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Delete confirmation */}
+          <Dialog open={Boolean(deleteConfirmId)} onClose={() => setDeleteConfirmId(null)} maxWidth="xs" fullWidth>
+            <DialogTitle sx={{ color: NAVY, fontWeight: 400 }}>Delete this template?</DialogTitle>
+            <DialogContent><Typography variant="body2" color="text.secondary">This cannot be undone.</Typography></DialogContent>
+            <DialogActions>
+              <Button variant="text" onClick={() => setDeleteConfirmId(null)} sx={{ color: GREY, textTransform: 'none' }}>Cancel</Button>
+              <Button variant="contained" disableElevation onClick={() => deleteTemplate(deleteConfirmId)} sx={{ textTransform: 'none', backgroundColor: '#D32F2F', color: '#fff', '&:hover': { backgroundColor: '#b71c1c' } }}>Delete</Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Export toast */}
+          <Snackbar open={toast} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} sx={{ zIndex: 1400 }}>
+            <Alert severity="success" variant="filled">Exported {selectedAthletes.length} athletes · {selectedFields.length} fields</Alert>
+          </Snackbar>
+
+          {/* Template saved toast */}
+          <Snackbar open={templateToast} autoHideDuration={2500} onClose={() => setTemplateToast(false)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} sx={{ zIndex: 1400 }}>
+            <Alert severity="success" variant="filled" onClose={() => setTemplateToast(false)}>Template saved</Alert>
+          </Snackbar>
+
+          {/* Template updated toast */}
+          <Snackbar open={templateUpdatedToast} autoHideDuration={2500} onClose={() => setTemplateUpdatedToast(false)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} sx={{ zIndex: 1400 }}>
+            <Alert severity="success" variant="filled" onClose={() => setTemplateUpdatedToast(false)}>Template updated</Alert>
+          </Snackbar>
+        </>
+      );
+    }
+
+    // ── App ───────────────────────────────────────────────────────────────────
+    function App() {
+      const [modalOpen, setModalOpen] = useState(false);
+      return (
+        <ThemeProvider theme={exportTheme}>
+          <CssBaseline />
+          <AppShell>
+            <ManageAthletesPage onOpenExport={() => setModalOpen(true)} />
+          </AppShell>
+          <ExportModal open={modalOpen} onClose={() => setModalOpen(false)} />
+        </ThemeProvider>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

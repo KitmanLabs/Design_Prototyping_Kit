@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medical History eForm — Review &amp; Approve</title>
+
+  <!-- React 18 UMD -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Emotion (MUI styling engine) -->
+  <script crossorigin src="https://unpkg.com/@emotion/react@11/dist/emotion-react.umd.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@emotion/styled@11/dist/emotion-styled.umd.min.js"></script>
+
+  <!-- MUI Material UMD -->
+  <script crossorigin src="https://unpkg.com/@mui/material@5/umd/material-ui.production.min.js"></script>
+
+  <!-- Babel standalone for inline JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --nav-dark: #172B4D;
+      --nav-gradient: linear-gradient(180deg, #1F2D44 0%, #172B4D 60%, #22344F 100%);
+      --primary-action: #005293;
+      --grey-fill: #F3F4F7;
+      --text-primary: #3B4960;
+      --text-secondary: #5F7089;
+      --title-color: #172B4D;
+      --tab-active: #1F2D44;
+      --border: #E8EAED;
+      --success-bg: #eaf5ee;
+      --success: #2e7d4f;
+      --warn-bg: #fff6e5;
+      --warn: #9a6700;
+      --error: #C31D2B;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Open Sans', sans-serif;
+      background: var(--grey-fill);
+      color: var(--text-primary);
+      font-weight: 400;
+      letter-spacing: 0.17px;
+    }
+    b, strong, h1, h2, h3, h4, h5, h6 { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script>
+    // Force classic JSX runtime (React.createElement) so no ES module imports are emitted
+    Babel.registerPreset('react-classic', {
+      presets: [
+        [Babel.availablePresets['env'], { modules: false }],
+        [Babel.availablePresets['react'], { runtime: 'classic' }],
+      ],
+    });
+  </script>
+  <script type="text/babel" data-presets="react-classic">
+    const { useState, useMemo } = React;
+    const {
+      ThemeProvider, createTheme, CssBaseline,
+      Box, Typography, Tabs, Tab, TextField, InputAdornment, Select, MenuItem, FormControl,
+      Table, TableHead, TableRow, TableCell, TableBody, Link, Chip, Checkbox, Button,
+      Accordion, AccordionSummary, AccordionDetails, Dialog, DialogTitle, DialogContent,
+      DialogActions, Tooltip, Divider, Paper, Collapse, Avatar, Badge, IconButton, Menu, Drawer
+    } = MaterialUI;
+
+    /* ---------- Icons (inline SVG, Material Outlined paths) ---------- */
+    const Svg = ({ path, size = 18, color = 'currentColor', style }) => (
+      <svg viewBox="0 0 24 24" width={size} height={size} fill={color} style={{ flexShrink: 0, ...style }} aria-hidden="true">
+        <path d={path} />
+      </svg>
+    );
+    const P = {
+      info: "M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z",
+      search: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z",
+      check: "M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z",
+      checkCircle: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z",
+      warning: "M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z",
+      arrow: "M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z",
+      expand: "M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z",
+      back: "M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z",
+      people: "M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z",
+      assignment: "M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 16H5V5h2v3h10V5h2v14z",
+      medical: "M19 3H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-8-2h2v-4h4v-2h-4V7h-2v4H7v2h4z",
+      desc: "M8 16h8v2H8zm0-4h8v2H8zm6-10H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z",
+      merge: "M17 20.41 18.41 19 15 15.59 13.59 17 17 20.41zM7.5 8H11v5.59L5.59 19 7 20.41l6-6V8h3.5L12 3.5 7.5 8z",
+      shield: "M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z",
+      download: "M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z",
+      add: "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z",
+      edit: "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z",
+      moreVert: "M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z",
+      close: "M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z",
+    };
+
+    const injuryChipStyle = (status) => (
+      status === 'Full' ? { bgcolor: '#fdecea', color: 'var(--error)' }
+      : status === 'Open' ? { bgcolor: 'var(--warn-bg)', color: 'var(--warn)' }
+      : { bgcolor: 'var(--success-bg)', color: 'var(--success)' }
+    );
+
+    const RowActionsMenu = () => {
+      const [anchor, setAnchor] = useState(null);
+      return (
+        <React.Fragment>
+          <IconButton size="small" onClick={(e) => setAnchor(e.currentTarget)}>
+            <Svg path={P.moreVert} size={18} color="#5b6472" />
+          </IconButton>
+          <Menu anchorEl={anchor} open={!!anchor} onClose={() => setAnchor(null)}>
+            <MenuItem onClick={() => setAnchor(null)}>Edit</MenuItem>
+            <MenuItem onClick={() => setAnchor(null)}>Archive</MenuItem>
+          </Menu>
+        </React.Fragment>
+      );
+    };
+
+    /* ---------- Theme ---------- */
+    const theme = createTheme({
+      palette: {
+        primary: { main: '#005293' },
+        error: { main: '#C31D2B' },
+        success: { main: '#2e7d4f' },
+        warning: { main: '#9a6700' },
+        text: { primary: '#3B4960', secondary: '#5F7089' },
+        divider: '#E8EAED',
+        background: { default: '#F3F4F7' },
+      },
+      typography: {
+        fontFamily: "'Open Sans', sans-serif",
+        fontWeightRegular: 400,
+        fontWeightMedium: 600,
+        fontWeightBold: 600,
+        allVariants: { color: '#3B4960', letterSpacing: '0.17px' },
+        h5: { fontFamily: "'Open Sans', sans-serif", fontWeight: 600, fontSize: 24, lineHeight: '28px', color: '#172B4D', letterSpacing: 0 },
+        h6: { fontWeight: 600 },
+        subtitle1: { fontWeight: 600 },
+        subtitle2: { fontWeight: 600 },
+        button: { fontWeight: 600, textTransform: 'none', letterSpacing: '0.17px' },
+      },
+      components: {
+        MuiButton: { defaultProps: { variant: 'contained', size: 'small', disableElevation: true } },
+        MuiTextField: { defaultProps: { variant: 'filled', size: 'small' } },
+        MuiSelect: { defaultProps: { variant: 'filled', size: 'small' } },
+        MuiChip: { defaultProps: { size: 'small' } },
+        MuiFilledInput: {
+          styleOverrides: {
+            root: {
+              backgroundColor: '#F3F4F7',
+              '&:hover': { backgroundColor: '#eceef3' },
+              '&.Mui-focused': { backgroundColor: '#eceef3' },
+            },
+          },
+        },
+        MuiTabs: {
+          styleOverrides: {
+            root: { minHeight: 'unset' },
+            flexContainer: { gap: '16px' },
+            indicator: { height: 2, borderRadius: 2, backgroundColor: '#1F2D44' },
+          },
+        },
+        MuiTab: {
+          styleOverrides: {
+            root: {
+              textTransform: 'none',
+              fontWeight: 600,
+              fontSize: 14,
+              minHeight: 'unset',
+              minWidth: 'auto',
+              padding: '7.5px 0',
+              color: '#5F7089',
+              letterSpacing: '0.17px',
+              borderBottom: '2px solid #E8EAED',
+              '&.Mui-selected': { color: '#1F2D44' },
+            },
+          },
+        },
+        MuiBadge: {
+          styleOverrides: {
+            dot: { minWidth: 8, width: 8, height: 8, borderRadius: '50%' },
+          },
+        },
+        MuiTableCell: {
+          styleOverrides: {
+            head: { fontWeight: 600, color: '#5F7089', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.04em', background: '#fff', borderColor: '#E8EAED' },
+            body: { color: '#3B4960', borderColor: '#E8EAED' },
+          },
+        },
+      },
+    });
+
+    /* ---------- Data ---------- */
+    const ROSTER = [
+      { id: 'akron2', name: 'akronathlete2, yash', pos: 'Forward', jersey: 9, status: 'Available', injury: 'Ankle sprain (open)', note: 'Return-to-play protocol', allergies: 'Penicillin' },
+      { id: 'barnes', name: 'Barnes, Marcus', pos: 'Defender', jersey: 4, status: 'Available', injury: '—', note: 'Strength block wk 2', allergies: '—' },
+      { id: 'carter', name: 'Carter, Jayden', pos: 'Midfielder', jersey: 8, status: 'Modified', injury: 'Hamstring tightness', note: 'Load managed', allergies: 'Latex' },
+      { id: 'diallo', name: 'Diallo, Amadou', pos: 'Forward', jersey: 11, status: 'Available', injury: '—', note: '—', allergies: '—' },
+      { id: 'eriksen', name: 'Eriksen, Lukas', pos: 'Goalkeeper', jersey: 1, status: 'Available', injury: '—', note: 'Annual screening due', allergies: 'Peanuts' },
+      { id: 'fontaine', name: 'Fontaine, Hugo', pos: 'Defender', jersey: 3, status: 'Unavailable', injury: 'ACL rehab', note: 'Phase 3 rehab', allergies: '—' },
+      { id: 'garcia', name: 'Garcia, Mateo', pos: 'Midfielder', jersey: 6, status: 'Available', injury: '—', note: '—', allergies: 'Shellfish' },
+      { id: 'hansen', name: 'Hansen, Oliver', pos: 'Forward', jersey: 10, status: 'Available', injury: '—', note: '—', allergies: '—' },
+      { id: 'ibrahim', name: 'Ibrahim, Khalid', pos: 'Defender', jersey: 5, status: 'Modified', injury: 'Groin strain', note: 'Reassess Friday', allergies: '—' },
+      { id: 'jensen', name: 'Jensen, Emil', pos: 'Midfielder', jersey: 14, status: 'Available', injury: '—', note: '—', allergies: 'Ibuprofen' },
+      { id: 'kowalski', name: 'Kowalski, Piotr', pos: 'Forward', jersey: 7, status: 'Available', injury: '—', note: '—', allergies: '—' },
+    ];
+
+    // Roster-grid-only medical data (keyed by athlete id). Kept separate from ROSTER
+    // so the Record Approvals and Player Overview screens are unaffected.
+    const ROSTER_MEDICAL = {
+      akron2:   { nflPos: 'Wide receiver',   status: 'Out',     days: 34, injuries: [{ date: 'Sep 20, 2023', name: 'Concussion', source: { form: 'Medical form', date: 'Jan 12, 2026' } }, { date: 'Jun 4, 2024', name: 'Calf strain' }], note: 'Jul 14 - Return session, Morning wellness green, Training 60mins, No issues reported, Cleared for non-contact drills, Travel to Cleveland, Reassess Thursday AM', allergies: ['Aspirin', 'Cedar', 'Banana'] },
+      barnes:   { nflPos: 'Cornerback',      status: 'Limited', days: 12, injuries: [{ date: 'Aug 2, 2024', name: 'Hamstring strain' }], note: 'Aug 3 - Strength block wk 2, Morning wellness amber, Modified sprint volume, No pain on loading, Monitor tomorrow', allergies: [] },
+      carter:   { nflPos: 'Tight end',       status: 'Limited', days: 8,  injuries: [{ date: 'Jul 15, 2024', name: 'Hamstring tightness', source: { form: 'Medical form', date: 'Jan 9, 2026' } }], note: 'Jul 16 - Load managed, Wellness green, Completed 70% team reps, Reported mild tightness post-session', allergies: ['Latex', 'Kiwi'] },
+      diallo:   { nflPos: 'Running back',    status: 'Out',     days: 21, injuries: [{ date: 'May 3, 2024', name: 'High ankle sprain' }], note: 'May 5 - Rehab phase 2, Non-weight-bearing progressing, Pool work 30mins, No swelling change', allergies: [] },
+      eriksen:  { nflPos: 'Quarterback',     status: 'Limited', days: 5,  injuries: [{ date: 'Jun 1, 2024', name: 'Shoulder soreness' }], note: 'Jun 2 - Throwing volume capped, Wellness green, No pain overhead, Annual screening due next week', allergies: ['Peanuts'] },
+      fontaine: { nflPos: 'Linebacker',      status: 'Out',     days: 96, injuries: [{ date: 'Apr 10, 2024', name: 'ACL tear' }, { date: 'Mar 1, 2024', name: 'Knee effusion' }], note: 'Apr 12 - Rehab phase 3, Strength progressing well, Cleared for straight-line running, Reassess loading Friday', allergies: [] },
+      garcia:   { nflPos: 'Safety',          status: 'Limited', days: 3,  injuries: [{ date: 'Jul 9, 2024', name: 'Groin tightness' }], note: 'Jul 10 - Wellness green, Full participation with monitoring, No pain on change of direction', allergies: ['Shellfish'] },
+      hansen:   { nflPos: 'Wide receiver',   status: 'Out',     days: 17, injuries: [{ date: 'Jun 20, 2024', name: 'Turf toe' }], note: 'Jun 22 - Boot removed, Progressing to walking, No provocative testing yet, Review imaging Monday', allergies: [] },
+      ibrahim:  { nflPos: 'Offensive tackle', status: 'Limited', days: 6, injuries: [{ date: 'Jul 12, 2024', name: 'Groin strain' }], note: 'Jul 13 - Modified individual work, Wellness amber, Reassess Friday before team drills', allergies: [] },
+      jensen:   { nflPos: 'Kicker',          status: 'Out',     days: 45, injuries: [{ date: 'May 30, 2024', name: 'Quad strain' }, { date: 'Apr 15, 2024', name: 'Hip flexor' }, { date: 'Feb 2, 2024', name: 'Lower back' }], note: 'Jun 1 - Rehab ongoing, Isometric loading tolerated, No kicking cleared, Follow-up scan scheduled', allergies: ['Ibuprofen'] },
+      kowalski: { nflPos: 'Defensive end',   status: 'Limited', days: 9,  injuries: [{ date: 'Jul 1, 2024', name: 'Ankle sprain' }], note: 'Jul 2 - Wellness green, Full practice with ankle taping, No instability reported', allergies: [] },
+    };
+
+    const CLINICAL_CATEGORIES = ['Injury history', 'Allergy', 'Medications'];
+    const SUBMITTED = 'Jul 14, 2026';
+    const TODAY = 'Jul 17, 2026';
+    const SUBMISSION_DATES = ['Jul 14, 2026', 'Jul 9, 2026', 'Jul 21, 2026', 'Jun 30, 2026', 'Jul 3, 2026', 'Jul 18, 2026', 'Jun 25, 2026'];
+
+    // status: 'pending' | 'approved' | 'rejected'
+    const INITIAL_FIELDS = [
+      // akronathlete2, yash — 4
+      { id: 'f1', athleteId: 'akron2', label: 'Injury history', category: 'Injury history', sub: 'Injury/Illness', current: null,
+        incoming: 'Lateral Ankle Sprain - Ligament Unknown [Left] · onset May 2026', clinical: true,
+        duplicate: { matchTitle: "Lateral Ankle Sprain - Ligament Unknown [Left]", matchDate: 'May 12, 2026',
+          existing: { title: 'Lateral Ankle Sprain - Ligament Unknown [Left]', date: 'May 12, 2026', type: 'Injury', source: 'Manually entered (clinician)', status: 'Open' },
+          submitted: { title: 'Lateral Ankle Sprain - Ligament Unknown [Left]', date: 'May 2026 (athlete-reported)', type: 'Injury', source: 'Medical History Form', status: 'Reported as ongoing' } } },
+      { id: 'f2', athleteId: 'akron2', label: 'Known allergies', category: 'Allergy', sub: 'Medical flags', current: 'Penicillin', incoming: 'Penicillin; Sulfa drugs', clinical: true },
+      { id: 'f3', athleteId: 'akron2', label: 'Emergency contact email', category: 'Contact details', sub: 'Player details', current: 'r.patel@gmail.com', incoming: 'rina.patel@outlook.com', clinical: false },
+      { id: 'f4', athleteId: 'akron2', label: 'Emergency contact phone', category: 'Contact details', sub: 'Player details', current: null, incoming: '+1 (330) 555-0182', clinical: false },
+
+      // Barnes, Marcus — 4 (APPROVE ALL demo: clinical field not swept)
+      { id: 'f5', athleteId: 'barnes', label: 'Email address', category: 'Contact details', sub: 'Player details', current: 'm.barnes@old-mail.com', incoming: 'marcus.barnes@gmail.com', clinical: false },
+      { id: 'f6', athleteId: 'barnes', label: 'Current medications', category: 'Medications', sub: 'Medical flags', current: null, incoming: 'Ibuprofen 400mg as needed', clinical: true },
+      { id: 'f7', athleteId: 'barnes', label: 'Home address', category: 'Contact details', sub: 'Player details', current: '12 Elm St, Akron OH', incoming: '48 Maple Ave, Akron OH 44301', clinical: false },
+      { id: 'f8', athleteId: 'barnes', label: 'Insurance provider', category: 'Insurance', sub: 'Player details', current: 'Aetna', incoming: 'United Healthcare', clinical: false },
+
+      // Carter — 3
+      { id: 'f9', athleteId: 'carter', label: 'Emergency contact name', category: 'Contact details', sub: 'Player details', current: 'D. Carter', incoming: 'Denise Carter (mother)', clinical: false },
+      { id: 'f10', athleteId: 'carter', label: 'Known allergies', category: 'Allergy', sub: 'Medical flags', current: 'Latex', incoming: 'Latex; Kiwi', clinical: true },
+      { id: 'f11', athleteId: 'carter', label: 'Family physician', category: 'Care team', sub: 'Player details', current: null, incoming: 'Dr. S. Nguyen, Summit Family Practice', clinical: false },
+
+      // Diallo — 3
+      { id: 'f12', athleteId: 'diallo', label: 'Phone number', category: 'Contact details', sub: 'Player details', current: '+1 (330) 555-0114', incoming: '+1 (330) 555-0977', clinical: false },
+      { id: 'f13', athleteId: 'diallo', label: 'Injury history', category: 'Injury history', sub: 'Injury/Illness', current: null, incoming: 'Osgood-Schlatter (adolescent, resolved)', clinical: true },
+      { id: 'f14', athleteId: 'diallo', label: 'Insurance policy number', category: 'Insurance', sub: 'Player details', current: null, incoming: 'UHC-4482-7710', clinical: false },
+
+      // Eriksen — 3
+      { id: 'f15', athleteId: 'eriksen', label: 'Known allergies', category: 'Allergy', sub: 'Medical flags', current: 'Peanuts', incoming: 'Peanuts (anaphylaxis, carries EpiPen)', clinical: true },
+      { id: 'f16', athleteId: 'eriksen', label: 'Emergency contact phone', category: 'Contact details', sub: 'Player details', current: '+45 20 55 61 90', incoming: '+45 20 55 61 91', clinical: false },
+      { id: 'f17', athleteId: 'eriksen', label: 'Preferred pharmacy', category: 'Care team', sub: 'Player details', current: null, incoming: 'CVS, 220 W Market St', clinical: false },
+
+      // Fontaine — 3
+      { id: 'f18', athleteId: 'fontaine', label: 'Current medications', category: 'Medications', sub: 'Medical flags', current: 'Naproxen 250mg', incoming: 'Naproxen 250mg; Vitamin D 2000IU', clinical: true },
+      { id: 'f19', athleteId: 'fontaine', label: 'Email address', category: 'Contact details', sub: 'Player details', current: null, incoming: 'hugo.fontaine@proton.me', clinical: false },
+      { id: 'f20', athleteId: 'fontaine', label: 'Home address', category: 'Contact details', sub: 'Player details', current: '77 Rue Verte apt 4', incoming: '901 Portage Trail, Cuyahoga Falls OH', clinical: false },
+
+      // Garcia — 3
+      { id: 'f21', athleteId: 'garcia', label: 'Known allergies', category: 'Allergy', sub: 'Medical flags', current: 'Shellfish', incoming: 'Shellfish; Dust mites (mild)', clinical: true },
+      { id: 'f22', athleteId: 'garcia', label: 'Emergency contact name', category: 'Contact details', sub: 'Player details', current: null, incoming: 'Lucia Garcia (spouse)', clinical: false },
+      { id: 'f23', athleteId: 'garcia', label: 'Phone number', category: 'Contact details', sub: 'Player details', current: '+1 (216) 555-0143', incoming: '+1 (216) 555-0866', clinical: false },
+
+      // Hansen — 3
+      { id: 'f24', athleteId: 'hansen', label: 'Injury history', category: 'Injury history', sub: 'Injury/Illness', current: null, incoming: 'Concussion (2024, fully resolved)', clinical: true },
+      { id: 'f25', athleteId: 'hansen', label: 'Insurance provider', category: 'Insurance', sub: 'Player details', current: null, incoming: 'Cigna', clinical: false },
+      { id: 'f26', athleteId: 'hansen', label: 'Family physician', category: 'Care team', sub: 'Player details', current: 'Dr. P. Olsen', incoming: 'Dr. K. Madsen, Akron General', clinical: false },
+
+      // Ibrahim — 3
+      { id: 'f27', athleteId: 'ibrahim', label: 'Emergency contact phone', category: 'Contact details', sub: 'Player details', current: null, incoming: '+1 (234) 555-0491', clinical: false },
+      { id: 'f28', athleteId: 'ibrahim', label: 'Current medications', category: 'Medications', sub: 'Medical flags', current: null, incoming: 'Salbutamol inhaler (exercise-induced asthma)', clinical: true },
+      { id: 'f29', athleteId: 'ibrahim', label: 'Email address', category: 'Contact details', sub: 'Player details', current: 'k.ibrahim@mail.com', incoming: 'khalid.ibrahim@icloud.com', clinical: false },
+
+      // Jensen — 2
+      { id: 'f30', athleteId: 'jensen', label: 'Known allergies', category: 'Allergy', sub: 'Medical flags', current: 'Ibuprofen', incoming: 'Ibuprofen (NSAID intolerance, GI)', clinical: true },
+      { id: 'f31', athleteId: 'jensen', label: 'Home address', category: 'Contact details', sub: 'Player details', current: null, incoming: '15 Overlook Dr, Fairlawn OH', clinical: false },
+
+      // Kowalski — 3
+      { id: 'f32', athleteId: 'kowalski', label: 'Phone number', category: 'Contact details', sub: 'Player details', current: '+48 501 555 210', incoming: '+1 (330) 555-0733', clinical: false },
+      { id: 'f33', athleteId: 'kowalski', label: 'Injury history', category: 'Injury history', sub: 'Injury/Illness', current: null, incoming: 'Fifth metatarsal fracture [Right] (2023, resolved)', clinical: true },
+      { id: 'f34', athleteId: 'kowalski', label: 'Insurance policy number', category: 'Insurance', sub: 'Player details', current: 'PZU-99-1832', incoming: 'AET-55-20418', clinical: false },
+    ];
+
+    const athleteById = (id) => ROSTER.find((a) => a.id === id);
+
+    /* ---------- Small shared bits ---------- */
+    const InfoIcon = (props) => <Svg path={P.info} size={14} color="#8a93a1" {...props} />;
+
+    // NFL shield mark (inline placeholder rendering — navy shield, red banner, white NFL wordmark)
+    const NflLogo = ({ size = 30 }) => (
+      <svg width={size} height={size * 1.3} viewBox="0 0 100 130" aria-label="NFL" role="img">
+        <path d="M50 3 L92 15 V56 C92 92 73 116 50 124 C27 116 8 92 8 56 V15 Z"
+          fill="#013369" stroke="#ffffff" strokeWidth="5" strokeLinejoin="round" />
+        <path d="M50 13 L83 22 V33 H17 V22 Z" fill="#D50A0A" />
+        <text x="50" y="88" textAnchor="middle" fontFamily="Arial, sans-serif" fontStyle="italic"
+          fontWeight="700" fontSize="30" fill="#ffffff">NFL</text>
+      </svg>
+    );
+
+    const StatusPill = ({ status }) => {
+      const color = status === 'Unavailable' ? 'error' : status === 'Modified' ? 'warning' : 'success';
+      return (
+        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+          <Badge variant="dot" color={color}
+            sx={{ '& .MuiBadge-badge': { position: 'static', transform: 'none' } }} />
+          <Typography sx={{ fontSize: 13, color: 'var(--text-primary)' }}>{status}</Typography>
+        </Box>
+      );
+    };
+
+    /* ---------- Left nav rail ---------- */
+    const NavRail = ({ screen, go }) => {
+      const items = [
+        { key: 'roster', label: 'Medical', icon: P.medical },
+        { key: 'people', label: 'Squad', icon: P.people },
+        { key: 'forms', label: 'Forms', icon: P.assignment },
+        { key: 'docs', label: 'Documents', icon: P.desc },
+      ];
+      return (
+        <Box sx={{ width: 60, background: 'var(--nav-gradient)', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', pt: 2, gap: 0.5, flexShrink: 0 }}>
+          <Box title="NFL" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+            <NflLogo size={30} />
+          </Box>
+          {items.map((it) => {
+            const active = it.key === 'roster';
+            return (
+              <Box key={it.key} onClick={() => active && go('roster')} title={it.label}
+                sx={{ width: '100%', height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: active ? 'pointer' : 'default',
+                  position: 'relative', bgcolor: active ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  borderLeft: active ? '6px solid #fff' : '6px solid transparent' }}>
+                <Svg path={it.icon} size={20} color="#fff" style={{ marginRight: active ? 6 : 0 }} />
+              </Box>
+            );
+          })}
+        </Box>
+      );
+    };
+
+    /* ---------- Screen 1: Roster ---------- */
+    const SOURCE_DRAWER_WIDTH = 340;
+
+    const getSourceQA = (injuryName) => {
+      if (injuryName.toLowerCase().includes('concussion')) {
+        return [
+          { q: 'Any prior head injuries?', a: 'Yes, one previous concussion in 2021, fully resolved.', match: false },
+          { q: 'Describe your injury', a: 'Hit head during a challenge for the ball, brief dizziness afterward, no loss of consciousness.', match: true },
+          { q: 'Additional notes', a: 'Removed from play immediately per concussion protocol.', match: false },
+        ];
+      }
+      return [
+        { q: 'When did the injury occur?', a: 'During practice, noticed tightness after sprint intervals.', match: false },
+        { q: 'Describe your injury', a: `${injuryName} — mild tightness, no sharp pain, able to walk normally.`, match: true },
+        { q: 'Additional notes', a: 'Applied ice post-session, will monitor before next training.', match: false },
+      ];
+    };
+
+    const SourceFormDrawer = ({ entry, onClose }) => (
+      <Drawer variant="persistent" anchor="right" open={!!entry} PaperProps={{ sx: { width: SOURCE_DRAWER_WIDTH, boxShadow: '-2px 0 8px rgba(0,0,0,0.08)' } }}>
+        {entry && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <Box sx={{ p: 2.5, pb: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <Typography sx={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Source form</Typography>
+                <IconButton size="small" onClick={onClose} sx={{ mt: -0.5, mr: -1 }}>
+                  <Svg path={P.close} size={18} color="#5b6472" />
+                </IconButton>
+              </Box>
+              <Typography sx={{ fontSize: 16, fontWeight: 600, mt: 0.5 }}>{entry.form}</Typography>
+              <Typography sx={{ fontSize: 12.5, color: 'var(--text-secondary)', mt: 0.25 }}>
+                Submitted {entry.date} · {entry.athleteName}
+              </Typography>
+            </Box>
+            <Divider />
+            <Box sx={{ p: 2.5, pt: 2 }}>
+              <Typography sx={{ fontSize: 12.5, fontWeight: 600, mb: 0.75 }}>Section 1 — 1 of 1 complete</Typography>
+              <Box sx={{ height: 4, borderRadius: 2, bgcolor: 'var(--border)', overflow: 'hidden', mb: 1.5 }}>
+                <Box sx={{ height: '100%', width: '100%', bgcolor: 'var(--success)' }} />
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                <Svg path={P.check} size={14} color="#2e7d4f" />
+                <Typography sx={{ fontSize: 12.5 }}>Sub-section 1.1</Typography>
+              </Box>
+            </Box>
+            <Divider />
+            <Box sx={{ p: 2.5, pt: 2, flex: 1, overflowY: 'auto' }}>
+              {getSourceQA(entry.injuryName).map((qa, i) => (
+                <Box key={i} sx={{
+                  mb: 2, pl: 1.5, py: 0.5,
+                  borderLeft: qa.match ? '3px solid var(--primary-action, #005293)' : '3px solid transparent',
+                  bgcolor: qa.match ? '#eaf2f8' : 'transparent',
+                  borderRadius: '0 4px 4px 0',
+                }}>
+                  <Typography sx={{ fontSize: 12, color: 'var(--text-secondary)' }}>{qa.q}</Typography>
+                  <Typography sx={{ fontSize: 13, mt: 0.25 }}>{qa.a}</Typography>
+                </Box>
+              ))}
+            </Box>
+            <Divider />
+            <Box sx={{ p: 2, textAlign: 'center' }}>
+              <Typography sx={{ fontSize: 11.5, color: 'var(--text-secondary)', fontStyle: 'italic' }}>Read-only — submitted form content cannot be edited here.</Typography>
+            </Box>
+          </Box>
+        )}
+      </Drawer>
+    );
+
+    const RosterScreen = ({ go, pendingCount, tab, setTab, pendingBody }) => {
+      const [search, setSearch] = useState('');
+      const [sourceEntry, setSourceEntry] = useState(null);
+      const tabs = ['Roster', 'Notes', 'Diagnostics', 'Procedures', 'Medical Flags', 'Documents', 'Coaches Report', 'Review Queue'];
+      const pendingIdx = tabs.length - 1;
+      const rows = ROSTER.filter((r) => r.name.toLowerCase().includes(search.toLowerCase()));
+      const positions = [];
+      Object.values(ROSTER_MEDICAL).forEach((m) => { if (!positions.includes(m.nflPos)) positions.push(m.nflPos); });
+      positions.sort();
+      return (
+        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ flex: 1, minWidth: 0, mr: sourceEntry ? `${SOURCE_DRAWER_WIDTH}px` : 0, transition: 'margin .2s' }}>
+          <Box sx={{ bgcolor: '#fff', borderBottom: '1px solid var(--border)', px: 3, pt: 1.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+              <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>Medical</Typography>
+              <Box sx={{ flex: 1 }} />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>Active Roster</Typography>
+                  <Svg path={P.expand} size={18} color="#5b6472" />
+                </Box>
+                <Avatar sx={{ width: 32, height: 32, bgcolor: 'var(--nav-dark)', fontSize: 12, fontWeight: 600 }}>LV</Avatar>
+              </Box>
+            </Box>
+            <Typography variant="h5" sx={{ mb: '38px' }}>Medical</Typography>
+            <Tabs value={tab} variant="scrollable" scrollButtons={false}
+              onChange={(e, v) => { if (v === 0 || v === pendingIdx) setTab(v); }}>
+              {tabs.map((t) => <Tab key={t} label={t} />)}
+            </Tabs>
+          </Box>
+
+          {tab === pendingIdx ? pendingBody : (
+          <Box sx={{ p: 3, bgcolor: '#fff', minHeight: '100%' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Typography sx={{ fontSize: 18, fontWeight: 600 }}>Roster</Typography>
+              <Box sx={{ flex: 1 }} />
+              <Box sx={{ display: 'flex', gap: 1.5 }}>
+                <Button endIcon={<Svg path={P.expand} size={16} color="#fff" />}
+                  sx={{ bgcolor: 'var(--nav-dark)', color: '#fff', '&:hover': { bgcolor: '#0f1c33' } }}>Add</Button>
+                <Button endIcon={<Svg path={P.expand} size={16} color="#5b6472" />}
+                  sx={{ bgcolor: 'var(--grey-fill)', color: 'var(--text-primary)', '&:hover': { bgcolor: '#e6e8ee' } }}>Download</Button>
+              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+              <TextField placeholder="Search players" value={search} onChange={(e) => setSearch(e.target.value)} hiddenLabel sx={{ width: 260 }}
+                InputProps={{ endAdornment: <InputAdornment position="end"><Svg path={P.search} size={18} color="#8a93a1" /></InputAdornment> }} />
+              <FormControl variant="filled" size="small" hiddenLabel sx={{ minWidth: 170 }}>
+                <Select value="active">
+                  <MenuItem value="active">Active Roster</MenuItem>
+                  <MenuItem value="practice">Practice squad</MenuItem>
+                  <MenuItem value="ir">Injured reserve</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl variant="filled" size="small" hiddenLabel sx={{ minWidth: 190 }}>
+                <Select value="all" displayEmpty renderValue={(v) => v === 'all' ? 'Roster position' : v}>
+                  <MenuItem value="all">All positions</MenuItem>
+                  {positions.map((p) => <MenuItem key={p} value={p}>{p}</MenuItem>)}
+                </Select>
+              </FormControl>
+              <FormControl variant="filled" size="small" hiddenLabel sx={{ minWidth: 150 }}>
+                <Select value="all" displayEmpty renderValue={(v) => v === 'all' ? 'Injured' : v}>
+                  <MenuItem value="all">All</MenuItem>
+                  <MenuItem value="Out">Out</MenuItem>
+                  <MenuItem value="Limited">Limited</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+
+            <Paper elevation={0} sx={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+              <Table size="small" sx={{ '& .MuiTableCell-head': { textTransform: 'none' } }}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Player</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Injury</TableCell>
+                    <TableCell>Latest note</TableCell>
+                    <TableCell>Allergies</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map((r, idx) => {
+                    const m = ROSTER_MEDICAL[r.id];
+                    const photoId = [12, 15, 33, 45, 51, 60, 68, 5, 22, 7, 41][idx % 11];
+                    return (
+                    <TableRow key={r.id} hover sx={{ verticalAlign: 'top' }}>
+                      <TableCell sx={{ py: 1.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                          <Avatar src={`https://i.pravatar.cc/80?img=${photoId}`} alt={r.name} sx={{ width: 32, height: 32 }} />
+                          <Box>
+                            <Link component="button" onClick={() => go('player', r.id)}
+                              sx={{ color: 'var(--text-primary)', fontWeight: 400, fontSize: 14, letterSpacing: '0.17px', textDecoration: 'none', display: 'block', textAlign: 'left', '&:hover': { textDecoration: 'underline' } }}>
+                              {r.name}
+                            </Link>
+                            <Typography sx={{ fontSize: 12, color: 'var(--text-secondary)' }}>{m.nflPos}</Typography>
+                          </Box>
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ py: 1.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Badge variant="dot" color={m.status === 'Out' ? 'error' : 'warning'}
+                            sx={{ '& .MuiBadge-badge': { position: 'static', transform: 'none' } }} />
+                          <Typography sx={{ fontSize: 13 }}>{m.status}</Typography>
+                        </Box>
+                        <Typography sx={{ fontSize: 12, color: 'var(--text-secondary)', ml: '16px' }}>{m.days} days</Typography>
+                      </TableCell>
+                      <TableCell sx={{ py: 1.5 }}>
+                        {m.injuries.map((inj, i) => (
+                          <Box key={i} sx={{ mb: i < m.injuries.length - 1 ? 1 : 0 }}>
+                            <Typography sx={{ fontSize: 13 }}>{inj.date}, {inj.name}</Typography>
+                            <Typography sx={{ fontSize: 12, color: 'var(--text-secondary)' }}>Unavailable, time loss</Typography>
+                            {inj.source && (
+                              <Tooltip title={`${inj.source.form} — Submitted ${inj.source.date}`}>
+                                <Chip size="small" icon={<Svg path={P.desc} size={13} color="#5F7089" style={{ marginLeft: 6 }} />}
+                                  label="Source (1)" onClick={() => setSourceEntry({ athleteName: r.name, injuryName: inj.name, form: inj.source.form, date: inj.source.date })}
+                                  sx={{ mt: 0.5, bgcolor: 'var(--grey-fill)', color: 'var(--text-secondary)', fontSize: 11, height: 20, cursor: 'pointer', '&:hover': { bgcolor: '#e6e8ee' } }} />
+                              </Tooltip>
+                            )}
+                          </Box>
+                        ))}
+                      </TableCell>
+                      <TableCell sx={{ py: 1.5, fontSize: 13, maxWidth: 300 }}>{m.note}</TableCell>
+                      <TableCell sx={{ py: 1.5 }}>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                          {m.allergies.length
+                            ? m.allergies.map((a, i) => {
+                                const palette = [
+                                  { bg: '#fdecea', color: '#b3261e' },
+                                  { bg: '#fff1e0', color: '#b25e00' },
+                                  { bg: '#fff8dc', color: '#8a6d00' },
+                                ][i % 3];
+                                return <Chip key={a} label={a} sx={{ bgcolor: palette.bg, color: palette.color, fontSize: 12, fontWeight: 400 }} />;
+                              })
+                            : <Typography sx={{ fontSize: 13, color: 'var(--text-secondary)' }}>—</Typography>}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </Paper>
+          </Box>
+          )}
+        </Box>
+        <SourceFormDrawer entry={sourceEntry} onClose={() => setSourceEntry(null)} />
+        </Box>
+      );
+    };
+
+    /* ---------- Screen 2: Record Approvals ---------- */
+    const FIELD_GRID = '36px 168px 260px 260px minmax(200px, 1fr)';
+    const HDR = { fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--text-secondary)' };
+
+    const FieldHeaderRow = () => (
+      <Box sx={{ display: 'grid', gridTemplateColumns: FIELD_GRID, alignItems: 'center', columnGap: 1.5, pl: '44px', pr: 2, py: 0.75, borderBottom: '1px solid var(--border)', bgcolor: '#fbfbfc' }}>
+        <Box />
+        <Typography sx={HDR}>Form Input</Typography>
+        <Typography sx={HDR}>Current</Typography>
+        <Typography sx={HDR}>Form Answer</Typography>
+        <Box />
+      </Box>
+    );
+
+    const FieldRow = ({ f, checked, onToggle, onApprove, onReject, onUndo, bulkActive, onEditIncoming }) => {
+      const [phase, setPhase] = useState('idle'); // idle | success | leaving
+      const [editing, setEditing] = useState(false);
+      const [draft, setDraft] = useState(f.incoming);
+      const approved = f.status === 'approved';
+      const rejected = f.status === 'rejected';
+      const existingValue = f.current || (f.duplicate ? `${f.duplicate.matchTitle} · ${f.duplicate.matchDate}` : null);
+      const hasConflict = !!existingValue;
+      const handleAccept = () => {
+        setPhase('success');
+        setTimeout(() => {
+          setPhase('leaving');
+          setTimeout(onApprove, 300);
+        }, 650);
+      };
+      return (
+        <Box sx={{
+          display: 'grid',
+          gridTemplateColumns: FIELD_GRID,
+          alignItems: 'center',
+          columnGap: 1.5,
+          pl: '44px', pr: 2, py: 1,
+          borderBottom: '1px solid var(--border)',
+          opacity: phase === 'leaving' ? 0 : 1,
+          transform: phase === 'leaving' ? 'scaleY(0.6)' : 'scaleY(1)',
+          transformOrigin: 'top',
+          transition: 'opacity .3s ease, transform .3s ease',
+        }}>
+          <Checkbox size="small" checked={checked} disabled={f.status !== 'pending'} onChange={onToggle} sx={{ p: 0.5 }} />
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
+            <Typography sx={{ fontWeight: 600, fontSize: 13.5 }}>{f.label}</Typography>
+            {rejected && <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: 'var(--text-secondary)' }}>Rejected</Typography>}
+          </Box>
+
+          <Box sx={{ minWidth: 0 }}>
+            {hasConflict ? (
+              <Typography sx={{ fontSize: 12.5 }}>{existingValue}</Typography>
+            ) : (
+              <Typography sx={{ fontSize: 12, color: '#8a93a1', fontStyle: 'italic' }}>No value on record</Typography>
+            )}
+          </Box>
+
+          <Box sx={{ minWidth: 0, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            {editing ? (
+              <TextField autoFocus hiddenLabel size="small" variant="filled" value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onBlur={() => { onEditIncoming(draft); setEditing(false); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') { onEditIncoming(draft); setEditing(false); } }}
+                sx={{ width: '100%' }} />
+            ) : (
+              <React.Fragment>
+                <Typography sx={{ fontSize: 12.5 }}>{f.incoming}</Typography>
+                {f.status === 'pending' && (
+                  <IconButton size="small" onClick={() => { setDraft(f.incoming); setEditing(true); }} sx={{ p: 0.25 }}>
+                    <Svg path={P.edit} size={13} color="#8a93a1" />
+                  </IconButton>
+                )}
+              </React.Fragment>
+            )}
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-end' }}>
+            {!bulkActive && f.status === 'pending' && (
+              phase === 'idle' ? (
+                <React.Fragment>
+                  <Button onClick={handleAccept} sx={{ bgcolor: '#3B4960', fontSize: 12, whiteSpace: 'nowrap', transition: 'background .2s', '&:hover': { bgcolor: '#2f3a4d' } }}>Accept</Button>
+                  <Button onClick={onReject} sx={{ bgcolor: 'transparent', color: 'var(--error)', border: '1px solid var(--error)', fontSize: 12, '&:hover': { bgcolor: '#fdeceb' } }}>Reject</Button>
+                </React.Fragment>
+              ) : (
+                <Button disabled sx={{ bgcolor: 'var(--success)', fontSize: 12, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 0.5, opacity: 1, '&.Mui-disabled': { color: '#fff' } }}>
+                  <Svg path={P.check} size={14} color="#fff" /> Accepted
+                </Button>
+              )
+            )}
+            {!bulkActive && f.status !== 'pending' && (
+              <Button onClick={onUndo} sx={{ bgcolor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border)', fontSize: 12, '&:hover': { bgcolor: 'var(--grey-fill)' } }}>Undo</Button>
+            )}
+          </Box>
+        </Box>
+      );
+    };
+
+    const FlatFieldRow = ({ f, checked, onToggle, bulkActive, approveFields, rejectFields, undoFields, onEditIncoming }) => {
+      const [editing, setEditing] = useState(false);
+      const [draft, setDraft] = useState(f.incoming);
+      const a = athleteById(f.athleteId);
+      const existingValue = f.current || (f.duplicate ? `${f.duplicate.matchTitle} · ${f.duplicate.matchDate}` : null);
+      return (
+        <TableRow hover>
+          <TableCell padding="checkbox">
+            <Checkbox size="small" checked={checked} disabled={f.status !== 'pending'} onChange={onToggle} sx={{ p: 0.5 }} />
+          </TableCell>
+          <TableCell sx={{ fontSize: 13 }}>{a.name}</TableCell>
+          <TableCell sx={{ fontSize: 13, fontWeight: 600 }}>{f.label}</TableCell>
+          <TableCell sx={{ fontSize: 12.5 }}>
+            {existingValue ? existingValue : <span style={{ color: '#8a93a1', fontStyle: 'italic' }}>No value on record</span>}
+          </TableCell>
+          <TableCell sx={{ fontSize: 12.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              {editing ? (
+                <TextField autoFocus hiddenLabel size="small" variant="filled" value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  onBlur={() => { onEditIncoming(draft); setEditing(false); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { onEditIncoming(draft); setEditing(false); } }}
+                  sx={{ width: '100%' }} />
+              ) : (
+                <React.Fragment>
+                  <span>{f.incoming}</span>
+                  {f.status === 'pending' && (
+                    <IconButton size="small" onClick={() => { setDraft(f.incoming); setEditing(true); }} sx={{ p: 0.25 }}>
+                      <Svg path={P.edit} size={13} color="#8a93a1" />
+                    </IconButton>
+                  )}
+                </React.Fragment>
+              )}
+            </Box>
+          </TableCell>
+          <TableCell align="right">
+            {bulkActive ? null : f.status === 'pending' ? (
+              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                <Button onClick={() => approveFields([f.id])} sx={{ bgcolor: '#3B4960', fontSize: 12, whiteSpace: 'nowrap', '&:hover': { bgcolor: '#2f3a4d' } }}>Accept</Button>
+                <Button onClick={() => rejectFields([f.id])} sx={{ bgcolor: 'transparent', color: 'var(--error)', border: '1px solid var(--error)', fontSize: 12, '&:hover': { bgcolor: '#fdeceb' } }}>Reject</Button>
+              </Box>
+            ) : (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-end' }}>
+                <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>
+                  {f.status === 'approved' ? 'Accepted' : 'Rejected'}
+                </Typography>
+                <Button onClick={() => undoFields([f.id])} sx={{ bgcolor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border)', fontSize: 12, '&:hover': { bgcolor: 'var(--grey-fill)' } }}>Undo</Button>
+              </Box>
+            )}
+          </TableCell>
+        </TableRow>
+      );
+    };
+
+    const PendingScreen = ({ fields, selected, setSelected, approveFields, rejectFields, undoFields, updateIncoming, openConfirm }) => {
+      const bulkActive = selected.size > 0;
+      const [filter, setFilter] = useState('Pending');
+      const [fieldFilter, setFieldFilter] = useState([]);
+      const [search, setSearch] = useState('');
+      const [expanded, setExpanded] = useState(() => new Set([ROSTER[0].id]));
+
+      const categories = [];
+      fields.forEach((f) => { if (!categories.includes(f.category)) categories.push(f.category); });
+
+      const counts = {
+        Pending: fields.filter((f) => f.status === 'pending').length,
+        Approved: fields.filter((f) => f.status === 'approved').length,
+        Rejected: fields.filter((f) => f.status === 'rejected').length,
+        All: fields.length,
+      };
+      const pendingAthletes = new Set(fields.filter((f) => f.status === 'pending').map((f) => f.athleteId)).size;
+
+      const visible = fields.filter((f) => {
+        if (filter !== 'All' && f.status !== filter.toLowerCase()) return false;
+        if (fieldFilter.length && !fieldFilter.includes(f.category)) return false;
+        const a = athleteById(f.athleteId);
+        const q = search.toLowerCase();
+        return !q || a.name.toLowerCase().includes(q) || f.label.toLowerCase().includes(q);
+      });
+      const groups = ROSTER.map((a) => ({ athlete: a, rows: visible.filter((f) => f.athleteId === a.id) })).filter((g) => g.rows.length);
+
+      const toggleExp = (id) => setExpanded((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+      const toggleSel = (id) => setSelected((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+
+      const approveAll = (athleteId) => {
+        const eligible = fields.filter((f) => f.athleteId === athleteId && f.status === 'pending' && !f.clinical).map((f) => f.id);
+        if (!eligible.length) return;
+        setSelected((s) => new Set([...s, ...eligible]));
+        openConfirm(new Set([...selected, ...eligible]));
+      };
+
+      const stat = (n, label) => (
+        <Paper key={label} elevation={0} sx={{ border: '1px solid var(--border)', borderRadius: '8px', px: 2.5, py: 1.5, minWidth: 190 }}>
+          <Typography sx={{ fontSize: 24, fontWeight: 600, lineHeight: 1.2 }}>{n}</Typography>
+          <Typography sx={{ fontSize: 12.5, color: 'var(--text-secondary)' }}>{label}</Typography>
+        </Paper>
+      );
+
+      return (
+        <Box sx={{ bgcolor: '#fff', minHeight: '100%' }}>
+          <Box sx={{ p: 3 }}>
+            <Typography variant="h5" sx={{ mb: 0.5 }}>Review Queue</Typography>
+            <Typography sx={{ fontSize: 13, color: 'var(--text-secondary)', mb: 3 }}>
+              Review information submitted through medical forms before adding it to player records.
+            </Typography>
+
+            <Box sx={{ display: 'flex', gap: 2, mb: 3, pb: 2.5, borderBottom: '1px solid var(--border)', flexWrap: 'wrap', alignItems: 'center' }}>
+              <TextField placeholder="Search players" value={search} onChange={(e) => setSearch(e.target.value)} hiddenLabel sx={{ width: 260 }}
+                InputProps={{ endAdornment: <InputAdornment position="end"><Svg path={P.search} size={18} color="#8a93a1" /></InputAdornment> }} />
+
+              <FormControl variant="filled" size="small" hiddenLabel sx={{ minWidth: 180 }}>
+                <Select value={filter} onChange={(e) => setFilter(e.target.value)}>
+                  {['Pending', 'Approved', 'Rejected', 'All'].map((k) => (
+                    <MenuItem key={k} value={k}>{`${k} (${counts[k]})`}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl variant="filled" size="small" hiddenLabel sx={{ minWidth: 220 }}>
+                <Select multiple displayEmpty value={fieldFilter} onChange={(e) => setFieldFilter(e.target.value)}
+                  renderValue={(sel) => sel.length === 0 ? <span style={{ color: '#8a93a1' }}>All field types</span> : sel.join(', ')}>
+                  {categories.map((c) => (
+                    <MenuItem key={c} value={c}>
+                      <Checkbox size="small" checked={fieldFilter.includes(c)} sx={{ p: 0.5, mr: 1 }} />
+                      {c}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+
+            {selected.size > 0 && (
+              <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1, bgcolor: 'var(--grey-fill)',
+                border: '1px solid var(--border)', borderBottom: 'none', borderRadius: '8px 8px 0 0' }}>
+                <Typography sx={{ fontWeight: 600, fontSize: 13 }}>{selected.size} selected</Typography>
+                <Box sx={{ flex: 1 }} />
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button onClick={() => openConfirm(selected)} sx={{ bgcolor: '#3B4960', fontSize: 12, '&:hover': { bgcolor: '#2f3a4d' } }}>Review &amp; approve</Button>
+                  <Button onClick={() => { rejectFields([...selected]); setSelected(new Set()); }}
+                    sx={{ bgcolor: 'transparent', color: 'var(--error)', border: '1px solid var(--error)', fontSize: 12, '&:hover': { bgcolor: '#fdeceb' } }}>
+                    Reject selected
+                  </Button>
+                </Box>
+              </Box>
+            )}
+
+            {fieldFilter.length > 0 ? (
+              <Paper elevation={0} sx={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell padding="checkbox" />
+                      <TableCell>Player</TableCell>
+                      <TableCell>Field</TableCell>
+                      <TableCell>Current</TableCell>
+                      <TableCell>Form answer</TableCell>
+                      <TableCell align="right">Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {visible.length === 0 && (
+                      <TableRow><TableCell colSpan={6} sx={{ textAlign: 'center', color: 'var(--text-secondary)', py: 3 }}>No fields match this filter.</TableCell></TableRow>
+                    )}
+                    {visible.map((f) => (
+                      <FlatFieldRow key={f.id} f={f} checked={selected.has(f.id)} onToggle={() => toggleSel(f.id)}
+                        bulkActive={bulkActive} approveFields={approveFields} rejectFields={rejectFields} undoFields={undoFields}
+                        onEditIncoming={(val) => updateIncoming(f.id, val)} />
+                    ))}
+                  </TableBody>
+                </Table>
+              </Paper>
+            ) : groups.length === 0 ? (
+              <Paper elevation={0} sx={{ border: '1px solid var(--border)', borderRadius: '8px', p: 4, textAlign: 'center', color: 'var(--text-secondary)' }}>
+                No fields match this filter.
+              </Paper>
+            ) : (
+            <Paper elevation={0} sx={{ border: '1px solid var(--border)',
+              borderTop: selected.size ? 'none' : '1px solid var(--border)',
+              borderRadius: selected.size ? '0 0 8px 8px' : '8px', overflow: 'hidden' }}>
+              {groups.map(({ athlete, rows }, groupIdx) => {
+                const pendingRows = fields.filter((f) => f.athleteId === athlete.id && f.status === 'pending');
+                const eligibleCount = pendingRows.filter((f) => !f.clinical).length;
+                const submittedDate = SUBMISSION_DATES[groupIdx % SUBMISSION_DATES.length];
+                return (
+                  <Accordion key={athlete.id} disableGutters square elevation={0} expanded={expanded.has(athlete.id)} onChange={() => toggleExp(athlete.id)}
+                    sx={{ boxShadow: 'none', bgcolor: 'transparent', '&:before': { display: 'none' }, m: '0 !important' }}>
+                    <AccordionSummary expandIcon={<Svg path={P.expand} size={20} color="#5b6472" />}
+                      sx={{ flexDirection: 'row-reverse', gap: 1, px: 2, minHeight: 0, bgcolor: '#fff', borderBottom: '1px solid var(--border)',
+                        '& .MuiAccordionSummary-content': { my: 1.25, alignItems: 'center' } }}>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: FIELD_GRID, alignItems: 'center', columnGap: 1.5, width: '100%', pr: 1 }}>
+                        <Box sx={{ gridColumn: '1 / 3', display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
+                          <Avatar sx={{ width: 30, height: 30, fontSize: 12, bgcolor: 'var(--grey-fill)', color: 'var(--text-secondary)', fontWeight: 600, flexShrink: 0 }}>
+                            {athlete.name.split(',')[0].slice(0, 2).toUpperCase()}
+                          </Avatar>
+                          <Typography sx={{ fontWeight: 600, fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{athlete.name}</Typography>
+                        </Box>
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography sx={{ fontSize: 11, color: 'var(--text-secondary)' }}>Submission date</Typography>
+                          <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text-primary)', mt: 0.25 }}>{submittedDate}</Typography>
+                        </Box>
+                      </Box>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ p: 0 }}>
+                      <FieldHeaderRow />
+                      {rows.map((f) => (
+                        <FieldRow key={f.id} f={f} checked={selected.has(f.id)} onToggle={() => toggleSel(f.id)}
+                          onApprove={() => approveFields([f.id])}
+                          onReject={() => rejectFields([f.id])} onUndo={() => undoFields([f.id])} bulkActive={bulkActive}
+                          onEditIncoming={(val) => updateIncoming(f.id, val)} />
+                      ))}
+                    </AccordionDetails>
+                  </Accordion>
+                );
+              })}
+            </Paper>
+            )}
+          </Box>
+        </Box>
+      );
+    };
+
+    /* ---------- Screen 3: Player Overview ---------- */
+    const PlayerScreen = ({ athleteId, injuries, go }) => {
+      const a = athleteById(athleteId);
+      const rows = injuries.filter((i) => i.athleteId === athleteId);
+      const tabs = ['Injury/Illness', 'Notes', 'Diagnostics', 'Player details', 'Maintenance', 'Medications', 'Procedures', 'Documents'];
+      const meta = athleteId === 'akron2'
+        ? { dob: 'Mar 3, 2004', age: 22, country: 'United States', height: '180 cm', roster: 'First team', open: rows.filter((r) => r.status === 'Open').length }
+        : { dob: 'Jan 1, 2002', age: 24, country: 'United States', height: '182 cm', roster: 'First team', open: rows.filter((r) => r.status === 'Open').length };
+
+      const headStat = (label, value) => (
+        <Box key={label} sx={{ minWidth: 110 }}>
+          <Typography sx={{ fontSize: 11, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</Typography>
+          <Typography sx={{ fontSize: 13.5, fontWeight: 600, mt: 0.25 }}>{value}</Typography>
+        </Box>
+      );
+
+      const chronicRows = [
+        { id: 'c1', date: 'Feb 3, 2023', type: 'Chronic', title: 'Exercise-induced asthma', status: 'Managed' },
+      ];
+      const priorRows = [
+        { id: 'p1', date: 'Sep 20, 2023', type: 'Resolved', title: 'Concussion', status: 'Resolved' },
+        { id: 'p2', date: 'Jun 4, 2024', type: 'Resolved', title: 'Calf strain', status: 'Resolved' },
+      ];
+
+      const sectionTable = (heading, sectionRows, emptyLabel, withTitleTooltip) => (
+        <Paper elevation={0} sx={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', mb: 2 }}>
+          <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2.5, pb: 1.5 }}>{heading}</Typography>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Date of Injury/Illness</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>
+                  {withTitleTooltip ? (
+                    <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                      Title
+                      <Tooltip title="Injury or illness title as recorded"><span style={{ display: 'inline-flex' }}><InfoIcon /></span></Tooltip>
+                    </Box>
+                  ) : 'Title'}
+                </TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {sectionRows.length === 0 && (
+                <TableRow><TableCell colSpan={5} sx={{ color: 'var(--text-secondary)', fontSize: 13, py: 3, textAlign: 'center' }}>{emptyLabel}</TableCell></TableRow>
+              )}
+              {sectionRows.map((r) => (
+                <TableRow key={r.id} hover>
+                  <TableCell sx={{ fontSize: 13 }}>{r.date}</TableCell>
+                  <TableCell sx={{ fontSize: 13 }}>{r.type}</TableCell>
+                  <TableCell sx={{ fontSize: 13 }}>
+                    <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                      {r.fromForm && (
+                        <Tooltip title={`Added via Medical History Form · approved ${r.approvedDate}`}>
+                          <span style={{ display: 'inline-flex' }}><Svg path={P.desc} size={14} color="#8a93a1" /></span>
+                        </Tooltip>
+                      )}
+                      <span>{r.title}</span>
+                    </Box>
+                  </TableCell>
+                  <TableCell><Chip label={r.status} sx={{ ...injuryChipStyle(r.status), fontWeight: 600, fontSize: 12 }} /></TableCell>
+                  <TableCell align="right"><RowActionsMenu /></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Paper>
+      );
+
+      return (
+        <Box>
+          <Box sx={{ bgcolor: '#fff', borderBottom: '1px solid var(--border)', px: 3, pt: 1.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+              <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>Medical</Typography>
+              <Box sx={{ flex: 1 }} />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>Active Roster</Typography>
+                  <Svg path={P.expand} size={18} color="#5b6472" />
+                </Box>
+                <Avatar sx={{ width: 32, height: 32, bgcolor: 'var(--nav-dark)', fontSize: 12, fontWeight: 600 }}>LV</Avatar>
+              </Box>
+            </Box>
+            <Button onClick={() => go('roster')} startIcon={<Svg path={P.back} size={16} />}
+              sx={{ bgcolor: 'transparent', color: '#005293', px: 1, mb: 1, '&:hover': { bgcolor: 'var(--grey-fill)' } }}>Back to roster</Button>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+              <Avatar sx={{ width: 56, height: 56, bgcolor: 'var(--nav-dark)', fontWeight: 600 }}>{a.name.split(',')[0].slice(0, 2).toUpperCase()}</Avatar>
+              <Box>
+                <Typography variant="h5">{a.name}</Typography>
+                <StatusPill status={a.status} />
+              </Box>
+              <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', columnGap: 3, rowGap: '30px' }}>
+                {headStat('DOB', meta.dob)}
+                {headStat('Age', meta.age)}
+                {headStat('Country', meta.country)}
+                {headStat('Height', meta.height)}
+                {headStat('Roster position', a.pos)}
+                {headStat('Roster', meta.roster)}
+                {headStat('Open injury/illness', meta.open)}
+              </Box>
+            </Box>
+            <Tabs value={0} variant="scrollable" scrollButtons={false}>
+              {tabs.map((t) => <Tab key={t} label={t} />)}
+            </Tabs>
+          </Box>
+
+          <Box sx={{ py: 3 }}>
+            <Paper elevation={0} sx={{ border: '1px solid var(--border)', borderRadius: '8px', p: 2.5, mb: 2 }}>
+              <Typography sx={{ fontSize: 18, fontWeight: 600, mb: 2 }}>Injury &amp; Illness</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                <TextField placeholder="Search" hiddenLabel sx={{ width: 220 }}
+                  InputProps={{ endAdornment: <InputAdornment position="end"><Svg path={P.search} size={18} color="#8a93a1" /></InputAdornment> }} />
+                <FormControl variant="filled" size="small" hiddenLabel sx={{ minWidth: 150 }}>
+                  <Select value="all" displayEmpty renderValue={(v) => v === 'all' ? 'Date' : v}>
+                    <MenuItem value="all">All dates</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl variant="filled" size="small" hiddenLabel sx={{ minWidth: 150 }}>
+                  <Select value="all" displayEmpty renderValue={(v) => v === 'all' ? 'Status' : v}>
+                    <MenuItem value="all">All statuses</MenuItem>
+                    <MenuItem value="Open">Open</MenuItem>
+                    <MenuItem value="Full">Full</MenuItem>
+                  </Select>
+                </FormControl>
+                <Box sx={{ flex: 1 }} />
+                <Box sx={{ display: 'flex', gap: 1.5 }}>
+                  <Button endIcon={<Svg path={P.add} size={16} color="#fff" />} sx={{ bgcolor: '#3B4960', '&:hover': { bgcolor: '#2f3a4d' } }}>Add</Button>
+                  <Button sx={{ bgcolor: 'var(--grey-fill)', color: 'var(--text-primary)', '&:hover': { bgcolor: '#e6e8ee' } }}>View archive</Button>
+                </Box>
+              </Box>
+            </Paper>
+
+            {sectionTable('Open Injury & Illness', rows, 'No open injury/illness records.', true)}
+            {sectionTable('Chronic Condition', chronicRows, 'No chronic conditions recorded.', false)}
+            {sectionTable('Prior Injury & Illness', priorRows, 'No prior injury/illness records.', false)}
+          </Box>
+        </Box>
+      );
+    };
+
+    /* ---------- App ---------- */
+    const App = () => {
+      const [screen, setScreen] = useState({ name: 'roster', athleteId: null });
+      const [medTab, setMedTab] = useState(0);
+      const [fields, setFields] = useState(INITIAL_FIELDS.map((f) => ({ ...f, status: 'pending' })));
+      const [selected, setSelected] = useState(new Set());
+      const [confirmIds, setConfirmIds] = useState(null); // Set of ids or null
+      const [injuries, setInjuries] = useState([
+        { id: 'i1', athleteId: 'akron2', date: 'May 12, 2026', type: 'New', title: 'Lateral Ankle Sprain - Ligament Unknown [Left]', status: 'Full', fromForm: false },
+      ]);
+
+      const go = (name, athleteId = null) => setScreen({ name, athleteId });
+
+      const applyStatus = (ids, status) => {
+        setFields((fs) => fs.map((f) => (ids.includes(f.id) && f.status === 'pending' ? { ...f, status } : f)));
+        if (status === 'approved') {
+          const approvedInjuries = fields.filter((f) => ids.includes(f.id) && f.status === 'pending' && f.category === 'Injury history');
+          if (approvedInjuries.length) {
+            setInjuries((inj) => [
+              ...inj,
+              ...approvedInjuries.map((f) => ({
+                id: 'inj-' + f.id, athleteId: f.athleteId,
+                date: f.duplicate ? 'May 2026' : '—', type: 'Injury',
+                title: f.incoming.split(' · ')[0], status: 'Open', fromForm: true, approvedDate: TODAY,
+              })),
+            ]);
+          }
+        }
+        setSelected((s) => { const n = new Set(s); ids.forEach((id) => n.delete(id)); return n; });
+      };
+
+      const approveFields = (ids) => applyStatus(ids, 'approved');
+      const rejectFields = (ids) => applyStatus(ids, 'rejected');
+      const undoFields = (ids) => {
+        setFields((fs) => fs.map((f) => (ids.includes(f.id) ? { ...f, status: 'pending' } : f)));
+        setSelected((s) => { const n = new Set(s); ids.forEach((id) => n.delete(id)); return n; });
+      };
+      const updateIncoming = (id, value) => {
+        setFields((fs) => fs.map((f) => (f.id === id ? { ...f, incoming: value } : f)));
+      };
+
+      const pendingCount = new Set(fields.filter((f) => f.status === 'pending').map((f) => f.athleteId)).size;
+      const confirmList = confirmIds ? fields.filter((f) => confirmIds.has(f.id) && f.status === 'pending') : [];
+      const confirmGroups = confirmIds
+        ? ROSTER.map((a) => ({ athlete: a, rows: confirmList.filter((f) => f.athleteId === a.id) })).filter((g) => g.rows.length)
+        : [];
+
+      return (
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+            <NavRail screen={screen.name} go={go} />
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              {screen.name === 'roster' && (
+                <RosterScreen go={go} pendingCount={pendingCount} tab={medTab} setTab={setMedTab}
+                  pendingBody={
+                    <PendingScreen fields={fields} selected={selected} setSelected={setSelected}
+                      approveFields={approveFields} rejectFields={rejectFields} undoFields={undoFields} updateIncoming={updateIncoming}
+                      openConfirm={(ids) => setConfirmIds(new Set(ids))} />
+                  } />
+              )}
+              {screen.name === 'player' && <PlayerScreen athleteId={screen.athleteId} injuries={injuries} go={go} />}
+            </Box>
+          </Box>
+
+          <Dialog open={!!confirmIds} onClose={() => setConfirmIds(null)} maxWidth="sm" fullWidth>
+            <DialogTitle sx={{ fontWeight: 600, fontSize: 18 }}>Confirm approval of {confirmList.length} field{confirmList.length !== 1 ? 's' : ''}</DialogTitle>
+            <DialogContent dividers sx={{ p: 0 }}>
+              <Typography sx={{ fontSize: 13, color: 'var(--text-secondary)', px: 3, py: 1.5 }}>
+                The following values will be written to each athlete's medical record. Nothing is committed until you confirm.
+              </Typography>
+              {confirmGroups.map(({ athlete, rows }) => (
+                <Box key={athlete.id} sx={{ px: 3, pb: 1.5 }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, py: 0.75 }}>{athlete.name}</Typography>
+                  {rows.map((f) => (
+                    <Box key={f.id} sx={{ display: 'flex', gap: 1.5, py: 0.5, pl: 1.5, borderLeft: '2px solid var(--border)' }}>
+                      <Typography sx={{ fontSize: 13, width: 200, flexShrink: 0, color: 'var(--text-secondary)' }}>{f.label}</Typography>
+                      <Typography sx={{ fontSize: 13 }}>{f.incoming}</Typography>
+                    </Box>
+                  ))}
+                </Box>
+              ))}
+            </DialogContent>
+            <DialogActions sx={{ px: 3, py: 2 }}>
+              <Button onClick={() => setConfirmIds(null)} sx={{ bgcolor: 'var(--grey-fill)', color: 'var(--text-primary)' }}>Go back</Button>
+              <Button onClick={() => { approveFields(confirmList.map((f) => f.id)); setConfirmIds(null); }} sx={{ bgcolor: '#3B4960', '&:hover': { bgcolor: '#2f3a4d' } }}>
+                Confirm approval of {confirmList.length} field{confirmList.length !== 1 ? 's' : ''}
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </ThemeProvider>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react'
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import {
   Box,
   Typography,
@@ -874,9 +874,13 @@ function SlideLeft(props) {
 }
 
 // ─── Main drawer ───────────────────────────────────────────────────────────────
-export default function BlastMessageDrawer({ open, onClose, onSent }) {
+export default function BlastMessageDrawer({ open, onClose, onSent, sourceEvent, athletes = [], staff = [] }) {
   const [step,    setStep]    = useState('recipients')
   const [clubNav, setClubNav] = useState({ level: 'clubs', clubId: null })
+
+  // ─── Event-launched mode (conditional on sourceEvent; standalone flow above is untouched) ──
+  const [eventRecipientIds, setEventRecipientIds] = useState(new Set())
+  const [eventToExpanded,   setEventToExpanded]   = useState(false)
 
   const [selectedStaffIds,       setSelectedStaffIds]       = useState(new Set())
   const [selectedAthleteIds,     setSelectedAthleteIds]     = useState(new Set())
@@ -903,6 +907,59 @@ export default function BlastMessageDrawer({ open, onClose, onSent }) {
   const [scheduleRepeat,    setScheduleRepeat]    = useState('none')
 
   const bodyInputRef = useRef(null)
+
+  // resolve the source event's attendees against the passed-in athlete/staff master lists
+  const eventRecipients = useMemo(() => {
+    if (!sourceEvent) return []
+    const ep = sourceEvent.extendedProps || {}
+    const athleteRefs = ep.selectedAthletes || ep.attendeeIds || ep.attendees || []
+    const staffRefs = ep.selectedStaff || ep.staffIds || ep.staff || []
+    const resolved = []
+    athleteRefs.forEach(a => {
+      const id = (a && typeof a === 'object') ? a.id : a
+      const found = athletes.find(x => String(x.id) === String(id))
+      if (found) resolved.push({ key: `athlete-${id}`, name: `${found.firstname} ${found.lastname}`, last: found.lastname, org: found.organisation_name || found.organisation_id })
+    })
+    staffRefs.forEach(s => {
+      const id = (s && typeof s === 'object') ? s.id : s
+      const found = staff.find(x => String(x.id) === String(id))
+      if (found) resolved.push({ key: `staff-${id}`, name: `${found.firstname} ${found.lastname}`, last: found.lastname, org: found.organisation_name || found.organisation_id })
+    })
+    return resolved
+  }, [sourceEvent, athletes, staff])
+
+  const eventRecipientsByOrg = useMemo(() => {
+    const orgs = new Set(eventRecipients.map(r => r.org))
+    if (orgs.size <= 1) return null
+    const groups = {}
+    eventRecipients.forEach(r => { (groups[r.org] = groups[r.org] || []).push(r) })
+    return groups
+  }, [eventRecipients])
+
+  // pre-populate + reset compose fields whenever a new source event is opened
+  useEffect(() => {
+    if (sourceEvent) {
+      setEventRecipientIds(new Set(eventRecipients.map(r => r.key)))
+      setEventToExpanded(false)
+      setSubject(`Update: ${sourceEvent.title || ''}`)
+      setBody('')
+      setAttachments([])
+      setSelectedChannels(new Set(['email']))
+      setScheduleOpen(false); setScheduleTitle(''); setScheduleStartDate(''); setScheduleEndDate(''); setScheduleSendTime(''); setScheduleRepeat('none')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sourceEvent])
+
+  const toggleEventRecipient = (key) => setEventRecipientIds(prev => { const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n })
+  const eventRecipientCount = eventRecipientIds.size
+  const canSendEventMessage = eventRecipientCount > 0 && subject.trim().length > 0
+
+  const handleEventModeSend = () => {
+    if (!canSendEventMessage) return
+    onSent && onSent({ subject, body, channels: ['email'], reach: { total: eventRecipientCount, email: eventRecipientCount } })
+    onClose()
+  }
+  const handleEventModeSaveDraft = () => { onClose() }
 
   const allSelectedIds = useMemo(
     () => new Set([...selectedStaffIds, ...selectedAthleteIds, ...selectedGuardianIds, ...selectedGroupMemberIds]),
@@ -995,6 +1052,133 @@ export default function BlastMessageDrawer({ open, onClose, onSent }) {
   const smsColor       = charCount > SMS_HARD_WARN ? 'error.main' : charCount > SMS_SOFT_LIMIT ? 'warning.main' : 'text.disabled'
   const smsSegments    = Math.ceil(charCount / SMS_SOFT_LIMIT) || 1
   const stepSubLabel   = step === 'recipients' ? '1. Select recipients' : '2. Compose message'
+
+  // ─── Event-launched compose UI — no stepper, no recipient-selection screen ──
+  if (sourceEvent) {
+    const fieldUnderlineSx = {
+      '& .MuiFilledInput-root': {
+        borderRadius: '4px 4px 0 0', backgroundColor: '#F3F4F7', boxShadow: 'none',
+        borderBottom: '1px solid #B3BAC5',
+        '&.Mui-focused': { boxShadow: 'none', borderBottom: '2px solid #172B4D' },
+      },
+      '& .MuiFilledInput-input::placeholder': { color: '#5F7089', opacity: 1, fontStyle: 'normal', fontWeight: 400, fontSize: 16 },
+    }
+    return (
+      <Dialog open={open} onClose={onClose} PaperProps={{ sx: {
+        width: 890, maxWidth: '92vw', borderRadius: '8px',
+        display: 'flex', flexDirection: 'column', maxHeight: '85vh',
+      } }}>
+        <Box sx={{ px: 3, py: 2.5, borderBottom: '1px solid #E8EAED', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <Typography sx={{ fontSize: 20, fontWeight: 700, color: '#172B4D' }}>New Broadcast Message</Typography>
+          <IconButton size="small" onClick={onClose}><CloseIcon sx={{ fontSize: 22, color: '#5F7089' }} /></IconButton>
+        </Box>
+
+        <Box sx={{ flex: 1, overflowY: 'auto' }}>
+        <Box sx={{ px: 3, py: 2, borderBottom: '1px solid #E8EAED' }}>
+          <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.5px', color: '#5F7089', textTransform: 'uppercase' }}>To</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+            <Typography sx={{ fontSize: 15, color: '#172B4D' }}>{eventRecipientCount} recipients</Typography>
+            <IconButton size="small" onClick={() => setEventToExpanded(v => !v)}>
+              {eventToExpanded ? <CollapseIcon sx={{ fontSize: 18, color: '#5F7089' }} /> : <DropdownIcon sx={{ fontSize: 18, color: '#5F7089' }} />}
+            </IconButton>
+          </Box>
+          <Collapse in={eventToExpanded}>
+            <Box sx={{ mt: 1 }}>
+              {(eventRecipientsByOrg ? Object.entries(eventRecipientsByOrg) : [[null, eventRecipients]]).map(([org, list]) => (
+                <Box key={org || 'all'} sx={{ mb: org ? 1 : 0 }}>
+                  {org && (
+                    <Typography sx={{ fontSize: 13, fontWeight: 700, color: '#5F7089', textTransform: 'uppercase', py: 0.75 }}>{org}</Typography>
+                  )}
+                  {list.map((r, i) => (
+                    <React.Fragment key={r.key}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, height: 44 }}>
+                        <Checkbox checked={eventRecipientIds.has(r.key)} onChange={() => toggleEventRecipient(r.key)} sx={{ color: '#B4B8C0', '&.Mui-checked': { color: '#3B4960' } }} />
+                        <Avatar1 last={r.last} size={28} />
+                        <Typography sx={{ fontSize: 15, color: '#172B4D' }}>{r.name}</Typography>
+                      </Box>
+                      {i < list.length - 1 && <Divider sx={{ borderColor: '#E8EAED' }} />}
+                    </React.Fragment>
+                  ))}
+                </Box>
+              ))}
+            </Box>
+          </Collapse>
+        </Box>
+
+        <Box sx={{ px: 3, py: 2, borderBottom: '1px solid #E8EAED', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <MailIcon sx={{ fontSize: 20, color: '#3B4960' }} />
+          <Typography sx={{ fontSize: 15, fontWeight: 600, color: '#172B4D' }}>Send via Email</Typography>
+          <Typography sx={{ fontSize: 14, color: '#5F7089' }}>{eventRecipientCount} recipients</Typography>
+        </Box>
+
+        <Box sx={{ px: 3, py: 2.5 }}>
+          <TextField variant="filled" fullWidth placeholder="Subject *" value={subject} onChange={(e) => setSubject(e.target.value)}
+            sx={{ mb: 2, ...fieldUnderlineSx }} />
+
+          <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.5px', color: '#5F7089', textTransform: 'uppercase', mb: 1 }}>Body</Typography>
+          <FormattingToolbar bodyRef={bodyInputRef} body={body} onBodyChange={setBody} onAddAttachments={handleAddAttachments} />
+          <TextField variant="filled" fullWidth multiline minRows={8} placeholder="Write your message..." value={body}
+            onChange={(e) => setBody(e.target.value)} inputRef={bodyInputRef}
+            sx={{
+              ...fieldUnderlineSx,
+              '& .MuiFilledInput-root': { ...fieldUnderlineSx['& .MuiFilledInput-root'], minHeight: 200, alignItems: 'flex-start', borderRadius: '0 0 4px 4px' },
+            }} />
+          {attachments.length > 0 && (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 1 }}>
+              {attachments.map((att) => (
+                <Box key={att.id} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, px: 1, py: 0.5, bgcolor: 'grey.100', borderRadius: 1, border: '1px solid var(--color-border-primary)' }}>
+                  <FileIcon sx={{ fontSize: 14, color: 'text.secondary', flexShrink: 0 }} />
+                  <Typography variant="caption" fontWeight={500} sx={{ maxWidth: 130, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{att.file.name}</Typography>
+                  <Typography variant="caption" color="text.disabled" sx={{ flexShrink: 0 }}>{formatFileSize(att.file.size)}</Typography>
+                  <IconButton size="small" onClick={() => handleRemoveAttachment(att.id)} sx={{ p: 0, ml: 0.25, flexShrink: 0, color: 'text.disabled', '&:hover': { color: 'error.main' } }}>
+                    <CloseIcon sx={{ fontSize: 13 }} />
+                  </IconButton>
+                </Box>
+              ))}
+            </Box>
+          )}
+          <Typography sx={{ fontSize: 13, color: '#5F7089', mt: 1 }}>Maximum attachment size: 25MB</Typography>
+
+          <Box sx={{ mt: 2 }}>
+            {!scheduleOpen ? (
+              <Box component="button" onClick={() => setScheduleOpen(true)} sx={{
+                display: 'flex', alignItems: 'center', gap: 0.75, bgcolor: '#F3F4F7', border: 'none', borderRadius: '6px',
+                height: 40, px: 2, cursor: 'pointer', color: '#3B4960', fontFamily: 'inherit', fontWeight: 600, fontSize: 15,
+                textTransform: 'none', '&:hover': { bgcolor: '#E8EAED' },
+              }}>
+                <AddIcon sx={{ fontSize: 16 }} /> Add schedule
+              </Box>
+            ) : (
+              <ScheduleSection
+                title={scheduleTitle} onTitleChange={setScheduleTitle}
+                startDate={scheduleStartDate} onStartDateChange={setScheduleStartDate}
+                endDate={scheduleEndDate} onEndDateChange={setScheduleEndDate}
+                sendTime={scheduleSendTime} onSendTimeChange={setScheduleSendTime}
+                repeat={scheduleRepeat} onRepeatChange={setScheduleRepeat}
+              />
+            )}
+          </Box>
+        </Box>
+        </Box>
+
+        <Box sx={{ px: 3, py: 3, borderTop: '1px solid #E8EAED', display: 'flex', justifyContent: 'flex-end', gap: 2, flexShrink: 0 }}>
+          <Box component="button" onClick={handleEventModeSaveDraft} sx={{
+            background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, color: '#3B4960',
+          }}>
+            Save draft
+          </Box>
+          <Box component="button" disabled={!canSendEventMessage} onClick={handleEventModeSend} sx={{
+            height: 52, px: 3, borderRadius: '6px', border: 'none', fontFamily: 'inherit',
+            cursor: canSendEventMessage ? 'pointer' : 'not-allowed',
+            bgcolor: canSendEventMessage ? '#3B4960' : '#E8EAED', color: canSendEventMessage ? '#fff' : '#5F7089',
+            fontSize: 16, fontWeight: 600, textTransform: 'none',
+          }}>
+            Send
+          </Box>
+        </Box>
+      </Dialog>
+    )
+  }
 
   return (
     <>

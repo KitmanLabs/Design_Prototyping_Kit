@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -17,9 +18,16 @@ import {
   WarningOutlined,
 } from '@mui/icons-material';
 import { Button, PlayerAvatar, StatusChip } from '../../components';
+import AddMedicationSplitButton from '../../components/medications/AddMedicationSplitButton';
+import AddMedicationModal from '../../components/medications/AddMedicationModal';
+import { bulkMedicationPlayers } from '../../data/medicationAlerts';
 import athletesData from '../../data/athletes.json';
 import injuriesData from '../../data/injuries_medical.json';
 import '../../styles/design-tokens.css';
+
+// Demo player for the single "Add medication" flow — chosen because they carry
+// an allergy chip, so the modal's severity-coded chip rendering is visible.
+const SINGLE_FLOW_DEMO_PLAYER = bulkMedicationPlayers.find((p) => p.id === 'player-d');
 
 // Typography styles matching FormsPage pattern
 const typographyStyles = {
@@ -108,17 +116,20 @@ const generateMedicalRosterData = () => {
 };
 
 function MedicalPage() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeRosterFilter, setActiveRosterFilter] = useState('');
   const [positionFilter, setPositionFilter] = useState('');
   const [injuredFilter, setInjuredFilter] = useState('');
+  const [singleMedicationModalOpen, setSingleMedicationModalOpen] = useState(false);
 
   const tabs = [
     'Roster',
     'Notes',
     'Diagnostics',
     'Procedures',
+    'Medications',
     'Medical Flags',
     'Shared Players',
     'Past Players',
@@ -573,18 +584,68 @@ function MedicalPage() {
       </TabPanel>
 
       {/* Placeholder panels for other tabs */}
-      {tabs.slice(1).map((tab, index) => (
-        <TabPanel key={tab} value={activeTab} index={index + 1}>
-          <Box sx={{ p: 3 }}>
-            <Typography
-              variant="body1"
-              sx={{ color: 'var(--color-text-secondary)' }}
-            >
-              {tab} content coming soon...
-            </Typography>
-          </Box>
-        </TabPanel>
-      ))}
+      {tabs.slice(1).map((tab, index) => {
+        const tabIndex = index + 1;
+
+        if (tab === 'Medications') {
+          return (
+            <TabPanel key={tab} value={activeTab} index={tabIndex}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  px: 3,
+                  py: 2,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 'var(--font-weight-semibold)',
+                    color: 'var(--color-text-primary)',
+                    fontFamily: 'var(--font-family-primary)',
+                  }}
+                >
+                  Medications
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button variant="secondary" size="small">Stock management</Button>
+                  <AddMedicationSplitButton
+                    onAddSingle={() => setSingleMedicationModalOpen(true)}
+                    onAddBulk={() => navigate('/add-medications-bulk')}
+                  />
+                  <Button variant="secondary" size="small">Medication report</Button>
+                </Box>
+              </Box>
+              <Box sx={{ px: 3, pb: 3 }}>
+                <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-primary)' }}>
+                  No medications recorded yet.
+                </Typography>
+              </Box>
+            </TabPanel>
+          );
+        }
+
+        return (
+          <TabPanel key={tab} value={activeTab} index={tabIndex}>
+            <Box sx={{ p: 3 }}>
+              <Typography
+                variant="body1"
+                sx={{ color: 'var(--color-text-secondary)' }}
+              >
+                {tab} content coming soon...
+              </Typography>
+            </Box>
+          </TabPanel>
+        );
+      })}
+
+      <AddMedicationModal
+        open={singleMedicationModalOpen}
+        onClose={() => setSingleMedicationModalOpen(false)}
+        player={SINGLE_FLOW_DEMO_PLAYER}
+      />
     </Box>
   );
 }

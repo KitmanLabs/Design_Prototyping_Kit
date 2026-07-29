@@ -1,0 +1,516 @@
+<!-- AI Form Summary Prototype 2 — Responses Tab -->
+<!-- Deploy to Vercel by dragging this folder to vercel.com/new -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Form Summary — Responses</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    html, body, #root { height: 100%; margin: 0; }
+    body { font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    *::-webkit-scrollbar { width: 10px; height: 10px; }
+    *::-webkit-scrollbar-thumb { background: rgba(26,39,68,0.25); border-radius: 8px; }
+  </style>
+
+  <!-- Dependencies (CDN UMD builds) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@emotion/react@11/dist/emotion-react.umd.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@emotion/styled@11/dist/emotion-styled.umd.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@mui/material@5/umd/material-ui.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Force the classic JSX runtime (React.createElement) so the inline
+       script needs no ES module imports — required for type="text/babel". -->
+  <script>
+    Babel.registerPreset('classic-react', {
+      presets: [[Babel.availablePresets.react, { runtime: 'classic' }]],
+    });
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="classic-react">
+    const { useState, useMemo } = React;
+    const {
+      ThemeProvider, createTheme, CssBaseline,
+      Box, Typography, Avatar, Tabs, Tab,
+      FormControl, InputLabel, Select, MenuItem, Checkbox, ListItemText,
+      TextField, InputAdornment, Toolbar, Button, Paper, Chip, IconButton,
+      Drawer, Divider, CircularProgress, Skeleton, Badge,
+      Table, TableHead, TableBody, TableRow, TableCell, TableContainer,
+      TablePagination, Fab, Snackbar,
+    } = MaterialUI;
+
+    /* ─────────────────────────────────────────────────────────────
+       Design tokens
+       ───────────────────────────────────────────────────────────── */
+    const NAVY = '#1a2744';
+    const AI_BG = '#eeedfe';
+    const AI_TEXT = '#3c3489';
+    const PANEL_WIDTH = 400;
+    const defaultTheme = createTheme();
+
+    /* ─────────────────────────────────────────────────────────────
+       Inline SVG icons (icons-material is not available via UMD)
+       ───────────────────────────────────────────────────────────── */
+    const Svg = (props) => (
+      <svg width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24"
+        fill={props.fill || 'currentColor'} style={props.style}>{props.children}</svg>
+    );
+    const SparkleIcon = (p) => (
+      <Svg size={p.size || 16} fill={p.color || 'currentColor'} style={p.style}>
+        <path d="M12 2.5l1.9 5.6 5.6 1.9-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.9L12 2.5z" />
+        <path d="M19 3l.6 1.8 1.8.6-1.8.6-.6 1.8-.6-1.8-1.8-.6 1.8-.6L19 3z" />
+      </Svg>
+    );
+    const InfoIcon = (p) => (
+      <Svg size={p.size || 18} fill="none" style={p.style}>
+        <circle cx="12" cy="12" r="9" fill={p.color || AI_TEXT} />
+        <rect x="11" y="10.5" width="2" height="6" rx="1" fill="#fff" />
+        <circle cx="12" cy="7.6" r="1.1" fill="#fff" />
+      </Svg>
+    );
+    const CloseIcon = (p) => (
+      <Svg size={p.size || 22} fill="none" style={p.style}>
+        <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </Svg>
+    );
+    const MoreVertIcon = (p) => (
+      <Svg size={p.size || 20} style={p.style}>
+        <circle cx="12" cy="5" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="12" cy="19" r="1.6" />
+      </Svg>
+    );
+    const CalendarIcon = (p) => (
+      <Svg size={p.size || 16} fill="none" style={p.style}>
+        <rect x="3.5" y="5" width="17" height="15" rx="2" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M3.5 9.5h17M8 3.5v3M16 3.5v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </Svg>
+    );
+    const ChatIcon = (p) => (
+      <Svg size={p.size || 24} fill="none" style={p.style}>
+        <path d="M5 5h14a1 1 0 011 1v9a1 1 0 01-1 1H9l-4 3.5V6a1 1 0 011-1z"
+          fill={p.fill || 'currentColor'} />
+      </Svg>
+    );
+    const BellIcon = (p) => (
+      <Svg size={p.size || 22} fill="none" style={p.style}>
+        <path d="M12 3a6 6 0 00-6 6c0 4-1.5 5.5-2 6.5h16c-.5-1-2-2.5-2-6.5a6 6 0 00-6-6z"
+          stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+        <path d="M10 19a2 2 0 004 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </Svg>
+    );
+    const navPath = (d) => (
+      <Svg size={20} fill="none">
+        <path d={d} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      </Svg>
+    );
+    const SIDEBAR_ICONS = [
+      { key: 'home', d: 'M3 11l9-8 9 8M5 10v10h14V10' },
+      { key: 'athletes', d: 'M16 19v-1a4 4 0 00-4-4H7a4 4 0 00-4 4v1M9.5 9.5a3 3 0 100-6 3 3 0 000 6M21 19v-1a4 4 0 00-3-3.87' },
+      { key: 'calendar', d: 'M3.5 5h17v15h-17zM3.5 9.5h17M8 3v3M16 3v3' },
+      { key: 'medical', d: 'M12 7v10M7 12h10M5 5h14v14H5z' },
+      { key: 'forms', d: 'M7 3h7l4 4v14H7zM14 3v4h4M9.5 12h5M9.5 15.5h5', active: true },
+      { key: 'messages', d: 'M4 5h16v11H8l-4 4z' },
+    ];
+
+    /* ─────────────────────────────────────────────────────────────
+       Mock data
+       ───────────────────────────────────────────────────────────── */
+    const playerOptions = [
+      'Harry Anderson', 'Bill Bryson', 'Bernard William', 'Eric Xavier',
+      'Marcus Reed', 'Tyrell Johnson', 'Andre Coleman', 'Devin Brooks',
+      'Jamal Foster', 'Carlos Mendez', "Liam O'Connor", 'Nathan Pierce',
+      'Owen Castle', 'Isaac Bennett',
+    ];
+    const formOptions = [
+      'Medical Assessment', 'Preseason Assessment', 'Training', 'Transfer Screening',
+      'End of Season Survey', 'Wellness Check', 'Psychological Health Check', 'Strength Assessment',
+    ];
+    const productAreaOptions = ['Medical', 'Training', 'Assessment', 'Rehabilitation', 'Administrative'];
+    const examinerOptions = ['Malcolm Tucker', 'Dr. Sarah Walker', 'Coach Emily Davis', 'Dr. Andrew Kim'];
+    const statusOptions = ['Complete', 'In Progress', 'Pending'];
+    const rosterOptions = ['Active Roster', 'Practice Squad', 'Injured Reserve'];
+
+    const dates = [
+      { iso: '2025-10-05', label: 'Oct 5, 2025' },
+      { iso: '2025-10-22', label: 'Oct 22, 2025' },
+      { iso: '2025-11-08', label: 'Nov 8, 2025' },
+      { iso: '2025-11-19', label: 'Nov 19, 2025' },
+      { iso: '2025-12-02', label: 'Dec 2, 2025' },
+      { iso: '2025-12-18', label: 'Dec 18, 2025' },
+      { iso: '2026-01-09', label: 'Jan 9, 2026' },
+      { iso: '2026-01-22', label: 'Jan 22, 2026' },
+      { iso: '2026-02-04', label: 'Feb 4, 2026' },
+      { iso: '2026-02-17', label: 'Feb 17, 2026' },
+    ];
+
+    // First four preserve the original spec fixtures; the rest are spread
+    // deterministically so every filter value matches multiple rows.
+    const fixedRows = [
+      { player: 'Harry Anderson', formName: 'Medical Assessment', productArea: 'Medical', category: 'Medical', examiner: 'Malcolm Tucker', completion: 'Jan 31, 2026', date: '2026-01-31', status: 'Complete', roster: 'Active Roster' },
+      { player: 'Bill Bryson', formName: 'Preseason Assessment', productArea: 'Medical', category: 'Medical', examiner: 'Malcolm Tucker', completion: 'Jan 31, 2026', date: '2026-01-31', status: 'Complete', roster: 'Active Roster' },
+      { player: 'Bernard William', formName: 'Training', productArea: 'Medical', category: 'Medical', examiner: 'Malcolm Tucker', completion: 'Jan 31, 2026', date: '2026-01-31', status: 'In Progress', roster: 'Practice Squad' },
+      { player: 'Eric Xavier', formName: 'Transfer Screening', productArea: 'Medical', category: 'Medical', examiner: 'Malcolm Tucker', completion: 'Jan 31, 2026', date: '2026-01-31', status: 'Complete', roster: 'Active Roster' },
+    ];
+    const generatedRows = Array.from({ length: 32 }, (_, j) => {
+      const d = dates[j % dates.length];
+      return {
+        player: playerOptions[j % playerOptions.length],
+        formName: formOptions[j % formOptions.length],
+        productArea: productAreaOptions[j % productAreaOptions.length],
+        category: productAreaOptions[(j + 2) % productAreaOptions.length],
+        examiner: examinerOptions[j % examinerOptions.length],
+        completion: d.label,
+        date: d.iso,
+        status: statusOptions[j % statusOptions.length],
+        roster: rosterOptions[j % rosterOptions.length],
+      };
+    });
+    const responseRows = [...fixedRows, ...generatedRows].map((r, i) => ({ id: 'r' + (i + 1), ...r }));
+
+    const aiSummary = {
+      sectionTitle: 'Athlete Medical Summary',
+      findings: [
+        { title: 'Concussion History', body: 'Significant history of concussion. Sustained a concussion in high school (2012) resulting in loss of consciousness and hospitalization for concussion on March 11, 2025.' },
+        { title: 'Musculoskeletal History', body: 'Right Low Back: History of imaging (X-ray, MRI, CT, or bone scan) performed on December 24, 2024 for chronic issues.' },
+        { title: 'Vaccination Status', body: 'Incomplete vaccination history: Mumps: Unknown, Pneumonia: Tetanus: No' },
+      ],
+      recommendations: {
+        immediateActions: [
+          'Player should be immediately held from all contact and throwing activities.',
+          'Urgent comprehensive orthopedic evaluation of the right shoulder is required.',
+          'Urgent comprehensive neurological evaluation, including a detailed concussion assessment, is required.',
+        ],
+        diagnosticNextSteps: [
+          'Obtain an MRI of the right shoulder to assess rotator cuff integrity and extent of injury.',
+          'Conduct a full neuropsychological assessment (e.g., ImPACT testing) and a thorough neurological examination to evaluate sequelae of the recent concussion.',
+          'Review medical records from the March 11, 2025 concussion hospitalization.',
+        ],
+      },
+    };
+
+    const TABS = ['Forms', 'Scheduling', 'Responses', 'Compliance', 'Try Outs'];
+    const STATUS_COLOR = { 'Complete': 'success', 'In Progress': 'warning', 'Pending': 'default' };
+    const COLUMNS = [
+      { key: 'player', label: 'Player', bold: true },
+      { key: 'formName', label: 'Form Name' },
+      { key: 'productArea', label: 'Product Area', muted: true },
+      { key: 'category', label: 'Category', muted: true },
+      { key: 'examiner', label: 'Examiner', muted: true },
+      { key: 'completion', label: 'Completion', muted: true },
+    ];
+
+    /* ─────────────────────────────────────────────────────────────
+       Summary panel sub-components
+       ───────────────────────────────────────────────────────────── */
+    function RecoSubSection({ title, items }) {
+      return (
+        <Box sx={{ mt: 2 }}>
+          <Typography sx={{ fontSize: 13, fontWeight: 500, mb: 1 }}>{title}</Typography>
+          <Box component="ul" sx={{ m: 0, pl: 2.5, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+            {items.map((it, i) => (
+              <Typography key={i} component="li" sx={{ fontSize: 12, color: 'text.secondary', lineHeight: 1.5 }}>{it}</Typography>
+            ))}
+          </Box>
+        </Box>
+      );
+    }
+
+    function LoadingState() {
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, color: AI_TEXT }}>
+            <CircularProgress size={16} sx={{ color: AI_TEXT }} />
+            <Typography sx={{ fontSize: 13 }}>Generating summary…</Typography>
+          </Box>
+          {[0, 1, 2].map((i) => (
+            <Box key={i} sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+              <Skeleton variant="text" width="45%" height={16} />
+              <Skeleton variant="text" width="100%" height={12} />
+              <Skeleton variant="text" width="85%" height={12} />
+            </Box>
+          ))}
+        </Box>
+      );
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       Main app
+       ───────────────────────────────────────────────────────────── */
+    function App() {
+      const [filters, setFilters] = useState({ players: [], forms: [], roster: '', from: '', to: '' });
+      const [selected, setSelected] = useState([]); // array of row ids
+      const [page, setPage] = useState(0);
+      const [rowsPerPage, setRowsPerPage] = useState(5);
+      const [panelOpen, setPanelOpen] = useState(false);
+      const [loading, setLoading] = useState(false);
+      const [team, setTeam] = useState('First Team');
+      const [intercomOpen, setIntercomOpen] = useState(false);
+
+      const setFilter = (key, val) => { setFilters((f) => ({ ...f, [key]: val })); setPage(0); };
+
+      // Filters combine with AND logic, narrowing rows live.
+      const filteredRows = useMemo(() => responseRows.filter((r) => {
+        if (filters.players.length && !filters.players.includes(r.player)) return false;
+        if (filters.forms.length && !filters.forms.includes(r.formName)) return false;
+        if (filters.roster && r.roster !== filters.roster) return false;
+        if (filters.from && r.date < filters.from) return false;
+        if (filters.to && r.date > filters.to) return false;
+        return true;
+      }), [filters]);
+
+      const selectedSet = useMemo(() => new Set(selected), [selected]);
+      const visibleIds = filteredRows.map((r) => r.id);
+      const allVisibleChecked = visibleIds.length > 0 && visibleIds.every((id) => selectedSet.has(id));
+      const someVisibleChecked = visibleIds.some((id) => selectedSet.has(id));
+      const selectionActive = selected.length > 0;
+
+      const pageRows = filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+      const toggleRow = (id) => setSelected((prev) =>
+        prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+
+      const toggleAll = () => {
+        if (allVisibleChecked) setSelected((prev) => prev.filter((id) => !visibleIds.includes(id)));
+        else setSelected((prev) => Array.from(new Set([...prev, ...visibleIds])));
+      };
+
+      const handleGenerate = () => { setPanelOpen(true); setLoading(true); setTimeout(() => setLoading(false), 1600); };
+
+      const renderValue = (sel) => (sel.length === 1 ? sel[0] : sel.length + ' selected');
+
+      return (
+        <ThemeProvider theme={defaultTheme}>
+          <CssBaseline />
+          <Box sx={{ position: 'fixed', inset: 0, display: 'flex', bgcolor: '#f5f6f8' }}>
+            {/* ─── Bespoke navy sidebar ─── */}
+            <Box component="nav" sx={{ width: 52, flex: '0 0 52px', bgcolor: NAVY, display: 'flex', flexDirection: 'column', alignItems: 'center', pt: 1.5, gap: 0.5 }}>
+              <Box sx={{ width: 28, height: 28, borderRadius: 1.5, bgcolor: '#fff', color: NAVY, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 500, fontSize: 13, mb: 1.25 }}>K</Box>
+              {SIDEBAR_ICONS.map((it) => (
+                <Box key={it.key} title={it.key} sx={{ width: 36, height: 36, borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: it.active ? '#fff' : 'rgba(255,255,255,0.55)', bgcolor: it.active ? 'rgba(255,255,255,0.14)' : 'transparent', cursor: 'pointer' }}>
+                  {navPath(it.d)}
+                </Box>
+              ))}
+            </Box>
+
+            {/* ─── Main column ─── */}
+            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+              {/* Top bar */}
+              <Box component="header" sx={{ height: 64, flex: '0 0 64px', bgcolor: '#fff', borderBottom: '0.5px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3 }}>
+                <Typography sx={{ fontSize: 15, color: 'text.secondary' }}>Forms</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <FormControl variant="filled" size="small" sx={{ minWidth: 180 }}>
+                    <Select value={team} onChange={(e) => setTeam(e.target.value)} disableUnderline
+                      sx={{ borderRadius: 1, '& .MuiSelect-select': { py: 1.25, fontSize: 15 } }}>
+                      <MenuItem value="First Team">First Team</MenuItem>
+                      <MenuItem value="Reserves">Reserves</MenuItem>
+                      <MenuItem value="Academy">Academy</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <IconButton size="large">
+                    <Badge badgeContent={3} color="error"><BellIcon /></Badge>
+                  </IconButton>
+                  <Avatar sx={{ width: 40, height: 40, bgcolor: NAVY, fontSize: 14 }}>DSM</Avatar>
+                </Box>
+              </Box>
+
+              {/* Content (Drawer overlays this region) */}
+              <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+                <Box sx={{ height: '100%', overflowY: 'auto', px: 3, py: 3, pb: 6 }}>
+                  <Typography sx={{ fontSize: 28, fontWeight: 500, mb: 2 }}>Forms</Typography>
+
+                  {/* Tab bar */}
+                  <Tabs value={2} sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, minHeight: 48 }} TabIndicatorProps={{ sx: { bgcolor: NAVY } }}>
+                    {TABS.map((t) => (
+                      <Tab key={t} label={t} disableRipple sx={{ textTransform: 'none', minHeight: 48, fontSize: 15, '&.Mui-selected': { color: NAVY, fontWeight: 500 } }} />
+                    ))}
+                  </Tabs>
+
+                  {/* Filter bar */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', mb: 3 }}>
+                    <FormControl variant="filled" size="small" sx={{ minWidth: 200 }}>
+                      <InputLabel id="players-label">Players</InputLabel>
+                      <Select labelId="players-label" multiple value={filters.players}
+                        onChange={(e) => setFilter('players', e.target.value)} renderValue={renderValue}>
+                        {playerOptions.map((o) => (
+                          <MenuItem key={o} value={o}>
+                            <Checkbox size="small" checked={filters.players.includes(o)} />
+                            <ListItemText primary={o} />
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    <FormControl variant="filled" size="small" sx={{ minWidth: 200 }}>
+                      <InputLabel id="form-label">Form</InputLabel>
+                      <Select labelId="form-label" multiple value={filters.forms}
+                        onChange={(e) => setFilter('forms', e.target.value)} renderValue={renderValue}>
+                        {formOptions.map((o) => (
+                          <MenuItem key={o} value={o}>
+                            <Checkbox size="small" checked={filters.forms.includes(o)} />
+                            <ListItemText primary={o} />
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    <FormControl variant="filled" size="small" sx={{ minWidth: 200 }}>
+                      <InputLabel id="roster-label">Roster</InputLabel>
+                      <Select labelId="roster-label" value={filters.roster}
+                        onChange={(e) => setFilter('roster', e.target.value)}>
+                        <MenuItem value=""><em>All rosters</em></MenuItem>
+                        {rosterOptions.map((o) => <MenuItem key={o} value={o}>{o}</MenuItem>)}
+                      </Select>
+                    </FormControl>
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <TextField variant="filled" size="small" type="date" label="Start date"
+                        InputLabelProps={{ shrink: true }} value={filters.from}
+                        onChange={(e) => setFilter('from', e.target.value)} sx={{ width: 200 }}
+                        InputProps={{ startAdornment: (<InputAdornment position="start"><CalendarIcon /></InputAdornment>) }} />
+                      <Typography color="text.disabled">–</Typography>
+                      <TextField variant="filled" size="small" type="date" label="End date"
+                        InputLabelProps={{ shrink: true }} value={filters.to}
+                        onChange={(e) => setFilter('to', e.target.value)} sx={{ width: 200 }}
+                        InputProps={{ startAdornment: (<InputAdornment position="start"><CalendarIcon /></InputAdornment>) }} />
+                    </Box>
+                  </Box>
+
+                  {/* Grid card */}
+                  <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
+                    {/* Bulk action bar replaces the column headers when rows are selected */}
+                    {selectionActive && (
+                      <Toolbar variant="dense" disableGutters sx={{ px: 2, minHeight: 52, bgcolor: 'grey.100', borderBottom: '0.5px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Checkbox size="small" checked={allVisibleChecked} indeterminate={!allVisibleChecked && someVisibleChecked} onChange={toggleAll} />
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>{selected.length} selected</Typography>
+                        </Box>
+                        <Button variant="outlined" color="secondary" size="small" onClick={handleGenerate}
+                          startIcon={<SparkleIcon color={AI_TEXT} />}
+                          sx={{ textTransform: 'none', color: AI_TEXT, borderColor: AI_TEXT }}>
+                          AI Summary
+                        </Button>
+                      </Toolbar>
+                    )}
+
+                    <TableContainer>
+                      <Table sx={{ '& td, & th': { fontSize: 14 } }}>
+                        {!selectionActive && (
+                          <TableHead>
+                            <TableRow sx={{ height: 52 }}>
+                              <TableCell padding="checkbox">
+                                <Checkbox size="small" checked={allVisibleChecked} indeterminate={!allVisibleChecked && someVisibleChecked} onChange={toggleAll} />
+                              </TableCell>
+                              {COLUMNS.map((c) => (
+                                <TableCell key={c.key} sx={{ fontSize: 13, fontWeight: 500, color: 'text.secondary' }}>{c.label}</TableCell>
+                              ))}
+                              <TableCell sx={{ fontSize: 13, fontWeight: 500, color: 'text.secondary' }}>Form Status</TableCell>
+                              <TableCell sx={{ width: 52 }} />
+                            </TableRow>
+                          </TableHead>
+                        )}
+                        <TableBody>
+                          {pageRows.map((r) => {
+                            const checked = selectedSet.has(r.id);
+                            return (
+                              <TableRow key={r.id} hover selected={checked} sx={{ height: 52 }}>
+                                <TableCell padding="checkbox">
+                                  <Checkbox size="small" checked={checked} onChange={() => toggleRow(r.id)} />
+                                </TableCell>
+                                {COLUMNS.map((c) => (
+                                  <TableCell key={c.key} sx={{ fontWeight: c.bold ? 500 : 400, color: c.muted ? 'text.secondary' : 'text.primary' }}>
+                                    {r[c.key]}
+                                  </TableCell>
+                                ))}
+                                <TableCell>
+                                  <Chip label={r.status} size="small" color={STATUS_COLOR[r.status] || 'default'}
+                                    variant={r.status === 'Complete' ? 'filled' : 'outlined'} />
+                                </TableCell>
+                                <TableCell align="center" sx={{ width: 52 }}>
+                                  <IconButton size="small" aria-label="Row actions"><MoreVertIcon size={18} /></IconButton>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                          {pageRows.length === 0 && (
+                            <TableRow>
+                              <TableCell colSpan={9} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                                No responses match the current filters.
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+
+                    <TablePagination component="div" count={filteredRows.length} page={page}
+                      onPageChange={(e, p) => setPage(p)} rowsPerPage={rowsPerPage}
+                      rowsPerPageOptions={[5, 10, 25]}
+                      onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }} />
+                  </Paper>
+                </Box>
+
+                {/* Summary panel — non-modal Drawer so it overlays without a backdrop
+                    and the filter bar stays interactive. */}
+                <Drawer anchor="right" open={panelOpen} variant="temporary" hideBackdrop
+                  disableEnforceFocus disableScrollLock onClose={() => setPanelOpen(false)}
+                  ModalProps={{ keepMounted: true }}
+                  sx={{ pointerEvents: 'none', '& .MuiDrawer-paper': { pointerEvents: 'auto', width: PANEL_WIDTH, top: 64, height: 'calc(100% - 64px)', borderLeft: '0.5px solid', borderColor: 'divider' } }}>
+                  {/* Header */}
+                  <Box sx={{ p: 2, borderBottom: '0.5px solid', borderColor: 'divider', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1.5 }}>
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 500 }}>Player response summary</Typography>
+                      <Chip icon={<SparkleIcon color={AI_TEXT} style={{ marginLeft: 6 }} />} label="AI generated" size="small"
+                        sx={{ mt: 1, bgcolor: AI_BG, color: AI_TEXT, fontWeight: 500, '& .MuiChip-label': { fontSize: 11 } }} />
+                    </Box>
+                    <IconButton aria-label="Close summary" onClick={() => setPanelOpen(false)} size="small"><CloseIcon size={20} /></IconButton>
+                  </Box>
+                  {/* Body */}
+                  <Box sx={{ flex: 1, overflowY: 'auto', p: 2 }}>
+                    {loading ? <LoadingState /> : (
+                      <React.Fragment>
+                        <Typography variant="h6" sx={{ fontWeight: 500, mb: 1.5 }}>{aiSummary.sectionTitle}</Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          {aiSummary.findings.map((f) => (
+                            <Box key={f.title} sx={{ display: 'flex', gap: 1.25 }}>
+                              <Box sx={{ mt: '1px', flex: '0 0 auto' }}><InfoIcon /></Box>
+                              <Box>
+                                <Typography sx={{ fontSize: 13, fontWeight: 500 }}>{f.title}</Typography>
+                                <Typography sx={{ fontSize: 12, color: 'text.secondary', mt: 0.25, lineHeight: 1.5 }}>{f.body}</Typography>
+                              </Box>
+                            </Box>
+                          ))}
+                        </Box>
+                        <Divider sx={{ my: 2.5 }} />
+                        <Typography variant="h6" sx={{ fontWeight: 500, mb: 1.5 }}>Recommendations</Typography>
+                        <RecoSubSection title="Immediate Actions" items={aiSummary.recommendations.immediateActions} />
+                        <RecoSubSection title="Diagnostic Next Steps" items={aiSummary.recommendations.diagnosticNextSteps} />
+                      </React.Fragment>
+                    )}
+                  </Box>
+                </Drawer>
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Global Intercom messenger bubble */}
+          <Fab aria-label="Open messenger" onClick={() => setIntercomOpen(true)}
+            style={{ position: 'fixed', bottom: 24, right: 24, backgroundColor: NAVY, zIndex: 9999 }}>
+            <ChatIcon style={{ color: '#ffffff' }} />
+          </Fab>
+          <Snackbar open={intercomOpen} autoHideDuration={3000} onClose={() => setIntercomOpen(false)}
+            message="Intercom would open here" anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            sx={{ zIndex: 10000 }} />
+        </ThemeProvider>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
