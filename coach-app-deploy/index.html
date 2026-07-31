@@ -290,23 +290,6 @@
       });
     }
 
-    /* buildGrid — copied from index.html verbatim (Monday-first 6-week month grid) */
-    function buildGrid(year, month) {
-      const first = new Date(year, month, 1);
-      const jsDow = first.getDay();
-      const lead = (jsDow + 6) % 7;
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const daysPrev = new Date(year, month, 0).getDate();
-      const cells = [];
-      for (let i = 0; i < 42; i++) {
-        const dayNum = i - lead + 1;
-        if (dayNum < 1) cells.push({ day: daysPrev + dayNum, inMonth: false, m: month - 1 });
-        else if (dayNum > daysInMonth) cells.push({ day: dayNum - daysInMonth, inMonth: false, m: month + 1 });
-        else cells.push({ day: dayNum, inMonth: true, m: month });
-      }
-      return cells;
-    }
-
     /* ═══════════════════════════════════════════════════════════════════════
        STATUS BAR + BOTTOM NAV
        ═══════════════════════════════════════════════════════════════════════ */
@@ -350,49 +333,25 @@
     /* ═══════════════════════════════════════════════════════════════════════
        CALENDAR TAB
        ═══════════════════════════════════════════════════════════════════════ */
-    function ViewSwitcher({ view, onChange }) {
-      const views = ['Month', 'Week', 'Day'];
+    function CalendarHeader({ monthLabel, onPrev, onNext, onAdd, filterCount, onFilterClick }) {
       return (
-        <Box sx={{ display: 'flex', bgcolor: '#F3F4F7', borderRadius: 1.5, p: 0.25, gap: 0.25 }}>
-          {views.map(v => {
-            const active = v === view;
-            return (
-              <Box key={v} onClick={() => onChange(v)} sx={{
-                flex: 1, minHeight: 32, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                borderRadius: 1.25, cursor: 'pointer', bgcolor: active ? '#3B5BDB' : 'transparent',
-              }}>
-                <Typography sx={{ fontSize: 12, color: active ? '#fff' : '#5F7089' }}>{v}</Typography>
-              </Box>
-            );
-          })}
-        </Box>
-      );
-    }
-
-    function CalendarHeader({ monthLabel, onPrev, onNext, onAdd, filterCount, onFilterClick, view, onViewChange }) {
-      return (
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1.5, position: 'relative' }}>
-            <Box sx={{ flex: 1, display: 'flex' }}>
-              <Badge badgeContent={filterCount} sx={{ '& .MuiBadge-badge': { bgcolor: '#1D2635', color: '#fff', fontSize: 10 } }}>
-                <IconButton size="small" onClick={onFilterClick} sx={{ border: '1px solid #E8EAED', borderRadius: 1.5 }}>
-                  <Icon path={P.filter} size={18} color="#172B4D" />
-                </IconButton>
-              </Badge>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-              <IconButton size="small" onClick={onPrev}><Icon path={P.chevronLeft} size={18} color="#172B4D" /></IconButton>
-              <Typography sx={{ color: '#172B4D', fontSize: 16 }}>{monthLabel}</Typography>
-              <IconButton size="small" onClick={onNext}><Icon path={P.chevronRight} size={18} color="#172B4D" /></IconButton>
-            </Box>
-            <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-              <Box onClick={onAdd} sx={{ bgcolor: '#1D2635', color: '#fff', borderRadius: 16, px: 1.75, py: 0.6, fontSize: 13, cursor: 'pointer' }}>
-                Add
-              </Box>
-            </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1.5, position: 'relative' }}>
+          <Box sx={{ flex: 1, display: 'flex' }}>
+            <Badge badgeContent={filterCount} sx={{ '& .MuiBadge-badge': { bgcolor: '#1D2635', color: '#fff', fontSize: 10 } }}>
+              <IconButton size="small" onClick={onFilterClick} sx={{ border: '1px solid #E8EAED', borderRadius: 1.5 }}>
+                <Icon path={P.filter} size={18} color="#172B4D" />
+              </IconButton>
+            </Badge>
           </Box>
-          <Box sx={{ px: 2, pb: 1.5 }}>
-            <ViewSwitcher view={view} onChange={onViewChange} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+            <IconButton size="small" onClick={onPrev}><Icon path={P.chevronLeft} size={18} color="#172B4D" /></IconButton>
+            <Typography sx={{ color: '#172B4D', fontSize: 16 }}>{monthLabel}</Typography>
+            <IconButton size="small" onClick={onNext}><Icon path={P.chevronRight} size={18} color="#172B4D" /></IconButton>
+          </Box>
+          <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+            <Box onClick={onAdd} sx={{ bgcolor: '#1D2635', color: '#fff', borderRadius: 16, px: 1.75, py: 0.6, fontSize: 13, cursor: 'pointer' }}>
+              Add
+            </Box>
           </Box>
         </Box>
       );
@@ -447,68 +406,6 @@
       return (
         <Box sx={{ px: 2, pt: 1 }}>
           {events.map(e => <EventCard key={e.id} event={e} onClick={onSelect} />)}
-        </Box>
-      );
-    }
-
-    function MonthGridView({ year, month, events, selectedDay, onSelectDay }) {
-      const cells = useMemo(() => buildGrid(year, month), [year, month]);
-      const eventsByDay = useMemo(() => {
-        const map = {};
-        events.forEach(e => { (map[e.day] = map[e.day] || []).push(e); });
-        return map;
-      }, [events]);
-
-      return (
-        <Box sx={{ px: 1.5, py: 1 }}>
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', mb: 0.5 }}>
-            {DOW_LABELS.map(d => (
-              <Typography key={d} sx={{ fontSize: 10, color: '#5F7089', textAlign: 'center' }}>{d}</Typography>
-            ))}
-          </Box>
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gridTemplateRows: 'repeat(6, 1fr)' }}>
-            {cells.map((cell, i) => {
-              const isToday = cell.inMonth && month === TODAY.m && year === TODAY.y && cell.day === TODAY.d;
-              const isSelected = cell.inMonth && cell.day === selectedDay;
-              const dayEvents = cell.inMonth ? (eventsByDay[cell.day] || []) : [];
-              const dots = dayEvents.slice(0, 4);
-              return (
-                <Box key={i} onClick={() => cell.inMonth && onSelectDay(cell.day)} sx={{
-                  minHeight: 44, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25, py: 0.5,
-                  cursor: cell.inMonth ? 'pointer' : 'default',
-                }}>
-                  <Box sx={{
-                    width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    bgcolor: isToday ? '#3B5BDB' : isSelected ? '#E9EFF6' : 'transparent',
-                  }}>
-                    <Typography sx={{ fontSize: 12, color: !cell.inMonth ? '#B4B8C0' : isToday ? '#fff' : '#172B4D' }}>{cell.day}</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', gap: '2px', height: 4 }}>
-                    {dots.map((e, di) => (
-                      <Box key={di} sx={{ width: 4, height: 4, borderRadius: '50%', bgcolor: TYPE_COLORS[e.type] || squadColor(e.squadId) }} />
-                    ))}
-                  </Box>
-                </Box>
-              );
-            })}
-          </Box>
-        </Box>
-      );
-    }
-
-    function DayAgendaView({ year, month, selectedDay, onSelectDay, daysInMonth }) {
-      const date = new Date(year, month, selectedDay);
-      const dowLabel = DOW_LABELS[(date.getDay() + 6) % 7];
-      const isToday = year === TODAY.y && month === TODAY.m && selectedDay === TODAY.d;
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1 }}>
-          <IconButton size="small" onClick={() => onSelectDay(Math.max(1, selectedDay - 1))}>
-            <Icon path={P.chevronLeft} size={18} color="#172B4D" />
-          </IconButton>
-          <Typography sx={{ fontSize: 14, color: isToday ? '#3B5BDB' : '#172B4D' }}>{dowLabel} {selectedDay}</Typography>
-          <IconButton size="small" onClick={() => onSelectDay(Math.min(daysInMonth, selectedDay + 1))}>
-            <Icon path={P.chevronRight} size={18} color="#172B4D" />
-          </IconButton>
         </Box>
       );
     }
@@ -573,7 +470,7 @@
        ADD EVENT — 3-STEP BOTTOM SHEET
        ═══════════════════════════════════════════════════════════════════════ */
     /* ─── Event creation flow — copied from index.html verbatim ────────────── */
-    const ADD_EVENT_STEPS = ['Select group', 'Select participants', 'Event set up'];
+    const ADD_EVENT_STEPS = ['Select group', 'Select participants', 'Event set up', 'Confirm'];
 
     function addDuration(start, durationLabel) {
       const mins = { '30m': 30, '1h': 60, '1.5h': 90, '2h': 120 }[durationLabel];
@@ -969,12 +866,12 @@
       };
 
       return (
-        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', borderRadius: 1.5, overflow: 'hidden', border: '1px solid #E8EAED' }}>
+        <Box sx={{ borderRadius: 1.5, overflow: 'hidden', border: '1px solid #E8EAED' }}>
           <Box
             onMouseDown={handleDown} onMouseMove={handleMove} onMouseUp={handleUp} onMouseLeave={handleUp}
             onTouchStart={handleDown} onTouchMove={handleMove} onTouchEnd={handleUp}
             onWheel={handleWheel}
-            sx={{ position: 'relative', flex: 1, minHeight: 0, bgcolor: '#E8EDF2', overflow: 'hidden', cursor: dragging ? 'grabbing' : 'grab', touchAction: 'none' }}
+            sx={{ position: 'relative', height: 160, bgcolor: '#E8EDF2', overflow: 'hidden', cursor: dragging ? 'grabbing' : 'grab', touchAction: 'none' }}
           >
             <Box sx={{ position: 'absolute', inset: -80, transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`, transition: dragging ? 'none' : 'transform 150ms ease' }}>
               <svg width="100%" height="100%" viewBox="0 0 560 290" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', display: 'block' }}>
@@ -1009,7 +906,7 @@
               <Icon path={P.pin} size={40} color="#EA4335" />
             </Box>
           </Box>
-          <Box sx={{ px: 1.5, py: 1, bgcolor: '#fff', display: 'flex', gap: 1, alignItems: 'flex-start', flexShrink: 0 }}>
+          <Box sx={{ px: 1.5, py: 1, bgcolor: '#fff', display: 'flex', gap: 1, alignItems: 'flex-start' }}>
             <Icon path={P.pin} size={18} color="#3B5BDB" sx={{ mt: '2px' }} />
             <Box sx={{ flex: 1 }}>
               {resolving || !resolved ? (
@@ -1037,17 +934,16 @@
       const mapResults = LOCATION_SUGGESTIONS.filter(l =>
         l.name.toLowerCase().includes(mapQuery.toLowerCase()) || l.address.toLowerCase().includes(mapQuery.toLowerCase()));
 
-      const hasValue = mode === 'search' ? Boolean(value) : Boolean(mapSelected);
-      const confirm = () => { if (mode === 'map') onSelect(mapSelected); onBack(); };
+      const confirmMapLocation = () => { onSelect(mapSelected); onBack(); };
 
       return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-          <Box sx={{ px: 2.5, py: 2, display: 'flex', alignItems: 'center', gap: 1.5, borderBottom: '1px solid #E8EAED', flexShrink: 0 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <Box sx={{ px: 2.5, py: 2, display: 'flex', alignItems: 'center', gap: 1.5, borderBottom: '1px solid #E8EAED' }}>
             <IconButton size="small" onClick={onBack}><Icon path={P.chevronLeft} size={20} color="#172B4D" /></IconButton>
             <Typography sx={{ color: '#172B4D', fontSize: 16, flex: 1 }}>Address</Typography>
           </Box>
 
-          <Box sx={{ px: 2, pt: 1.5, display: 'flex', gap: 1, flexShrink: 0 }}>
+          <Box sx={{ px: 2, pt: 1.5, display: 'flex', gap: 1 }}>
             {[{ key: 'search', label: 'Search address' }, { key: 'map', label: 'Choose on map' }].map(m => {
               const active = mode === m.key;
               return (
@@ -1061,13 +957,13 @@
             })}
           </Box>
 
-          <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', px: 2, pt: 1.5 }}>
+          <Box sx={{ flex: 1, overflowY: 'auto', px: 2, pt: 1.5 }}>
             {mode === 'search' && (
               <>
                 <TextField fullWidth placeholder="Search locations…" value={value ? value.name : query}
                   onChange={(e) => { setQuery(e.target.value); if (value) onSelect(null); }} sx={{ mb: 1 }} />
                 {!value && results.map(l => (
-                  <Box key={l.name} onClick={() => onSelect(l)} sx={{ display: 'flex', gap: 1, py: 1.25, cursor: 'pointer', borderBottom: '1px solid #E8EAED' }}>
+                  <Box key={l.name} onClick={() => { onSelect(l); onBack(); }} sx={{ display: 'flex', gap: 1, py: 1.25, cursor: 'pointer', borderBottom: '1px solid #E8EAED' }}>
                     <Icon path={P.pin} size={18} color="#5F7089" sx={{ mt: '2px' }} />
                     <Box>
                       <Typography sx={{ fontSize: 14, color: '#172B4D' }}>{l.name}</Typography>
@@ -1076,11 +972,14 @@
                   </Box>
                 ))}
                 {value && (
-                  <Box sx={{ height: '45%', mb: 1 }}>
+                  <Box sx={{ mt: 1 }}>
                     <MapPreview location={value} onLocationChange={onSelect} />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                      <Typography sx={{ fontSize: 12, color: '#5F7089' }}>Drag to adjust</Typography>
+                      <Typography onClick={onBack} sx={{ fontSize: 12, color: '#3B5BDB', cursor: 'pointer' }}>Confirm location</Typography>
+                    </Box>
                   </Box>
                 )}
-                {value && <Typography sx={{ fontSize: 12, color: '#5F7089' }}>Drag to adjust</Typography>}
               </>
             )}
 
@@ -1098,19 +997,15 @@
                   </Box>
                 ))}
                 {mapSelected && (
-                  <Box sx={{ height: '45%' }}>
+                  <Box sx={{ mt: 1 }}>
                     <MapPreview location={mapSelected} onLocationChange={setMapSelected} />
+                    <Button fullWidth onClick={confirmMapLocation} sx={{ mt: 1.5, bgcolor: '#1D2635', '&:hover': { bgcolor: '#141a24' } }}>
+                      Confirm location
+                    </Button>
                   </Box>
                 )}
               </>
             )}
-          </Box>
-
-          <Box sx={{ px: 2, py: 1.5, borderTop: '1px solid #E8EAED', flexShrink: 0 }}>
-            <Button fullWidth disabled={!hasValue} onClick={confirm}
-              sx={{ bgcolor: '#1D2635', '&:hover': { bgcolor: '#141a24' }, '&.Mui-disabled': { bgcolor: '#F3F4F7', color: '#B4B8C0' } }}>
-              Confirm location
-            </Button>
           </Box>
         </Box>
       );
@@ -1215,6 +1110,44 @@
               <Typography sx={{ fontSize: 13, color: '#172B4D' }}>Apply to all in group</Typography>
             </Box>
             <Button onClick={handleSelect} sx={{ bgcolor: '#1D2635', '&:hover': { bgcolor: '#141a24' } }}>Select</Button>
+          </Box>
+        </Box>
+      );
+    }
+
+    function ConfirmStep({ selectedCustomIds, selectedOrgIds, orgParticipantIds, orgStaffId, type, title, description, date, start, duration, customEnd, timezone, repeat, location, visibility, attachments, notifyChannels, reminderPlayer, reminderPush, displayColour }) {
+      const orgNames = ORGS.filter(o => selectedOrgIds.has(o.id)).map(o => o.name);
+      const customNames = GROUP_PICKER_CUSTOM_GROUPS.filter(g => selectedCustomIds.has(g.id)).map(g => g.name);
+      const participantCount = Object.values(orgParticipantIds).reduce((n, set) => n + set.size, 0)
+        + Object.values(orgStaffId).filter(Boolean).length;
+      const endTime = duration === 'Custom' ? customEnd : (addDuration(start, duration) || customEnd);
+
+      const Row = ({ label, value }) => value ? (
+        <Box sx={{ py: 1.25, borderBottom: '1px solid #E8EAED' }}>
+          <Typography sx={{ fontSize: 12, color: '#5F7089', mb: 0.25 }}>{label}</Typography>
+          <Typography sx={{ fontSize: 14, color: '#172B4D' }}>{value}</Typography>
+        </Box>
+      ) : null;
+
+      return (
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Row label="Group" value={[...customNames, ...orgNames].join(', ') || '—'} />
+          <Row label="Participants" value={`${participantCount} selected`} />
+          <Row label="Event type" value={type || '—'} />
+          <Row label="Title" value={title || '—'} />
+          {description && <Row label="Description" value={description} />}
+          <Row label="Date" value={date} />
+          <Row label="Time" value={`${start} – ${endTime}`} />
+          <Row label="Time zone" value={timezone} />
+          <Row label="Repeat" value={repeat} />
+          {location && <Row label="Address" value={location.name} />}
+          <Row label="Staff visibility" value={visibility} />
+          {attachments.length > 0 && <Row label="Attachments" value={attachments.map(a => a.title).join(', ')} />}
+          {[...notifyChannels].length > 0 && <Row label="Notify via" value={[...notifyChannels].join(', ')} />}
+          <Row label="Reminders" value={`Player: ${reminderPlayer} · Push: ${reminderPush}`} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1.5 }}>
+            <Box sx={{ width: 14, height: 14, borderRadius: '50%', bgcolor: displayColour, flexShrink: 0 }} />
+            <Typography sx={{ fontSize: 14, color: '#172B4D' }}>Event colour</Typography>
           </Box>
         </Box>
       );
@@ -1326,7 +1259,7 @@
         if (step === 1 && !hasGroupSelection) return;
         if (step === 1) setExpandedOrgIds(new Set(selectedOrgList[0] ? [selectedOrgList[0].id] : []));
         if (step === 3 && !canSave) return;
-        if (step < 3) { setStep(s => s + 1); return; }
+        if (step < 4) { setStep(s => s + 1); return; }
         save();
       };
 
@@ -1418,6 +1351,15 @@
                       onOpenTypePicker={() => setPushed('type')} onOpenLocationPicker={() => setPushed('location')} onOpenColorPicker={() => setPushed('color')}
                     />
                   )}
+                  {step === 4 && (
+                    <ConfirmStep selectedCustomIds={selectedCustomIds} selectedOrgIds={selectedOrgIds}
+                      orgParticipantIds={orgParticipantIds} orgStaffId={orgStaffId}
+                      type={type} title={title} description={description} date={date} start={start}
+                      duration={duration} customEnd={customEnd} timezone={timezone} repeat={repeat}
+                      location={location} visibility={visibility} attachments={attachments}
+                      notifyChannels={notifyChannels} reminderPlayer={reminderPlayer} reminderPush={reminderPush}
+                      displayColour={displayColour} />
+                  )}
                 </Box>
 
                 <Box sx={{ px: 2, py: 2, borderTop: '1px solid #E8EAED', display: 'flex', gap: 1 }}>
@@ -1428,7 +1370,7 @@
                     disabled={(step === 1 && !hasGroupSelection) || (step === 3 && !canSave)}
                     onClick={goNext}
                     sx={{ flex: 1, bgcolor: '#1D2635', '&:hover': { bgcolor: '#141a24' }, '&.Mui-disabled': { bgcolor: '#F3F4F7', color: '#B4B8C0' } }}>
-                    {step < 3 ? 'Next' : 'Create event'}
+                    {step < 4 ? 'Next' : 'Create event'}
                   </Button>
                 </Box>
               </>
@@ -1715,165 +1657,13 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════════
-       MESSAGE BLAST — copied from index.html BroadcastModal verbatim
-       ═══════════════════════════════════════════════════════════════════════ */
-    function MessageBlastSheet({ event, onClose, onSent }) {
-      const [selected, setSelected] = useState(() => new Set());
-      const [toExpanded, setToExpanded] = useState(false);
-      const [subject, setSubject] = useState('');
-      const [body, setBody] = useState('');
-      const [scheduleOpen, setScheduleOpen] = useState(false);
-      const [scheduleDate, setScheduleDate] = useState('');
-      const [scheduleTime, setScheduleTime] = useState('');
-
-      useEffect(() => {
-        if (event) {
-          setSelected(new Set(event.attendees.map(a => a.id)));
-          setToExpanded(false); setSubject(`Update: ${event.title}`); setBody(''); setScheduleOpen(false);
-          setScheduleDate(''); setScheduleTime('');
-        }
-      }, [event]);
-
-      if (!event) return null;
-
-      const toggle = (id) => setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
-      const total = selected.size;
-      const canSend = total > 0 && subject.trim().length > 0;
-      const send = () => onSent(total);
-
-      return (
-        <Box onClick={onClose} sx={{ position: 'absolute', inset: 0, bgcolor: 'rgba(0,0,0,0.5)', zIndex: 40, animation: 'scrimFadeIn 0.2s ease-out' }}>
-          <Box onClick={(e) => e.stopPropagation()} sx={{
-            position: 'absolute', left: 0, right: 0, bottom: 0, width: '100%',
-            bgcolor: '#FFFFFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '88%',
-            display: 'flex', flexDirection: 'column', animation: 'sheetSlideUp 0.25s ease-out',
-          }}>
-            <SheetHandle />
-            <Box sx={{ px: 2.5, py: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E8EAED' }}>
-              <Typography sx={{ color: '#172B4D', fontSize: 16 }}>New message</Typography>
-              <IconButton size="small" onClick={onClose}><Icon path={P.close} size={20} color="#5F7089" /></IconButton>
-            </Box>
-
-            <Box sx={{ flex: 1, overflowY: 'auto' }}>
-              <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid #E8EAED' }}>
-                <Typography sx={{ fontSize: 11, color: '#5F7089', textTransform: 'uppercase', letterSpacing: 0.5, mb: 0.5 }}>To</Typography>
-                <Box onClick={() => setToExpanded(v => !v)} sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer', minHeight: 32 }}>
-                  <Typography sx={{ fontSize: 14, color: '#172B4D', flex: 1 }}>{total} recipients</Typography>
-                  <Icon path={toExpanded ? P.chevronUp : P.chevronDown} size={16} color="#5F7089" />
-                </Box>
-                <Collapse in={toExpanded}>
-                  <Box sx={{ mt: 1 }}>
-                    {event.attendees.map(a => (
-                      <Box key={a.id} onClick={() => toggle(a.id)} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minHeight: 44, cursor: 'pointer' }}>
-                        <Checkbox checked={selected.has(a.id)} onChange={() => toggle(a.id)} onClick={(e) => e.stopPropagation()}
-                          sx={{ p: 0.5, color: '#B4B8C0', '&.Mui-checked': { color: '#3B5BDB' } }} />
-                        <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: '#F3F4F7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <Typography sx={{ fontSize: 12, color: '#5F7089' }}>{initials(a.name)}</Typography>
-                        </Box>
-                        <Typography sx={{ fontSize: 14, color: '#172B4D' }}>{a.name}</Typography>
-                      </Box>
-                    ))}
-                  </Box>
-                </Collapse>
-              </Box>
-
-              <Box sx={{ px: 2, py: 1.25, display: 'flex', alignItems: 'center', gap: 1, borderBottom: '1px solid #E8EAED' }}>
-                <Icon path={P.mailOutline} size={18} color="#3B5BDB" />
-                <Typography sx={{ fontSize: 14, color: '#172B4D' }}>Send via Email</Typography>
-              </Box>
-
-              <Box sx={{ px: 2, py: 1.5, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Box>
-                  <FieldLabel required>Subject</FieldLabel>
-                  <TextField fullWidth value={subject} onChange={(e) => setSubject(e.target.value)} />
-                </Box>
-
-                <Box>
-                  <FieldLabel>Body</FieldLabel>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1, py: 0.75, bgcolor: '#F3F4F7', borderRadius: '6px 6px 0 0' }}>
-                    <IconButton size="small"><Icon path={P.bold} size={16} color="#5F7089" /></IconButton>
-                    <IconButton size="small"><Icon path={P.italic} size={16} color="#5F7089" /></IconButton>
-                    <IconButton size="small"><Icon path={P.link} size={16} color="#5F7089" /></IconButton>
-                    <IconButton size="small"><Icon path={P.bulletList} size={16} color="#5F7089" /></IconButton>
-                    <Box sx={{ flex: 1 }} />
-                    <IconButton size="small"><Icon path={P.attach} size={16} color="#5F7089" /></IconButton>
-                  </Box>
-                  <TextField fullWidth multiline minRows={6} placeholder="Write your message..." value={body} onChange={(e) => setBody(e.target.value)}
-                    sx={{ '& .MuiFilledInput-root': { borderRadius: '0 0 6px 6px' } }} />
-                  <Typography sx={{ fontSize: 12, color: '#5F7089', mt: 1 }}>Maximum attachment size: 25MB</Typography>
-                </Box>
-
-                <Box>
-                  {!scheduleOpen ? (
-                    <Box onClick={() => setScheduleOpen(true)} sx={{
-                      display: 'inline-flex', alignItems: 'center', gap: 0.75, bgcolor: '#F3F4F7', borderRadius: 1.5,
-                      height: 40, px: 2, cursor: 'pointer',
-                    }}>
-                      <Icon path={P.add} size={16} color="#1D2635" />
-                      <Typography sx={{ fontSize: 14, color: '#1D2635' }}>Add schedule</Typography>
-                    </Box>
-                  ) : (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                      <TextField fullWidth type="date" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} />
-                      <TextField fullWidth type="time" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} />
-                    </Box>
-                  )}
-                </Box>
-              </Box>
-            </Box>
-
-            <Box sx={{ px: 2, py: 2, borderTop: '1px solid #E8EAED', display: 'flex', gap: 1 }}>
-              <Button onClick={onClose} sx={{ bgcolor: '#F3F4F7', color: '#172B4D', '&:hover': { bgcolor: '#E8EAED' } }}>Save draft</Button>
-              <Button disabled={!canSend} onClick={send}
-                sx={{ flex: 1, bgcolor: '#1D2635', '&:hover': { bgcolor: '#141a24' }, '&.Mui-disabled': { bgcolor: '#F3F4F7', color: '#B4B8C0' } }}>
-                Send
-              </Button>
-            </Box>
-          </Box>
-        </Box>
-      );
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════════
-       ADD KIND — Event / Session / Game choice, copied from index.html verbatim
-       ═══════════════════════════════════════════════════════════════════════ */
-    function AddKindSheet({ open, onClose, onSelect }) {
-      if (!open) return null;
-      const kinds = ['Event', 'Session', 'Game'];
-      return (
-        <Box onClick={onClose} sx={{ position: 'absolute', inset: 0, bgcolor: 'rgba(0,0,0,0.5)', zIndex: 40, animation: 'scrimFadeIn 0.2s ease-out' }}>
-          <Box onClick={(e) => e.stopPropagation()} sx={{
-            position: 'absolute', left: 0, right: 0, bottom: 0, width: '100%',
-            bgcolor: '#FFFFFF', borderTopLeftRadius: 20, borderTopRightRadius: 20,
-            display: 'flex', flexDirection: 'column', animation: 'sheetSlideUp 0.25s ease-out', pb: 1,
-          }}>
-            <SheetHandle />
-            <Typography sx={{ px: 2.5, pb: 1, color: '#5F7089', fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>Add</Typography>
-            {kinds.map((k, i) => (
-              <Box key={k} onClick={() => onSelect(k)} sx={{
-                display: 'flex', alignItems: 'center', minHeight: 44, px: 2.5, cursor: 'pointer',
-                borderTop: i > 0 ? '1px solid #E8EAED' : 'none',
-              }}>
-                <Typography sx={{ fontSize: 15, color: '#172B4D' }}>{k}</Typography>
-              </Box>
-            ))}
-          </Box>
-        </Box>
-      );
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════════
        CALENDAR TAB (combines header, week strip, list, sheets)
        ═══════════════════════════════════════════════════════════════════════ */
     function CalendarTab() {
       const [weekOffset, setWeekOffset] = useState(0);
       const [selectedDay, setSelectedDay] = useState(TODAY.d);
-      const [view, setView] = useState('Week');
       const [activeEvent, setActiveEvent] = useState(null);
-      const [messageEvent, setMessageEvent] = useState(null);
       const [addOpen, setAddOpen] = useState(false);
-      const [addKindOpen, setAddKindOpen] = useState(false);
-      const [addKind, setAddKind] = useState('Event');
       const [filterOpen, setFilterOpen] = useState(false);
       const [events, setEvents] = useState(SEED_EVENTS);
       const [toast, setToast] = useState(null);
@@ -1888,9 +1678,6 @@
       }, [weekOffset]);
       const week = useMemo(() => buildWeek(baseDate), [baseDate]);
       const monthLabel = `${MONTHS[baseDate.getMonth()]} ${baseDate.getFullYear()}`;
-      const year = baseDate.getFullYear();
-      const month = baseDate.getMonth();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
 
       const visibleEvents = useMemo(() => events.filter(e =>
         appliedFilters.orgIds.has(e.orgId) &&
@@ -1918,29 +1705,16 @@
         setToast({ severity: 'success', msg: 'Event added to the calendar' });
       };
 
-      const handleSendMessage = (evt) => { setActiveEvent(null); setMessageEvent(evt); };
-
       return (
         <Box sx={{ position: 'absolute', top: 44, left: 0, right: 0, bottom: 0, overflowY: 'auto', pb: '96px', bgcolor: '#FFFFFF' }}>
           <CalendarHeader monthLabel={monthLabel}
             onPrev={() => setWeekOffset(w => w - 1)} onNext={() => setWeekOffset(w => w + 1)}
-            onAdd={() => setAddKindOpen(true)}
-            filterCount={filterCount} onFilterClick={() => setFilterOpen(true)}
-            view={view} onViewChange={setView} />
-          {view === 'Week' && <WeekStrip days={week} selectedDay={selectedDay} onSelectDay={setSelectedDay} />}
-          {view === 'Month' && (
-            <MonthGridView year={year} month={month} events={visibleEvents} selectedDay={selectedDay} onSelectDay={setSelectedDay} />
-          )}
-          {view === 'Day' && (
-            <DayAgendaView year={year} month={month} selectedDay={selectedDay} onSelectDay={setSelectedDay} daysInMonth={daysInMonth} />
-          )}
+            onAdd={() => setAddOpen(true)}
+            filterCount={filterCount} onFilterClick={() => setFilterOpen(true)} />
+          <WeekStrip days={week} selectedDay={selectedDay} onSelectDay={setSelectedDay} />
           <EventList events={dayEvents} onSelect={setActiveEvent} />
-          <EventDetailSheet event={activeEvent} onClose={() => setActiveEvent(null)} onSendMessage={handleSendMessage} />
-          <AddKindSheet open={addKindOpen} onClose={() => setAddKindOpen(false)}
-            onSelect={(k) => { setAddKind(k); setAddKindOpen(false); setAddOpen(true); }} />
-          <AddEventSheet open={addOpen} kind={addKind} onClose={() => setAddOpen(false)} onCreate={handleCreate} onToast={setToast} />
-          <MessageBlastSheet event={messageEvent} onClose={() => setMessageEvent(null)}
-            onSent={(count) => { setMessageEvent(null); setToast({ severity: 'success', msg: `Message sent to ${count} recipients` }); }} />
+          <EventDetailSheet event={activeEvent} onClose={() => setActiveEvent(null)} />
+          <AddEventSheet open={addOpen} onClose={() => setAddOpen(false)} onCreate={handleCreate} onToast={setToast} />
           <FilterSheet open={filterOpen} onClose={() => setFilterOpen(false)} applied={appliedFilters} onApply={setAppliedFilters} />
           <Toast toast={toast} onClose={() => setToast(null)} />
         </Box>
