@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Summary V3 — Kitman Labs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --color-primary: #3B4960;
+      --color-primary-hover: #2e3a4e;
+      --color-secondary: #F1F2F3;
+      --color-white: #ffffff;
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #F1F2F3;
+      --color-background-tertiary: #e5e7ea;
+      --color-background-hover: #f5f6f7;
+      --color-border-primary: #e0e0e0;
+      --color-border-secondary: #d0d0d0;
+      --color-border-focus: #3B4960;
+      --color-text-primary: #1a1a2e;
+      --color-text-secondary: #6b7280;
+      --color-text-muted: #9ca3af;
+      --color-text-disabled: #bdbdbd;
+      --color-success: #2e7d32;
+      --color-error: #d32f2f;
+      --color-warning: #f59e0b;
+      --color-ai-purple: #7c4dff;
+      --color-ai-purple-bg: rgba(124,77,255,0.08);
+      --color-overlay-surface: rgba(0,0,0,0.06);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --font-family-primary: 'Inter', -apple-system, sans-serif;
+      --font-size-xs: 11px;
+      --font-size-sm: 13px;
+      --font-size-md: 15px;
+      --font-size-lg: 17px;
+      --font-weight-medium: 500;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-family-primary);
+      background: var(--color-background-primary);
+      color: var(--color-text-primary);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Layout ── */
+    .app { display: flex; height: 100vh; }
+    .sidebar {
+      width: 220px;
+      min-width: 220px;
+      background: #1a2744;
+      display: flex;
+      flex-direction: column;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .sidebar-logo {
+      padding: 20px 20px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sidebar-logo svg { flex-shrink: 0; }
+    .sidebar-nav { padding: 12px 0; flex: 1; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 20px;
+      font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,0.65);
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background 0.15s;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+    .nav-item.active {
+      color: #fff; background: rgba(255,255,255,0.1);
+      border-left-color: #fff;
+    }
+    .nav-section-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.8px;
+      text-transform: uppercase; color: rgba(255,255,255,0.35);
+      padding: 10px 20px 4px;
+    }
+
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+
+    /* ── Topbar ── */
+    .topbar {
+      height: 56px;
+      background: #fff;
+      border-bottom: 1px solid var(--color-border-primary);
+      display: flex; align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
+    }
+    .topbar-title {
+      font-size: 13px; font-weight: 500; color: var(--color-text-secondary);
+      flex: 1;
+    }
+    .topbar-actions { display: flex; align-items: center; gap: 4px; }
+    .squad-select {
+      font-family: var(--font-family-primary);
+      font-size: 13px;
+      border: none;
+      background: transparent;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      color: var(--color-text-primary);
+      min-width: 140px;
+    }
+    .squad-select:focus { outline: none; }
+    .icon-btn {
+      width: 34px; height: 34px;
+      border-radius: 50%; border: none;
+      background: transparent; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-text-secondary);
+      position: relative;
+      transition: background 0.15s;
+    }
+    .icon-btn:hover { background: var(--color-overlay-surface); }
+    .badge {
+      position: absolute; top: 4px; right: 4px;
+      width: 16px; height: 16px;
+      background: #d32f2f; border-radius: 50%;
+      font-size: 9px; color: #fff; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      color: #fff; font-weight: 600; font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      border: none;
+    }
+    .avatar:hover { background: var(--color-primary-hover); }
+
+    /* ── Page content ── */
+    .page-content { flex: 1; overflow: auto; background: var(--color-background-primary); }
+    .page-inner { padding: 24px; max-width: 1100px; }
+
+    /* ── Tab bar ── */
+    .tab-bar {
+      display: flex; gap: 0;
+      border-bottom: 2px solid var(--color-border-primary);
+      margin-bottom: 20px;
+    }
+    .tab {
+      font-family: var(--font-family-primary);
+      font-size: 13px; font-weight: 500;
+      padding: 10px 18px;
+      cursor: pointer;
+      color: var(--color-text-secondary);
+      border: none; background: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.15s;
+    }
+    .tab:hover { color: var(--color-text-primary); }
+    .tab.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    /* ── Toolbar above grid ── */
+    .grid-toolbar {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .btn {
+      font-family: var(--font-family-primary);
+      font-size: 12px; font-weight: 600;
+      padding: 7px 14px;
+      border-radius: var(--radius-sm);
+      border: none; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-primary {
+      background: var(--color-primary); color: #fff;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .btn-primary:hover { background: var(--color-primary-hover); }
+    .btn-primary:disabled { background: var(--color-text-disabled); cursor: default; }
+    .btn-primary svg { flex-shrink: 0; }
+    .btn-ai {
+      background: var(--color-ai-purple-bg); color: var(--color-ai-purple);
+      display: flex; align-items: center; gap: 6px;
+      font-weight: 600;
+    }
+    .btn-ai:hover { background: rgba(124,77,255,0.14); }
+    .search-input {
+      flex: 1; min-width: 200px; max-width: 360px;
+      padding: 7px 12px 7px 32px;
+      font-family: var(--font-family-primary);
+      font-size: 13px;
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--radius-sm);
+      background: var(--color-background-secondary);
+      color: var(--color-text-primary);
+      position: relative;
+    }
+    .search-input:focus { outline: none; border-color: var(--color-border-focus); }
+    .search-wrap { position: relative; }
+    .search-wrap svg { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--color-text-secondary); }
+
+    /* ── Data grid ── */
+    .data-grid { width: 100%; border-collapse: collapse; }
+    .data-grid th {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+      text-align: left; padding: 9px 14px;
+      background: var(--color-background-secondary);
+      color: var(--color-text-secondary);
+      border-bottom: 1px solid var(--color-border-primary);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .data-grid td {
+      font-size: 13px; padding: 11px 14px;
+      border-bottom: 1px solid var(--color-border-primary);
+      color: var(--color-text-primary);
+    }
+    .data-grid tr:hover td { background: var(--color-background-hover); }
+    .status-chip {
+      display: inline-flex; align-items: center;
+      font-size: 11px; font-weight: 600;
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+    .chip-active { background: #e8f5e9; color: #2e7d32; }
+    .chip-draft { background: #f3f4f6; color: var(--color-text-secondary); }
+    .chip-closed { background: #fce4ec; color: #c62828; }
+
+    /* ── Overlay / Drawer ── */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 1200;
+      display: none;
+    }
+    .overlay.open { display: block; }
+    .drawer {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 494px; max-width: 100vw;
+      background: #fff;
+      box-shadow: -4px 0 24px rgba(0,0,0,0.14);
+      z-index: 1300;
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    }
+    .drawer.open { transform: translateX(0); }
+    .drawer-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border-primary);
+      flex-shrink: 0;
+    }
+    .drawer-header-title {
+      flex: 1; font-size: 15px; font-weight: 600;
+      color: var(--color-text-primary); white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .drawer-body { flex: 1; overflow-y: auto; }
+    .drawer-footer { flex-shrink: 0; }
+
+    /* ── Step headers ── */
+    .step-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; cursor: pointer;
+      user-select: none;
+    }
+    .step-bubble {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 11px; font-weight: 600;
+    }
+    .step-bubble.inactive { background: var(--color-background-tertiary); color: var(--color-text-secondary); }
+    .step-bubble.active { background: var(--color-primary); color: #fff; }
+    .step-bubble.done { background: var(--color-primary); color: #fff; }
+    .step-title { font-size: 13px; font-weight: 600; }
+    .step-summary { font-size: 11px; color: var(--color-text-secondary); }
+    .step-chevron { margin-left: auto; color: var(--color-text-secondary); }
+    .step-body { padding: 0 16px 16px; }
+
+    /* ── Collapse ── */
+    .collapse { overflow: hidden; transition: max-height 0.25s ease; }
+    .collapse.closed { max-height: 0 !important; }
+
+    /* ── Filled TextField ── */
+    .field-wrap { position: relative; margin-bottom: 12px; }
+    .field-wrap label {
+      position: absolute; left: 12px; top: 8px;
+      font-size: 10px; color: var(--color-text-secondary);
+      pointer-events: none;
+    }
+    .field-input {
+      width: 100%;
+      font-family: var(--font-family-primary);
+      font-size: 13px;
+      padding: 22px 12px 8px;
+      background: var(--color-background-secondary);
+      border: none; border-bottom: 1px solid var(--color-border-primary);
+      border-radius: 4px 4px 0 0;
+      color: var(--color-text-primary);
+      transition: border-bottom-color 0.15s;
+    }
+    .field-input:focus {
+      outline: none;
+      border-bottom: 2px solid var(--color-border-focus);
+      background: var(--color-background-primary);
+    }
+    .field-input.error { border-bottom-color: var(--color-error) !important; }
+    .field-error { font-size: 11px; color: var(--color-error); padding: 2px 12px 0; }
+    .field-row { display: flex; gap: 8px; }
+    .field-row .field-wrap { flex: 1; }
+
+    /* ── Select (filled) ── */
+    .sel-input {
+      width: 100%;
+      font-family: var(--font-family-primary);
+      font-size: 13px;
+      padding: 22px 12px 8px;
+      background: var(--color-background-secondary);
+      border: none; border-bottom: 1px solid var(--color-border-primary);
+      border-radius: 4px 4px 0 0;
+      color: var(--color-text-primary);
+      appearance: none;
+    }
+    .sel-input:focus { outline: none; border-bottom: 2px solid var(--color-border-focus); background: var(--color-background-primary); }
+
+    /* ── Chips ── */
+    .chip {
+      display: inline-flex; align-items: center;
+      font-family: var(--font-family-primary);
+      font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px;
+      cursor: pointer; user-select: none;
+      transition: background 0.15s;
+    }
+    .chip-navy { background: var(--color-primary); color: #fff; }
+    .chip-grey { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+    .chip-grey:hover { background: var(--color-background-tertiary); }
+    .chip-selected { background: var(--color-primary); color: #fff; }
+    .chip-preset { background: var(--color-background-secondary); color: var(--color-text-primary); }
+    .chip-preset.sel { background: var(--color-primary); color: #fff; }
+    .chip-close { margin-left: 4px; cursor: pointer; opacity: 0.7; }
+    .chip-close:hover { opacity: 1; }
+
+    /* ── Player list ── */
+    .player-list { border-top: 1px solid var(--color-border-primary); }
+    .player-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 8px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--color-border-primary);
+      transition: background 0.12s;
+    }
+    .player-row:hover { background: var(--color-background-hover); }
+    .player-row:last-child { border-bottom: none; }
+    .player-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--color-border-primary);
+      color: #fff; font-weight: 600; font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .player-name { font-size: 13px; flex: 1; }
+    .player-nat { font-size: 12px; color: var(--color-text-secondary); }
+
+    /* ── Checkbox / Radio ── */
+    .cb { accent-color: var(--color-primary); width: 15px; height: 15px; cursor: pointer; }
+
+    /* ── Form list ── */
+    .form-list {
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--radius-sm);
+      overflow: hidden; max-height: 280px; overflow-y: auto;
+    }
+    .form-row {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 10px; cursor: pointer;
+      border-bottom: 1px solid var(--color-border-primary);
+      transition: background 0.12s;
+    }
+    .form-row:hover { background: var(--color-background-hover); }
+    .form-row:last-child { border-bottom: none; }
+    .form-name { font-size: 13px; color: var(--color-text-primary); }
+    .form-cat {
+      font-size: 10px; padding: 1px 6px;
+      border-radius: 20px;
+      background: var(--color-background-secondary);
+      color: var(--color-text-secondary);
+    }
+
+    /* ── Summary size bar ── */
+    .size-bar-wrap { padding: 14px 20px; border-top: 1px solid var(--color-border-primary); }
+    .progress-track {
+      width: 100%; height: 6px;
+      background: var(--color-background-tertiary);
+      border-radius: 3px; overflow: hidden;
+    }
+    .progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s, background 0.3s; }
+    .alert {
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12px; line-height: 1.5;
+    }
+    .alert-warning { background: #fff8e1; color: #b45309; }
+    .alert-error { background: #fce4ec; color: #b71c1c; }
+    .alert-link { font-weight: 700; cursor: pointer; text-decoration: underline; margin-right: 12px; }
+
+    /* ── Loading state ── */
+    .loading-body {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 48px 24px; text-align: center; gap: 12px;
+    }
+    .loading-body .ai-icon { animation: aiPulse 1.2s ease-in-out infinite; }
+    @keyframes aiPulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .progress-linear {
+      width: 100%; height: 4px;
+      background: var(--color-ai-purple-bg);
+      overflow: hidden;
+    }
+    .progress-linear-fill {
+      height: 100%;
+      background: var(--color-ai-purple);
+      animation: linProgress 1.8s ease-in-out infinite;
+    }
+    @keyframes linProgress {
+      0%{width:0;margin-left:0}
+      50%{width:60%;margin-left:20%}
+      100%{width:0;margin-left:100%}
+    }
+
+    /* ── Summary result ── */
+    .result-pad { padding: 20px; }
+    .ai-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 20px;
+      background: var(--color-ai-purple-bg); margin-bottom: 6px;
+    }
+    .ai-badge-text { font-size: 11px; font-weight: 600; color: var(--color-ai-purple); }
+    .result-meta { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 16px; }
+    .result-section-title {
+      font-size: 14px; font-weight: 700;
+      color: var(--color-text-primary); margin-bottom: 10px;
+    }
+    .result-item { display: flex; gap: 8px; margin-bottom: 12px; }
+    .result-item-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .result-item-body { font-size: 13px; color: var(--color-text-primary); line-height: 1.6; }
+    .result-sub-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; margin-top: 4px; }
+    .result-ul { margin: 0 0 10px 20px; }
+    .result-ul li { font-size: 13px; color: var(--color-text-primary); line-height: 1.7; }
+    .disclaimer { font-size: 11px; color: var(--color-text-secondary); font-style: italic; margin-top: 12px; }
+
+    /* ── Action bar ── */
+    .action-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px 8px;
+    }
+    .action-bar-centre { display: flex; align-items: center; gap: 4px; }
+    .action-label { font-size: 12px; color: #9e9e9e; margin-right: 4px; }
+    .thumb-btn {
+      width: 30px; height: 30px;
+      border-radius: 50%; border: none; background: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: #757575; transition: color 0.15s, background 0.15s;
+    }
+    .thumb-btn:hover { color: #1a2744; background: var(--color-overlay-surface); }
+    .thumb-btn.active { color: #1a2744; }
+
+    /* ── Inline feedback panel ── */
+    .feedback-panel {
+      padding: 0 16px 14px;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.3s ease;
+    }
+    .feedback-panel.open { max-height: 260px; }
+    .feedback-panel-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+    textarea.field-input { resize: none; }
+    .feedback-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .btn-ghost {
+      font-family: var(--font-family-primary);
+      font-size: 12px; background: none; border: none;
+      cursor: pointer; color: var(--color-text-secondary); padding: 6px 10px;
+    }
+    .btn-navy {
+      font-family: var(--font-family-primary);
+      font-size: 12px; font-weight: 600;
+      background: #1a2744; color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      padding: 7px 14px; cursor: pointer;
+    }
+    .btn-navy:hover { background: #263356; }
+
+    /* ── Snackbar ── */
+    .snackbar {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #323232; color: #fff;
+      font-size: 13px; padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+      z-index: 9999; opacity: 0;
+      transition: opacity 0.25s;
+      pointer-events: none; white-space: nowrap;
+    }
+    .snackbar.show { opacity: 1; }
+
+    /* ── AI History drawer ── */
+    .history-list { flex: 1; overflow-y: auto; }
+    .history-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 20px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--color-border-primary);
+      transition: background 0.12s;
+    }
+    .history-item:hover { background: var(--color-background-hover); }
+    .history-title {
+      font-size: 13px; font-weight: 500;
+      color: var(--color-text-primary);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .history-sub { font-size: 11px; color: var(--color-text-secondary); }
+
+    /* ── Notifications panel ── */
+    .notif-panel {
+      position: absolute; top: 52px; right: 8px;
+      width: 340px;
+      background: #fff;
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      z-index: 500;
+      display: none;
+    }
+    .notif-panel.open { display: block; }
+    .notif-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--color-border-primary);
+    }
+    .notif-title { font-size: 14px; font-weight: 600; }
+    .notif-item {
+      display: flex; gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border-primary);
+    }
+    .notif-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--color-primary); margin-top: 4px; flex-shrink: 0;
+    }
+    .notif-item-title { font-size: 13px; font-weight: 500; }
+    .notif-item-time { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+
+    /* ── Intercom bubble ── */
+    .intercom {
+      position: fixed; bottom: 20px; right: 20px;
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      color: #fff; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(59,73,96,0.45);
+      z-index: 1100;
+      transition: background 0.15s;
+    }
+    .intercom:hover { background: var(--color-primary-hover); }
+
+    /* ── User menu ── */
+    .user-menu {
+      position: absolute; top: 52px; right: 4px;
+      background: #fff;
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      z-index: 500;
+      display: none; min-width: 140px;
+    }
+    .user-menu.open { display: block; }
+    .user-menu-item {
+      padding: 10px 16px;
+      font-size: 13px; cursor: pointer;
+      transition: background 0.12s;
+      color: var(--color-text-primary);
+    }
+    .user-menu-item:hover { background: var(--color-background-hover); }
+    hr.divider { border: none; border-top: 1px solid var(--color-border-primary); margin: 0; }
+
+    /* ── Selector panel field styles ── */
+    .selector-trigger {
+      display: flex; align-items: center;
+      min-height: 44px;
+      padding: 8px 12px;
+      background: var(--color-background-secondary);
+      border-radius: 4px 4px 0 0;
+      border-bottom: 1px solid var(--color-border-primary);
+      cursor: pointer;
+      gap: 6px;
+    }
+    .selector-trigger:hover {
+      background: var(--color-background-tertiary);
+      border-bottom-color: var(--color-border-focus);
+    }
+    .selector-trigger-placeholder { color: var(--color-text-muted); font-size: 13px; flex: 1; }
+    .selector-trigger-chips { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
+    .token-chip {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 11px; font-weight: 500;
+      padding: 2px 6px; border-radius: 12px;
+      background: var(--color-background-tertiary);
+      color: var(--color-text-primary);
+    }
+    .selector-panel {
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--radius-sm);
+      background: var(--color-background-primary);
+      padding: 12px;
+    }
+    .player-list-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .player-list-box { max-height: 220px; overflow-y: auto; }
+    .panel-footer {
+      display: flex; justify-content: flex-end;
+      padding-top: 12px;
+    }
+
+    /* ── Date range ── */
+    .date-row { display: flex; gap: 8px; }
+    .date-row .field-wrap { flex: 1; }
+    input[type="date"].field-input { padding: 22px 12px 8px; }
+    .preset-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+
+    /* Scroll in drawer body */
+    .drawer-body::-webkit-scrollbar { width: 5px; }
+    .drawer-body::-webkit-scrollbar-thumb { background: var(--color-border-primary); border-radius: 3px; }
+    .step-divider { border: none; border-top: 1px solid var(--color-border-primary); }
+  </style>
+</head>
+<body>
+
+<!-- App Shell -->
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect width="20" height="20" rx="4" fill="#fff" fill-opacity=".15"/><path d="M5 10h10M10 5v10" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      Kitman Labs
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <div class="nav-section-label">Athlete Management</div>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><circle cx="18" cy="8" r="3"/><path d="M21 21v-1a3 3 0 0 0-3-3h-.5"/></svg>
+        Athletes
+      </a>
+      <a class="nav-item active" href="#">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Forms
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Planning
+      </a>
+      <div class="nav-section-label">Performance</div>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Monitoring
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Reports
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main area -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar" style="position:relative;">
+      <span class="topbar-title">Forms</span>
+      <div class="topbar-actions">
+        <select class="squad-select">
+          <option>First Team — Senior Squad</option>
+          <option>Reserve Team</option>
+          <option>Academy U23</option>
+        </select>
+
+        <!-- Notifications -->
+        <button class="icon-btn" id="notifBtn" onclick="toggleNotifPanel()" title="Notifications">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="badge">3</span>
+        </button>
+
+        <!-- Notifications panel -->
+        <div class="notif-panel" id="notifPanel">
+          <div class="notif-header">
+            <span class="notif-title">Notifications</span>
+            <button onclick="toggleNotifPanel()" style="background:none;border:none;cursor:pointer;color:var(--color-text-secondary);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot"></div>
+            <div>
+              <div class="notif-item-title">AI summary ready</div>
+              <div class="notif-item-time">Medical Assessment · 2 min ago</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot"></div>
+            <div>
+              <div class="notif-item-title">Form submitted</div>
+              <div class="notif-item-time">Harry Anderson · Preseason Assessment · 12 min ago</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot"></div>
+            <div>
+              <div class="notif-item-title">Wellness Check completed</div>
+              <div class="notif-item-time">14 athletes responded · 1 hr ago</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI icon -->
+        <button class="icon-btn" onclick="openAiHistoryDrawer()" title="AI Summaries">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2L9.09 9.09 2 12l7.09 2.91L12 22l2.91-7.09L22 12l-7.09-2.91L12 2z"/></svg>
+        </button>
+
+        <!-- Avatar + user menu -->
+        <div style="position:relative;">
+          <button class="avatar" onclick="toggleUserMenu()">LV</button>
+          <div class="user-menu" id="userMenu">
+            <div class="user-menu-item">Profile</div>
+            <div class="user-menu-item">Settings</div>
+            <hr class="divider" />
+            <div class="user-menu-item">Logout</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <div class="page-content">
+      <div class="page-inner">
+        <!-- Tab bar -->
+        <div class="tab-bar">
+          <button class="tab active">All forms</button>
+          <button class="tab">Assigned</button>
+          <button class="tab">Archived</button>
+          <button class="tab">Templates</button>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="grid-toolbar">
+          <button class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Create form
+          </button>
+          <button class="btn btn-ai" onclick="openAiDrawer()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2L9.09 9.09 2 12l7.09 2.91L12 22l2.91-7.09L22 12l-7.09-2.91L12 2z"/></svg>
+            ✦ AI summary
+          </button>
+          <div class="search-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" type="text" placeholder="Search forms…" />
+          </div>
+        </div>
+
+        <!-- Data grid -->
+        <table class="data-grid">
+          <thead>
+            <tr>
+              <th>Form name</th>
+              <th>Category</th>
+              <th>Assigned</th>
+              <th>Responses</th>
+              <th>Last activity</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Preseason Assessment</td><td>Medical</td><td>22 athletes</td><td>18 / 22</td><td>Today, 09:14</td><td><span class="status-chip chip-active">Active</span></td></tr>
+            <tr><td>Psychological Health Check</td><td>Wellness</td><td>14 athletes</td><td>14 / 14</td><td>Yesterday, 14:30</td><td><span class="status-chip chip-active">Active</span></td></tr>
+            <tr><td>End of Season Survey</td><td>Wellness</td><td>31 athletes</td><td>8 / 31</td><td>12 Jun, 11:00</td><td><span class="status-chip chip-active">Active</span></td></tr>
+            <tr><td>Strength Assessment</td><td>Training</td><td>6 athletes</td><td>6 / 6</td><td>3 Jun, 08:45</td><td><span class="status-chip chip-closed">Closed</span></td></tr>
+            <tr><td>Match Day Readiness</td><td>Performance</td><td>28 athletes</td><td>0 / 28</td><td>—</td><td><span class="status-chip chip-draft">Draft</span></td></tr>
+            <tr><td>Nutrition Intake Log</td><td>Wellness</td><td>12 athletes</td><td>5 / 12</td><td>1 Jun, 16:20</td><td><span class="status-chip chip-active">Active</span></td></tr>
+            <tr><td>Post-Match Recovery</td><td>Medical</td><td>22 athletes</td><td>22 / 22</td><td>28 May, 21:10</td><td><span class="status-chip chip-closed">Closed</span></td></tr>
+            <tr><td>Return to Play Protocol</td><td>Medical</td><td>3 athletes</td><td>1 / 3</td><td>20 May, 10:00</td><td><span class="status-chip chip-active">Active</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Intercom bubble -->
+<button class="intercom" title="Help">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</button>
+
+<!-- ═══════════════════════════════════
+     AI SUMMARY DRAWER (Create)
+════════════════════════════════════ -->
+<div class="overlay" id="aiOverlay" onclick="closeAiDrawer()"></div>
+<div class="drawer" id="aiDrawer">
+  <div class="drawer-header">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.8" stroke-linecap="round"><path d="M12 2L9.09 9.09 2 12l7.09 2.91L12 22l2.91-7.09L22 12l-7.09-2.91L12 2z"/></svg>
+    <span class="drawer-header-title" id="drawerTitle">Create AI summary</span>
+    <button class="icon-btn" onclick="closeAiDrawer()" style="width:28px;height:28px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <!-- Step flow -->
+  <div class="drawer-body" id="stepFlow">
+    <!-- Step 1 -->
+    <div id="step1Wrap">
+      <div class="step-header" onclick="setActiveStep(1)">
+        <div class="step-bubble active" id="step1Bubble">1</div>
+        <div style="flex:1;min-width:0;">
+          <div class="step-title">Select players</div>
+          <div class="step-summary" id="step1Summary"></div>
+        </div>
+        <svg class="step-chevron" id="step1Chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <hr class="step-divider" />
+      <div class="collapse" id="step1Body" style="max-height:2000px;">
+        <div class="step-body" id="step1Content"></div>
+      </div>
+    </div>
+
+    <hr class="step-divider" />
+
+    <!-- Step 2 -->
+    <div id="step2Wrap">
+      <div class="step-header" onclick="setActiveStep(2)">
+        <div class="step-bubble inactive" id="step2Bubble">2</div>
+        <div style="flex:1;min-width:0;">
+          <div class="step-title">Select forms</div>
+          <div class="step-summary" id="step2Summary"></div>
+        </div>
+        <svg class="step-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <hr class="step-divider" />
+      <div class="collapse closed" id="step2Body" style="max-height:0;">
+        <div class="step-body" id="step2Content"></div>
+      </div>
+    </div>
+
+    <hr class="step-divider" />
+
+    <!-- Step 3 -->
+    <div id="step3Wrap">
+      <div class="step-header" onclick="setActiveStep(3)">
+        <div class="step-bubble inactive" id="step3Bubble">3</div>
+        <div style="flex:1;min-width:0;">
+          <div class="step-title">Choose date range</div>
+          <div class="step-summary" id="step3Summary"></div>
+        </div>
+        <svg class="step-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <hr class="step-divider" />
+      <div class="collapse closed" id="step3Body" style="max-height:0;">
+        <div class="step-body" id="step3Content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div id="loadingState" style="display:none;flex:1;flex-direction:column;">
+    <div class="progress-linear"><div class="progress-linear-fill"></div></div>
+    <div class="loading-body">
+      <svg class="ai-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-ai-purple)" stroke-width="1.6" stroke-linecap="round"><path d="M12 2L9.09 9.09 2 12l7.09 2.91L12 22l2.91-7.09L22 12l-7.09-2.91L12 2z"/></svg>
+      <div style="font-size:15px;font-weight:600;">Generating your summary…</div>
+      <div style="font-size:13px;color:var(--color-text-secondary);max-width:320px;line-height:1.6;">This may take a moment, especially for large selections. You can close this drawer and check back — tap the ✦ AI Summary button when you're ready to view your results.</div>
+      <button class="btn-ghost" onclick="closeAiDrawer()" style="margin-top:8px;">Close</button>
+    </div>
+  </div>
+
+  <!-- Summary result -->
+  <div id="summaryResult" style="display:none;flex:1;overflow-y:auto;">
+    <div class="result-pad">
+      <div class="field-wrap" style="margin-bottom:16px;">
+        <label for="summaryTitleInput">Summary title</label>
+        <input class="field-input" id="summaryTitleInput" type="text" oninput="onTitleInput()" onblur="onTitleBlur()" />
+        <div class="field-error" id="titleError" style="display:none;">Please give this summary a title</div>
+      </div>
+
+      <div class="ai-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-ai-purple)" stroke-width="2" stroke-linecap="round"><path d="M12 2L9.09 9.09 2 12l7.09 2.91L12 22l2.91-7.09L22 12l-7.09-2.91L12 2z"/></svg>
+        <span class="ai-badge-text">AI generated</span>
+      </div>
+      <div class="result-meta">22 players · 2 forms · Last 30 days</div>
+
+      <div class="result-section-title">Athlete Medical Summary</div>
+      <div class="result-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.8" stroke-linecap="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div>
+          <div class="result-item-title">Concussion History</div>
+          <div class="result-item-body">Significant history of concussion. Sustained a concussion in high school (2012) resulting in loss of consciousness and hospitalization for concussion on March 11, 2025.</div>
+        </div>
+      </div>
+      <div class="result-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.8" stroke-linecap="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div>
+          <div class="result-item-title">Musculoskeletal History</div>
+          <div class="result-item-body">Right Low Back: History of imaging (X-ray, MRI, CT, or bone scan) performed on December 24, 2024 for chronic issues.</div>
+        </div>
+      </div>
+      <div class="result-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-warning)" stroke-width="1.8" stroke-linecap="round" style="flex-shrink:0;margin-top:2px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div>
+          <div class="result-item-title">Vaccination Status</div>
+          <div class="result-item-body">Incomplete vaccination history — Mumps: Unknown, Pneumonia: Tetanus: No</div>
+        </div>
+      </div>
+
+      <div class="result-section-title" style="margin-top:8px;">Recommendations</div>
+      <div class="result-sub-title">Immediate Actions</div>
+      <ul class="result-ul">
+        <li>Player should be immediately held from all contact and throwing activities.</li>
+        <li>Urgent comprehensive orthopedic evaluation of the right shoulder is required.</li>
+        <li>Urgent comprehensive neurological evaluation including a detailed concussion assessment is required.</li>
+      </ul>
+      <div class="result-sub-title">Diagnostic Next Steps</div>
+      <ul class="result-ul">
+        <li>Obtain an MRI of the right shoulder to assess rotator cuff integrity and extent of injury.</li>
+        <li>Conduct a full neuropsychological assessment (e.g. ImPACT testing) and a thorough neurological examination.</li>
+        <li>Review medical records from the March 11, 2025 concussion hospitalization.</li>
+      </ul>
+      <p class="disclaimer">AI-generated summaries can contain mistakes. Review before acting on clinical or performance decisions.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="drawer-footer">
+    <!-- Summary size indicator -->
+    <div id="sizeMeter" style="display:none;" class="size-bar-wrap">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:13px;font-weight:600;">Summary size</span>
+        <span style="font-size:13px;color:var(--color-text-secondary);" id="sizeLabel">0% of limit used</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="sizeFill" style="width:0%;background:#2e7d32;"></div></div>
+      <div id="sizeAlert" style="display:none;"></div>
+      <div style="font-size:11px;font-style:italic;color:var(--color-text-secondary);margin-top:8px;">Demo: select 8+ players to see the warning state, 12 players to see the limit reached state.</div>
+    </div>
+
+    <!-- Generate button -->
+    <div id="generateFooter" style="border-top:1px solid var(--color-border-primary);">
+      <div style="padding:16px 20px;">
+        <button class="btn btn-primary" id="generateBtn" onclick="handleGenerate()" disabled
+          style="width:100%;justify-content:center;font-size:13px;font-weight:700;padding:10px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2L9.09 9.09 2 12l7.09 2.91L12 22l2.91-7.09L22 12l-7.09-2.91L12 2z"/></svg>
+          Generate summary
+        </button>
+      </div>
+    </div>
+
+    <!-- Summary action bar (shown after generation) -->
+    <div id="summaryFooter" style="display:none;border-top:1px solid #e0e0e0;background:#fff;padding-bottom:80px;">
+      <div class="action-bar">
+        <button class="thumb-btn" onclick="copySummary()" title="Copy">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+        <div class="action-bar-centre">
+          <span class="action-label" id="feedbackLabel">Was this helpful?</span>
+          <button class="thumb-btn" id="thumbUp" onclick="openFeedback('up')" title="Good response">
+            <svg id="thumbUpIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+          </button>
+          <button class="thumb-btn" id="thumbDown" onclick="openFeedback('down')" title="Bad response">
+            <svg id="thumbDownIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
+          </button>
+        </div>
+        <button class="thumb-btn" onclick="handleGenerate()" title="Regenerate">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </button>
+      </div>
+      <!-- Inline feedback -->
+      <div class="feedback-panel" id="feedbackPanel">
+        <hr class="divider" style="margin-bottom:12px;" />
+        <div class="feedback-panel-title" id="feedbackPanelTitle">Tell us more.</div>
+        <div class="field-wrap">
+          <label for="feedbackText" id="feedbackTextLabel">Tell us more</label>
+          <textarea class="field-input" id="feedbackText" rows="3" style="padding-top:22px;resize:none;"></textarea>
+        </div>
+        <div class="feedback-actions">
+          <button class="btn-ghost" onclick="skipFeedback()">Skip</button>
+          <button class="btn-navy" onclick="submitFeedback()">Send feedback</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════
+     AI HISTORY DRAWER
+════════════════════════════════════ -->
+<div class="overlay" id="historyOverlay" onclick="closeAiHistoryDrawer()"></div>
+<div class="drawer" id="historyDrawer">
+  <div class="drawer-header" id="historyDrawerHeader">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.8" stroke-linecap="round" id="historyHeaderIcon"><path d="M12 2L9.09 9.09 2 12l7.09 2.91L12 22l2.91-7.09L22 12l-7.09-2.91L12 2z"/></svg>
+    <span class="drawer-header-title" id="historyTitle">AI Summaries</span>
+    <button class="icon-btn" onclick="closeAiHistoryDrawer()" style="width:28px;height:28px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <!-- List view -->
+  <div id="historyListView" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+    <div style="padding:16px 16px 12px;">
+      <div style="position:relative;">
+        <svg width="14" height="14" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--color-text-secondary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="field-input" id="historySearch" oninput="filterHistory()" placeholder="Search summaries…" style="padding:8px 12px 8px 30px;background:var(--color-background-secondary);border-bottom:1px solid var(--color-border-primary);" />
+      </div>
+    </div>
+    <hr class="divider" />
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <!-- Detail view -->
+  <div id="historyDetailView" style="display:none;flex:1;overflow-y:auto;">
+    <div class="result-pad">
+      <div class="ai-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-ai-purple)" stroke-width="2" stroke-linecap="round"><path d="M12 2L9.09 9.09 2 12l7.09 2.91L12 22l2.91-7.09L22 12l-7.09-2.91L12 2z"/></svg>
+        <span class="ai-badge-text">AI generated</span>
+      </div>
+      <div class="result-meta" id="historyDetailMeta"></div>
+      <div class="result-section-title">Athlete Medical Summary</div>
+      <div style="margin-bottom:10px;">
+        <div class="result-item-title">Concussion History</div>
+        <div class="result-item-body" style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-top:2px;">Significant history of concussion. Sustained a concussion in high school (2012) resulting in loss of consciousness and hospitalization for concussion on March 11, 2025.</div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div class="result-item-title">Musculoskeletal History</div>
+        <div class="result-item-body" style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-top:2px;">Right Low Back: History of imaging (X-ray, MRI, CT, or bone scan) performed on December 24, 2024 for chronic issues.</div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div class="result-item-title">Vaccination Status</div>
+        <div class="result-item-body" style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-top:2px;">Incomplete vaccination history — Mumps: Unknown, Pneumonia: Tetanus: No</div>
+      </div>
+      <div class="result-section-title" style="margin-top:4px;">Recommendations</div>
+      <div class="result-sub-title">Immediate Actions</div>
+      <ul class="result-ul"><li>Player should be immediately held from all contact and throwing activities.</li><li>Urgent comprehensive orthopedic evaluation of the right shoulder is required.</li><li>Urgent comprehensive neurological evaluation including a detailed concussion assessment is required.</li></ul>
+      <div class="result-sub-title">Diagnostic Next Steps</div>
+      <ul class="result-ul"><li>Obtain an MRI of the right shoulder to assess rotator cuff integrity and extent of injury.</li><li>Conduct a full neuropsychological assessment (e.g. ImPACT testing) and a thorough neurological examination.</li><li>Review medical records from the March 11, 2025 concussion hospitalization.</li></ul>
+    </div>
+  </div>
+</div>
+
+<!-- Snackbar -->
+<div class="snackbar" id="snackbar"></div>
+
+<script>
+// ── Data ──
+const PLAYERS = [
+  { id: 'sa-6',  name: 'Harry Anderson',  nat: 'USA', team: 'First Team',    group: 'Active Roster' },
+  { id: 'sa-7',  name: 'Bill Bryson',      nat: 'GBR', team: 'First Team',    group: 'Active Roster' },
+  { id: 'sa-8',  name: 'Bernard William',  nat: 'USA', team: 'First Team',    group: 'Active Roster' },
+  { id: 'sa-9',  name: 'Eric Xavier',      nat: 'BRA', team: 'First Team',    group: 'Active Roster' },
+  { id: 'sa-10', name: 'Marcus Johnson',   nat: 'USA', team: 'First Team',    group: 'Active Roster' },
+  { id: 'sa-11', name: 'Jordan Peters',    nat: 'CAN', team: 'First Team',    group: 'Active Roster' },
+  { id: 'sa-12', name: 'Darius Webb',      nat: 'USA', team: 'Reserve Team',  group: 'Practice Squad' },
+  { id: 'sa-13', name: 'Kofi Mensah',      nat: 'GHA', team: 'Reserve Team',  group: 'Practice Squad' },
+  { id: 'sa-14', name: 'Luca Rossi',       nat: 'ITA', team: 'Reserve Team',  group: 'Practice Squad' },
+  { id: 'sa-15', name: 'Ahmed Hassan',     nat: 'EGY', team: 'Reserve Team',  group: 'Practice Squad' },
+  { id: 'sa-16', name: "Ryan O'Brien",     nat: 'IRL', team: 'Reserve Team',  group: 'Inactive Roster' },
+  { id: 'sa-3',  name: 'Thiago Almada',    nat: 'ARG', team: 'Reserve Team',  group: 'Inactive Roster' },
+]
+
+const FORMS = [
+  { id: 'f1', name: 'Preseason Assessment',       category: 'Medical',      players: ['sa-6','sa-7','sa-8','sa-9','sa-10','sa-11','sa-12','sa-13'] },
+  { id: 'f2', name: 'Psychological Health Check', category: 'Wellness',     players: ['sa-6','sa-7','sa-9','sa-10','sa-12','sa-14','sa-15'] },
+  { id: 'f3', name: 'Strength Assessment',        category: 'Training',     players: ['sa-8','sa-9','sa-10','sa-11','sa-12','sa-14','sa-16','sa-3'] },
+  { id: 'f4', name: 'End of Season Survey',       category: 'Wellness',     players: ['sa-6','sa-7','sa-8','sa-9','sa-10','sa-11','sa-12','sa-13','sa-14','sa-15','sa-16','sa-3'] },
+  { id: 'f5', name: 'Nutrition Intake Log',       category: 'Wellness',     players: ['sa-7','sa-8','sa-11','sa-13','sa-16'] },
+  { id: 'f6', name: 'Return to Play Protocol',    category: 'Medical',      players: ['sa-9','sa-15','sa-16'] },
+  { id: 'f7', name: 'Match Day Readiness',        category: 'Performance',  players: ['sa-6','sa-7','sa-8','sa-9','sa-10','sa-11'] },
+  { id: 'f8', name: 'Post-Match Recovery',        category: 'Medical',      players: ['sa-6','sa-7','sa-8','sa-9','sa-10','sa-11','sa-12','sa-13','sa-14'] },
+]
+
+const DATE_PRESETS = [
+  { id: 'today',   label: 'Today' },
+  { id: 'last-7',  label: 'Last 7 days' },
+  { id: 'last-30', label: 'Last 30 days' },
+  { id: 'last-6m', label: 'Last 6 months' },
+  { id: 'last-2y', label: 'Last 2 years' },
+  { id: 'custom',  label: 'Custom' },
+]
+
+const AI_HISTORY = [
+  { id: 1, title: 'Medical Assessment · Preseason Assessment', subtitle: '22 players · Last 30 days · Today, 09:00', status: 'ready' },
+  { id: 2, title: 'Wellness Check · Psychological Health Check', subtitle: '14 players · Last 7 days · Yesterday, 14:30', status: 'ready' },
+  { id: 3, title: 'End of Season Survey', subtitle: '8 players · Last 6 months · 12 Jun, 11:00', status: 'ready' },
+  { id: 4, title: 'Strength Assessment · Training', subtitle: '6 players · Last 30 days · Generating…', status: 'generating' },
+]
+
+// ── State ──
+let selectedPlayers = new Set()
+let selectedForm = null
+let datePreset = null
+let dateFrom = ''
+let dateTo = ''
+let selectorOpen = false
+let teamFilter = 'All teams'
+let sortOrder = 'az'
+let playerSearch = ''
+let formSearch = ''
+let formCategory = 'All categories'
+let formSort = 'az'
+let activeStep = 1
+let summaryVisible = false
+let generatingTimer = null
+let feedbackModal = null // 'up'|'down'|null
+let feedbackType = null
+let feedbackSubmitted = false
+let summaryTitleDefault = ''
+
+// ── Overlay/drawer helpers ──
+function openAiDrawer() {
+  resetState()
+  renderAll()
+  document.getElementById('aiOverlay').classList.add('open')
+  document.getElementById('aiDrawer').classList.add('open')
+}
+function closeAiDrawer() {
+  document.getElementById('aiOverlay').classList.remove('open')
+  document.getElementById('aiDrawer').classList.remove('open')
+  if (generatingTimer) clearTimeout(generatingTimer)
+}
+function openAiHistoryDrawer() {
+  renderHistoryList()
+  document.getElementById('historyOverlay').classList.add('open')
+  document.getElementById('historyDrawer').classList.add('open')
+  document.getElementById('historyListView').style.display = 'flex'
+  document.getElementById('historyDetailView').style.display = 'none'
+  document.getElementById('historyTitle').textContent = 'AI Summaries'
+  document.getElementById('historyDrawerHeader').querySelector('#historyHeaderIcon').style.display = 'block'
+}
+function closeAiHistoryDrawer() {
+  document.getElementById('historyOverlay').classList.remove('open')
+  document.getElementById('historyDrawer').classList.remove('open')
+  document.getElementById('historySearch').value = ''
+}
+
+// ── UI helpers ──
+function toggleNotifPanel() {
+  document.getElementById('notifPanel').classList.toggle('open')
+  document.getElementById('userMenu').classList.remove('open')
+}
+function toggleUserMenu() {
+  document.getElementById('userMenu').classList.toggle('open')
+  document.getElementById('notifPanel').classList.remove('open')
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#notifBtn') && !e.target.closest('#notifPanel'))
+    document.getElementById('notifPanel').classList.remove('open')
+  if (!e.target.closest('.avatar') && !e.target.closest('#userMenu'))
+    document.getElementById('userMenu').classList.remove('open')
+})
+
+// ── State reset ──
+function resetState() {
+  selectedPlayers = new Set()
+  selectedForm = null
+  datePreset = null
+  dateFrom = dateTo = ''
+  selectorOpen = false
+  teamFilter = 'All teams'
+  sortOrder = 'az'
+  playerSearch = formSearch = ''
+  formCategory = 'All categories'
+  formSort = 'az'
+  activeStep = 1
+  summaryVisible = false
+  feedbackModal = feedbackType = null
+  feedbackSubmitted = false
+  summaryTitleDefault = ''
+  document.getElementById('stepFlow').style.display = ''
+  document.getElementById('loadingState').style.display = 'none'
+  document.getElementById('summaryResult').style.display = 'none'
+  document.getElementById('sizeMeter').style.display = 'none'
+  document.getElementById('generateFooter').style.display = ''
+  document.getElementById('summaryFooter').style.display = 'none'
+  document.getElementById('drawerTitle').textContent = 'Create AI summary'
+}
+
+// ── Step rendering ──
+function setActiveStep(n) {
+  if (n === 2 && !selectedPlayers.size) return
+  if (n === 3 && (!selectedPlayers.size || !selectedForm)) return
+  activeStep = n
+  renderAll()
+}
+
+function renderAll() {
+  renderStep1()
+  renderStep2()
+  renderStep3()
+  renderStepBubbles()
+  renderSizeMeter()
+  updateGenerateBtn()
+}
+
+function renderStepBubbles() {
+  const steps = [1,2,3]
+  steps.forEach(n => {
+    const b = document.getElementById('step'+n+'Bubble')
+    const complete = (n === 1 && selectedPlayers.size > 0 && activeStep !== 1) ||
+                     (n === 2 && selectedForm && activeStep !== 2) ||
+                     (n === 3 && (datePreset || (dateFrom && dateTo)) && activeStep !== 3)
+    b.className = 'step-bubble ' + (complete ? 'done' : (activeStep === n ? 'active' : 'inactive'))
+    b.innerHTML = complete
+      ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>'
+      : n
+  })
+  // step summaries
+  const s1 = selectedPlayers.size === 0 ? '' : selectedPlayers.size === 1
+    ? PLAYERS.find(p=>selectedPlayers.has(p.id))?.name || ''
+    : selectedPlayers.size + ' players selected'
+  document.getElementById('step1Summary').textContent = activeStep !== 1 ? s1 : ''
+  const s2 = selectedForm ? (FORMS.find(f=>f.id===selectedForm)?.name || '') : ''
+  document.getElementById('step2Summary').textContent = activeStep !== 2 ? s2 : ''
+  const s3 = getDateLabel()
+  document.getElementById('step3Summary').textContent = activeStep !== 3 ? s3 : ''
+}
+
+function getDateLabel() {
+  const labels = {today:'Today','last-7':'Last 7 days','last-30':'Last 30 days','last-6m':'Last 6 months','last-2y':'Last 2 years'}
+  if (datePreset && datePreset !== 'custom') return labels[datePreset] || ''
+  if (datePreset === 'custom' && dateFrom && dateTo) return dateFrom + ' – ' + dateTo
+  return ''
+}
+
+// collapse helper
+function setCollapse(id, open) {
+  const el = document.getElementById(id)
+  if (open) { el.classList.remove('closed'); el.style.maxHeight = '2000px' }
+  else { el.classList.add('closed'); el.style.maxHeight = '0' }
+}
+
+// ── Step 1 ──
+function renderStep1() {
+  setCollapse('step1Body', activeStep === 1)
+  const c = document.getElementById('step1Content')
+  if (activeStep !== 1) { c.innerHTML = ''; return }
+
+  const filtered = PLAYERS.filter(p => {
+    const q = playerSearch.trim().toLowerCase()
+    const matchSearch = !q || p.name.toLowerCase().includes(q)
+    const matchTeam = teamFilter === 'All teams' || p.team === teamFilter
+    return matchSearch && matchTeam
+  }).sort((a,b) => {
+    const sn = n => n.trim().split(' ').slice(-1)[0].toLowerCase()
+    const r = sn(a.name).localeCompare(sn(b.name))
+    return sortOrder === 'za' ? -r : r
+  })
+
+  const allSel = filtered.length > 0 && filtered.every(p => selectedPlayers.has(p.id))
+  const someSel = filtered.some(p => selectedPlayers.has(p.id))
+
+  const selChips = [...selectedPlayers].map(id => {
+    const p = PLAYERS.find(x=>x.id===id)
+    if (!p) return ''
+    return `<span class="token-chip">${p.name}<span class="chip-close" onclick="removePlayer('${p.id}',event)">×</span></span>`
+  }).join('')
+
+  if (!selectorOpen) {
+    c.innerHTML = `
+      <div class="selector-trigger" onclick="openSelector()">
+        <div style="flex:1;">
+          ${selectedPlayers.size === 0
+            ? '<span class="selector-trigger-placeholder">Select players…</span>'
+            : `<div class="selector-trigger-chips">${selChips}</div>`}
+        </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>`
+    return
+  }
+
+  c.innerHTML = `
+    <div class="selector-panel">
+      <div style="position:relative;margin-bottom:10px;">
+        <svg width="14" height="14" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--color-text-secondary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="field-input" style="padding:8px 30px 8px 30px;background:var(--color-background-secondary);border-bottom:1px solid var(--color-border-primary);" type="text" placeholder="Search" value="${playerSearch}" oninput="playerSearch=this.value;renderStep1()" />
+        <button onclick="playerSearch='';renderStep1()" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--color-text-secondary);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <div class="field-wrap" style="flex:1;margin:0;">
+          <label>Team</label>
+          <select class="sel-input" onchange="teamFilter=this.value;renderStep1()">
+            ${['All teams','First Team','Reserve Team'].map(t=>`<option value="${t}" ${teamFilter===t?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field-wrap" style="flex:1;margin:0;">
+          <label>Sort</label>
+          <select class="sel-input" onchange="sortOrder=this.value;renderStep1()">
+            <option value="az" ${sortOrder==='az'?'selected':''}>A–Z</option>
+            <option value="za" ${sortOrder==='za'?'selected':''}>Z–A</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:8px;">
+        <span class="chip chip-navy" style="font-size:11px;">Selected (${selectedPlayers.size})</span>
+      </div>
+      <div class="player-list-header">
+        <span style="font-size:12px;color:var(--color-text-secondary);">All players</span>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span style="font-size:12px;color:var(--color-text-secondary);">Select all</span>
+          <input type="checkbox" class="cb" ${allSel?'checked':''} ${someSel&&!allSel?'data-indeterminate=true':''} onchange="toggleAllVisible(this.checked)" />
+        </div>
+      </div>
+      <hr class="divider" />
+      <div class="player-list-box">
+        ${filtered.length === 0 ? '<div style="padding:16px;text-align:center;font-size:13px;color:var(--color-text-secondary);">No players found</div>' :
+          filtered.map(p => `
+            <div class="player-row" onclick="togglePlayer('${p.id}')">
+              <input type="checkbox" class="cb" ${selectedPlayers.has(p.id)?'checked':''} onclick="event.stopPropagation()" onchange="togglePlayer('${p.id}')" />
+              <div class="player-avatar">${p.name[0]}</div>
+              <span class="player-name">${p.name}</span>
+              <span class="player-nat">${p.nat}</span>
+            </div>`).join('')}
+      </div>
+      <hr class="divider" />
+      <div class="panel-footer">
+        <button class="btn btn-primary" ${selectedPlayers.size===0?'disabled':''} onclick="closeSelector()">Done</button>
+      </div>
+    </div>`
+
+  // fix indeterminate
+  const cb = c.querySelector('[data-indeterminate]')
+  if (cb) cb.indeterminate = true
+}
+
+function openSelector() { selectorOpen = true; renderStep1() }
+function closeSelector() { selectorOpen = false; setActiveStep(2) }
+function removePlayer(id, e) {
+  e.stopPropagation()
+  selectedPlayers.delete(id)
+  renderAll()
+}
+function togglePlayer(id) {
+  if (selectedPlayers.has(id)) selectedPlayers.delete(id)
+  else selectedPlayers.add(id)
+  renderAll()
+}
+function toggleAllVisible(checked) {
+  const filtered = PLAYERS.filter(p => {
+    const q = playerSearch.trim().toLowerCase()
+    return (!q || p.name.toLowerCase().includes(q)) && (teamFilter === 'All teams' || p.team === teamFilter)
+  })
+  filtered.forEach(p => checked ? selectedPlayers.add(p.id) : selectedPlayers.delete(p.id))
+  renderAll()
+}
+
+// ── Step 2 ──
+function renderStep2() {
+  setCollapse('step2Body', activeStep === 2)
+  const c = document.getElementById('step2Content')
+  if (activeStep !== 2) { c.innerHTML = ''; return }
+
+  const pIds = [...selectedPlayers]
+  const cats = ['All categories', ...new Set(FORMS.map(f=>f.category))]
+  const visible = FORMS.filter(f => {
+    const q = formSearch.trim().toLowerCase()
+    const hasPlayer = pIds.length === 0 || f.players.some(id=>pIds.includes(id))
+    const matchCat = formCategory === 'All categories' || f.category === formCategory
+    const matchQ = !q || f.name.toLowerCase().includes(q)
+    return hasPlayer && matchCat && matchQ
+  }).sort((a,b) => {
+    const r = a.name.localeCompare(b.name)
+    return formSort === 'za' ? -r : r
+  })
+
+  const selName = selectedForm ? (FORMS.find(f=>f.id===selectedForm)?.name || 'Form selected') : 'No form selected'
+
+  c.innerHTML = `
+    <div style="position:relative;margin-bottom:10px;">
+      <svg width="14" height="14" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--color-text-secondary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="field-input" style="padding:8px 12px 8px 30px;background:var(--color-background-secondary);border-bottom:1px solid var(--color-border-primary);" type="text" placeholder="Search forms" value="${formSearch}" oninput="formSearch=this.value;renderStep2()" />
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <div class="field-wrap" style="flex:1;margin:0;">
+        <label>Category</label>
+        <select class="sel-input" onchange="formCategory=this.value;renderStep2()">
+          ${cats.map(c=>`<option value="${c}" ${formCategory===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field-wrap" style="flex:1;margin:0;">
+        <label>Sort</label>
+        <select class="sel-input" onchange="formSort=this.value;renderStep2()">
+          <option value="az" ${formSort==='az'?'selected':''}>A–Z</option>
+          <option value="za" ${formSort==='za'?'selected':''}>Z–A</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:8px;">
+      <span class="chip chip-navy">${selName}</span>
+    </div>
+    <div class="form-list">
+      ${visible.length === 0
+        ? `<div style="padding:16px;text-align:center;font-size:13px;color:var(--color-text-secondary);">${pIds.length===0?'Select players first':'No forms found'}</div>`
+        : visible.map(f => {
+            const assoc = f.players.filter(id=>pIds.includes(id)).map(id=>PLAYERS.find(p=>p.id===id)?.name).filter(Boolean)
+            const first2 = assoc.slice(0,2).join(' · ')
+            const rest = assoc.length > 2 ? ` <span class="chip chip-grey" style="font-size:10px;padding:1px 6px;">+${assoc.length-2} more</span>` : ''
+            return `<div class="form-row" onclick="selectForm('${f.id}')">
+              <input type="radio" class="cb" name="formRadio" value="${f.id}" ${selectedForm===f.id?'checked':''} onclick="event.stopPropagation()" onchange="selectForm('${f.id}')" />
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+                  <span class="form-name" style="flex:1;">${f.name}</span>
+                  <span class="form-cat">${f.category}</span>
+                </div>
+                ${assoc.length > 0 ? `<div style="font-size:12px;color:var(--color-text-secondary);">${first2}${rest}</div>` : ''}
+              </div>
+            </div>`
+          }).join('')}
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+      <button class="btn btn-primary" ${!selectedForm?'disabled':''} onclick="setActiveStep(3)">Done</button>
+    </div>`
+}
+
+function selectForm(id) {
+  selectedForm = id
+  renderAll()
+}
+
+// ── Step 3 ──
+function renderStep3() {
+  setCollapse('step3Body', activeStep === 3)
+  const c = document.getElementById('step3Content')
+  if (activeStep !== 3) { c.innerHTML = ''; return }
+
+  c.innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:0;">
+      <div class="field-wrap" style="flex:1;">
+        <label>From</label>
+        <input type="date" class="field-input" value="${dateFrom}" onchange="dateFrom=this.value;datePreset='custom';renderAll()" />
+      </div>
+      <div class="field-wrap" style="flex:1;">
+        <label>To</label>
+        <input type="date" class="field-input" value="${dateTo}" onchange="dateTo=this.value;datePreset='custom';renderAll()" />
+      </div>
+    </div>
+    <div class="preset-chips">
+      ${DATE_PRESETS.map(p => `<span class="chip chip-preset ${datePreset===p.id?'sel':''}" onclick="applyPreset('${p.id}')">${p.label}</span>`).join('')}
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:14px;justify-content:center;font-size:13px;" ${!getDateLabel()?'disabled':''} onclick="setActiveStep(4)">Done</button>`
+}
+
+function applyPreset(id) {
+  datePreset = id
+  if (id !== 'custom') {
+    const today = new Date()
+    const fmt = d => d.toISOString().slice(0,10)
+    dateTo = fmt(today)
+    const offsets = {today:0,'last-7':7,'last-30':30,'last-6m':180,'last-2y':730}
+    const start = new Date(today)
+    start.setDate(start.getDate() - (offsets[id]||0))
+    dateFrom = fmt(start)
+  }
+  renderAll()
+}
+
+// ── Size meter ──
+function renderSizeMeter() {
+  const hasAny = selectedPlayers.size > 0 || selectedForm || datePreset
+  if (!hasAny || summaryVisible) {
+    document.getElementById('sizeMeter').style.display = 'none'
+    return
+  }
+  document.getElementById('sizeMeter').style.display = 'block'
+  const ps = selectedPlayers.size * 8
+  const dateScores = {today:1,'last-7':2,'last-30':3,'last-6m':4,'last-2y':5,custom:3}
+  const ds = datePreset ? (dateScores[datePreset]||0) : 0
+  const fs = selectedForm ? 2 : 0
+  const usage = Math.min(ps + ds + fs, 100)
+  const color = usage >= 100 ? '#d32f2f' : usage >= 70 ? '#f59e0b' : '#2e7d32'
+  document.getElementById('sizeFill').style.width = usage + '%'
+  document.getElementById('sizeFill').style.background = color
+  document.getElementById('sizeLabel').textContent = usage >= 100 ? 'Limit reached' : usage + '% of limit used'
+  const al = document.getElementById('sizeAlert')
+  if (usage >= 100) {
+    al.style.display = 'block'
+    al.className = 'alert alert-error'
+    al.innerHTML = "You've reached the summary limit. Please reduce your selection before generating."
+  } else if (usage >= 70) {
+    al.style.display = 'block'
+    al.className = 'alert alert-warning'
+    al.innerHTML = 'Your selection is getting large. To keep your summary focused, try narrowing the date range or reducing the number of players.'
+      + '<div style="margin-top:4px;"><span class="alert-link" onclick="setActiveStep(3)">Reduce date range ↑</span><span class="alert-link" onclick="setActiveStep(1);openSelector()">Remove players ↑</span></div>'
+  } else {
+    al.style.display = 'none'
+  }
+}
+
+function updateGenerateBtn() {
+  const ps = selectedPlayers.size * 8
+  const dateScores = {today:1,'last-7':2,'last-30':3,'last-6m':4,'last-2y':5,custom:3}
+  const ds = datePreset ? (dateScores[datePreset]||0) : 0
+  const usage = Math.min(ps + ds + (selectedForm?2:0), 100)
+  const canGen = selectedPlayers.size > 0 && selectedForm && getDateLabel() && usage < 100
+  document.getElementById('generateBtn').disabled = !canGen
+}
+
+// ── Generate ──
+function handleGenerate() {
+  const stepFlow = document.getElementById('stepFlow')
+  const loading = document.getElementById('loadingState')
+  const result = document.getElementById('summaryResult')
+  const genFooter = document.getElementById('generateFooter')
+  const sumFooter = document.getElementById('summaryFooter')
+  const sizeMeter = document.getElementById('sizeMeter')
+
+  // reset feedback
+  feedbackModal = feedbackType = null
+  feedbackSubmitted = false
+  document.getElementById('feedbackPanel').classList.remove('open')
+  document.getElementById('thumbUp').classList.remove('active')
+  document.getElementById('thumbDown').classList.remove('active')
+  document.getElementById('feedbackLabel').textContent = 'Was this helpful?'
+  updateThumbIcons()
+
+  stepFlow.style.display = 'none'
+  loading.style.display = 'flex'
+  loading.style.flexDirection = 'column'
+  result.style.display = 'none'
+  genFooter.style.display = 'none'
+  sumFooter.style.display = 'none'
+  sizeMeter.style.display = 'none'
+  document.getElementById('drawerTitle').textContent = 'Player response summary'
+
+  const delay = 5000 + Math.random() * 5000
+  generatingTimer = setTimeout(() => {
+    loading.style.display = 'none'
+    result.style.display = 'block'
+    genFooter.style.display = 'none'
+    sumFooter.style.display = 'block'
+    summaryVisible = true
+
+    // Build auto title
+    const formName = selectedForm ? (FORMS.find(f=>f.id===selectedForm)?.name || 'Summary') : 'Summary'
+    const n = selectedPlayers.size
+    const dl = getDateLabel()
+    summaryTitleDefault = `${formName} — ${n} player${n!==1?'s':''} — ${dl}`
+    const inp = document.getElementById('summaryTitleInput')
+    inp.value = summaryTitleDefault
+    inp.classList.remove('error')
+    document.getElementById('titleError').style.display = 'none'
+  }, delay)
+}
+
+// ── Title field ──
+function onTitleInput() {
+  const inp = document.getElementById('summaryTitleInput')
+  const hasVal = inp.value.trim().length > 0
+  inp.classList.toggle('error', !hasVal)
+  document.getElementById('titleError').style.display = hasVal ? 'none' : 'block'
+}
+function onTitleBlur() {
+  const inp = document.getElementById('summaryTitleInput')
+  if (!inp.value.trim()) {
+    inp.value = summaryTitleDefault
+    inp.classList.remove('error')
+    document.getElementById('titleError').style.display = 'none'
+  }
+}
+
+// ── Copy ──
+function copySummary() {
+  const text = [
+    'Player response summary',
+    '22 players · 2 forms · Last 30 days',
+    '',
+    'Concussion History: Significant history of concussion. Sustained a concussion in high school (2012) resulting in loss of consciousness and hospitalization for concussion on March 11, 2025.',
+    'Musculoskeletal History: Right Low Back: History of imaging performed on December 24, 2024 for chronic issues.',
+    'Vaccination Status: Incomplete vaccination history — Mumps: Unknown, Pneumonia: Tetanus: No',
+  ].join('\n')
+  if (navigator.clipboard) navigator.clipboard.writeText(text).catch(()=>{})
+  showSnackbar('Summary copied to clipboard')
+}
+
+// ── Feedback ──
+function openFeedback(type) {
+  if (feedbackSubmitted && type === feedbackType) return
+  feedbackModal = type
+  if (feedbackSubmitted) {
+    feedbackSubmitted = false
+    feedbackType = null
+    updateThumbIcons()
+  }
+  const panel = document.getElementById('feedbackPanel')
+  panel.classList.add('open')
+  document.getElementById('feedbackPanelTitle').textContent =
+    type === 'down' ? 'Sorry to hear that. Tell us more.' : 'Glad it was useful. Tell us more.'
+  document.getElementById('feedbackTextLabel').textContent =
+    type === 'down' ? 'Tell us more about what you expected instead' : "Anything else you'd like to tell us?"
+  document.getElementById('feedbackText').placeholder =
+    type === 'down' ? 'Optional — your feedback helps us improve' : 'Optional'
+  document.getElementById('feedbackText').value = ''
+}
+
+function skipFeedback() {
+  feedbackType = feedbackModal
+  feedbackSubmitted = true
+  feedbackModal = null
+  document.getElementById('feedbackPanel').classList.remove('open')
+  updateThumbIcons()
+  document.getElementById('feedbackLabel').textContent = 'Feedback received — thank you'
+  showSnackbar('Thanks for your feedback')
+}
+
+function submitFeedback() {
+  feedbackType = feedbackModal
+  feedbackSubmitted = true
+  feedbackModal = null
+  document.getElementById('feedbackPanel').classList.remove('open')
+  updateThumbIcons()
+  document.getElementById('feedbackLabel').textContent = 'Feedback received — thank you'
+  showSnackbar('Thanks for your feedback')
+}
+
+function updateThumbIcons() {
+  const up = document.getElementById('thumbUp')
+  const down = document.getElementById('thumbDown')
+  up.classList.toggle('active', feedbackType === 'up')
+  down.classList.toggle('active', feedbackType === 'down')
+  // filled vs outlined via stroke-fill trick (simple colour change)
+  up.style.color = feedbackType === 'up' ? '#1a2744' : '#757575'
+  down.style.color = feedbackType === 'down' ? '#1a2744' : '#757575'
+}
+
+// ── Snackbar ──
+let snackbarTimer
+function showSnackbar(msg) {
+  const el = document.getElementById('snackbar')
+  el.textContent = msg
+  el.classList.add('show')
+  clearTimeout(snackbarTimer)
+  snackbarTimer = setTimeout(() => el.classList.remove('show'), 3000)
+}
+
+// ── AI History drawer ──
+function renderHistoryList() {
+  const q = (document.getElementById('historySearch')?.value || '').trim().toLowerCase()
+  const filtered = AI_HISTORY.filter(h => !q || h.title.toLowerCase().includes(q))
+  const list = document.getElementById('historyList')
+  if (!list) return
+  if (filtered.length === 0) {
+    list.innerHTML = '<div style="padding:24px;text-align:center;font-size:13px;color:var(--color-text-secondary);">No summaries found</div>'
+    return
+  }
+  list.innerHTML = filtered.map((h, i) => `
+    <div class="history-item" onclick="${h.status==='ready' ? `openHistoryDetail(${h.id})` : `showSnackbar('Your AI summary is still generating. Please check back shortly.')`}">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-ai-purple)" stroke-width="1.8" stroke-linecap="round"
+        style="${h.status==='generating' ? 'animation:aiPulse 1.4s ease-in-out infinite' : ''}">
+        <path d="M12 2L9.09 9.09 2 12l7.09 2.91L12 22l2.91-7.09L22 12l-7.09-2.91L12 2z"/>
+      </svg>
+      <div style="flex:1;min-width:0;">
+        <div class="history-title">${h.title}</div>
+        <div class="history-sub">${h.subtitle}</div>
+      </div>
+      ${h.status === 'ready'
+        ? '<span class="chip" style="background:#e8f5e9;color:#2e7d32;font-size:11px;">Ready</span>'
+        : '<span class="chip" style="background:var(--color-warning);color:#fff;font-size:11px;">Generating</span>'}
+    </div>`).join('')
+}
+
+function filterHistory() {
+  renderHistoryList()
+}
+
+function openHistoryDetail(id) {
+  const item = AI_HISTORY.find(h=>h.id===id)
+  if (!item) return
+  document.getElementById('historyListView').style.display = 'none'
+  document.getElementById('historyDetailView').style.display = 'block'
+  document.getElementById('historyDetailMeta').textContent = item.subtitle
+  document.getElementById('historyTitle').textContent = item.title
+  // swap icon to back arrow
+  const icon = document.getElementById('historyHeaderIcon')
+  icon.style.display = 'none'
+  // check if back btn exists, else add
+  if (!document.getElementById('historyBackBtn')) {
+    const btn = document.createElement('button')
+    btn.id = 'historyBackBtn'
+    btn.className = 'icon-btn'
+    btn.style.cssText = 'width:28px;height:28px;margin-right:4px;'
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>'
+    btn.onclick = () => {
+      document.getElementById('historyListView').style.display = 'flex'
+      document.getElementById('historyDetailView').style.display = 'none'
+      document.getElementById('historyTitle').textContent = 'AI Summaries'
+      icon.style.display = 'block'
+      btn.remove()
+    }
+    document.getElementById('historyDrawerHeader').insertBefore(btn, document.getElementById('historyTitle'))
+  }
+}
+
+// Tab interactivity
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+    tab.classList.add('active')
+  })
+})
+
+// Initialise step bodies
+renderStep1()
+</script>
+</body>
+</html>

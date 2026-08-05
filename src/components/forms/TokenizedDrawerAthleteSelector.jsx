@@ -36,6 +36,19 @@ function TokenizedDrawerAthleteSelector(props) {
         MuiTextField: {
           defaultProps: { variant: 'filled', size: 'small' }
         },
+        // eslint-disable-next-line design-system/no-hardcoded-colors
+        MuiFilledInput: {
+          styleOverrides: {
+            root: {
+              // eslint-disable-next-line design-system/no-hardcoded-colors
+              backgroundColor: '#F3F4F7',
+              // eslint-disable-next-line design-system/no-hardcoded-colors
+              '&:hover': { backgroundColor: '#F3F4F7' },
+              // eslint-disable-next-line design-system/no-hardcoded-colors
+              '&.Mui-focused': { backgroundColor: '#F3F4F7' },
+            },
+          },
+        },
         MuiButton: {
           defaultProps: { variant: 'contained', size: 'small', disableElevation: true },
           styleOverrides: {

@@ -185,6 +185,8 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
     timezone: 'Europe/Dublin',
     repeats: 'none',
     location: '',
+    locationLat: null,
+    locationLng: null,
     selectedAthletes: [],
     selectedStaff: [],
     description: '',
@@ -220,6 +222,8 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
         timezone: editingEvent.extendedProps?.timezone || 'Europe/Dublin',
         repeats: editingEvent.extendedProps?.repeats || 'none',
         location: editingEvent.extendedProps?.location || '',
+        locationLat: editingEvent.extendedProps?.locationLat ?? null,
+        locationLng: editingEvent.extendedProps?.locationLng ?? null,
         selectedAthletes: editingEvent.extendedProps?.selectedAthletes || [],
         selectedStaff: editingEvent.extendedProps?.selectedStaff || [],
         description: editingEvent.extendedProps?.description || '',
@@ -297,6 +301,8 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
         workload: formData.workload,
         sessionType: formData.sessionType,
         location: formData.location,
+        locationLat: formData.locationLat,
+        locationLng: formData.locationLng,
         timezone: formData.timezone,
         repeats: formData.repeats,
         selectedAthletes: formData.selectedAthletes,
@@ -539,6 +545,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                 <LocationPicker
                   value={formData.location}
                   onChange={(value) => handleInputChange('location', value)}
+                  onLocationChange={(loc) => setFormData((prev) => ({ ...prev, locationLat: loc.lat, locationLng: loc.lng }))}
                   savedLocations={savedLocationsData}
                 />
               </Grid>

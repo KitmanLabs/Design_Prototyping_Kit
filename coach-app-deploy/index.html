@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coach app — Standalone Mobile Prototype</title>
+
+  <!-- React 18 UMD -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Emotion (MUI styling engine) -->
+  <script crossorigin src="https://unpkg.com/@emotion/react@11/dist/emotion-react.umd.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@emotion/styled@11/dist/emotion-styled.umd.min.js"></script>
+
+  <!-- MUI Material UMD -->
+  <script crossorigin src="https://unpkg.com/@mui/material@5/umd/material-ui.production.min.js"></script>
+
+  <!-- Babel standalone for inline JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
+    * { box-sizing: border-box; }
+    html, body, #root { height: 100%; margin: 0; }
+    body {
+      font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #000;
+    }
+
+    #root {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #111;
+      overflow: hidden;
+    }
+    .phone-frame {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      background: #000;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+    }
+    @media (max-width: 430px) {
+      #root { background: #000; }
+      .phone-frame { width: 100vw; height: 100vh; border-radius: 0; box-shadow: none; }
+    }
+    @keyframes scrimFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes sheetSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/plain" id="app-source">
+    const { useState, useMemo, useEffect, useRef } = React;
+    const {
+      Box, Typography, Button, IconButton, TextField, MenuItem, Select, FormControl,
+      Checkbox, Collapse, ThemeProvider, createTheme, CssBaseline, Badge,
+    } = MaterialUI;
+
+    /* ─── Theme — copied from index.html (colours, typography, component defaults) ── */
+    const theme = createTheme({
+      palette: {
+        primary:   { main: '#3B4960', dark: '#2f3a4d' },
+        secondary: { main: '#F1F2F3' },
+        background: { default: '#F3F4F7' },
+        text:      { primary: '#333333', secondary: '#666666' },
+      },
+      shape: { borderRadius: 6 },
+      typography: {
+        fontFamily: "'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontWeightLight: 500, fontWeightRegular: 500, fontWeightMedium: 500, fontWeightBold: 500,
+        button: { textTransform: 'none', fontWeight: 500 },
+        allVariants: { fontWeight: 500 },
+      },
+      components: {
+        MuiButton: {
+          defaultProps: { variant: 'contained', size: 'small', disableElevation: true },
+          styleOverrides: { root: { textTransform: 'none', borderRadius: 6, fontWeight: 500 } },
+        },
+        MuiTextField:  { defaultProps: { variant: 'filled', size: 'small' } },
+        MuiSelect:     { defaultProps: { variant: 'filled', size: 'small' } },
+        MuiFilledInput: {
+          defaultProps: { disableUnderline: true },
+          styleOverrides: {
+            root: {
+              backgroundColor: '#F3F4F7', borderRadius: 6, overflow: 'hidden',
+              '&:hover': { backgroundColor: '#ECEEF2' },
+              '&.Mui-focused': { backgroundColor: '#ECEEF2', boxShadow: '0 0 0 2px rgba(59,73,96,0.35)' },
+            },
+            input: { fontSize: 14, fontWeight: 500, paddingTop: 9, paddingBottom: 9 },
+          },
+        },
+        MuiCheckbox: { defaultProps: { size: 'small' }, styleOverrides: { root: { color: '#B4B8C0', '&.Mui-checked': { color: '#3B4960' } } } },
+        MuiMenuItem: { styleOverrides: { root: { fontSize: 14, fontWeight: 500 } } },
+      },
+    });
+
+    /* ─── Inline SVG icons — copied from index.html ───────────────────────── */
+    function Icon({ path, size = 20, color = 'currentColor', sx, outline = false }) {
+      return (
+        <Box component="span" sx={{ display: 'inline-flex', lineHeight: 0, ...sx }}>
+          <svg width={size} height={size} viewBox="0 0 24 24"
+            fill={outline ? 'none' : color} stroke={outline ? color : 'none'} strokeWidth={outline ? 1.5 : 0}
+            strokeLinejoin="round" strokeLinecap="round">
+            <path d={path} />
+          </svg>
+        </Box>
+      );
+    }
+    const P = {
+      analytics: 'M5 9.2h3V19H5zM10.6 5h3v14h-3zm5.6 8H19v6h-2.8z',
+      network: 'M12 2a3 3 0 0 0-1 5.83V10H7a2 2 0 0 0-2 2v1.17a3 3 0 1 0 2 0V12h10v1.17a3 3 0 1 0 2 0V12a2 2 0 0 0-2-2h-4V7.83A3 3 0 0 0 12 2z',
+      medical: 'M10 3h4v5h5v4h-5v5h-4v-5H5V8h5z',
+      drop: 'M12 3s6 6.5 6 11a6 6 0 1 1-12 0c0-4.5 6-11 6-11z',
+      clipboard: 'M9 2h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2a1 1 0 0 1 1-1zm0 3v1h6V5H9z',
+      calendar: 'M7 2v2H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zM5 9h14v10H5V9z',
+      inbox: 'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 9h4a4 4 0 0 0 8 0h4V6H4v7z',
+      folder: 'M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z',
+      person: 'M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4 0-8 2-8 5v3h16v-3c0-3-4-5-8-5z',
+      document: 'M6 2h8l6 6v14H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm7 1.5V9h5.5L13 3.5z',
+      settings: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 4l-2 .3a7 7 0 0 1-.6 1.5l1.2 1.6-1.4 1.4-1.6-1.2a7 7 0 0 1-1.5.6L14 20h-2l-.3-2a7 7 0 0 1-1.5-.6l-1.6 1.2-1.4-1.4 1.2-1.6a7 7 0 0 1-.6-1.5L4 12v-2l2-.3a7 7 0 0 1 .6-1.5L5.4 6.6l1.4-1.4 1.6 1.2a7 7 0 0 1 1.5-.6L12 4h2l.3 2a7 7 0 0 1 1.5.6l1.6-1.2 1.4 1.4-1.2 1.6a7 7 0 0 1 .6 1.5L21 10z',
+      help: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-2h2zm1.8-6.3-.9.9c-.5.5-.9 1-.9 2.4h-2v-.5c0-1 .4-1.9 1.1-2.6l1.2-1.2A1.6 1.6 0 1 0 10.4 8H8.4A3.6 3.6 0 1 1 15 10.7z',
+      chevronDown: 'M7.4 8.6 12 13.2l4.6-4.6L18 10l-6 6-6-6z',
+      chevronUp: 'M7.4 15.4 12 10.8l4.6 4.6L18 14l-6-6-6 6z',
+      chevronLeft: 'M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z',
+      chevronRight: 'M8.6 7.4 10 6l6 6-6 6-1.4-1.4L13.2 12z',
+      close: 'M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z',
+      filter: 'M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z',
+      search: 'M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z',
+      pin: 'M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z',
+      bell: 'M12 22a2.4 2.4 0 0 0 2.4-2.4H9.6A2.4 2.4 0 0 0 12 22zm7-6v-5a7 7 0 0 0-5.3-6.8V3.5a1.7 1.7 0 0 0-3.4 0v.7A7 7 0 0 0 5 11v5l-2 2v1h18v-1l-2-2z',
+      send: 'M2 21l21-9L2 3v7l15 2-15 2z',
+      clock: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11h5v-2h-4V6h-2v7z',
+      add: 'M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z',
+      check: 'M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z',
+      trash: 'M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z',
+      mailOutline: 'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2.4V6l8 5.99L20 6v-.01zm16 11.6V8.24l-7.4 5.55a1 1 0 0 1-1.2 0L4 8.24V18h16z',
+      bold: 'M7 4h6.2a4 4 0 0 1 2.6 7 4.5 4.5 0 0 1-2.9 8H7V4zm3 6.5h3a2 2 0 0 0 0-4h-3v4zm0 6h3.5a2 2 0 0 0 0-4H10v4z',
+      italic: 'M10 4h8v2h-2.9l-3.2 12H15v2H7v-2h2.9l3.2-12H10V4z',
+      link: 'M10.6 13.4a1 1 0 0 1 0-1.4l3-3a3 3 0 1 1 4.2 4.2l-1.5 1.5-1.4-1.4 1.5-1.5a1 1 0 1 0-1.4-1.4l-3 3a1 1 0 0 1-1.4 0zm2.8-2.8a1 1 0 0 1 0 1.4l-3 3a3 3 0 1 1-4.2-4.2l1.5-1.5 1.4 1.4-1.5 1.5a1 1 0 1 0 1.4 1.4l3-3a1 1 0 0 1 1.4 0z',
+      bulletList: 'M4 6h2v2H4V6zm4 0h12v2H8V6zM4 11h2v2H4v-2zm4 0h12v2H8v-2zM4 16h2v2H4v-2zm4 0h12v2H8v-2z',
+      attach: 'M16.5 6.5a3 3 0 0 0-4.2 0l-6 6a4.5 4.5 0 0 0 6.4 6.4l5.6-5.6-1.4-1.4-5.6 5.6a2.5 2.5 0 1 1-3.6-3.6l6-6a1 1 0 0 1 1.4 1.4l-5.3 5.3 1.4 1.4 5.3-5.3a3 3 0 0 0 0-4.2z',
+      chatBubble: 'M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-4 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z',
+      heartbeat: 'M12 20.5s-6.5-4-9-8.3C1.3 8.9 2.8 5.5 6 5.5c2 0 3.2 1.2 4 2.3l.7-2.3h2.6l1 3.3 1-1.8h3.6c1.2 1.9.5 4.3-1 6.2-2.5 3.2-6 5.8-6 7.3z',
+      sort: 'M7 10l5-5 5 5H7zm0 4h10l-5 5-5-5z',
+    };
+
+    /* ─── Mock data — copied from index.html ──────────────────────────────── */
+    const ORGS = [
+      { id: 'atl', name: 'KL Atlanta', color: '#EE1C25', squads: [
+        { id: 'atl-kls', name: 'KLS' }, { id: 'atl-klsnp', name: 'KLS Next Pro' }, { id: 'atl-test', name: 'Test' },
+        { id: 'atl-u13ad', name: 'U13 AD' }, { id: 'atl-u14', name: 'U14' }, { id: 'atl-u14ad', name: 'U14 AD' },
+        { id: 'atl-u15ad', name: 'U15 AD' }, { id: 'atl-u16', name: 'U16' }, { id: 'atl-u17', name: 'U17' },
+        { id: 'atl-u18', name: 'U18' }, { id: 'atl-first', name: 'First team' },
+      ]},
+      { id: 'bos', name: 'KL Boston', color: '#0B6E4F', squads: [
+        { id: 'bos-first', name: 'First team' }, { id: 'bos-reserves', name: 'Reserves' },
+        { id: 'bos-u19', name: 'U19' }, { id: 'bos-u17', name: 'U17' },
+      ]},
+      { id: 'chi', name: 'KL Chicago', color: '#1565C0', squads: [
+        { id: 'chi-first', name: 'First team' }, { id: 'chi-acad', name: 'Academy' }, { id: 'chi-u18', name: 'U18' },
+      ]},
+      { id: 'den', name: 'KL Denver', color: '#6A1B9A', squads: [
+        { id: 'den-first', name: 'First team' }, { id: 'den-u21', name: 'U21' }, { id: 'den-u17', name: 'U17' },
+      ]},
+    ];
+    const ORG_BY_ID = Object.fromEntries(ORGS.map(o => [o.id, o]));
+    const SQUAD_BY_ID = {};
+    ORGS.forEach(o => o.squads.forEach(s => { SQUAD_BY_ID[s.id] = { ...s, orgId: o.id, orgName: o.name }; }));
+
+    const SQUAD_PALETTE = ['#005293', '#00897B', '#6A1B9A', '#EF6C00', '#C2185B', '#00838F', '#5D4037', '#2E7D32', '#455A64', '#AD1457', '#3949AB'];
+    const squadColor = (squadId) => {
+      const keys = Object.keys(SQUAD_BY_ID);
+      const idx = keys.indexOf(squadId);
+      return SQUAD_PALETTE[(idx >= 0 ? idx : 0) % SQUAD_PALETTE.length];
+    };
+
+    const TYPE_COLORS = {
+      Game: '#3B5BDB',
+      Training: '#28a745',
+      Travel: '#EF6C00',
+      Medical: '#dc3545',
+      Meeting: '#6A1B9A',
+      Recovery: '#00838F',
+    };
+
+    /* ─── Copied from index.html verbatim — event creation flow data ───────── */
+    const DEFAULT_TYPES = ['Squad session', 'Individual session', 'Game', 'Event'];
+    const TYPE_COLOR_FALLBACKS = ['#005293', '#00897B', '#6A1B9A', '#EF6C00', '#C2185B', '#00838F', '#5D4037', '#2E7D32', '#455A64', '#AD1457', '#3949AB'];
+    const GROUP_PICKER_CUSTOM_GROUPS = [
+      { id: 'group-travel-a', name: 'Travelling Party A' },
+      { id: 'group-academy-coaches', name: 'Academy Coaches' },
+      { id: 'group-medical-team', name: 'Medical Team' },
+    ];
+
+    const LOCATION_SUGGESTIONS = [
+      { name: 'Mercedes-Benz Stadium', address: '1 AMB Dr NW, Atlanta, GA 30313', lat: 33.7554, lng: -84.4009 },
+      { name: 'Children’s Healthcare Training Ground', address: '4045 Vaughan Rd, Marietta, GA 30066', lat: 33.9526, lng: -84.5499 },
+      { name: 'Piedmont Park Athletic Fields', address: '400 Park Dr NE, Atlanta, GA 30306', lat: 33.7879, lng: -84.3733 },
+      { name: 'Emory Sports Medicine Complex', address: '1968 Hawks Ln, Brookhaven, GA 30329', lat: 33.8290, lng: -84.3390 },
+      { name: 'Atlanta Silverbacks Park', address: '3200 Atlanta Silverbacks Way, Atlanta, GA 30340', lat: 33.9012, lng: -84.2718 },
+      { name: 'Kennesaw State Soccer Stadium', address: '590 Cobb Ave NW, Kennesaw, GA 30144', lat: 34.0379, lng: -84.5822 },
+      { name: 'Bray, Ireland', address: 'Bray, Co. Wicklow, Ireland', lat: 53.2026, lng: -6.0986 },
+      { name: 'Bray Sports Centre', address: 'Vevay Rd, Bray, Co. Wicklow', lat: 53.2005, lng: -6.1004 },
+      { name: 'Bray Wanderers FC', address: 'Carlisle Grounds, Bray, Co. Wicklow', lat: 53.1979, lng: -6.0961 },
+    ];
+
+    const ATHLETE_NAMES = ['Marco Silva', 'Diego Ferreira', 'Josh Lambert', 'Tyler Brooks', 'Andre Costa', 'Liam O’Neill', 'Samir Haddad', 'Noah Bennett', 'Kai Robinson', 'Owen Mitchell', 'Rafael Gomes', 'Ethan Walsh'];
+    const STAFF_NAMES = ['Coach D. Carroll', 'Dr. Amelia Reyes', 'S&C Lead M. Turner', 'Physio J. Park', 'Analyst R. Cole'];
+    const rosterForSquad = (squadId) => {
+      const seed = Object.keys(SQUAD_BY_ID).indexOf(squadId) + 1;
+      const athletes = ATHLETE_NAMES.filter((_, i) => (i + seed) % 2 === 0).slice(0, 6)
+        .map((n, i) => ({ id: `${squadId}-a${i}`, name: n, type: 'athlete' }));
+      const staff = STAFF_NAMES.slice(0, 3).map((n, i) => ({ id: `${squadId}-s${i}`, name: n, type: 'staff' }));
+      return [...athletes, ...staff];
+    };
+
+    let _eid = 0;
+    const ev = (day, orgId, squadId, type, title, start, end, extra = {}) => ({
+      id: `ev-${_eid++}`, day, orgId, squadId, type, title, start, end,
+      location: extra.location || null, reminders: extra.reminders || [], notes: extra.notes || '',
+      attendees: extra.attendees || rosterForSquad(squadId),
+    });
+    const SEED_EVENTS = [
+      ev(2, 'atl', 'atl-first', 'Training', 'First team training', '09:00', '11:00', { location: LOCATION_SUGGESTIONS[1], reminders: ['1 hour before'] }),
+      ev(2, 'atl', 'atl-u17', 'Training', 'U17 technical session', '16:00', '17:30'),
+      ev(6, 'atl', 'atl-first', 'Recovery', 'Recovery & pool', '10:00', '11:00'),
+      ev(7, 'atl', 'atl-test', 'Meeting', 'Sports science review', '13:00', '14:00', { reminders: ['30 minutes before'] }),
+      ev(9, 'atl', 'atl-first', 'Game', 'vs Orlando City', '19:30', '21:30', { location: LOCATION_SUGGESTIONS[0], reminders: ['1 day before', '3 hours before'] }),
+      ev(10, 'atl', 'atl-u16', 'Training', 'U16 conditioning', '15:30', '17:00'),
+      ev(13, 'atl', 'atl-first', 'Medical', 'Screening — hamstring', '08:30', '10:00', { location: LOCATION_SUGGESTIONS[3] }),
+      ev(15, 'atl', 'atl-first', 'Training', 'First team training', '09:00', '11:00', { location: LOCATION_SUGGESTIONS[1], reminders: ['1 hour before'] }),
+      ev(15, 'atl', 'atl-u18', 'Training', 'U18 match prep', '16:00', '17:30'),
+      ev(16, 'atl', 'atl-first', 'Travel', 'Travel to Nashville', '12:00', '18:00'),
+      ev(17, 'atl', 'atl-first', 'Game', 'vs Nashville SC', '20:00', '22:00', { location: { name: 'GEODIS Park', address: '501 Benton Ave, Nashville, TN 37203' }, reminders: ['1 day before'] }),
+      ev(21, 'atl', 'atl-u14', 'Training', 'U14 development', '16:00', '17:30'),
+      ev(23, 'atl', 'atl-first', 'Meeting', 'Squad planning', '11:00', '12:00'),
+      ev(24, 'atl', 'atl-first', 'Training', 'First team training', '09:00', '11:00', { location: LOCATION_SUGGESTIONS[1] }),
+      ev(28, 'atl', 'atl-first', 'Recovery', 'Recovery session', '10:00', '11:00'),
+      ev(9, 'bos', 'bos-first', 'Game', 'vs New England', '19:00', '21:00', { location: { name: 'Gillette Stadium', address: '1 Patriot Pl, Foxborough, MA 02035' } }),
+      ev(15, 'bos', 'bos-first', 'Training', 'First team training', '10:00', '12:00'),
+      ev(22, 'bos', 'bos-u19', 'Training', 'U19 session', '16:00', '17:30'),
+      ev(15, 'chi', 'chi-first', 'Meeting', 'Recruitment review', '14:00', '15:00'),
+      ev(18, 'chi', 'chi-acad', 'Training', 'Academy session', '15:00', '16:30'),
+    ];
+
+    const ALL_ORG_IDS = ORGS.map(o => o.id);
+    const ALL_TYPES = Object.keys(TYPE_COLORS);
+
+    /* ─── Athletes home screen — mock roster grouped by position ───────────── */
+    const POSITION_GROUPS = [
+      { name: 'Attacking midfielder', athletes: [
+        { id: 'ath-1', name: 'Bhuvan Athlete', wellbeing: 'Friday, 1/9' },
+        { id: 'ath-2', name: 'Ger PM Test 9', wellbeing: 'Thursday, 1/8' },
+      ]},
+      { name: 'Central midfielder', athletes: [
+        { id: 'ath-3', name: 'Niall Athlete', wellbeing: 'Tuesday, 12/9' },
+        { id: 'ath-4', name: 'Diagnostic Athlete', wellbeing: 'Monday, 11/9' },
+      ]},
+      { name: 'Centre back', athletes: [
+        { id: 'ath-5', name: 'Test Athlete 5', wellbeing: 'Wednesday, 6/9' },
+        { id: 'ath-6', name: 'QA Athlete 6', wellbeing: 'Friday, 1/9' },
+        { id: 'ath-7', name: 'QA Athlete 7', wellbeing: 'Sunday, 3/9' },
+        { id: 'ath-8', name: 'Sample Athlete 8', wellbeing: 'Thursday, 8/9' },
+      ]},
+    ];
+
+    /* ─── Calendar helpers (fresh, self-contained) ─────────────────────────── */
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const DOW_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const TODAY = { y: 2026, m: 6, d: 15 }; // 15 July 2026
+
+    function buildWeek(baseDate) {
+      const jsDow = baseDate.getDay();
+      const mondayOffset = (jsDow + 6) % 7;
+      const monday = new Date(baseDate);
+      monday.setDate(baseDate.getDate() - mondayOffset);
+      return Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        return {
+          key: i, label: DOW_LABELS[i], day: d.getDate(),
+          isToday: d.getFullYear() === TODAY.y && d.getMonth() === TODAY.m && d.getDate() === TODAY.d,
+        };
+      });
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       STATUS BAR + BOTTOM NAV
+       ═══════════════════════════════════════════════════════════════════════ */
+    function StatusBar({ bg = 'transparent', color = '#fff' }) {
+      return (
+        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 44, display: 'flex', alignItems: 'flex-end', px: 2.5, pb: 1, zIndex: 30, bgcolor: bg }}>
+          <Typography sx={{ color, fontSize: 12 }}>16:57</Typography>
+        </Box>
+      );
+    }
+
+    const NAV_TABS = [
+      { key: 'athletes', label: 'Athletes', icon: P.person },
+      { key: 'calendar', label: 'Calendar', icon: P.calendar },
+      { key: 'messages', label: 'Messages', icon: P.inbox },
+      { key: 'settings', label: 'Settings', icon: P.settings },
+    ];
+
+    function BottomNav({ active, onChange }) {
+      return (
+        <Box sx={{
+          position: 'absolute', left: 0, right: 0, bottom: 0, bgcolor: '#FFFFFF', borderTop: '1px solid #E8EAED',
+          display: 'flex', pt: 1, pb: 2, zIndex: 30,
+        }}>
+          {NAV_TABS.map(tab => {
+            const isActive = tab.key === active;
+            const color = isActive ? '#3B5BDB' : '#5F7089';
+            return (
+              <Box key={tab.key} onClick={() => onChange(tab.key)} sx={{
+                flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, cursor: 'pointer',
+              }}>
+                <Icon path={tab.icon} size={22} color={color} />
+                <Typography sx={{ fontSize: 10, color }}>{tab.label}</Typography>
+              </Box>
+            );
+          })}
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       CALENDAR TAB
+       ═══════════════════════════════════════════════════════════════════════ */
+    function CalendarHeader({ monthLabel, onPrev, onNext, onAdd, filterCount, onFilterClick }) {
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1.5, position: 'relative' }}>
+          <Box sx={{ flex: 1, display: 'flex' }}>
+            <Badge badgeContent={filterCount} sx={{ '& .MuiBadge-badge': { bgcolor: '#1D2635', color: '#fff', fontSize: 10 } }}>
+              <IconButton size="small" onClick={onFilterClick} sx={{ border: '1px solid #E8EAED', borderRadius: 1.5 }}>
+                <Icon path={P.filter} size={18} color="#172B4D" />
+              </IconButton>
+            </Badge>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+            <IconButton size="small" onClick={onPrev}><Icon path={P.chevronLeft} size={18} color="#172B4D" /></IconButton>
+            <Typography sx={{ color: '#172B4D', fontSize: 16 }}>{monthLabel}</Typography>
+            <IconButton size="small" onClick={onNext}><Icon path={P.chevronRight} size={18} color="#172B4D" /></IconButton>
+          </Box>
+          <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+            <Box onClick={onAdd} sx={{ bgcolor: '#1D2635', color: '#fff', borderRadius: 16, px: 1.75, py: 0.6, fontSize: 13, cursor: 'pointer' }}>
+              Add
+            </Box>
+          </Box>
+        </Box>
+      );
+    }
+
+    function WeekStrip({ days, selectedDay, onSelectDay }) {
+      return (
+        <Box sx={{ display: 'flex', px: 1.5, py: 1, gap: 0.25 }}>
+          {days.map(d => {
+            const isSelected = d.day === selectedDay;
+            return (
+              <Box key={d.key} onClick={() => onSelectDay(d.day)} sx={{
+                flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, py: 1, cursor: 'pointer',
+              }}>
+                <Typography sx={{ fontSize: 10, color: '#5F7089' }}>{d.label}</Typography>
+                <Box sx={{
+                  width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  bgcolor: d.isToday ? '#3B5BDB' : 'transparent',
+                  border: (!d.isToday && isSelected) ? '1px solid #3B5BDB' : '1px solid transparent',
+                }}>
+                  <Typography sx={{ fontSize: 14, color: d.isToday ? '#fff' : '#172B4D' }}>{d.day}</Typography>
+                </Box>
+              </Box>
+            );
+          })}
+        </Box>
+      );
+    }
+
+    function EventCard({ event, onClick }) {
+      const color = TYPE_COLORS[event.type] || squadColor(event.squadId);
+      const squad = SQUAD_BY_ID[event.squadId];
+      return (
+        <Box onClick={() => onClick(event)} sx={{
+          display: 'flex', gap: 0, bgcolor: '#FFFFFF', border: '1px solid #E8EAED', borderRadius: 2, mb: 1.5,
+          overflow: 'hidden', cursor: 'pointer',
+        }}>
+          <Box sx={{ width: 4, bgcolor: color, flexShrink: 0 }} />
+          <Box sx={{ py: 1.25, px: 1.5, flex: 1, minWidth: 0 }}>
+            <Typography sx={{ color: '#172B4D', fontSize: 14, mb: 0.25 }}>{event.title}</Typography>
+            <Typography sx={{ color: '#5F7089', fontSize: 12 }}>{event.start} – {event.end} · {squad ? squad.name : ''}</Typography>
+            {event.location && <Typography sx={{ color: '#5F7089', fontSize: 12, mt: 0.25 }}>{event.location.name}</Typography>}
+          </Box>
+        </Box>
+      );
+    }
+
+    function EventList({ events, onSelect }) {
+      if (!events.length) {
+        return <Typography sx={{ color: '#5F7089', fontSize: 13, textAlign: 'center', mt: 5 }}>No events this day</Typography>;
+      }
+      return (
+        <Box sx={{ px: 2, pt: 1 }}>
+          {events.map(e => <EventCard key={e.id} event={e} onClick={onSelect} />)}
+        </Box>
+      );
+    }
+
+    function initials(name) {
+      return name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('');
+    }
+
+    function SheetHandle() {
+      return (
+        <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.5, flexShrink: 0 }}>
+          <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: '#E8EAED' }} />
+        </Box>
+      );
+    }
+
+    function EventDetailSheet({ event, onClose, onSendMessage }) {
+      if (!event) return null;
+      const color = TYPE_COLORS[event.type] || squadColor(event.squadId);
+      const attendees = event.attendees || [];
+      return (
+        <Box onClick={onClose} sx={{ position: 'absolute', inset: 0, bgcolor: 'rgba(0,0,0,0.5)', zIndex: 40, animation: 'scrimFadeIn 0.2s ease-out' }}>
+          <Box onClick={(e) => e.stopPropagation()} sx={{
+            position: 'absolute', left: 0, right: 0, bottom: 0, width: '100%',
+            bgcolor: '#FFFFFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '70%',
+            display: 'flex', flexDirection: 'column', animation: 'sheetSlideUp 0.25s ease-out',
+          }}>
+            <SheetHandle />
+            <Box sx={{ height: 4, bgcolor: color, flexShrink: 0 }} />
+            <Box sx={{ p: 2.5, overflowY: 'auto' }}>
+              <Typography sx={{ color: '#172B4D', fontSize: 18, mb: 0.5 }}>{event.title}</Typography>
+              <Typography sx={{ color: '#5F7089', fontSize: 13, mb: 1.5 }}>{event.start} – {event.end}</Typography>
+              {event.location && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                  <Icon path={P.pin} size={16} color="#5F7089" />
+                  <Typography sx={{ color: '#172B4D', fontSize: 13 }}>{event.location.name}</Typography>
+                </Box>
+              )}
+              <Box sx={{ display: 'flex', gap: 1, mb: 2.5, flexWrap: 'wrap' }}>
+                {attendees.slice(0, 8).map(a => (
+                  <Box key={a.id} sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: '#F3F4F7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Typography sx={{ color: '#172B4D', fontSize: 12 }}>{initials(a.name)}</Typography>
+                  </Box>
+                ))}
+                {attendees.length > 8 && (
+                  <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: '#F3F4F7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Typography sx={{ color: '#5F7089', fontSize: 11 }}>+{attendees.length - 8}</Typography>
+                  </Box>
+                )}
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button onClick={() => onSendMessage(event)} sx={{ flex: 1, bgcolor: '#3B5BDB', '&:hover': { bgcolor: '#2f47a8' } }}>Message participants</Button>
+                <Button onClick={onClose} sx={{ flex: 1, bgcolor: '#F3F4F7', color: '#172B4D', '&:hover': { bgcolor: '#E8EAED' } }}>Edit event</Button>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       ADD EVENT — 3-STEP BOTTOM SHEET
+       ═══════════════════════════════════════════════════════════════════════ */
+    /* ─── Event creation flow — copied from index.html verbatim ────────────── */
+    const ADD_EVENT_STEPS = ['Select group', 'Select participants', 'Event set up', 'Confirm'];
+
+    function addDuration(start, durationLabel) {
+      const mins = { '30m': 30, '1h': 60, '1.5h': 90, '2h': 120 }[durationLabel];
+      if (!mins) return null;
+      const [h, m] = start.split(':').map(Number);
+      const total = h * 60 + m + mins;
+      const eh = Math.floor((total / 60) % 24).toString().padStart(2, '0');
+      const em = (total % 60).toString().padStart(2, '0');
+      return `${eh}:${em}`;
+    }
+
+    function hsvToHex(h, s, v) {
+      s /= 100; v /= 100;
+      const c = v * s;
+      const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+      const m = v - c;
+      let r = 0, g = 0, b = 0;
+      if (h < 60) { r = c; g = x; b = 0; }
+      else if (h < 120) { r = x; g = c; b = 0; }
+      else if (h < 180) { r = 0; g = c; b = x; }
+      else if (h < 240) { r = 0; g = x; b = c; }
+      else if (h < 300) { r = c; g = 0; b = x; }
+      else { r = x; g = 0; b = c; }
+      const toHex = (n) => Math.round((n + m) * 255).toString(16).padStart(2, '0');
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
+    }
+
+    const BRANDING_SWATCHES = [
+      '#3B5BDB', '#1D2635', '#1BBC9C', '#F5A623', '#E85D4A', '#4CAF50', '#1565C0', '#9C27B0',
+      '#1A3A5C', '#C0392B', '#E67E22', '#C0392B', '#8D9E8B', '#1D2635',
+    ];
+
+    function FieldLabel({ children, required }) {
+      return (
+        <Typography sx={{ fontSize: 13, color: '#172B4D', fontWeight: 600, mb: 0.5 }}>
+          {children}{required && <Box component="span" sx={{ color: '#EE1C25', ml: 0.25 }}>*</Box>}
+        </Typography>
+      );
+    }
+
+    function GroupPickerStep({ selectedCustomIds, onToggleCustom, selectedOrgIds, onToggleOrg }) {
+      const [search, setSearch] = useState('');
+      const match = (s) => s.toLowerCase().includes(search.toLowerCase());
+      const visibleCustomGroups = GROUP_PICKER_CUSTOM_GROUPS.filter(g => match(g.name));
+      const visibleOrgs = ORGS.filter(o => match(o.name));
+
+      return (
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <TextField fullWidth placeholder="Search group/club" value={search} onChange={(e) => setSearch(e.target.value)} sx={{ mb: 2 }} />
+
+          {visibleCustomGroups.length > 0 && (
+            <>
+              <Typography sx={{ fontSize: 11, color: '#5F7089', textTransform: 'uppercase', letterSpacing: 0.5, mb: 1 }}>Custom group</Typography>
+              {visibleCustomGroups.map(g => (
+                <Box key={g.id} onClick={() => onToggleCustom(g.id)} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minHeight: 48, cursor: 'pointer' }}>
+                  <Checkbox checked={selectedCustomIds.has(g.id)} onChange={() => onToggleCustom(g.id)} onClick={(e) => e.stopPropagation()} />
+                  <Typography sx={{ fontSize: 15, color: '#172B4D' }}>{g.name}</Typography>
+                </Box>
+              ))}
+              <Box sx={{ height: 1, bgcolor: '#E8EAED', my: 1.5 }} />
+            </>
+          )}
+
+          <Typography sx={{ fontSize: 11, color: '#5F7089', textTransform: 'uppercase', letterSpacing: 0.5, mb: 1 }}>Club</Typography>
+          {visibleOrgs.map(org => (
+            <Box key={org.id} onClick={() => onToggleOrg(org.id)} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minHeight: 48, cursor: 'pointer', borderBottom: '1px solid #E8EAED' }}>
+              <Checkbox checked={selectedOrgIds.has(org.id)} onChange={() => onToggleOrg(org.id)} onClick={(e) => e.stopPropagation()} />
+              <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: org.color, flexShrink: 0 }} />
+              <Typography sx={{ fontSize: 15, color: '#172B4D' }}>{org.name}</Typography>
+            </Box>
+          ))}
+        </Box>
+      );
+    }
+
+    function ParticipantsStep({ selectedOrgIds, expandedOrgIds, onToggleExpand, orgParticipantIds, onToggleParticipant, onToggleSelectAllOrg, orgStaffId, onSetStaff }) {
+      const selectedOrgs = ORGS.filter(o => selectedOrgIds.has(o.id));
+
+      return (
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Typography sx={{ fontSize: 11, color: '#5F7089', textTransform: 'uppercase', letterSpacing: 0.5, mb: 1 }}>Club</Typography>
+          {selectedOrgs.map(org => {
+            const open = expandedOrgIds.has(org.id);
+            const squad = org.squads[0];
+            const roster = squad ? rosterForSquad(squad.id) : [];
+            const athletes = roster.filter(a => a.type === 'athlete');
+            const staff = roster.filter(a => a.type === 'staff');
+            const checkedIds = orgParticipantIds[org.id] || new Set();
+            return (
+              <Box key={org.id} sx={{ borderBottom: '1px solid #E8EAED', mb: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', minHeight: 48, gap: 1.5 }}>
+                  <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: org.color, flexShrink: 0 }} />
+                  <Typography sx={{ fontSize: 15, color: '#172B4D', flex: 1 }}>{org.name}</Typography>
+                  <Box onClick={() => onToggleSelectAllOrg(org.id)} sx={{
+                    bgcolor: '#F3F4F7', borderRadius: 20, height: 32, px: 1.5, display: 'flex', alignItems: 'center', cursor: 'pointer', flexShrink: 0,
+                  }}>
+                    <Typography sx={{ fontSize: 13, color: '#5F7089' }}>Select all</Typography>
+                  </Box>
+                  <IconButton size="small" onClick={() => onToggleExpand(org.id)}>
+                    <Icon path={open ? P.chevronUp : P.chevronDown} size={18} color="#5F7089" />
+                  </IconButton>
+                </Box>
+
+                <Collapse in={open}>
+                  <Box sx={{ pb: 1.5 }}>
+                    <TextField fullWidth placeholder="Search athletes" sx={{ mb: 1.5 }} />
+                    <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
+                      <FormControl fullWidth sx={{ flex: 1 }}>
+                        <Select defaultValue="All teams">
+                          <MenuItem value="All teams">All teams</MenuItem>
+                          {org.squads.map(s => <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>)}
+                        </Select>
+                      </FormControl>
+                      <FormControl fullWidth sx={{ flex: 1 }}>
+                        <Select defaultValue="A-Z">
+                          <MenuItem value="A-Z">A-Z</MenuItem>
+                          <MenuItem value="Z-A">Z-A</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Box>
+
+                    {athletes.map(a => (
+                      <Box key={a.id} onClick={() => onToggleParticipant(org.id, a.id)} sx={{ display: 'flex', alignItems: 'center', minHeight: 44, gap: 1.5, cursor: 'pointer' }}>
+                        <Checkbox checked={checkedIds.has(a.id)} onChange={() => onToggleParticipant(org.id, a.id)} onClick={(e) => e.stopPropagation()} />
+                        <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: '#F3F4F7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <Typography sx={{ fontSize: 12, color: '#5F7089' }}>{a.name.split(' ').map(w => w[0]).join('').slice(0, 2)}</Typography>
+                        </Box>
+                        <Typography sx={{ fontSize: 14, color: '#172B4D' }}>{a.name}</Typography>
+                      </Box>
+                    ))}
+
+                    <FormControl fullWidth sx={{ mt: 1.5 }}>
+                      <Select displayEmpty value={orgStaffId[org.id] || ''} onChange={(e) => onSetStaff(org.id, e.target.value)}>
+                        <MenuItem value="">Select staff</MenuItem>
+                        {staff.map(s => <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>)}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </Collapse>
+              </Box>
+            );
+          })}
+          {selectedOrgs.length === 0 && (
+            <Typography sx={{ fontSize: 13, color: '#5F7089' }}>No organisation selected.</Typography>
+          )}
+        </Box>
+      );
+    }
+
+    function EventSetupStep({
+      kind, type, title, setTitle, description, setDescription,
+      date, setDate, start, setStart, duration, setDuration, customEnd, setCustomEnd,
+      timezone, setTimezone, repeat, setRepeat, location,
+      visibility, setVisibility, attachments, attachmentTitle, setAttachmentTitle,
+      attachmentLink, setAttachmentLink, onAddAttachment, onRemoveAttachment,
+      notifyChannels, onToggleNotifyChannel, reminderPlayer, setReminderPlayer,
+      reminderPush, setReminderPush, displayColour,
+      onOpenTypePicker, onOpenLocationPicker, onOpenColorPicker,
+    }) {
+      return (
+        <Box sx={{ px: 2, py: 1.5, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box>
+            <FieldLabel required>Event type</FieldLabel>
+            <Box onClick={onOpenTypePicker} sx={{ display: 'flex', alignItems: 'center', minHeight: 44, bgcolor: '#F3F4F7', borderRadius: 1.5, px: 1.5, cursor: 'pointer' }}>
+              <Typography sx={{ fontSize: 14, color: type ? '#172B4D' : '#5F7089', flex: 1 }}>{type || 'Select or add a type'}</Typography>
+              <Icon path={P.chevronRight} size={16} color="#5F7089" />
+            </Box>
+          </Box>
+
+          <Box>
+            <FieldLabel required>Title</FieldLabel>
+            <TextField fullWidth placeholder={`${kind} name`} value={title} onChange={(e) => setTitle(e.target.value)} />
+          </Box>
+
+          <Box>
+            <FieldLabel>Description</FieldLabel>
+            <TextField fullWidth multiline rows={3} placeholder="Add details…" value={description} onChange={(e) => setDescription(e.target.value)} />
+          </Box>
+
+          <Box sx={{ height: 1, bgcolor: '#E8EAED' }} />
+
+          <Box>
+            <FieldLabel>Date</FieldLabel>
+            <TextField fullWidth type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </Box>
+          <Box>
+            <FieldLabel>Start time</FieldLabel>
+            <TextField fullWidth type="time" value={start} onChange={(e) => setStart(e.target.value)} />
+          </Box>
+          <Box>
+            <FieldLabel>Duration</FieldLabel>
+            <FormControl fullWidth>
+              <Select value={duration} onChange={(e) => setDuration(e.target.value)}>
+                <MenuItem value="30m">30 min</MenuItem>
+                <MenuItem value="1h">1 hr</MenuItem>
+                <MenuItem value="1.5h">1.5 hr</MenuItem>
+                <MenuItem value="2h">2 hr</MenuItem>
+                <MenuItem value="Custom">Custom</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          {duration === 'Custom' && (
+            <Box>
+              <FieldLabel>End time</FieldLabel>
+              <TextField fullWidth type="time" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} />
+            </Box>
+          )}
+          <Box>
+            <FieldLabel>Time zone</FieldLabel>
+            <FormControl fullWidth>
+              <Select value={timezone} onChange={(e) => setTimezone(e.target.value)}>
+                {['ET', 'CT', 'MT', 'PT', 'GMT'].map(tz => <MenuItem key={tz} value={tz}>{tz}</MenuItem>)}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box>
+            <FieldLabel>Repeat</FieldLabel>
+            <FormControl fullWidth>
+              <Select value={repeat} onChange={(e) => setRepeat(e.target.value)}>
+                {['Never', 'Daily', 'Weekly', 'Monthly'].map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
+              </Select>
+            </FormControl>
+          </Box>
+
+          <Box>
+            <FieldLabel>Address</FieldLabel>
+            <Box onClick={onOpenLocationPicker} sx={{ display: 'flex', alignItems: 'center', gap: 1, minHeight: 44, bgcolor: '#F3F4F7', borderRadius: 1.5, px: 1.5, cursor: 'pointer' }}>
+              <Icon path={P.pin} size={16} color="#5F7089" />
+              <Typography sx={{ fontSize: 14, color: location ? '#172B4D' : '#5F7089', flex: 1 }}>{location ? location.name : 'Add a location'}</Typography>
+              <Icon path={P.chevronRight} size={16} color="#5F7089" />
+            </Box>
+          </Box>
+
+          <Box sx={{ height: 1, bgcolor: '#E8EAED' }} />
+
+          <Box>
+            <FieldLabel>Staff visibility</FieldLabel>
+            <FormControl fullWidth>
+              <Select value={visibility} onChange={(e) => setVisibility(e.target.value)}>
+                {['All staff', 'Only selected staff', 'Staff and additional viewers'].map(v => <MenuItem key={v} value={v}>{v}</MenuItem>)}
+              </Select>
+            </FormControl>
+          </Box>
+
+          <Box sx={{ height: 1, bgcolor: '#E8EAED' }} />
+
+          <Box>
+            <FieldLabel>Attach files</FieldLabel>
+            <Box sx={{ border: '1px dashed #B4B8C0', borderRadius: 1.5, p: 2.5, textAlign: 'center', mb: 1.5 }}>
+              <Icon path={P.add} size={20} color="#5F7089" />
+              <Typography sx={{ fontSize: 13, color: '#5F7089' }}>Drag and drop files or browse</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+              <TextField placeholder="Title" value={attachmentTitle} onChange={(e) => setAttachmentTitle(e.target.value)} sx={{ flex: 1 }} />
+              <TextField placeholder="Link (optional)" value={attachmentLink} onChange={(e) => setAttachmentLink(e.target.value)} sx={{ flex: 1 }} />
+            </Box>
+            <Button fullWidth onClick={onAddAttachment} disabled={!attachmentTitle.trim()}
+              sx={{ bgcolor: '#1D2635', '&:hover': { bgcolor: '#141a24' }, '&.Mui-disabled': { bgcolor: '#F3F4F7', color: '#B4B8C0' } }}>
+              Add
+            </Button>
+            {attachments.map(a => (
+              <Box key={a.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 1 }}>
+                <Typography sx={{ fontSize: 14, color: '#172B4D' }}>{a.title}</Typography>
+                <IconButton size="small" onClick={() => onRemoveAttachment(a.id)}><Icon path={P.close} size={16} color="#5F7089" /></IconButton>
+              </Box>
+            ))}
+          </Box>
+
+          <Box sx={{ height: 1, bgcolor: '#E8EAED' }} />
+
+          <Box>
+            <FieldLabel>Notify via</FieldLabel>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              {['Email', 'Push'].map(ch => {
+                const on = notifyChannels.has(ch);
+                return (
+                  <Box key={ch} onClick={() => onToggleNotifyChannel(ch)} sx={{
+                    bgcolor: on ? '#1D2635' : '#F3F4F7', color: on ? '#fff' : '#172B4D',
+                    borderRadius: 20, px: 2, height: 36, display: 'flex', alignItems: 'center', cursor: 'pointer',
+                  }}>
+                    <Typography sx={{ fontSize: 13, color: 'inherit' }}>{ch}</Typography>
+                  </Box>
+                );
+              })}
+            </Box>
+          </Box>
+
+          <Box sx={{ height: 1, bgcolor: '#E8EAED' }} />
+
+          <Box>
+            <FieldLabel>Reminders</FieldLabel>
+            <Typography sx={{ fontSize: 12, color: '#5F7089', mb: 0.5 }}>Player</Typography>
+            <FormControl fullWidth sx={{ mb: 1.5 }}>
+              <Select value={reminderPlayer} onChange={(e) => setReminderPlayer(e.target.value)}>
+                {['None', 'All'].map(o => <MenuItem key={o} value={o}>{o}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <Typography sx={{ fontSize: 12, color: '#5F7089', mb: 0.5 }}>Push</Typography>
+            <FormControl fullWidth>
+              <Select value={reminderPush} onChange={(e) => setReminderPush(e.target.value)}>
+                {['1 min before', '5 min before', '30 min before', '1 day before', 'Custom'].map(o => <MenuItem key={o} value={o}>{o}</MenuItem>)}
+              </Select>
+            </FormControl>
+          </Box>
+
+          <Box>
+            <FieldLabel>Event colour</FieldLabel>
+            <Box onClick={onOpenColorPicker} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, bgcolor: '#F3F4F7', borderRadius: 1.5, px: 1.5, minHeight: 44, cursor: 'pointer' }}>
+              <Box sx={{ width: 18, height: 18, borderRadius: '50%', bgcolor: displayColour, flexShrink: 0 }} />
+              <Typography sx={{ fontSize: 14, color: '#172B4D', flex: 1 }}>{displayColour}</Typography>
+              <Icon path={P.chevronRight} size={16} color="#5F7089" />
+            </Box>
+          </Box>
+        </Box>
+      );
+    }
+
+    function TypePickerSheet({ types, value, onSelect, onCreate, onBack }) {
+      const [query, setQuery] = useState(value || '');
+      const matches = types.filter(t => t.toLowerCase().includes(query.toLowerCase()));
+      const exact = types.some(t => t.toLowerCase() === query.trim().toLowerCase());
+
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <Box sx={{ px: 2.5, py: 2, display: 'flex', alignItems: 'center', gap: 1.5, borderBottom: '1px solid #E8EAED' }}>
+            <IconButton size="small" onClick={onBack}><Icon path={P.chevronLeft} size={20} color="#172B4D" /></IconButton>
+            <Typography sx={{ color: '#172B4D', fontSize: 16, flex: 1 }}>Event type</Typography>
+          </Box>
+          <Box sx={{ px: 2, pt: 1.5 }}>
+            <TextField fullWidth autoFocus placeholder="Select or add a type" value={query} onChange={(e) => setQuery(e.target.value)} />
+          </Box>
+          <Box sx={{ flex: 1, overflowY: 'auto', px: 2, pt: 1 }}>
+            {matches.map(t => (
+              <Box key={t} onClick={() => onSelect(t)} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 48, cursor: 'pointer', borderBottom: '1px solid #E8EAED' }}>
+                <Typography sx={{ fontSize: 15, color: '#172B4D' }}>{t}</Typography>
+                {value === t && <Icon path={P.check} size={18} color="#3B5BDB" />}
+              </Box>
+            ))}
+            {query.trim() && !exact && (
+              <Box onClick={() => onCreate(query.trim())} sx={{ display: 'flex', alignItems: 'center', gap: 1, minHeight: 48, cursor: 'pointer' }}>
+                <Icon path={P.add} size={18} color="#3B5BDB" />
+                <Typography sx={{ fontSize: 15, color: '#3B5BDB' }}>Add new type “{query.trim()}”</Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
+      );
+    }
+
+    function MapPreview({ location, onLocationChange }) {
+      const [dragging, setDragging] = useState(false);
+      const [offset, setOffset] = useState({ x: 0, y: 0 });
+      const [scale, setScale] = useState(1);
+      const [resolving, setResolving] = useState(false);
+      const [resolved, setResolved] = useState(location);
+      const dragStart = useRef(null);
+
+      useEffect(() => { setResolved(location); }, [location]);
+
+      const fakeGeocode = (ox, oy) => {
+        const idx = Math.abs(Math.round(ox / 45) + Math.round(oy / 45) * 3) % LOCATION_SUGGESTIONS.length;
+        return LOCATION_SUGGESTIONS[idx];
+      };
+
+      const pointerXY = (e) => (e.touches ? e.touches[0] : e);
+
+      const handleDown = (e) => {
+        const p = pointerXY(e);
+        dragStart.current = { x: p.clientX - offset.x, y: p.clientY - offset.y };
+        setDragging(true);
+      };
+      const handleMove = (e) => {
+        if (!dragStart.current) return;
+        const p = pointerXY(e);
+        setOffset({ x: p.clientX - dragStart.current.x, y: p.clientY - dragStart.current.y });
+      };
+      const handleUp = () => {
+        if (!dragStart.current) return;
+        dragStart.current = null;
+        setDragging(false);
+        setResolving(true);
+        setResolved(null);
+        const next = fakeGeocode(offset.x, offset.y);
+        setTimeout(() => {
+          setResolved(next);
+          setResolving(false);
+          onLocationChange && onLocationChange(next);
+        }, 500);
+      };
+      const handleWheel = (e) => {
+        e.preventDefault();
+        setScale(s => Math.min(2, Math.max(0.6, s - e.deltaY * 0.001)));
+      };
+
+      return (
+        <Box sx={{ borderRadius: 1.5, overflow: 'hidden', border: '1px solid #E8EAED' }}>
+          <Box
+            onMouseDown={handleDown} onMouseMove={handleMove} onMouseUp={handleUp} onMouseLeave={handleUp}
+            onTouchStart={handleDown} onTouchMove={handleMove} onTouchEnd={handleUp}
+            onWheel={handleWheel}
+            sx={{ position: 'relative', height: 160, bgcolor: '#E8EDF2', overflow: 'hidden', cursor: dragging ? 'grabbing' : 'grab', touchAction: 'none' }}
+          >
+            <Box sx={{ position: 'absolute', inset: -80, transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`, transition: dragging ? 'none' : 'transform 150ms ease' }}>
+              <svg width="100%" height="100%" viewBox="0 0 560 290" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', display: 'block' }}>
+                <rect width="560" height="290" fill="#E8EDF2" />
+                <rect x="60" y="30" width="150" height="70" fill="#D6E8D2" />
+                <rect x="360" y="150" width="160" height="70" fill="#D6E8D2" />
+                <rect x="240" y="40" width="80" height="60" fill="#DCE6F0" />
+                <rect x="80" y="180" width="120" height="60" fill="#DCE6F0" />
+                <g stroke="#FFFFFF" strokeWidth="7">
+                  <line x1="0" y1="145" x2="560" y2="145" />
+                  <line x1="230" y1="0" x2="230" y2="290" />
+                  <line x1="365" y1="0" x2="365" y2="290" />
+                </g>
+                <g stroke="#C7D2DC" strokeWidth="2">
+                  <line x1="0" y1="70" x2="560" y2="70" />
+                  <line x1="0" y1="220" x2="560" y2="220" />
+                  <line x1="130" y1="0" x2="130" y2="290" />
+                  <line x1="450" y1="0" x2="450" y2="290" />
+                </g>
+              </svg>
+            </Box>
+            <Box sx={{
+              position: 'absolute', left: '50%', top: '50%', pointerEvents: 'none',
+              transform: dragging ? 'translate(-50%, calc(-100% - 6px))' : 'translate(-50%, -100%)',
+              transition: 'transform 150ms ease',
+            }}>
+              <Box sx={{
+                position: 'absolute', bottom: dragging ? -10 : -3, left: '50%', transform: 'translateX(-50%)',
+                width: dragging ? 18 : 10, height: dragging ? 6 : 3, borderRadius: '50%',
+                bgcolor: 'rgba(0,0,0,0.35)', filter: 'blur(1px)', opacity: dragging ? 1 : 0, transition: 'all 150ms ease',
+              }} />
+              <Icon path={P.pin} size={40} color="#EA4335" />
+            </Box>
+          </Box>
+          <Box sx={{ px: 1.5, py: 1, bgcolor: '#fff', display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+            <Icon path={P.pin} size={18} color="#3B5BDB" sx={{ mt: '2px' }} />
+            <Box sx={{ flex: 1 }}>
+              {resolving || !resolved ? (
+                <Typography sx={{ fontSize: 14, color: '#5F7089' }}>Locating…</Typography>
+              ) : (
+                <>
+                  <Typography sx={{ fontSize: 14, color: '#172B4D' }}>{resolved.name}</Typography>
+                  <Typography sx={{ fontSize: 13, color: '#5F7089' }}>{resolved.address}</Typography>
+                </>
+              )}
+            </Box>
+          </Box>
+        </Box>
+      );
+    }
+
+    function LocationPickerSheet({ value, onSelect, onBack }) {
+      const [mode, setMode] = useState('search');
+      const [query, setQuery] = useState('');
+      const results = LOCATION_SUGGESTIONS.filter(l =>
+        l.name.toLowerCase().includes(query.toLowerCase()) || l.address.toLowerCase().includes(query.toLowerCase()));
+
+      const [mapQuery, setMapQuery] = useState('');
+      const [mapSelected, setMapSelected] = useState(null);
+      const mapResults = LOCATION_SUGGESTIONS.filter(l =>
+        l.name.toLowerCase().includes(mapQuery.toLowerCase()) || l.address.toLowerCase().includes(mapQuery.toLowerCase()));
+
+      const confirmMapLocation = () => { onSelect(mapSelected); onBack(); };
+
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <Box sx={{ px: 2.5, py: 2, display: 'flex', alignItems: 'center', gap: 1.5, borderBottom: '1px solid #E8EAED' }}>
+            <IconButton size="small" onClick={onBack}><Icon path={P.chevronLeft} size={20} color="#172B4D" /></IconButton>
+            <Typography sx={{ color: '#172B4D', fontSize: 16, flex: 1 }}>Address</Typography>
+          </Box>
+
+          <Box sx={{ px: 2, pt: 1.5, display: 'flex', gap: 1 }}>
+            {[{ key: 'search', label: 'Search address' }, { key: 'map', label: 'Choose on map' }].map(m => {
+              const active = mode === m.key;
+              return (
+                <Box key={m.key} onClick={() => setMode(m.key)} sx={{
+                  flex: 1, textAlign: 'center', borderRadius: 1.5, py: 1.25, cursor: 'pointer',
+                  bgcolor: active ? '#1D2635' : '#F3F4F7',
+                }}>
+                  <Typography sx={{ fontSize: 13, color: active ? '#fff' : '#172B4D' }}>{m.label}</Typography>
+                </Box>
+              );
+            })}
+          </Box>
+
+          <Box sx={{ flex: 1, overflowY: 'auto', px: 2, pt: 1.5 }}>
+            {mode === 'search' && (
+              <>
+                <TextField fullWidth placeholder="Search locations…" value={value ? value.name : query}
+                  onChange={(e) => { setQuery(e.target.value); if (value) onSelect(null); }} sx={{ mb: 1 }} />
+                {!value && results.map(l => (
+                  <Box key={l.name} onClick={() => { onSelect(l); onBack(); }} sx={{ display: 'flex', gap: 1, py: 1.25, cursor: 'pointer', borderBottom: '1px solid #E8EAED' }}>
+                    <Icon path={P.pin} size={18} color="#5F7089" sx={{ mt: '2px' }} />
+                    <Box>
+                      <Typography sx={{ fontSize: 14, color: '#172B4D' }}>{l.name}</Typography>
+                      <Typography sx={{ fontSize: 13, color: '#5F7089' }}>{l.address}</Typography>
+                    </Box>
+                  </Box>
+                ))}
+                {value && (
+                  <Box sx={{ mt: 1 }}>
+                    <MapPreview location={value} onLocationChange={onSelect} />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                      <Typography sx={{ fontSize: 12, color: '#5F7089' }}>Drag to adjust</Typography>
+                      <Typography onClick={onBack} sx={{ fontSize: 12, color: '#3B5BDB', cursor: 'pointer' }}>Confirm location</Typography>
+                    </Box>
+                  </Box>
+                )}
+              </>
+            )}
+
+            {mode === 'map' && (
+              <>
+                <TextField fullWidth placeholder="Search location… e.g. Bray" value={mapSelected ? mapSelected.name : mapQuery}
+                  onChange={(e) => { setMapQuery(e.target.value); if (mapSelected) setMapSelected(null); }} sx={{ mb: 1 }} />
+                {!mapSelected && mapResults.map(l => (
+                  <Box key={l.name} onClick={() => setMapSelected(l)} sx={{ display: 'flex', gap: 1, py: 1.25, cursor: 'pointer', borderBottom: '1px solid #E8EAED' }}>
+                    <Icon path={P.pin} size={18} color="#5F7089" sx={{ mt: '2px' }} />
+                    <Box>
+                      <Typography sx={{ fontSize: 14, color: '#172B4D' }}>{l.name}</Typography>
+                      <Typography sx={{ fontSize: 13, color: '#5F7089' }}>{l.address}</Typography>
+                    </Box>
+                  </Box>
+                ))}
+                {mapSelected && (
+                  <Box sx={{ mt: 1 }}>
+                    <MapPreview location={mapSelected} onLocationChange={setMapSelected} />
+                    <Button fullWidth onClick={confirmMapLocation} sx={{ mt: 1.5, bgcolor: '#1D2635', '&:hover': { bgcolor: '#141a24' } }}>
+                      Confirm location
+                    </Button>
+                  </Box>
+                )}
+              </>
+            )}
+          </Box>
+        </Box>
+      );
+    }
+
+    function ColorPickerSheet({ color, onSelect, onBack }) {
+      const [tab, setTab] = useState('branding');
+      const [tempColor, setTempColor] = useState(color);
+      const [hex, setHex] = useState(color);
+      const [hue, setHue] = useState(210);
+      const [applyAll, setApplyAll] = useState(false);
+      const [handlePos, setHandlePos] = useState({ x: 220, y: 40 });
+      const canvasRef = useRef(null);
+
+      const updateFromCanvas = (x, y, h) => {
+        const newHex = hsvToHex(h, (x / 300) * 100, 100 - (y / 160) * 100);
+        setHex(newHex); setTempColor(newHex);
+      };
+
+      const handleCanvasPointer = (e) => {
+        const rect = canvasRef.current.getBoundingClientRect();
+        const x = Math.max(0, Math.min(300, e.clientX - rect.left));
+        const y = Math.max(0, Math.min(160, e.clientY - rect.top));
+        setHandlePos({ x, y });
+        updateFromCanvas(x, y, hue);
+      };
+
+      const handleHueChange = (h) => { setHue(h); updateFromCanvas(handlePos.x, handlePos.y, h); };
+      const handleHexInput = (v) => { setHex(v); if (/^#[0-9A-Fa-f]{6}$/.test(v)) setTempColor(v); };
+      const handleSelect = () => { onSelect(tempColor); onBack(); };
+
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <Box sx={{ px: 2.5, py: 2, display: 'flex', alignItems: 'center', gap: 1.5, borderBottom: '1px solid #E8EAED' }}>
+            <IconButton size="small" onClick={onBack}><Icon path={P.chevronLeft} size={20} color="#172B4D" /></IconButton>
+            <Typography sx={{ color: '#172B4D', fontSize: 16, flex: 1 }}>Select color</Typography>
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 3, px: 2.5, pt: 1.5, borderBottom: '1px solid #E8EAED' }}>
+            {['branding', 'custom'].map(t => (
+              <Typography key={t} onClick={() => setTab(t)} sx={{
+                fontSize: 14, textTransform: 'capitalize', cursor: 'pointer', pb: 1.25,
+                color: tab === t ? '#1D2635' : '#5F7089',
+                borderBottom: tab === t ? '2px solid #1D2635' : '2px solid transparent',
+              }}>{t}</Typography>
+            ))}
+          </Box>
+
+          <Box sx={{ flex: 1, overflowY: 'auto', p: 2.5 }}>
+            {tab === 'branding' ? (
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1.25 }}>
+                {BRANDING_SWATCHES.map((c, i) => {
+                  const selected = tempColor && tempColor.toUpperCase() === c.toUpperCase();
+                  return (
+                    <Box key={`${c}-${i}`} onClick={() => setTempColor(c)} sx={{
+                      width: '100%', aspectRatio: '1', borderRadius: 1.5, bgcolor: c, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      border: selected ? '2px solid #1D2635' : '2px solid transparent',
+                      boxShadow: selected ? 'inset 0 0 0 2px #fff' : 'none',
+                    }}>
+                      <Typography sx={{ fontSize: 15, color: '#fff' }}>Aa</Typography>
+                    </Box>
+                  );
+                })}
+              </Box>
+            ) : (
+              <Box>
+                <Box ref={canvasRef} onMouseDown={handleCanvasPointer}
+                  onMouseMove={(e) => { if (e.buttons === 1) handleCanvasPointer(e); }}
+                  sx={{
+                    position: 'relative', width: 300, height: 160, borderRadius: 1.5, overflow: 'hidden',
+                    cursor: 'crosshair', mx: 'auto', backgroundColor: `hsl(${hue}, 100%, 50%)`,
+                  }}>
+                  <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, #fff, rgba(255,255,255,0))' }} />
+                  <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0), #000)' }} />
+                  <Box sx={{
+                    position: 'absolute', left: handlePos.x - 7, top: handlePos.y - 7, width: 14, height: 14, borderRadius: '50%',
+                    border: '2px solid #fff', boxShadow: '0 0 0 1px rgba(0,0,0,0.3)', bgcolor: tempColor, pointerEvents: 'none',
+                  }} />
+                </Box>
+
+                <Box sx={{
+                  mt: 1.5, height: 14, borderRadius: 7, mx: 'auto', width: 300, position: 'relative',
+                  background: 'linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
+                }}>
+                  <input type="range" min="0" max="360" value={hue} onChange={(e) => handleHueChange(Number(e.target.value))}
+                    style={{ width: '100%', height: 14, margin: 0, opacity: 0, cursor: 'pointer', position: 'absolute', top: 0, left: 0 }} />
+                  <Box sx={{ position: 'absolute', left: `calc(${(hue / 360) * 100}% - 7px)`, top: -1, width: 16, height: 16, borderRadius: '50%', bgcolor: '#fff', border: '2px solid #E8EAED', pointerEvents: 'none' }} />
+                </Box>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 2 }}>
+                  <Box sx={{ width: 32, height: 32, borderRadius: 1, bgcolor: tempColor, border: '1px solid #E8EAED', flexShrink: 0 }} />
+                  <TextField fullWidth value={hex} onChange={(e) => handleHexInput(e.target.value)} placeholder="#000000" />
+                </Box>
+              </Box>
+            )}
+          </Box>
+
+          <Box sx={{ px: 2.5, py: 2, borderTop: '1px solid #E8EAED', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box onClick={() => setApplyAll(!applyAll)} sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <Checkbox checked={applyAll} onChange={() => setApplyAll(!applyAll)} sx={{ p: 0.5, mr: 0.5 }} />
+              <Typography sx={{ fontSize: 13, color: '#172B4D' }}>Apply to all in group</Typography>
+            </Box>
+            <Button onClick={handleSelect} sx={{ bgcolor: '#1D2635', '&:hover': { bgcolor: '#141a24' } }}>Select</Button>
+          </Box>
+        </Box>
+      );
+    }
+
+    function ConfirmStep({ selectedCustomIds, selectedOrgIds, orgParticipantIds, orgStaffId, type, title, description, date, start, duration, customEnd, timezone, repeat, location, visibility, attachments, notifyChannels, reminderPlayer, reminderPush, displayColour }) {
+      const orgNames = ORGS.filter(o => selectedOrgIds.has(o.id)).map(o => o.name);
+      const customNames = GROUP_PICKER_CUSTOM_GROUPS.filter(g => selectedCustomIds.has(g.id)).map(g => g.name);
+      const participantCount = Object.values(orgParticipantIds).reduce((n, set) => n + set.size, 0)
+        + Object.values(orgStaffId).filter(Boolean).length;
+      const endTime = duration === 'Custom' ? customEnd : (addDuration(start, duration) || customEnd);
+
+      const Row = ({ label, value }) => value ? (
+        <Box sx={{ py: 1.25, borderBottom: '1px solid #E8EAED' }}>
+          <Typography sx={{ fontSize: 12, color: '#5F7089', mb: 0.25 }}>{label}</Typography>
+          <Typography sx={{ fontSize: 14, color: '#172B4D' }}>{value}</Typography>
+        </Box>
+      ) : null;
+
+      return (
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Row label="Group" value={[...customNames, ...orgNames].join(', ') || '—'} />
+          <Row label="Participants" value={`${participantCount} selected`} />
+          <Row label="Event type" value={type || '—'} />
+          <Row label="Title" value={title || '—'} />
+          {description && <Row label="Description" value={description} />}
+          <Row label="Date" value={date} />
+          <Row label="Time" value={`${start} – ${endTime}`} />
+          <Row label="Time zone" value={timezone} />
+          <Row label="Repeat" value={repeat} />
+          {location && <Row label="Address" value={location.name} />}
+          <Row label="Staff visibility" value={visibility} />
+          {attachments.length > 0 && <Row label="Attachments" value={attachments.map(a => a.title).join(', ')} />}
+          {[...notifyChannels].length > 0 && <Row label="Notify via" value={[...notifyChannels].join(', ')} />}
+          <Row label="Reminders" value={`Player: ${reminderPlayer} · Push: ${reminderPush}`} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1.5 }}>
+            <Box sx={{ width: 14, height: 14, borderRadius: '50%', bgcolor: displayColour, flexShrink: 0 }} />
+            <Typography sx={{ fontSize: 14, color: '#172B4D' }}>Event colour</Typography>
+          </Box>
+        </Box>
+      );
+    }
+
+    function AddEventSheet({ open, onClose, onCreate, onToast, kind }) {
+      const [step, setStep] = useState(1);
+      const [pushed, setPushed] = useState(null);
+
+      const [selectedCustomIds, setSelectedCustomIds] = useState(() => new Set());
+      const [selectedOrgIds, setSelectedOrgIds] = useState(() => new Set());
+      const [expandedOrgIds, setExpandedOrgIds] = useState(() => new Set());
+      const [orgParticipantIds, setOrgParticipantIds] = useState({});
+      const [orgStaffId, setOrgStaffId] = useState({});
+      const [title, setTitle] = useState('');
+      const [type, setType] = useState('');
+      const [description, setDescription] = useState('');
+      const [date, setDate] = useState('2026-07-15');
+      const [start, setStart] = useState('09:00');
+      const [duration, setDuration] = useState('1h');
+      const [customEnd, setCustomEnd] = useState('10:00');
+      const [timezone, setTimezone] = useState('ET');
+      const [repeat, setRepeat] = useState('Never');
+      const [location, setLocation] = useState(null);
+      const [visibility, setVisibility] = useState('All staff');
+      const [attachments, setAttachments] = useState([]);
+      const [attachmentTitle, setAttachmentTitle] = useState('');
+      const [attachmentLink, setAttachmentLink] = useState('');
+      const [notifyChannels, setNotifyChannels] = useState(() => new Set());
+      const [reminderPlayer, setReminderPlayer] = useState('None');
+      const [reminderPush, setReminderPush] = useState('1 min before');
+
+      const [types, setTypes] = useState([...DEFAULT_TYPES, 'Academy Day']);
+      const [typeColors, setTypeColors] = useState(() => {
+        const base = { ...TYPE_COLORS, 'Squad session': '#00897B', 'Individual session': '#5D4037', 'Event': '#C2185B', 'Academy Day': '#455A64' };
+        return Object.fromEntries([...DEFAULT_TYPES, 'Academy Day'].map((t, i) => [t, base[t] || TYPE_COLOR_FALLBACKS[i % TYPE_COLOR_FALLBACKS.length]]));
+      });
+
+      const selectedOrgList = useMemo(() => ORGS.filter(o => selectedOrgIds.has(o.id)), [selectedOrgIds]);
+      const primaryOrgId = selectedOrgList[0]?.id || 'atl';
+      const primarySquadId = (ORG_BY_ID[primaryOrgId].squads[0] && ORG_BY_ID[primaryOrgId].squads[0].id) || 'atl-first';
+
+      useEffect(() => {
+        setOrgParticipantIds(prev => {
+          const next = { ...prev };
+          selectedOrgIds.forEach(orgId => {
+            if (!next[orgId]) {
+              const squadId = ORG_BY_ID[orgId].squads[0]?.id;
+              next[orgId] = new Set(rosterForSquad(squadId).filter(a => a.type === 'athlete').map(a => a.id));
+            }
+          });
+          return next;
+        });
+      }, [selectedOrgIds]);
+
+      const toggleCustom = (id) => setSelectedCustomIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+      const toggleOrg = (id) => setSelectedOrgIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+      const toggleExpandOrg = (id) => setExpandedOrgIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+      const toggleParticipant = (orgId, athleteId) => setOrgParticipantIds(prev => {
+        const current = new Set(prev[orgId] || []);
+        current.has(athleteId) ? current.delete(athleteId) : current.add(athleteId);
+        return { ...prev, [orgId]: current };
+      });
+      const toggleSelectAllOrg = (orgId) => setOrgParticipantIds(prev => {
+        const squadId = ORG_BY_ID[orgId].squads[0]?.id;
+        const athletes = rosterForSquad(squadId).filter(a => a.type === 'athlete');
+        const current = prev[orgId] || new Set();
+        const allSelected = athletes.every(a => current.has(a.id));
+        return { ...prev, [orgId]: new Set(allSelected ? [] : athletes.map(a => a.id)) };
+      });
+      const setStaffForOrg = (orgId, staffId) => setOrgStaffId(prev => ({ ...prev, [orgId]: staffId }));
+
+      const toggleNotifyChannel = (ch) => setNotifyChannels(prev => { const n = new Set(prev); n.has(ch) ? n.delete(ch) : n.add(ch); return n; });
+      const addAttachment = () => {
+        if (!attachmentTitle.trim()) return;
+        setAttachments(prev => [...prev, { id: `att-${prev.length}-${attachmentTitle.trim()}`, title: attachmentTitle.trim(), link: attachmentLink.trim() }]);
+        setAttachmentTitle(''); setAttachmentLink('');
+      };
+      const removeAttachment = (id) => setAttachments(prev => prev.filter(a => a.id !== id));
+
+      const createType = (t) => {
+        if (types.includes(t)) return;
+        setTypes(prev => [...prev, t]);
+        setTypeColors(prev => ({ ...prev, [t]: TYPE_COLOR_FALLBACKS[types.length % TYPE_COLOR_FALLBACKS.length] }));
+        onToast && onToast({ severity: 'info', msg: `Type “${t}” added` });
+      };
+
+      const reset = () => {
+        setStep(1); setPushed(null);
+        setSelectedCustomIds(new Set()); setSelectedOrgIds(new Set());
+        setExpandedOrgIds(new Set()); setOrgParticipantIds({}); setOrgStaffId({});
+        setTitle(''); setType(''); setDescription('');
+        setDate('2026-07-15'); setStart('09:00'); setDuration('1h'); setCustomEnd('10:00'); setTimezone('ET'); setRepeat('Never');
+        setLocation(null); setVisibility('All staff'); setAttachments([]); setAttachmentTitle(''); setAttachmentLink('');
+        setNotifyChannels(new Set()); setReminderPlayer('None'); setReminderPush('1 min before');
+      };
+      const close = () => { reset(); onClose(); };
+
+      const displayColour = typeColors[type] || '#3B4960';
+      const canSave = title.trim() && type;
+      const hasGroupSelection = selectedCustomIds.size + selectedOrgIds.size > 0;
+
+      const goBack = () => {
+        if (pushed) { setPushed(null); return; }
+        if (step === 1) { close(); return; }
+        setStep(s => s - 1);
+      };
+      const goNext = () => {
+        if (step === 1 && !hasGroupSelection) return;
+        if (step === 1) setExpandedOrgIds(new Set(selectedOrgList[0] ? [selectedOrgList[0].id] : []));
+        if (step === 3 && !canSave) return;
+        if (step < 4) { setStep(s => s + 1); return; }
+        save();
+      };
+
+      const save = () => {
+        if (!canSave) return;
+        const dayNum = date ? Number(date.split('-')[2]) : 15;
+        const endTime = duration === 'Custom' ? customEnd : (addDuration(start, duration) || customEnd);
+        const roster = rosterForSquad(primarySquadId);
+        const chosenAthleteIds = orgParticipantIds[primaryOrgId] || new Set();
+        const chosenStaffId = orgStaffId[primaryOrgId];
+        const attendees = roster.filter(a => (a.type === 'athlete' && chosenAthleteIds.has(a.id)) || (a.type === 'staff' && a.id === chosenStaffId));
+        const reminders = [
+          ...(reminderPlayer !== 'None' ? [`Player: ${reminderPlayer}`] : []),
+          `Push: ${reminderPush}`,
+        ];
+        onCreate({
+          id: `ev-${Date.now()}`, day: dayNum, orgId: primaryOrgId, squadId: primarySquadId, type,
+          title: title.trim(), start, end: endTime, location, reminders, notes: description,
+          attendees: attendees.length ? attendees : roster,
+          repeat, visibility, attachments, notifyChannels: [...notifyChannels],
+        });
+        reset();
+        onClose();
+      };
+
+      if (!open) return null;
+
+      return (
+        <Box onClick={close} sx={{ position: 'absolute', inset: 0, bgcolor: 'rgba(0,0,0,0.5)', zIndex: 40, animation: 'scrimFadeIn 0.2s ease-out' }}>
+          <Box onClick={(e) => e.stopPropagation()} sx={{
+            position: 'absolute', left: 0, right: 0, bottom: 0, width: '100%',
+            bgcolor: '#FFFFFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '88%',
+            display: 'flex', flexDirection: 'column', animation: 'sheetSlideUp 0.25s ease-out',
+          }}>
+            <SheetHandle />
+
+            {pushed ? (
+              <>
+                {pushed === 'type' && (
+                  <TypePickerSheet types={types} value={type}
+                    onSelect={(t) => { setType(t); setPushed(null); }}
+                    onCreate={(t) => { createType(t); setType(t); setPushed(null); }}
+                    onBack={() => setPushed(null)} />
+                )}
+                {pushed === 'location' && (
+                  <LocationPickerSheet value={location} onSelect={setLocation} onBack={() => setPushed(null)} />
+                )}
+                {pushed === 'color' && (
+                  <ColorPickerSheet color={displayColour}
+                    onSelect={(hex) => type && setTypeColors(prev => ({ ...prev, [type]: hex }))}
+                    onBack={() => setPushed(null)} />
+                )}
+              </>
+            ) : (
+              <>
+                <Box sx={{ px: 2.5, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E8EAED' }}>
+                  <Box>
+                    <Typography sx={{ color: '#172B4D', fontSize: 16, fontWeight: 600 }}>{ADD_EVENT_STEPS[step - 1]}</Typography>
+                    <Typography sx={{ color: '#5F7089', fontSize: 12 }}>Step {step} of {ADD_EVENT_STEPS.length}</Typography>
+                  </Box>
+                  <IconButton size="small" onClick={close}><Icon path={P.close} size={20} color="#5F7089" /></IconButton>
+                </Box>
+
+                <Box sx={{ flex: 1, overflowY: 'auto' }}>
+                  {step === 1 && (
+                    <GroupPickerStep selectedCustomIds={selectedCustomIds} onToggleCustom={toggleCustom}
+                      selectedOrgIds={selectedOrgIds} onToggleOrg={toggleOrg} />
+                  )}
+                  {step === 2 && (
+                    <ParticipantsStep selectedOrgIds={selectedOrgIds} expandedOrgIds={expandedOrgIds} onToggleExpand={toggleExpandOrg}
+                      orgParticipantIds={orgParticipantIds} onToggleParticipant={toggleParticipant} onToggleSelectAllOrg={toggleSelectAllOrg}
+                      orgStaffId={orgStaffId} onSetStaff={setStaffForOrg} />
+                  )}
+                  {step === 3 && (
+                    <EventSetupStep
+                      kind={kind || 'Event'}
+                      type={type} title={title} setTitle={setTitle} description={description} setDescription={setDescription}
+                      date={date} setDate={setDate} start={start} setStart={setStart} duration={duration} setDuration={setDuration}
+                      customEnd={customEnd} setCustomEnd={setCustomEnd} timezone={timezone} setTimezone={setTimezone}
+                      repeat={repeat} setRepeat={setRepeat} location={location}
+                      visibility={visibility} setVisibility={setVisibility} attachments={attachments}
+                      attachmentTitle={attachmentTitle} setAttachmentTitle={setAttachmentTitle}
+                      attachmentLink={attachmentLink} setAttachmentLink={setAttachmentLink}
+                      onAddAttachment={addAttachment} onRemoveAttachment={removeAttachment}
+                      notifyChannels={notifyChannels} onToggleNotifyChannel={toggleNotifyChannel}
+                      reminderPlayer={reminderPlayer} setReminderPlayer={setReminderPlayer}
+                      reminderPush={reminderPush} setReminderPush={setReminderPush}
+                      displayColour={displayColour}
+                      onOpenTypePicker={() => setPushed('type')} onOpenLocationPicker={() => setPushed('location')} onOpenColorPicker={() => setPushed('color')}
+                    />
+                  )}
+                  {step === 4 && (
+                    <ConfirmStep selectedCustomIds={selectedCustomIds} selectedOrgIds={selectedOrgIds}
+                      orgParticipantIds={orgParticipantIds} orgStaffId={orgStaffId}
+                      type={type} title={title} description={description} date={date} start={start}
+                      duration={duration} customEnd={customEnd} timezone={timezone} repeat={repeat}
+                      location={location} visibility={visibility} attachments={attachments}
+                      notifyChannels={notifyChannels} reminderPlayer={reminderPlayer} reminderPush={reminderPush}
+                      displayColour={displayColour} />
+                  )}
+                </Box>
+
+                <Box sx={{ px: 2, py: 2, borderTop: '1px solid #E8EAED', display: 'flex', gap: 1 }}>
+                  <Button onClick={goBack} sx={{ bgcolor: '#F3F4F7', color: '#172B4D', '&:hover': { bgcolor: '#E8EAED' } }}>
+                    {step === 1 ? 'Cancel' : 'Back'}
+                  </Button>
+                  <Button
+                    disabled={(step === 1 && !hasGroupSelection) || (step === 3 && !canSave)}
+                    onClick={goNext}
+                    sx={{ flex: 1, bgcolor: '#1D2635', '&:hover': { bgcolor: '#141a24' }, '&.Mui-disabled': { bgcolor: '#F3F4F7', color: '#B4B8C0' } }}>
+                    {step < 4 ? 'Next' : 'Create event'}
+                  </Button>
+                </Box>
+              </>
+            )}
+          </Box>
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       LOGIN SCREEN
+       ═══════════════════════════════════════════════════════════════════════ */
+    function LoginScreen({ onLogin }) {
+      return (
+        <Box sx={{ position: 'absolute', inset: 0, bgcolor: '#000', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <svg viewBox="0 0 390 844" preserveAspectRatio="none"
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0.18 }}>
+            <g stroke="#8A8FA3" strokeWidth="1" fill="none">
+              <line x1="15" y1="50" x2="140" y2="15" />
+              <line x1="140" y1="15" x2="300" y2="85" />
+              <line x1="15" y1="50" x2="140" y2="170" />
+              <line x1="140" y1="170" x2="300" y2="85" />
+              <line x1="300" y1="85" x2="365" y2="190" />
+              <line x1="15" y1="50" x2="55" y2="210" />
+              <line x1="55" y1="210" x2="140" y2="170" />
+              <line x1="140" y1="170" x2="270" y2="250" />
+              <line x1="270" y1="250" x2="300" y2="85" />
+              <line x1="55" y1="210" x2="15" y2="370" />
+              <line x1="140" y1="170" x2="195" y2="330" />
+              <line x1="195" y1="330" x2="270" y2="250" />
+              <line x1="15" y1="370" x2="140" y2="410" />
+              <line x1="140" y1="410" x2="195" y2="330" />
+              <line x1="195" y1="330" x2="330" y2="460" />
+              <line x1="140" y1="410" x2="115" y2="610" />
+              <line x1="115" y1="610" x2="330" y2="460" />
+              <line x1="75" y1="550" x2="115" y2="610" />
+              <line x1="75" y1="550" x2="55" y2="730" />
+              <line x1="245" y1="690" x2="115" y2="610" />
+            </g>
+          </svg>
+
+          <Box sx={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', px: 4 }}>
+            <Box sx={{ width: 110, height: 110, borderRadius: '50%', border: '6px solid #1F1FE5', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2.5 }}>
+              <svg width="50" height="50" viewBox="0 0 24 24">
+                <polygon points="6,3 10,3 10,10.5 17,3 22,3 13.5,12 22,21 17,21 10,13.5 10,21 6,21" fill="#fff" />
+              </svg>
+            </Box>
+            <Typography sx={{ color: '#fff', fontSize: 22, fontWeight: 600, letterSpacing: 3, mb: 7 }}>COACH</Typography>
+
+            <Button onClick={onLogin} fullWidth sx={{ bgcolor: '#1F1FE5', color: '#fff', fontWeight: 600, py: 1.5, borderRadius: 2, mb: 2, '&:hover': { bgcolor: '#1a1acc' } }}>
+              Kitman Labs Sign in
+            </Button>
+            <Typography sx={{ color: '#fff', fontSize: 14, mb: 2 }}>Or</Typography>
+            <Button onClick={onLogin} fullWidth sx={{ bgcolor: '#F5F6F8', color: '#1D2635', gap: 1, py: 1.5, borderRadius: 2, '&:hover': { bgcolor: '#e6e8ec' } }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1D2635" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round">
+                <path d="M12 3l7 3v5c0 4.7-3 8.4-7 9.6-4-1.2-7-4.9-7-9.6V6z" />
+              </svg>
+              Organisation I.D.
+            </Button>
+          </Box>
+
+          <Box sx={{ position: 'relative', pb: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ bgcolor: '#1F1FE5', borderRadius: 1, px: 1.25, py: 0.5 }}>
+              <Typography sx={{ color: '#fff', fontSize: 13 }}>
+                <Box component="span" sx={{ fontWeight: 600 }}>KITMAN</Box> LABS
+              </Typography>
+            </Box>
+            <Typography sx={{ color: '#8E8E93', fontSize: 12, fontStyle: 'italic' }}>Server: e3b4</Typography>
+          </Box>
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       ATHLETES TAB (home screen)
+       ═══════════════════════════════════════════════════════════════════════ */
+    function AthleteRow({ athlete }) {
+      const metrics = [
+        { icon: P.heartbeat, label: 'Well-being', value: athlete.wellbeing },
+        { icon: P.person, label: 'MSK', value: '--' },
+        { icon: P.person, label: 'Capture', value: '--' },
+      ];
+      return (
+        <Box>
+          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', py: 1.5 }}>
+            <Box sx={{ width: 56, height: 56, borderRadius: 1.5, bgcolor: '#F3F4F7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Icon path={P.person} outline size={28} color="#B4B8C0" />
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ fontSize: 15, fontWeight: 600, color: '#172B4D' }}>{athlete.name}</Typography>
+              <Typography sx={{ fontSize: 13, color: '#5F7089' }}>{athlete.position}</Typography>
+            </Box>
+          </Box>
+          <Box sx={{ display: 'flex', borderTop: '1px solid #E8EAED', borderBottom: '1px solid #E8EAED', py: 1, mb: 0.5 }}>
+            {metrics.map((m, i) => (
+              <Box key={i} sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 0.75, px: 1, borderRight: i < metrics.length - 1 ? '1px solid #E8EAED' : 'none' }}>
+                <Icon path={m.icon} size={14} color="#5F7089" />
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography sx={{ fontSize: 10, color: '#5F7089', lineHeight: 1.3 }}>{m.label}</Typography>
+                  <Typography sx={{ fontSize: 11, color: '#172B4D', lineHeight: 1.3 }}>{m.value}</Typography>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      );
+    }
+
+    function AthletesTab() {
+      const totalCount = POSITION_GROUPS.reduce((n, g) => n + g.athletes.length, 0);
+      return (
+        <Box sx={{ position: 'absolute', top: 44, left: 0, right: 0, bottom: 0, overflowY: 'auto', pb: '96px', bgcolor: '#FFFFFF' }}>
+          <Box sx={{ height: 56, bgcolor: '#33383F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Box sx={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon path={P.chevronLeft} size={16} color="#D7D9E0" />
+            </Box>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1.5 }}>
+            <Typography sx={{ fontSize: 14, color: '#172B4D' }}>
+              Group by: <Box component="span" sx={{ color: '#3B5BDB', fontWeight: 600 }}>Position</Box>
+            </Typography>
+            <Box sx={{ flex: 1 }} />
+            {[P.person, P.chatBubble, P.bell].map((p, i) => (
+              <Box key={i} sx={{ width: 32, height: 32, border: '1px solid #E8EAED', borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', ml: 1 }}>
+                <Icon path={p} outline size={17} color="#5F7089" />
+              </Box>
+            ))}
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1, bgcolor: '#F3F4F7' }}>
+            <Typography sx={{ fontSize: 13 }}>
+              <Box component="span" sx={{ fontWeight: 600, color: '#172B4D' }}>{totalCount}/{totalCount}</Box>{' '}
+              <Box component="span" sx={{ color: '#5F7089' }}>All your squad's athletes</Box>
+            </Typography>
+            <Box sx={{ flex: 1 }} />
+            <Typography sx={{ fontSize: 12, color: '#5F7089', mr: 0.75 }}>Rever...</Typography>
+            <Icon path={P.sort} size={16} color="#3B5BDB" />
+          </Box>
+
+          {POSITION_GROUPS.map(group => (
+            <Box key={group.name}>
+              <Box sx={{ bgcolor: '#F3F4F7', px: 2, py: 0.75 }}>
+                <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#172B4D', textTransform: 'uppercase', letterSpacing: 0.5 }}>{group.name}</Typography>
+              </Box>
+              <Box sx={{ px: 2 }}>
+                {group.athletes.map(a => <AthleteRow key={a.id} athlete={{ ...a, position: group.name }} />)}
+              </Box>
+            </Box>
+          ))}
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       FILTERS — bottom sheet reusing the event-detail sheet pattern
+       ═══════════════════════════════════════════════════════════════════════ */
+    function FilterSection({ title, count, expanded, onToggle, children }) {
+      return (
+        <Box sx={{ borderBottom: '1px solid #E8EAED' }}>
+          <Box onClick={onToggle} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1.5, cursor: 'pointer' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+              <Typography sx={{ fontSize: 15, color: '#172B4D' }}>{title}</Typography>
+              <Typography sx={{ fontSize: 13, color: '#5F7089' }}>{count}</Typography>
+            </Box>
+            <Icon path={expanded ? P.chevronUp : P.chevronDown} size={18} color="#5F7089" />
+          </Box>
+          <Collapse in={expanded}><Box sx={{ px: 2, pb: 1.5 }}>{children}</Box></Collapse>
+        </Box>
+      );
+    }
+
+    function FilterSheet({ open, onClose, applied, onApply }) {
+      const [orgIds, setOrgIds] = useState(applied.orgIds);
+      const [squadIds, setSquadIds] = useState(applied.squadIds);
+      const [types, setTypes] = useState(applied.types);
+      const [orgsOpen, setOrgsOpen] = useState(true);
+      const [squadsOpen, setSquadsOpen] = useState(true);
+      const [typesOpen, setTypesOpen] = useState(true);
+
+      useEffect(() => {
+        if (open) { setOrgIds(applied.orgIds); setSquadIds(applied.squadIds); setTypes(applied.types); }
+      }, [open]);
+
+      const toggleOrg = (id) => {
+        setOrgIds(prev => {
+          const n = new Set(prev);
+          if (n.has(id)) {
+            n.delete(id);
+            const org = ORGS.find(o => o.id === id);
+            setSquadIds(sq => { const m = new Set(sq); org.squads.forEach(s => m.delete(s.id)); return m; });
+          } else {
+            n.add(id);
+          }
+          return n;
+        });
+      };
+      const toggleSquad = (id) => setSquadIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+      const toggleType = (t) => setTypes(prev => { const n = new Set(prev); n.has(t) ? n.delete(t) : n.add(t); return n; });
+
+      const clearAll = () => { setOrgIds(new Set(ALL_ORG_IDS)); setSquadIds(new Set()); setTypes(new Set(ALL_TYPES)); };
+      const apply = () => { onApply({ orgIds, squadIds, types }); onClose(); };
+
+      const orgsInView = ORGS.filter(o => orgIds.has(o.id));
+
+      if (!open) return null;
+
+      return (
+        <Box onClick={onClose} sx={{ position: 'absolute', inset: 0, bgcolor: 'rgba(0,0,0,0.5)', zIndex: 40, animation: 'scrimFadeIn 0.2s ease-out' }}>
+          <Box onClick={(e) => e.stopPropagation()} sx={{
+            position: 'absolute', left: 0, right: 0, bottom: 0, width: '100%',
+            bgcolor: '#FFFFFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '85%',
+            display: 'flex', flexDirection: 'column', animation: 'sheetSlideUp 0.25s ease-out',
+          }}>
+            <SheetHandle />
+            <Box sx={{ px: 2.5, pb: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E8EAED' }}>
+              <Typography sx={{ fontSize: 16, color: '#172B4D' }}>Filters</Typography>
+              <IconButton size="small" onClick={onClose}><Icon path={P.close} size={20} color="#5F7089" /></IconButton>
+            </Box>
+            <Box sx={{ flex: 1, overflowY: 'auto' }}>
+              <FilterSection title="Organisation" count={orgIds.size} expanded={orgsOpen} onToggle={() => setOrgsOpen(v => !v)}>
+                {ORGS.map(org => (
+                  <Box key={org.id} onClick={() => toggleOrg(org.id)} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 0.75, cursor: 'pointer' }}>
+                    <Checkbox checked={orgIds.has(org.id)} onChange={() => toggleOrg(org.id)} onClick={(e) => e.stopPropagation()} sx={{ p: 0.5 }} />
+                    <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: org.color }} />
+                    <Typography sx={{ fontSize: 14, color: '#172B4D' }}>{org.name}</Typography>
+                  </Box>
+                ))}
+              </FilterSection>
+              <FilterSection title="Squads" count={squadIds.size} expanded={squadsOpen} onToggle={() => setSquadsOpen(v => !v)}>
+                {orgsInView.length === 0 && <Typography sx={{ fontSize: 13, color: '#5F7089' }}>Select an organisation.</Typography>}
+                {orgsInView.map(org => (
+                  <Box key={org.id} sx={{ mb: 1 }}>
+                    <Typography sx={{ fontSize: 11, color: '#5F7089', textTransform: 'uppercase', letterSpacing: 0.5, mb: 0.5 }}>{org.name}</Typography>
+                    {org.squads.map(s => (
+                      <Box key={s.id} onClick={() => toggleSquad(s.id)} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 0.5, cursor: 'pointer' }}>
+                        <Checkbox checked={squadIds.has(s.id)} onChange={() => toggleSquad(s.id)} onClick={(e) => e.stopPropagation()} sx={{ p: 0.5 }} />
+                        <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: squadColor(s.id) }} />
+                        <Typography sx={{ fontSize: 13, color: '#172B4D' }}>{s.name}</Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                ))}
+              </FilterSection>
+              <FilterSection title="Types" count={types.size} expanded={typesOpen} onToggle={() => setTypesOpen(v => !v)}>
+                {ALL_TYPES.map(t => (
+                  <Box key={t} onClick={() => toggleType(t)} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 0.5, cursor: 'pointer' }}>
+                    <Checkbox checked={types.has(t)} onChange={() => toggleType(t)} onClick={(e) => e.stopPropagation()} sx={{ p: 0.5 }} />
+                    <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: TYPE_COLORS[t] }} />
+                    <Typography sx={{ fontSize: 14, color: '#172B4D' }}>{t}</Typography>
+                  </Box>
+                ))}
+              </FilterSection>
+            </Box>
+            <Box sx={{ px: 2, py: 2, borderTop: '1px solid #E8EAED', display: 'flex', gap: 1 }}>
+              <Button onClick={clearAll} sx={{ bgcolor: '#F3F4F7', color: '#172B4D', '&:hover': { bgcolor: '#E8EAED' } }}>Clear all</Button>
+              <Button onClick={apply} sx={{ flex: 1, bgcolor: '#1D2635', '&:hover': { bgcolor: '#141a24' } }}>Apply</Button>
+            </Box>
+          </Box>
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       TOAST — plain absolute-positioned Box, never fixed, never a portal
+       ═══════════════════════════════════════════════════════════════════════ */
+    function Toast({ toast, onClose }) {
+      useEffect(() => {
+        if (!toast) return;
+        const t = setTimeout(onClose, 3000);
+        return () => clearTimeout(t);
+      }, [toast]);
+
+      if (!toast) return null;
+      const bg = toast.severity === 'success' ? '#1B5E20' : toast.severity === 'error' ? '#B71C1C' : '#172B4D';
+      return (
+        <Box sx={{
+          position: 'absolute', left: 16, right: 16, bottom: 76, bgcolor: bg, color: '#fff',
+          borderRadius: 1.5, px: 2, py: 1.5, zIndex: 50, boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+        }}>
+          <Typography sx={{ fontSize: 13, color: '#fff' }}>{toast.msg}</Typography>
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       CALENDAR TAB (combines header, week strip, list, sheets)
+       ═══════════════════════════════════════════════════════════════════════ */
+    function CalendarTab() {
+      const [weekOffset, setWeekOffset] = useState(0);
+      const [selectedDay, setSelectedDay] = useState(TODAY.d);
+      const [activeEvent, setActiveEvent] = useState(null);
+      const [addOpen, setAddOpen] = useState(false);
+      const [filterOpen, setFilterOpen] = useState(false);
+      const [events, setEvents] = useState(SEED_EVENTS);
+      const [toast, setToast] = useState(null);
+      const [appliedFilters, setAppliedFilters] = useState({
+        orgIds: new Set(ALL_ORG_IDS), squadIds: new Set(), types: new Set(ALL_TYPES),
+      });
+
+      const baseDate = useMemo(() => {
+        const d = new Date(TODAY.y, TODAY.m, TODAY.d);
+        d.setDate(d.getDate() + weekOffset * 7);
+        return d;
+      }, [weekOffset]);
+      const week = useMemo(() => buildWeek(baseDate), [baseDate]);
+      const monthLabel = `${MONTHS[baseDate.getMonth()]} ${baseDate.getFullYear()}`;
+
+      const visibleEvents = useMemo(() => events.filter(e =>
+        appliedFilters.orgIds.has(e.orgId) &&
+        (appliedFilters.squadIds.size === 0 || appliedFilters.squadIds.has(e.squadId)) &&
+        appliedFilters.types.has(e.type)
+      ), [events, appliedFilters]);
+
+      const dayEvents = useMemo(
+        () => visibleEvents.filter(e => e.day === selectedDay).sort((a, b) => a.start.localeCompare(b.start)),
+        [visibleEvents, selectedDay]
+      );
+
+      const filterCount = Math.max(0, ALL_ORG_IDS.length - appliedFilters.orgIds.size)
+        + Math.max(0, ALL_TYPES.length - appliedFilters.types.size)
+        + appliedFilters.squadIds.size;
+
+      const handleCreate = (evt) => {
+        setEvents(prev => [...prev, evt]);
+        setSelectedDay(evt.day);
+        setAppliedFilters(prev => ({
+          ...prev,
+          orgIds: new Set([...prev.orgIds, evt.orgId]),
+          types: new Set([...prev.types, evt.type]),
+        }));
+        setToast({ severity: 'success', msg: 'Event added to the calendar' });
+      };
+
+      return (
+        <Box sx={{ position: 'absolute', top: 44, left: 0, right: 0, bottom: 0, overflowY: 'auto', pb: '96px', bgcolor: '#FFFFFF' }}>
+          <CalendarHeader monthLabel={monthLabel}
+            onPrev={() => setWeekOffset(w => w - 1)} onNext={() => setWeekOffset(w => w + 1)}
+            onAdd={() => setAddOpen(true)}
+            filterCount={filterCount} onFilterClick={() => setFilterOpen(true)} />
+          <WeekStrip days={week} selectedDay={selectedDay} onSelectDay={setSelectedDay} />
+          <EventList events={dayEvents} onSelect={setActiveEvent} />
+          <EventDetailSheet event={activeEvent} onClose={() => setActiveEvent(null)} />
+          <AddEventSheet open={addOpen} onClose={() => setAddOpen(false)} onCreate={handleCreate} onToast={setToast} />
+          <FilterSheet open={filterOpen} onClose={() => setFilterOpen(false)} applied={appliedFilters} onApply={setAppliedFilters} />
+          <Toast toast={toast} onClose={() => setToast(null)} />
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       PLACEHOLDER TABS
+       ═══════════════════════════════════════════════════════════════════════ */
+    function PlaceholderTab({ label }) {
+      return (
+        <Box sx={{ position: 'absolute', top: 44, left: 0, right: 0, bottom: 0, bgcolor: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Typography sx={{ color: '#5F7089', fontSize: 15 }}>{label}</Typography>
+        </Box>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       APP
+       ═══════════════════════════════════════════════════════════════════════ */
+    function App() {
+      const [screen, setScreen] = useState('login');
+      const [tab, setTab] = useState('athletes');
+
+      const statusBarProps = screen === 'login'
+        ? { bg: '#000', color: '#fff' }
+        : tab === 'athletes'
+          ? { bg: '#33383F', color: '#fff' }
+          : { bg: '#FFFFFF', color: '#172B4D' };
+
+      return (
+        <ThemeProvider theme={theme}>
+          <Box className="phone-frame">
+            <StatusBar {...statusBarProps} />
+            {screen === 'login' && <LoginScreen onLogin={() => setScreen('app')} />}
+            {screen === 'app' && (
+              <>
+                {tab === 'athletes' && <AthletesTab />}
+                {tab === 'calendar' && <CalendarTab />}
+                {tab === 'messages' && <PlaceholderTab label="Messages" />}
+                {tab === 'settings' && <PlaceholderTab label="Settings" />}
+                <BottomNav active={tab} onChange={setTab} />
+              </>
+            )}
+          </Box>
+        </ThemeProvider>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+
+  <!-- Force Babel's classic JSX runtime so it runs in a plain script tag -->
+  <script>
+    (function () {
+      const source = document.getElementById('app-source').textContent;
+      const compiled = Babel.transform(source, { presets: [['react', { runtime: 'classic' }]] }).code;
+      const script = document.createElement('script');
+      script.text = compiled;
+      document.body.appendChild(script);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1129 @@
+import React, { useState, useRef, useEffect, useCallback } from 'react'
+import {
+  Box,
+  Typography,
+  Drawer,
+  Slider,
+  Chip,
+  Button,
+  IconButton,
+  Divider,
+  Collapse,
+  TextField,
+} from '@mui/material'
+import { keyframes } from '@mui/system'
+import {
+  SyncOutlined,
+  MenuOutlined,
+  PersonOutlineOutlined,
+  ChevronRightOutlined,
+  ChevronLeftOutlined,
+  DragIndicator,
+  CheckCircle,
+  RadioButtonUncheckedOutlined,
+  StickyNote2Outlined,
+} from '@mui/icons-material'
+import bodyMapSvgUrl from '../../assets/body-map.svg'
+import '../../styles/design-tokens.css'
+
+// Same branded logo asset used by the existing player-facing shell (MainNavigation)
+const KITMAN_LOGO = '/assets/logos/Kitman Labs base.png'
+
+// Subtle "tap here" pulse for the first-use hotspot
+const hotspotPulse = keyframes`
+  0% { transform: scale(0.7); opacity: 0.6; }
+  70% { transform: scale(2.4); opacity: 0; }
+  100% { transform: scale(2.4); opacity: 0; }
+`
+
+const MAX_VISIBLE_CHIPS = 5
+
+// Isolated SVG cache for the mobile flow (does not share the builder's cache)
+let MOBILE_SVG_CACHE = null
+
+const SYMPTOM_TYPES = ['Pain', 'Stiffness', 'Soreness']
+// Coach-configured question (hardcoded default for now)
+const QUESTION_HEADING = 'Where are you experiencing discomfort?'
+const INSTRUCTION_TEXT = 'Select any area on the body and set the severity.'
+
+// Static section/subsection navigation (mirrors the desktop eForms form nav)
+const NAV_SECTIONS = [
+  {
+    title: 'Section 1: Player Information',
+    completed: '1 of 6 steps completed',
+    subs: [
+      { label: 'Sub-section 1.1: Full Legal Name', done: true },
+      { label: 'Sub-section 1.2: Preferred/Display Name', done: false },
+      { label: 'Sub-section 1.3: Date of Birth', done: false },
+      { label: 'Sub-section 1.4: Age Range', done: false },
+    ],
+  },
+  {
+    title: 'Section 2: Player Profile',
+    completed: '1 of 6 steps completed',
+    subs: [
+      { label: 'Sub-section 2.1: Player ID / Jersey Number', done: true },
+      { label: 'Sub-section 2.2: Primary Position', done: false },
+      { label: 'Sub-section 2.3: Secondary Position', done: false },
+      { label: 'Sub-section 2.4: Height and Weight', done: false },
+      { label: 'Sub-section 2.5: College and High School', done: false },
+      { label: 'Sub-section 2.6: Awards and Achievements', done: false },
+    ],
+  },
+]
+const ACTIVE_SUB = 'Sub-section 1.1: Full Legal Name'
+
+function partIdToName(id) {
+  return id.replace(/^(front|rear)-/, '').replace(/_/g, ' ')
+}
+
+const makeKey = (partId, type) => `${partId}::${type}`
+
+// ---- Mobile SVG (replicated rendering + 44px hit-area augmentation) --------
+
+function MobileBodyMapSvg({ selectedParts, activePart, currentView, onPartSelect, symptomValues, activeTab }) {
+  const containerRef = useRef(null)
+  const [svgHtml, setSvgHtml] = useState(MOBILE_SVG_CACHE)
+
+  // Load SVG once
+  useEffect(() => {
+    if (MOBILE_SVG_CACHE) { setSvgHtml(MOBILE_SVG_CACHE); return }
+    fetch(bodyMapSvgUrl)
+      .then((r) => r.text())
+      .then((text) => {
+        const processed = text
+          .replace(' width="450"', '')
+          .replace(' height="540"', '')
+          .replace(/path:hover\s*\{[^}]*\}/, 'path { cursor: pointer; }')
+        MOBILE_SVG_CACHE = processed
+        setSvgHtml(processed)
+      })
+  }, [])
+
+  // Apply dynamic styles + view cropping
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    const svg = container.querySelector('svg')
+    if (!svg) return
+
+    svg.setAttribute('viewBox', currentView === 'front' ? '0 0 225 540' : '225 0 225 540')
+
+    svg.querySelectorAll('text').forEach((t) => {
+      if (t.textContent === 'FRONT') t.style.display = currentView === 'front' ? '' : 'none'
+      if (t.textContent === 'REAR') t.style.display = currentView === 'rear' ? '' : 'none'
+    })
+
+    svg.querySelectorAll('g[id]').forEach((group) => {
+      const id = group.id
+      const groupView = id.startsWith('front-') ? 'front' : 'rear'
+      const path = group.querySelector('path')
+      if (!path) return
+
+      if (groupView !== currentView) {
+        group.style.display = 'none'
+        return
+      }
+      group.style.display = ''
+
+      if (id === activePart) {
+        const severity = symptomValues[id]?.[activeTab] ?? 5
+        const opacity = 0.35 + (severity / 10) * 0.6
+        path.style.fill = `rgba(220, 53, 69, ${opacity})`
+        path.style.stroke = '#dc3545'
+        path.style.strokeDasharray = '4,2'
+        path.style.strokeWidth = '2'
+        path.style.strokeLinejoin = 'round'
+      } else if (selectedParts.has(id)) {
+        const severity = symptomValues[id]?.[activeTab] ?? 5
+        const opacity = 0.15 + (severity / 10) * 0.2
+        path.style.fill = `rgba(220, 53, 69, ${opacity})`
+        path.style.stroke = 'rgba(220, 53, 69, 0.4)'
+        path.style.strokeDasharray = 'none'
+        path.style.strokeWidth = '1'
+      } else {
+        path.style.fill = '#E0E0E0'
+        path.style.stroke = '#FFFFFF'
+        path.style.strokeDasharray = 'none'
+        path.style.strokeWidth = '1'
+      }
+    })
+  }, [selectedParts, activePart, currentView, symptomValues, activeTab, svgHtml])
+
+  // Augment small regions with an invisible 44x44px touch target
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    const svg = container.querySelector('svg')
+    if (!svg) return
+
+    const addHitAreas = () => {
+      const rect = svg.getBoundingClientRect()
+      if (!rect.width) return
+      const viewBox = (svg.getAttribute('viewBox') || '0 0 225 540').split(' ').map(Number)
+      const vbWidth = viewBox[2] || 225
+      const unitsPerPx = vbWidth / rect.width
+      const minHitSvg = 44 * unitsPerPx // 44px expressed in svg units
+
+      svg.querySelectorAll('g[id]').forEach((group) => {
+        if (group.style.display === 'none') return
+        const path = group.querySelector('path')
+        if (!path) return
+        // Remove stale hit area so it recalculates on view change
+        const stale = group.querySelector('[data-hit-area="true"]')
+        if (stale) stale.remove()
+        let bbox
+        try { bbox = path.getBBox() } catch { return }
+        if (bbox.width >= minHitSvg && bbox.height >= minHitSvg) return
+        const cx = bbox.x + bbox.width / 2
+        const cy = bbox.y + bbox.height / 2
+        const r = minHitSvg / 2
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+        circle.setAttribute('cx', cx)
+        circle.setAttribute('cy', cy)
+        circle.setAttribute('r', r)
+        circle.setAttribute('fill', 'transparent')
+        circle.setAttribute('data-hit-area', 'true')
+        circle.style.cursor = 'pointer'
+        group.appendChild(circle)
+      })
+    }
+
+    // Defer to allow layout to settle
+    const raf = requestAnimationFrame(addHitAreas)
+    window.addEventListener('resize', addHitAreas)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('resize', addHitAreas)
+    }
+  }, [currentView, svgHtml])
+
+  const handleClick = useCallback(
+    (e) => {
+      const group = e.target.closest('g[id]')
+      if (!group) return
+      const id = group.id
+      const name = group.querySelector('title')?.textContent || partIdToName(id)
+      onPartSelect(id, name)
+    },
+    [onPartSelect]
+  )
+
+  return (
+    <Box
+      ref={containerRef}
+      onClick={handleClick}
+      dangerouslySetInnerHTML={{ __html: svgHtml ?? '' }}
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        '& svg': {
+          height: 'min(56vh, 420px)',
+          width: 'auto',
+          maxWidth: '100%',
+          display: 'block',
+        },
+      }}
+    />
+  )
+}
+
+// ---- Bottom sheet severity panel ------------------------------------------
+
+function SeveritySheet({ open, draft, onToggleSymptom, onSeverityChange, onNoteChange, onOpenNoteField, onAdd, onCancel, container }) {
+  const selectedSymptoms = draft ? SYMPTOM_TYPES.filter((t) => draft.symptoms[t] != null) : []
+  const canAdd = selectedSymptoms.length > 0
+
+  const redSlider = {
+    color: 'var(--color-error)',
+    '& .MuiSlider-thumb': { backgroundColor: 'var(--color-error)', width: 24, height: 24 },
+    '& .MuiSlider-track': { backgroundColor: 'var(--color-error)', borderColor: 'var(--color-error)' },
+    '& .MuiSlider-rail': { backgroundColor: 'var(--color-border-primary)' },
+  }
+
+  return (
+    <Drawer
+      anchor="bottom"
+      open={open}
+      onClose={onCancel}
+      container={container}
+      ModalProps={{ container, keepMounted: true }}
+      sx={{ position: 'absolute', '& .MuiBackdrop-root': { position: 'absolute' } }}
+      PaperProps={{
+        sx: {
+          position: 'absolute',
+          borderTopLeftRadius: 16,
+          borderTopRightRadius: 16,
+          px: 2.5,
+          pt: 1,
+          pb: 3,
+        },
+      }}
+    >
+      {draft && (
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          {/* Drag handle */}
+          <Box
+            sx={{
+              width: 40,
+              height: 4,
+              borderRadius: 2,
+              backgroundColor: 'var(--color-border-primary)',
+              alignSelf: 'center',
+              mb: 2,
+            }}
+          />
+
+          {/* Body part name */}
+          <Typography variant="h6" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', mb: 0.25 }}>
+            {draft.name}
+          </Typography>
+
+          {/* Subtitle */}
+          <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', mb: 1.5 }}>
+            Select a symptom
+          </Typography>
+
+          {/* Symptom multi-select chips */}
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1.5 }}>
+            {SYMPTOM_TYPES.map((type) => {
+              const selected = draft.symptoms[type] != null
+              return (
+                <Chip
+                  key={type}
+                  label={type}
+                  onClick={() => onToggleSymptom(type)}
+                  sx={{
+                    height: 36,
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    ...(selected
+                      ? {
+                          backgroundColor: 'var(--color-error-light)',
+                          border: '2px solid var(--color-error)',
+                          color: 'var(--color-error-dark)',
+                          fontWeight: 600,
+                        }
+                      : {
+                          backgroundColor: 'var(--color-background-secondary)',
+                          border: '1px solid var(--color-border-primary)',
+                          color: 'var(--color-text-secondary)',
+                          fontWeight: 400,
+                        }),
+                  }}
+                />
+              )
+            })}
+          </Box>
+
+          {/* Per-symptom sliders — each appears/disappears with a smooth transition */}
+          {SYMPTOM_TYPES.map((type) => {
+            const selected = draft.symptoms[type] != null
+            const value = draft.symptoms[type] ?? 5
+            return (
+              <Collapse key={type} in={selected} unmountOnExit>
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', mb: 1 }}>
+                    Set your {type.toLowerCase()} level
+                  </Typography>
+                  <Box sx={{ px: 1 }}>
+                    <Slider
+                      min={1}
+                      max={10}
+                      step={1}
+                      value={value}
+                      onChange={(_, v) => onSeverityChange(type, v)}
+                      valueLabelDisplay="on"
+                      marks
+                      sx={redSlider}
+                    />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography variant="caption" sx={{ color: 'var(--color-text-muted)' }}>1 — Mild</Typography>
+                      <Typography variant="caption" sx={{ color: 'var(--color-text-muted)' }}>10 — Severe</Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              </Collapse>
+            )
+          })}
+
+          {/* Add note — one optional note per body area */}
+          <Box sx={{ mb: 2 }}>
+            {draft.noteOpen ? (
+              <TextField
+                multiline
+                minRows={2}
+                fullWidth
+                variant="filled"
+                size="small"
+                autoFocus={Boolean(draft.noteFocus)}
+                placeholder="Describe the area for your coach (optional)"
+                value={draft.note}
+                onChange={(e) => onNoteChange(e.target.value)}
+                inputProps={{ maxLength: 280 }}
+                helperText={`${draft.note.length}/280`}
+                FormHelperTextProps={{ sx: { textAlign: 'right', m: 0, mt: 0.5 } }}
+              />
+            ) : (
+              <Button
+                variant="text"
+                startIcon={<StickyNote2Outlined sx={{ fontSize: 18 }} />}
+                onClick={onOpenNoteField}
+                sx={{ textTransform: 'none', color: 'var(--color-text-secondary)', fontWeight: 500, px: 0 }}
+              >
+                Add note
+              </Button>
+            )}
+          </Box>
+
+          {/* Buttons */}
+          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+            <Button
+              variant="text"
+              onClick={onCancel}
+              sx={{
+                textTransform: 'none',
+                color: 'var(--color-text-secondary)',
+                fontWeight: 500,
+                px: 2,
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              disableElevation
+              onClick={onAdd}
+              disabled={!canAdd}
+              sx={{
+                ml: 'auto',
+                flex: 1,
+                textTransform: 'none',
+                fontWeight: 500,
+                py: 1,
+                backgroundColor: 'var(--color-primary)',
+                color: '#fff',
+                '&:hover': { backgroundColor: 'var(--color-primary-hover)' },
+                '&.Mui-disabled': {
+                  backgroundColor: 'var(--color-background-secondary)',
+                  color: 'var(--color-text-muted)',
+                },
+              }}
+            >
+              Add
+            </Button>
+          </Box>
+        </Box>
+      )}
+    </Drawer>
+  )
+}
+
+// ---- Collapsed side navigation + expandable drawer ------------------------
+
+function SideNav({ open, onOpen, onClose, container, disabled }) {
+  return (
+    <>
+      {/* Collapsed strip on the left edge (sits below the dark top nav) */}
+      <Box
+        onClick={() => {
+          if (!disabled) onOpen()
+        }}
+        sx={{
+          position: 'absolute',
+          left: 0,
+          top: 88,
+          bottom: 0,
+          width: 28,
+          backgroundColor: 'var(--color-background-secondary)',
+          borderRight: '1px solid var(--color-border-primary)',
+          display: 'flex',
+          justifyContent: 'center',
+          pt: 1.5,
+          cursor: disabled ? 'default' : 'pointer',
+          zIndex: 2,
+        }}
+      >
+        <ChevronRightOutlined sx={{ fontSize: 18, color: 'var(--color-text-secondary)' }} />
+      </Box>
+
+      {/* Expanded navigation drawer */}
+      <Drawer
+        anchor="left"
+        open={open}
+        onClose={onClose}
+        container={container}
+        ModalProps={{ container }}
+        sx={{ position: 'absolute', '& .MuiBackdrop-root': { position: 'absolute' } }}
+        PaperProps={{ sx: { position: 'absolute', width: 300, backgroundColor: 'var(--color-background-primary)' } }}
+      >
+        {/* Collapse header */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            px: 1,
+            py: 1,
+            borderBottom: '1px solid var(--color-border-primary)',
+          }}
+        >
+          <IconButton onClick={onClose} aria-label="Collapse navigation" sx={{ color: 'var(--color-text-secondary)' }}>
+            <ChevronLeftOutlined />
+          </IconButton>
+        </Box>
+
+        {/* Sections + subsections */}
+        <Box sx={{ overflowY: 'auto' }}>
+          {NAV_SECTIONS.map((section) => (
+            <Box key={section.title}>
+              {/* Section header */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  px: 1.5,
+                  py: 1.5,
+                  backgroundColor: 'var(--color-background-secondary)',
+                }}
+              >
+                <DragIndicator sx={{ fontSize: 18, color: 'var(--color-text-disabled)', mr: 1, mt: 0.25 }} />
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '13px' }}>
+                    {section.title}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'var(--color-text-secondary)', fontSize: '11px' }}>
+                    {section.completed}
+                  </Typography>
+                </Box>
+                <ChevronRightOutlined sx={{ fontSize: 18, color: 'var(--color-text-secondary)', mt: 0.25 }} />
+              </Box>
+
+              {/* Subsections */}
+              {section.subs.map((sub) => {
+                const active = sub.label === ACTIVE_SUB
+                return (
+                  <Box
+                    key={sub.label}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      pl: 3,
+                      pr: 1.5,
+                      py: 1.25,
+                      backgroundColor: active ? 'var(--color-background-secondary)' : 'transparent',
+                      borderBottom: '1px solid var(--color-border-secondary)',
+                    }}
+                  >
+                    <DragIndicator sx={{ fontSize: 16, color: 'var(--color-text-disabled)', mr: 1 }} />
+                    {sub.done ? (
+                      <CheckCircle sx={{ fontSize: 18, color: 'var(--color-success)', mr: 1 }} />
+                    ) : (
+                      <RadioButtonUncheckedOutlined sx={{ fontSize: 18, color: 'var(--color-text-disabled)', mr: 1 }} />
+                    )}
+                    <Typography
+                      variant="body2"
+                      sx={{ flex: 1, color: 'var(--color-text-secondary)', fontSize: '12px', fontWeight: active ? 600 : 400 }}
+                    >
+                      {sub.label}
+                    </Typography>
+                    <ChevronRightOutlined sx={{ fontSize: 16, color: 'var(--color-text-secondary)' }} />
+                  </Box>
+                )
+              })}
+            </Box>
+          ))}
+        </Box>
+      </Drawer>
+    </>
+  )
+}
+
+// ---- Mobile response page --------------------------------------------------
+
+export default function BodyMapMobileResponseV10() {
+  const [currentView, setCurrentView] = useState('front')
+  // committed: Map<`${partId}::${type}`, {partId, name, symptomType, severity}>
+  const [committed, setCommitted] = useState(new Map())
+  // draft being edited in the bottom sheet: { partId, name, symptoms: { [type]: severity } }
+  const [draft, setDraft] = useState(null)
+  const sheetOpen = draft !== null
+  // phone-screen element — the bottom sheet renders within it (not the document body)
+  const [screenEl, setScreenEl] = useState(null)
+  // side navigation expanded state
+  const [navOpen, setNavOpen] = useState(false)
+  // chip overflow expand/collapse toggle
+  const [chipsExpanded, setChipsExpanded] = useState(false)
+  // first-use hotspot — hidden permanently once any region is tapped (or if resumed with selections)
+  const [hasInteracted, setHasInteracted] = useState(committed.size > 0)
+  // one optional note per body area: Map<partId, string>
+  const [notes, setNotes] = useState(new Map())
+  // body areas whose note is currently expanded in the chip group
+  const [expandedNotes, setExpandedNotes] = useState(new Set())
+
+  // Open the sheet for a body part, restoring any previously committed symptoms + severities + note
+  const openSheetForPart = useCallback(
+    (id, name, opts = {}) => {
+      const symptoms = {}
+      SYMPTOM_TYPES.forEach((type) => {
+        const existing = committed.get(makeKey(id, type))
+        if (existing) symptoms[type] = existing.severity
+      })
+      const note = notes.get(id) ?? ''
+      setDraft({
+        partId: id,
+        name,
+        symptoms,
+        note,
+        noteOpen: opts.noteOpen ?? note !== '',
+        noteFocus: opts.noteFocus ?? false,
+      })
+    },
+    [committed, notes]
+  )
+
+  // ---- selection handlers ----
+  const handlePartSelect = useCallback(
+    (id, name) => {
+      setHasInteracted(true)
+      openSheetForPart(id, name)
+    },
+    [openSheetForPart]
+  )
+
+  const handleChipClick = useCallback(
+    (entry) => {
+      openSheetForPart(entry.partId, entry.name)
+    },
+    [openSheetForPart]
+  )
+
+  const handleToggleSymptom = useCallback(
+    (type) => {
+      setDraft((d) => {
+        if (!d) return d
+        const symptoms = { ...d.symptoms }
+        if (symptoms[type] != null) {
+          delete symptoms[type]
+        } else {
+          const existing = committed.get(makeKey(d.partId, type))
+          symptoms[type] = existing?.severity ?? 5
+        }
+        return { ...d, symptoms }
+      })
+    },
+    [committed]
+  )
+
+  const handleSeverityChange = useCallback((type, value) => {
+    setDraft((d) => (d ? { ...d, symptoms: { ...d.symptoms, [type]: value } } : d))
+  }, [])
+
+  const handleNoteChange = useCallback((value) => {
+    setDraft((d) => (d ? { ...d, note: value.slice(0, 280) } : d))
+  }, [])
+
+  const handleOpenNoteField = useCallback(() => {
+    setDraft((d) => (d ? { ...d, noteOpen: true, noteFocus: true } : d))
+  }, [])
+
+  const handleEditNote = useCallback(
+    (partId, name) => {
+      openSheetForPart(partId, name, { noteOpen: true, noteFocus: true })
+    },
+    [openSheetForPart]
+  )
+
+  const toggleNoteExpanded = useCallback((partId) => {
+    setExpandedNotes((prev) => {
+      const next = new Set(prev)
+      if (next.has(partId)) next.delete(partId)
+      else next.add(partId)
+      return next
+    })
+  }, [])
+
+  const handleAdd = useCallback(() => {
+    if (!draft) return
+    setCommitted((prev) => {
+      const next = new Map(prev)
+      // Reconcile each symptom: selected → set/update, deselected → remove
+      SYMPTOM_TYPES.forEach((type) => {
+        const key = makeKey(draft.partId, type)
+        if (draft.symptoms[type] != null) {
+          next.set(key, {
+            partId: draft.partId,
+            name: draft.name,
+            symptomType: type,
+            severity: draft.symptoms[type],
+          })
+        } else {
+          next.delete(key)
+        }
+      })
+      return next
+    })
+    // Save (or clear) the per-area note
+    setNotes((prev) => {
+      const next = new Map(prev)
+      const trimmed = draft.note.trim()
+      if (trimmed) next.set(draft.partId, trimmed)
+      else next.delete(draft.partId)
+      return next
+    })
+    setDraft(null)
+  }, [draft])
+
+  const handleCancel = useCallback(() => {
+    setDraft(null)
+  }, [])
+
+  const handleRemoveChip = useCallback((key) => {
+    setCommitted((prev) => {
+      const next = new Map(prev)
+      next.delete(key)
+      return next
+    })
+  }, [])
+
+  // ---- derived values for the model ----
+  // Highlight every part with a committed entry, plus the part currently being edited.
+  const selectedParts = new Set([...committed.values()].map((e) => e.partId))
+  if (draft) selectedParts.add(draft.partId)
+
+  // Fill intensity map, with live draft severities overlaid.
+  const symptomValues = {}
+  committed.forEach((entry) => {
+    if (!symptomValues[entry.partId]) symptomValues[entry.partId] = {}
+    symptomValues[entry.partId][entry.symptomType] = entry.severity
+  })
+  if (draft) {
+    if (!symptomValues[draft.partId]) symptomValues[draft.partId] = {}
+    Object.entries(draft.symptoms).forEach(([type, severity]) => {
+      symptomValues[draft.partId][type] = severity
+    })
+  }
+
+  const activePart = draft?.partId ?? null
+  // Drive the active region's fill from its first selected draft symptom
+  const activeTab = (draft && SYMPTOM_TYPES.find((t) => draft.symptoms[t] != null)) || SYMPTOM_TYPES[0]
+
+  // Group chips by body area, ordered by the order each area was first selected (Change 4)
+  const areaMap = new Map() // partId -> { partId, name, entries: [[key, entry], ...] }
+  committed.forEach((entry, key) => {
+    if (!areaMap.has(entry.partId)) {
+      areaMap.set(entry.partId, { partId: entry.partId, name: entry.name, entries: [] })
+    }
+    areaMap.get(entry.partId).entries.push([key, entry])
+  })
+  const orderedAreaGroups = [...areaMap.values()].map((g) => ({
+    ...g,
+    // keep symptom entries within an area in a consistent order
+    entries: [...g.entries].sort(
+      (a, b) => SYMPTOM_TYPES.indexOf(a[1].symptomType) - SYMPTOM_TYPES.indexOf(b[1].symptomType)
+    ),
+  }))
+
+  // ---- chip overflow cap ----
+  const flatChips = orderedAreaGroups.flatMap((g) => g.entries.map(([key]) => ({ partId: g.partId, key })))
+  const totalChips = flatChips.length
+  const hasOverflow = totalChips > MAX_VISIBLE_CHIPS
+  const visibleKeys = new Set(flatChips.slice(0, MAX_VISIBLE_CHIPS).map((f) => f.key))
+  const overflowGroupPartId = hasOverflow ? flatChips[MAX_VISIBLE_CHIPS].partId : null
+  const overflowCount = totalChips - MAX_VISIBLE_CHIPS
+
+  // Shared chip renderer so the model chips and overflow chips stay identical
+  const renderChip = ([key, entry]) => (
+    <Chip
+      key={key}
+      onClick={() => handleChipClick(entry)}
+      onDelete={() => handleRemoveChip(key)}
+      avatar={
+        <Box
+          sx={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            backgroundColor: 'var(--color-error)',
+            flexShrink: 0,
+            ml: '8px !important',
+          }}
+        />
+      }
+      label={`${entry.symptomType} · ${entry.severity}`}
+      sx={{
+        height: 36,
+        cursor: 'pointer',
+        backgroundColor: 'var(--color-error-light)',
+        border: '1px solid var(--color-error)',
+        color: 'var(--color-error-dark)',
+        fontSize: '13px',
+        // 44x44 touch target for the delete icon
+        '& .MuiChip-deleteIcon': {
+          color: 'var(--color-error)',
+          fontSize: '20px',
+          width: 44,
+          height: 44,
+          p: '12px',
+          m: 0,
+          borderRadius: '50%',
+          '&:hover': { color: 'var(--color-error-dark)' },
+        },
+        '& .MuiChip-avatar': { width: 8, height: 8 },
+      }}
+    />
+  )
+
+  return (
+    /* Review surround — centres the iPhone frame */
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', py: 4, px: 2, width: '100%' }}>
+      {/* iPhone 17 device frame (393×852 logical) — review only */}
+      <Box
+        sx={{
+          flexShrink: 0,
+          width: 393 + 24,
+          height: 852 + 24,
+          p: '12px',
+          borderRadius: '62px',
+          // eslint-disable-next-line design-system/no-hardcoded-colors
+          backgroundColor: '#0a0a0a',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.35)',
+        }}
+      >
+        {/* Screen area */}
+        <Box
+          ref={setScreenEl}
+          sx={{
+            position: 'relative',
+            width: 393,
+            height: 852,
+            borderRadius: '50px',
+            overflow: 'hidden',
+            backgroundColor: 'var(--color-background-primary)',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {/* Dynamic island overlay */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 10,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 125,
+              height: 35,
+              borderRadius: '20px',
+              // eslint-disable-next-line design-system/no-hardcoded-colors
+              backgroundColor: '#000',
+              zIndex: 30,
+            }}
+          />
+
+          {/* Player-facing dark top navigation bar — static visual replica of MainNavigation's
+              dark shell (same gradient background + logo asset). Visual only, no nav logic. */}
+          <Box
+            sx={{
+              flexShrink: 0,
+              height: 88,
+              pt: '40px',
+              px: 1.5,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              // eslint-disable-next-line design-system/no-hardcoded-colors
+              background: 'linear-gradient(180deg, #000000 0%, #111111 40%, #000000 70%, #040037ff 90%, #040037ff 100%)',
+              color: 'var(--color-white)',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', color: 'var(--color-white)' }}>
+              <MenuOutlined />
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, color: 'var(--color-white)' }}>
+              <PersonOutlineOutlined fontSize="small" />
+              <ChevronRightOutlined fontSize="small" />
+              <ChevronRightOutlined fontSize="small" />
+            </Box>
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <img
+                src={KITMAN_LOGO}
+                alt="Kitman labs"
+                style={{ height: '100%', width: 'auto', objectFit: 'contain' }}
+              />
+            </Box>
+          </Box>
+
+          {/* Scrollable form page — inset to the right to clear the side-nav strip */}
+          <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pt: 2, pr: 2, pb: '96px', pl: '40px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {/* Body Map question block */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          {/* Subsection label */}
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'var(--color-text-muted)',
+              fontSize: '11px',
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+            }}
+          >
+            Sub-section 1.1
+          </Typography>
+
+          {/* Coach-configured question heading */}
+          <Typography variant="h6" sx={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
+            {QUESTION_HEADING}
+          </Typography>
+
+          {/* Instruction text */}
+          <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+            {INSTRUCTION_TEXT}
+          </Typography>
+
+          {/* Body model */}
+          <Box>
+            <Box sx={{ position: 'relative' }}>
+              <MobileBodyMapSvg
+                selectedParts={selectedParts}
+                activePart={activePart}
+                currentView={currentView}
+                onPartSelect={handlePartSelect}
+                symptomValues={symptomValues}
+                activeTab={activeTab}
+              />
+
+              {/* First-use tap hotspot — pointer events pass through to the SVG beneath */}
+              {!hasInteracted && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: '31%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: 16,
+                    height: 16,
+                    pointerEvents: 'none',
+                    zIndex: 5,
+                  }}
+                >
+                  {/* solid core */}
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      inset: 0,
+                      borderRadius: '50%',
+                      // eslint-disable-next-line design-system/no-hardcoded-colors
+                      backgroundColor: 'rgba(220, 53, 69, 0.85)',
+                    }}
+                  />
+                  {/* pulsing ring */}
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      inset: 0,
+                      borderRadius: '50%',
+                      // eslint-disable-next-line design-system/no-hardcoded-colors
+                      border: '2px solid rgba(220, 53, 69, 0.55)',
+                      animation: `${hotspotPulse} 1.8s ease-out infinite`,
+                    }}
+                  />
+                </Box>
+              )}
+            </Box>
+
+            {/* Flip button — centred below model */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+              <IconButton
+                onClick={() => setCurrentView((v) => (v === 'front' ? 'rear' : 'front'))}
+                sx={{
+                  border: '1px solid var(--color-border-primary)',
+                  borderRadius: '20px',
+                  px: 2,
+                  py: 0.75,
+                  gap: 0.75,
+                  color: 'var(--color-text-secondary)',
+                  '&:hover': { backgroundColor: 'var(--color-background-secondary)' },
+                }}
+              >
+                <SyncOutlined sx={{ fontSize: 18 }} />
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  {currentView === 'front' ? 'Front' : 'Back'}
+                </Typography>
+              </IconButton>
+            </Box>
+          </Box>
+
+          {/* Selected chips grouped by body area, with overflow cap (Change 4) */}
+          {committed.size > 0 && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1 }}>
+              {orderedAreaGroups.map((g) => {
+                const visibleEntries = g.entries.filter(([key]) => visibleKeys.has(key))
+                const hiddenEntries = g.entries.filter(([key]) => !visibleKeys.has(key))
+                const isOverflowGroup = g.partId === overflowGroupPartId
+                const headingVisibleCollapsed = visibleEntries.length > 0 || isOverflowGroup
+                const showHeadingTop = chipsExpanded || headingVisibleCollapsed
+                const showTopRow = visibleEntries.length > 0 || (isOverflowGroup && hasOverflow)
+                return (
+                  <Box key={g.partId}>
+                    {showHeadingTop && (
+                      <Typography variant="caption" sx={{ color: 'var(--color-text-muted)', fontSize: '11px', display: 'block', mb: 0.5 }}>
+                        {g.name}
+                      </Typography>
+                    )}
+                    {/* Compact note indicator (Change 2) */}
+                    {showHeadingTop && notes.get(g.partId) && (
+                      <Box sx={{ mb: 1 }}>
+                        <Box
+                          onClick={() => toggleNoteExpanded(g.partId)}
+                          sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}
+                        >
+                          <StickyNote2Outlined sx={{ fontSize: 14, color: 'var(--color-text-muted)' }} />
+                          <Typography variant="caption" sx={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>
+                            Note added
+                          </Typography>
+                          <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                            <Typography variant="caption" sx={{ color: 'var(--color-text-secondary)', fontSize: '11px' }}>
+                              View
+                            </Typography>
+                            <ChevronRightOutlined
+                              sx={{
+                                fontSize: 14,
+                                color: 'var(--color-text-secondary)',
+                                transform: expandedNotes.has(g.partId) ? 'rotate(90deg)' : 'none',
+                                transition: 'transform 0.2s',
+                              }}
+                            />
+                          </Box>
+                        </Box>
+                        <Collapse in={expandedNotes.has(g.partId)} unmountOnExit>
+                          <Box
+                            sx={{
+                              mt: 0.5,
+                              p: 1.25,
+                              backgroundColor: 'var(--color-background-secondary)',
+                              borderRadius: 'var(--radius-md)',
+                            }}
+                          >
+                            <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', fontSize: '12px', lineHeight: 1.5 }}>
+                              {notes.get(g.partId)}
+                            </Typography>
+                            <Box
+                              component="button"
+                              type="button"
+                              onClick={() => handleEditNote(g.partId, g.name)}
+                              sx={{
+                                mt: 0.75,
+                                p: 0,
+                                border: 'none',
+                                background: 'transparent',
+                                color: 'var(--color-primary)',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                fontWeight: 500,
+                              }}
+                            >
+                              Edit
+                            </Box>
+                          </Box>
+                        </Collapse>
+                      </Box>
+                    )}
+                    {showTopRow && (
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {visibleEntries.map(renderChip)}
+                        {isOverflowGroup && hasOverflow && (
+                          <Chip
+                            label={chipsExpanded ? 'Show less' : `+${overflowCount} more`}
+                            onClick={() => setChipsExpanded((v) => !v)}
+                            sx={{
+                              height: 36,
+                              cursor: 'pointer',
+                              backgroundColor: 'var(--color-background-secondary)',
+                              border: '1px solid var(--color-border-primary)',
+                              color: 'var(--color-text-secondary)',
+                              fontSize: '13px',
+                            }}
+                          />
+                        )}
+                      </Box>
+                    )}
+                    {hiddenEntries.length > 0 && (
+                      <Collapse in={chipsExpanded} unmountOnExit>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: showTopRow ? 1 : 0 }}>
+                          {hiddenEntries.map(renderChip)}
+                        </Box>
+                      </Collapse>
+                    )}
+                  </Box>
+                )
+              })}
+            </Box>
+          )}
+        </Box>
+          </Box>
+
+          {/* Done button — fixed footer bar at the bottom of the screen (inset for the side-nav strip) */}
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              left: '28px',
+              right: 0,
+              p: 2,
+              backgroundColor: 'var(--color-background-primary)',
+              borderTop: '1px solid var(--color-border-primary)',
+              zIndex: 20,
+            }}
+          >
+            <Button
+              fullWidth
+              variant="contained"
+              disableElevation
+              sx={{
+                py: 1.25,
+                textTransform: 'none',
+                fontWeight: 500,
+                backgroundColor: 'var(--color-primary)',
+                color: '#fff',
+                '&:hover': { backgroundColor: 'var(--color-primary-hover)' },
+              }}
+            >
+              Done
+            </Button>
+          </Box>
+
+          {/* Collapsed side navigation + expandable drawer */}
+          <SideNav
+            open={navOpen}
+            onOpen={() => setNavOpen(true)}
+            onClose={() => setNavOpen(false)}
+            container={screenEl}
+            disabled={sheetOpen}
+          />
+
+          {/* Bottom sheet severity panel — contained within the phone screen */}
+          <SeveritySheet
+            open={sheetOpen}
+            draft={draft}
+            onToggleSymptom={handleToggleSymptom}
+            onSeverityChange={handleSeverityChange}
+            onNoteChange={handleNoteChange}
+            onOpenNoteField={handleOpenNoteField}
+            onAdd={handleAdd}
+            onCancel={handleCancel}
+            container={screenEl}
+          />
+        </Box>
+      </Box>
+    </Box>
+  )
+}

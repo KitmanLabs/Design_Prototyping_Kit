@@ -42,6 +42,8 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
     timezone: 'Europe/Dublin',
     repeats: 'none',
     location: '',
+    locationLat: null,
+    locationLng: null,
     selectedAthletes: [],
     selectedStaff: [],
     staffVisibility: 'all',
@@ -75,6 +77,8 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
         timezone: editingEvent.extendedProps?.timezone || 'Europe/Dublin',
         repeats: editingEvent.extendedProps?.repeats || 'none',
         location: editingEvent.extendedProps?.location || '',
+        locationLat: editingEvent.extendedProps?.locationLat ?? null,
+        locationLng: editingEvent.extendedProps?.locationLng ?? null,
         selectedAthletes: editingEvent.extendedProps?.selectedAthletes || [],
         selectedStaff: editingEvent.extendedProps?.selectedStaff || [],
         staffVisibility: editingEvent.extendedProps?.staffVisibility || 'all',
@@ -213,6 +217,8 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
         eventType: formData.eventType.toUpperCase().replace(/ /g, '_'),
         description: formData.description,
         location: formData.location,
+        locationLat: formData.locationLat,
+        locationLng: formData.locationLng,
         duration: formData.duration,
         timezone: formData.timezone,
         repeats: formData.repeats,
@@ -235,6 +241,8 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
       timezone: 'Europe/Dublin',
       repeats: 'none',
       location: '',
+      locationLat: null,
+      locationLng: null,
       selectedAthletes: [],
       selectedStaff: [],
       staffVisibility: 'all',
@@ -384,6 +392,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                 <LocationPicker
                   value={formData.location}
                   onChange={(value) => handleInputChange('location', value)}
+                  onLocationChange={(loc) => setFormData((prev) => ({ ...prev, locationLat: loc.lat, locationLng: loc.lng }))}
                   savedLocations={savedLocationsData}
                 />
               </Grid>

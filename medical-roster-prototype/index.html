@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Medical / Roster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="share-drawer.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Global nav rail -->
+  <nav class="nav-rail">
+    <div class="nav-rail-logo">
+      <span class="material-icons-outlined">shield</span>
+    </div>
+    <div class="nav-rail-items">
+      <button class="nav-rail-item" title="Dashboard"><span class="material-icons-outlined">bar_chart</span></button>
+      <button class="nav-rail-item" title="Roster"><span class="material-icons-outlined">groups</span></button>
+      <button class="nav-rail-item active" title="Medical"><span class="material-icons-outlined">local_hospital</span></button>
+      <button class="nav-rail-item" title="Training"><span class="material-icons-outlined">fitness_center</span></button>
+      <button class="nav-rail-item" title="Notes"><span class="material-icons-outlined">assignment</span></button>
+      <button class="nav-rail-item" title="Calendar"><span class="material-icons-outlined">calendar_today</span></button>
+      <button class="nav-rail-item" title="Inbox"><span class="material-icons-outlined">inbox</span></button>
+      <button class="nav-rail-item" title="Messages"><span class="material-icons-outlined">chat_bubble_outline</span></button>
+      <button class="nav-rail-item" title="Mail"><span class="material-icons-outlined">mail_outline</span></button>
+      <button class="nav-rail-item" title="Settings"><span class="material-icons-outlined">settings</span></button>
+      <button class="nav-rail-item" title="Downloads"><span class="material-icons-outlined">file_download</span></button>
+    </div>
+    <div class="nav-rail-footer">
+      <button class="nav-rail-item" title="Help"><span class="material-icons-outlined">help_outline</span></button>
+      <button class="nav-rail-item" title="Expand"><span class="material-icons-outlined">chevron_right</span></button>
+    </div>
+  </nav>
+
+  <div class="main">
+
+    <!-- Top nav -->
+    <header class="top-nav">
+      <div class="top-nav-left">
+        <span class="top-nav-icon material-icons-outlined">emoji_events</span>
+        <span class="top-nav-label">Medical</span>
+        <button class="breadcrumb-btn">Player list <span class="material-icons-outlined">chevron_right</span><span class="material-icons-outlined">chevron_right</span></button>
+      </div>
+      <div class="top-nav-right">
+        <span class="top-nav-icon material-icons-outlined">emoji_events</span>
+        <button class="roster-select">
+          Active roster <span class="material-icons-outlined">expand_more</span>
+        </button>
+        <div class="avatar avatar-user">JD</div>
+      </div>
+    </header>
+
+    <div class="section-header">
+      <h1>Medical</h1>
+    </div>
+
+    <!-- Secondary tabs -->
+    <nav class="tab-row">
+      <a class="tab active" href="#">Roster</a>
+      <a class="tab" href="#">Notes</a>
+      <a class="tab" href="#">Diagnostics</a>
+      <a class="tab" href="#">Procedures</a>
+      <a class="tab" href="#">Medical flags</a>
+      <a class="tab" href="#">Shared players</a>
+      <a class="tab" href="#">Past players</a>
+      <a class="tab" href="#">Documents</a>
+      <a class="tab" href="#">Coaches report</a>
+      <a class="tab" href="#">Daily status report</a>
+    </nav>
+
+    <main class="content">
+
+      <!-- Page header -->
+      <div class="page-header">
+        <h1>Roster</h1>
+        <div class="page-header-actions">
+          <button class="btn btn-primary">Add <span class="material-icons-outlined">expand_more</span></button>
+          <button class="btn btn-secondary">Download <span class="material-icons-outlined">expand_more</span></button>
+        </div>
+      </div>
+
+      <!-- Filter row -->
+      <div class="filter-row">
+        <div class="filter-field filter-search">
+          <span class="material-icons-outlined">search</span>
+          <input type="text" placeholder="Search players" />
+        </div>
+        <div class="filter-field">
+          <span>Active roster</span>
+          <span class="material-icons-outlined">expand_more</span>
+        </div>
+        <div class="filter-field">
+          <span>Roster position</span>
+          <span class="material-icons-outlined">expand_more</span>
+        </div>
+        <div class="filter-field">
+          <span>Injured</span>
+          <span class="material-icons-outlined">expand_more</span>
+        </div>
+      </div>
+
+      <!-- Bulk action bar (hidden until rows are selected) -->
+      <div class="bulk-action-bar" id="bulk-action-bar" hidden>
+        <span id="bulk-action-count"></span>
+        <button class="btn btn-secondary" id="bulk-share-btn">Share profile</button>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <table class="roster-table">
+          <thead>
+            <tr>
+              <th class="col-select"><input type="checkbox" id="select-all" aria-label="Select all players" /></th>
+              <th class="col-player">Player</th>
+              <th class="col-injury">Open injury / illness</th>
+              <th class="col-note">Latest note</th>
+              <th class="col-cardiac">Cardiac screening</th>
+              <th class="col-allergies">Allergies</th>
+              <th class="col-roster">Roster</th>
+              <th class="col-menu"></th>
+            </tr>
+          </thead>
+          <tbody id="roster-body">
+            <!-- rows injected by script.js -->
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Share profile drawer (mirrors src/components/ShareProfileDrawer.jsx) -->
+<div class="share-drawer-overlay" id="share-drawer-overlay" hidden>
+  <div class="share-drawer" role="dialog" aria-label="Share profile">
+    <div class="share-drawer-header">
+      <span class="share-drawer-title">Share profile</span>
+      <button class="icon-btn" id="share-drawer-close" aria-label="Close"><span class="material-icons-outlined">close</span></button>
+    </div>
+    <div class="share-drawer-body" id="share-drawer-body">
+      <!-- populated by share-drawer.js -->
+    </div>
+    <div class="share-drawer-footer">
+      <button class="btn btn-secondary" id="share-drawer-cancel">Cancel</button>
+      <button class="btn btn-primary" id="share-drawer-submit" disabled>Share profile</button>
+    </div>
+  </div>
+</div>
+
+<!-- Share confirmation snackbar -->
+<div class="snackbar" id="share-snackbar" hidden></div>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
+<script src="share-drawer.js"></script>
+</body>
+</html>

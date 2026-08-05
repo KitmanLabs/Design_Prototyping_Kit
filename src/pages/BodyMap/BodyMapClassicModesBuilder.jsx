@@ -1,0 +1,229 @@
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Box, Typography, Button, Tabs, Tab, Divider, IconButton, Avatar } from '@mui/material'
+import {
+  ArrowBackOutlined,
+  ChevronRightOutlined,
+  DragIndicator,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+} from '@mui/icons-material'
+import '../../styles/design-tokens.css'
+import BodyMapClassicModes from './BodyMapClassicModes'
+
+function a11yProps(index) {
+  return { id: `bm-cm-tab-${index}`, 'aria-controls': `bm-cm-tabpanel-${index}` }
+}
+
+function TabPanel({ children, value, index }) {
+  return (
+    <div role="tabpanel" hidden={value !== index} id={`bm-cm-tabpanel-${index}`} aria-labelledby={`bm-cm-tab-${index}`}>
+      {value === index && children}
+    </div>
+  )
+}
+
+const NAV_BTN_SX = {
+  borderColor: 'var(--color-border-primary)',
+  color: 'var(--color-primary)',
+  textTransform: 'none',
+  fontWeight: 500,
+  '&:hover': { borderColor: 'var(--color-border-focus)', backgroundColor: 'var(--color-primary-light)' },
+}
+
+const META = [
+  { label: 'Product Area', value: 'Medical' },
+  { label: 'Category', value: 'Other' },
+  { label: 'Created', value: '—' },
+  { label: 'Creator', value: '—' },
+  { label: 'Description', value: 'test' },
+]
+
+export default function BodyMapClassicModesBuilder() {
+  const navigate = useNavigate()
+  const [tabValue, setTabValue] = useState(1) // Preview active by default
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+      {/* Top navigation breadcrumb bar */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          px: 3,
+          py: 1.5,
+          borderBottom: '1px solid var(--color-border-primary)',
+          backgroundColor: 'var(--color-background-primary)',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography
+            variant="body2"
+            sx={{ color: 'var(--color-text-primary)', fontWeight: 500, cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+            onClick={() => navigate('/forms')}
+          >
+            Forms
+          </Typography>
+          <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', color: 'var(--color-text-secondary)' }}>
+            <Box component="span" sx={{ mx: 0.5 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a3 3 0 100-6 3 3 0 000 6zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" /></svg>
+            </Box>
+            Player list
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>&gt; &gt;</Typography>
+        </Box>
+        <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Typography variant="body2" sx={{ color: 'var(--color-text-primary)' }}>Active Roster</Typography>
+          <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>▼</Typography>
+          <Avatar sx={{ width: 32, height: 32, ml: 1 }} src="" />
+        </Box>
+      </Box>
+
+      {/* Back link + Create */}
+      <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, px: 3 }}>
+        <Box
+          component="button"
+          type="button"
+          onClick={() => navigate('/forms')}
+          sx={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--color-text-secondary)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 1,
+            cursor: 'pointer',
+            px: 0,
+            fontSize: '14px',
+            '&:hover': { color: 'var(--color-text-primary)', textDecoration: 'underline' },
+          }}
+        >
+          <ArrowBackOutlined fontSize="small" />
+          <span>Forms Overview</span>
+        </Box>
+        <Box sx={{ ml: 'auto' }}>
+          <Button
+            variant="contained"
+            size="medium"
+            disableElevation
+            sx={{
+              backgroundColor: 'var(--button-primary-bg)',
+              color: 'var(--button-primary-color)',
+              textTransform: 'none',
+              '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' },
+            }}
+          >
+            Create
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Form name + metadata */}
+      <Box sx={{ px: 3, mt: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', mb: 1.5 }}>
+          test
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {META.map((m) => (
+            <Box key={m.label}>
+              <Typography variant="caption" sx={{ display: 'block', color: 'var(--color-text-secondary)', fontSize: '12px' }}>
+                {m.label}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'var(--color-text-primary)' }}>
+                {m.value}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+
+      {/* Tabs */}
+      <Box sx={{ mt: 2 }}>
+        <Tabs
+          value={tabValue}
+          onChange={(_, v) => setTabValue(v)}
+          aria-label="Body map builder tabs"
+          textColor="inherit"
+          sx={{
+            px: 3,
+            '& .MuiTab-root': { color: 'var(--color-text-secondary)', textTransform: 'none', fontWeight: 600 },
+            '& .MuiTab-root.Mui-selected': { color: 'var(--color-black)' },
+            '& .MuiTabs-indicator': { backgroundColor: 'var(--color-black)' },
+          }}
+        >
+          <Tab label="Build" {...a11yProps(0)} />
+          <Tab label="Preview" {...a11yProps(1)} />
+          <Tab label="Settings" {...a11yProps(2)} />
+          <Tab label="Summary View" {...a11yProps(3)} />
+        </Tabs>
+        <Divider />
+      </Box>
+
+      {/* Content: sidebar + main */}
+      <Box sx={{ display: 'flex', minHeight: 'calc(100vh - 320px)' }}>
+        {/* Left sidebar — section / subsection nav */}
+        <Box sx={{ width: 280, flexShrink: 0, borderRight: '1px solid var(--color-border-primary)', backgroundColor: 'var(--color-background-primary)' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 2, py: 1, borderBottom: '1px solid var(--color-border-secondary)' }}>
+            <ChevronRightOutlined sx={{ fontSize: 18, color: 'var(--color-text-secondary)' }} />
+          </Box>
+          {/* Section 1 */}
+          <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1.5, backgroundColor: 'var(--color-background-secondary)' }}>
+            <DragIndicator sx={{ color: 'var(--color-text-disabled)', fontSize: 18, mr: 1 }} />
+            <Typography variant="body2" sx={{ flex: 1, fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '13px' }}>
+              Section 1
+            </Typography>
+            <ChevronRightOutlined sx={{ color: 'var(--color-text-secondary)', fontSize: 18, transform: 'rotate(90deg)' }} />
+          </Box>
+          {/* Sub-section 1.1 */}
+          <Box sx={{ display: 'flex', alignItems: 'center', pl: 4, pr: 2, py: 1.25, backgroundColor: 'var(--color-background-secondary)', borderBottom: '1px solid var(--color-border-secondary)' }}>
+            <Typography variant="body2" sx={{ flex: 1, color: 'var(--color-text-secondary)', fontSize: '12px' }}>
+              Sub-section 1.1
+            </Typography>
+            <ChevronRightOutlined sx={{ color: 'var(--color-text-secondary)', fontSize: 16 }} />
+          </Box>
+        </Box>
+
+        {/* Main content */}
+        <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ flex: 1 }}>
+            {/* Build tab */}
+            <TabPanel value={tabValue} index={0}>
+              <Box sx={{ p: 4 }}>
+                <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>Build</Typography>
+              </Box>
+            </TabPanel>
+
+            {/* Preview tab — the existing body map, rendered unchanged */}
+            <TabPanel value={tabValue} index={1}>
+              <BodyMapClassicModes />
+            </TabPanel>
+
+            {/* Settings tab */}
+            <TabPanel value={tabValue} index={2}>
+              <Box sx={{ p: 4 }}>
+                <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>Settings</Typography>
+              </Box>
+            </TabPanel>
+
+            {/* Summary View tab */}
+            <TabPanel value={tabValue} index={3}>
+              <Box sx={{ p: 4 }}>
+                <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>Summary View</Typography>
+              </Box>
+            </TabPanel>
+          </Box>
+
+          {/* Back / Next */}
+          <Box sx={{ display: 'flex', gap: 1, px: 4, py: 2, borderTop: '1px solid var(--color-border-primary)' }}>
+            <Button variant="outlined" size="medium" startIcon={<KeyboardArrowLeft />} sx={NAV_BTN_SX}>
+              Back
+            </Button>
+            <Button variant="outlined" size="medium" endIcon={<KeyboardArrowRight />} sx={NAV_BTN_SX}>
+              Next
+            </Button>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  )
+}

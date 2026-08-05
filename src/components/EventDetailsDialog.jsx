@@ -1,8 +1,15 @@
-import React from 'react';
-import { Dialog, DialogContent, DialogActions, Box, Typography, Button, Divider, Chip, Link } from '@mui/material';
-import { RefreshOutlined, AttachFileOutlined, PersonOutlined, LocationOnOutlined } from '@mui/icons-material';
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogActions, Box, Typography, Button, IconButton, Tooltip, Divider, Chip, Link, Menu, MenuItem } from '@mui/material';
+import { RefreshOutlined, AttachFileOutlined, PersonOutlined, LocationOnOutlined, ChatBubbleOutlineOutlined, OpenInNewOutlined } from '@mui/icons-material';
+import { useJsApiLoader, GoogleMap, Marker } from '@react-google-maps/api';
+import { GOOGLE_MAPS_API_KEY, GOOGLE_MAPS_LIBRARIES } from '../config/googleMaps';
 
-const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff = [] }) => {
+const previewMapContainerStyle = { width: '100%', height: '160px' };
+
+const EventDetailsDialog = ({ open, event, onClose, onEdit, onSendMessage, athletes = [], staff = [] }) => {
+  const [mapsMenuAnchor, setMapsMenuAnchor] = useState(null);
+  const { isLoaded } = useJsApiLoader({ googleMapsApiKey: GOOGLE_MAPS_API_KEY, libraries: GOOGLE_MAPS_LIBRARIES });
+
   if (!event) return null;
 
   const { title, start, end, extendedProps, backgroundColor } = event;
@@ -107,6 +114,15 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
               {title}
             </Typography>
           </Box>
+          {onSendMessage && (
+            <Tooltip title="Send message">
+              <IconButton onClick={() => onSendMessage(event)} sx={{
+                width: 40, height: 40, borderRadius: '6px', '&:hover': { bgcolor: 'var(--color-secondary)' },
+              }}>
+                <ChatBubbleOutlineOutlined sx={{ fontSize: 22, color: 'var(--color-primary)' }} />
+              </IconButton>
+            </Tooltip>
+          )}
         </Box>
       </Box>
       <DialogContent sx={{ pt: 3 }}>
@@ -127,44 +143,83 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
           </Typography>
         )}
 
-        {extendedProps?.location && (
-          <Box sx={{ mb: 2 }}>
-            <Box
-              sx={{
-                width: '100%',
-                height: 140,
-                borderRadius: '8px',
-                overflow: 'hidden',
-                border: '1px solid var(--color-border-primary)',
-                mb: 1,
-                position: 'relative',
-                background: 'var(--color-secondary)',
-                backgroundImage: `
-                  repeating-linear-gradient(0deg, transparent, transparent 19px, var(--color-border-primary) 20px),
-                  repeating-linear-gradient(90deg, transparent, transparent 19px, var(--color-border-primary) 20px)
-                `,
-              }}
-            >
-              <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -60%)' }}>
-                <LocationOnOutlined sx={{ fontSize: 32, color: 'var(--color-error)' }} />
-              </Box>
+        {extendedProps?.location && extendedProps?.locationLat && extendedProps?.locationLng && (() => {
+          const lat = extendedProps.locationLat;
+          const lng = extendedProps.locationLng;
+          const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+          const appleMapsUrl = `https://maps.apple.com/?ll=${lat},${lng}&q=${encodeURIComponent(extendedProps.location)}`;
+          const openMapsMenu = (e) => setMapsMenuAnchor(e.currentTarget);
+          return (
+            <Box sx={{ mb: 2 }}>
               <Box
+                onClick={openMapsMenu}
                 sx={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  backgroundColor: 'rgba(255,255,255,0.85)',
-                  px: 1.5,
-                  py: 0.5,
+                  width: '100%',
+                  height: 160,
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  border: '1px solid var(--color-border-primary)',
+                  mb: 1,
+                  cursor: 'pointer',
                 }}
               >
-                <Typography variant="caption" sx={{ color: 'var(--color-text-secondary)', fontSize: '11px' }}>
+                {isLoaded ? (
+                  <GoogleMap
+                    mapContainerStyle={previewMapContainerStyle}
+                    center={{ lat, lng }}
+                    zoom={15}
+                    options={{
+                      gestureHandling: 'none',
+                      disableDefaultUI: true,
+                      keyboardShortcuts: false,
+                      zoomControl: false,
+                    }}
+                  >
+                    <Marker position={{ lat, lng }} />
+                  </GoogleMap>
+                ) : (
+                  <Box sx={{ width: '100%', height: '100%', backgroundColor: 'var(--color-background-tertiary)' }} />
+                )}
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.5 }}>
+                <LocationOnOutlined sx={{ fontSize: 20, color: 'var(--color-text-secondary)' }} />
+                <Typography variant="body2" sx={{ color: 'var(--color-text-primary)', fontSize: '15px' }}>
                   {extendedProps.location}
                 </Typography>
               </Box>
+              <Button
+                onClick={openMapsMenu}
+                endIcon={<OpenInNewOutlined sx={{ fontSize: 20 }} />}
+                sx={{
+                  color: 'var(--color-primary)', textTransform: 'none', fontSize: '15px', fontWeight: 600,
+                  padding: 0, minWidth: 0, '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
+                }}
+              >
+                Open in Maps
+              </Button>
+              <Menu anchorEl={mapsMenuAnchor} open={Boolean(mapsMenuAnchor)} onClose={() => setMapsMenuAnchor(null)}>
+                <MenuItem
+                  component="a" href={googleMapsUrl} target="_blank" rel="noopener"
+                  onClick={() => setMapsMenuAnchor(null)}
+                  sx={{ height: 44, fontSize: '15px', color: 'var(--color-text-primary)' }}
+                >
+                  Open in Google Maps
+                </MenuItem>
+                <MenuItem
+                  component="a" href={appleMapsUrl} target="_blank" rel="noopener"
+                  onClick={() => setMapsMenuAnchor(null)}
+                  sx={{ height: 44, fontSize: '15px', color: 'var(--color-text-primary)' }}
+                >
+                  Open in Apple Maps
+                </MenuItem>
+              </Menu>
             </Box>
-            <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
+          );
+        })()}
+        {extendedProps?.location && !(extendedProps?.locationLat && extendedProps?.locationLng) && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 2 }}>
+            <LocationOnOutlined sx={{ fontSize: 20, color: 'var(--color-text-secondary)' }} />
+            <Typography variant="body2" sx={{ color: 'var(--color-text-primary)', fontSize: '15px' }}>
               {extendedProps.location}
             </Typography>
           </Box>

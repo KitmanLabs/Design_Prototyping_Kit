@@ -47,7 +47,11 @@ import {
   ScheduleOutlined as ScheduleIcon,
   AccessTimeOutlined as AccessTimeIcon,
   BlockOutlined as BlockIcon,
-  PersonRemoveOutlined as PersonRemoveIcon
+  PersonRemoveOutlined as PersonRemoveIcon,
+  CampaignOutlined as CampaignIcon,
+  MailOutlined as MailIcon,
+  SmsOutlined as SmsIcon,
+  NotificationsOutlined as AppIcon,
 } from '@mui/icons-material'
 import {
   currentUserId,
@@ -58,6 +62,10 @@ import {
   getMessagesForConversation,
   getUserById
 } from '../../data/messaging'
+import { blastSentMessages } from '../../data/blastMessaging'
+import BlastMessageDrawer from './BlastMessageDrawer'
+import BroadcastDetailDrawer, { RecurringEditScopeDialog } from './BroadcastDetailDrawer'
+import { DataGrid as MuiDataGrid } from '@mui/x-data-grid'
 import '../../styles/design-tokens.css'
 
 const SIDEBAR_WIDTH = 280
@@ -78,6 +86,18 @@ function EmptyStateIllustration() {
 }
 
 export default function Messaging() {
+  const [mainTab, setMainTab] = useState('messages') // 'messages' | 'blast'
+  const [blastDrawerOpen, setBlastDrawerOpen] = useState(false)
+  const [sentBlasts, setSentBlasts] = useState(blastSentMessages)
+
+  // Broadcast history grid state
+  const [broadcastSubTab, setBroadcastSubTab] = useState('upcoming') // 'upcoming' | 'past'
+  const [broadcastDetail, setBroadcastDetail] = useState({ open: false, mode: 'view', data: null })
+  const [broadcastRowMenuAnchor, setBroadcastRowMenuAnchor] = useState(null)
+  const [broadcastRowMenuTarget, setBroadcastRowMenuTarget] = useState(null)
+  const [recurringScopeOpen, setRecurringScopeOpen] = useState(false)
+  const [recurringScopeTarget, setRecurringScopeTarget] = useState(null)
+
   const [selectedId, setSelectedId] = useState('dm1')
   const [messages, setMessages] = useState(() => getMessagesForConversation('dm1'))
   const [inputValue, setInputValue] = useState('')
@@ -383,8 +403,343 @@ export default function Messaging() {
 
   const removeAttachment = (id) => setAttachments(prev => prev.filter(a => a.id !== id))
 
+  const handleBlastSent = (data) => {
+    const newBlast = {
+      id: `blast-${Date.now()}`,
+      subject: data.subject || '(No subject)',
+      body: data.body,
+      recipientLabel: `${data.reach.total} recipients`,
+      channels: data.channels,
+      sentAt: data.scheduledFor || new Date().toISOString(),
+      sentBy: 'Sofia Chen',
+      status: data.scheduledFor ? 'scheduled' : 'sent',
+      reach: data.reach,
+    }
+    setSentBlasts(prev => [newBlast, ...prev])
+  }
+
+  // ─── Broadcast history grid helpers ──────────────────────────────────────────
+  const channelIcons = {
+    inapp: <Tooltip title="Broadcast Channel" key="inapp"><AppIcon  sx={{ fontSize: 16, color: 'var(--color-primary)' }} /></Tooltip>,
+    email: <Tooltip title="Email" key="email"><MailIcon  sx={{ fontSize: 16, color: 'var(--color-primary)' }} /></Tooltip>,
+    sms:   <Tooltip title="SMS" key="sms"><SmsIcon   sx={{ fontSize: 16, color: 'var(--color-primary)' }} /></Tooltip>,
+  }
+
+  const upcomingBlasts = useMemo(
+    () => sentBlasts.filter(b => b.status === 'scheduled' || b.status === 'recurring'),
+    [sentBlasts]
+  )
+  const pastBlasts = useMemo(
+    () => sentBlasts.filter(b => b.status === 'sent'),
+    [sentBlasts]
+  )
+
+  const handleOpenBroadcastDetail = (broadcast) => {
+    const mode = broadcast.status === 'sent' ? 'view' : 'edit'
+    if (mode === 'edit' && broadcast.scheduleType === 'recurring') {
+      setRecurringScopeTarget(broadcast)
+      setRecurringScopeOpen(true)
+      return
+    }
+    setBroadcastDetail({ open: true, mode, data: broadcast })
+  }
+
+  const handleCloseBroadcastDetail = () =>
+    setBroadcastDetail({ open: false, mode: 'view', data: null })
+
+  const handleSaveBroadcast = (updated) => {
+    setSentBlasts(prev => prev.map(b => b.id === updated.id ? { ...b, ...updated } : b))
+    handleCloseBroadcastDetail()
+  }
+
+  const handleRecurringScopeChoose = (scope) => {
+    if (recurringScopeTarget) {
+      setBroadcastDetail({
+        open: true,
+        mode: 'edit',
+        data: { ...recurringScopeTarget, editScope: scope },
+      })
+    }
+    setRecurringScopeOpen(false)
+    setRecurringScopeTarget(null)
+  }
+
+  const handleOpenRowMenu = (e, broadcast) => {
+    e.stopPropagation()
+    setBroadcastRowMenuAnchor(e.currentTarget)
+    setBroadcastRowMenuTarget(broadcast)
+  }
+  const handleCloseRowMenu = () => {
+    setBroadcastRowMenuAnchor(null)
+    setBroadcastRowMenuTarget(null)
+  }
+
+  const handleCancelBroadcast = (broadcast) => {
+    setSentBlasts(prev => prev.filter(b => b.id !== broadcast.id))
+    handleCloseRowMenu()
+  }
+
+  const renderRecipientsCell = (broadcast) => {
+    const names = broadcast.recipientNames || []
+    if (names.length === 0) return broadcast.recipientLabel
+    const displayCount = 3
+    const displayNames = names.slice(0, displayCount)
+    const remaining = names.length - displayCount
+
+    const tooltipNames = names.slice(0, 20)
+    const tooltipRemaining = names.length - 20
+    const tooltipText = tooltipNames.join(', ') + (tooltipRemaining > 0 ? `, +${tooltipRemaining} more` : '')
+
+    return (
+      <Tooltip title={tooltipText} arrow placement="top">
+        <Box sx={{ display: 'flex', alignItems: 'center', overflow: 'hidden', whiteSpace: 'nowrap', cursor: 'pointer' }}
+             onClick={(e) => { e.stopPropagation(); handleOpenBroadcastDetail(broadcast) }}>
+          <Typography variant="body2" component="span" sx={{ fontSize: 13 }}>
+            {displayNames.join(', ')}
+          </Typography>
+          {remaining > 0 && (
+            <Typography variant="body2" component="span" sx={{ fontSize: 13, color: 'var(--color-primary)', fontWeight: 600, ml: 0.5 }}>
+              …+{remaining}
+            </Typography>
+          )}
+        </Box>
+      </Tooltip>
+    )
+  }
+
+  const statusChipFor = (broadcast) => {
+    if (broadcast.status === 'sent') {
+      return <Chip size="small" label="Sent" sx={{ height: 22, fontSize: 11, fontWeight: 600, bgcolor: 'rgba(46,125,50,0.12)', color: '#1e6e3d' }} />
+    }
+    if (broadcast.status === 'recurring') {
+      return <Chip size="small" label="Recurring" sx={{ height: 22, fontSize: 11, fontWeight: 600, bgcolor: 'rgba(123,31,162,0.12)', color: '#6a1b9a' }} />
+    }
+    return <Chip size="small" label="Scheduled" sx={{ height: 22, fontSize: 11, fontWeight: 600, bgcolor: 'rgba(21,101,192,0.12)', color: '#1565c0' }} />
+  }
+
+  const broadcastColumns = useMemo(() => [
+    {
+      field: 'subject', headerName: 'Subject', flex: 1.6, minWidth: 240, sortable: false,
+      renderCell: (params) => (
+        <Typography variant="body2" fontWeight={700} noWrap sx={{ cursor: 'pointer' }}
+                    onClick={() => handleOpenBroadcastDetail(params.row)}>
+          {params.row.subject}
+        </Typography>
+      ),
+    },
+    {
+      field: 'scheduledDate', headerName: 'Scheduled date', flex: 1, minWidth: 180, sortable: false,
+      renderCell: (params) => {
+        const b = params.row
+        if (b.scheduleType === 'immediate') {
+          return <Typography variant="body2" sx={{ fontSize: 13, color: 'text.disabled', fontStyle: 'italic' }}>Sent immediately</Typography>
+        }
+        if (b.scheduleType === 'recurring') {
+          return (
+            <Box>
+              <Typography variant="body2" sx={{ fontSize: 13, fontWeight: 500 }}>{b.recurringPattern}</Typography>
+              <Typography variant="caption" color="text.disabled">Next: {new Date(b.scheduledFor).toLocaleDateString([], { dateStyle: 'medium' })}</Typography>
+            </Box>
+          )
+        }
+        const dt = b.scheduledFor || b.sentAt
+        return (
+          <Typography variant="body2" sx={{ fontSize: 13 }}>
+            {new Date(dt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+          </Typography>
+        )
+      },
+    },
+    {
+      field: 'status', headerName: 'Status', width: 130, sortable: false,
+      renderCell: (params) => statusChipFor(params.row),
+    },
+    {
+      field: 'channels', headerName: 'Channel', width: 110, sortable: false,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+          {(params.row.channels || []).map(ch => channelIcons[ch])}
+        </Box>
+      ),
+    },
+    {
+      field: 'recipients', headerName: 'Recipients', flex: 1.4, minWidth: 220, sortable: false,
+      renderCell: (params) => renderRecipientsCell(params.row),
+    },
+    {
+      field: 'actions', headerName: '', width: 56, sortable: false, align: 'right', headerAlign: 'right',
+      renderCell: (params) => (
+        <IconButton size="small" onClick={(e) => handleOpenRowMenu(e, params.row)}>
+          <MoreVertIcon fontSize="small" />
+        </IconButton>
+      ),
+    },
+  ], [sentBlasts])
+
+  const currentRows = broadcastSubTab === 'upcoming' ? upcomingBlasts : pastBlasts
+
+  const BlastManageView = () => (
+    <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', p: 3 }}>
+      {/* Header */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
+        <Box>
+          <Typography variant="h6" fontWeight={700}>Broadcast messages</Typography>
+          <Typography variant="body2" color="text.secondary">Track all broadcasts that are scheduled or have been sent</Typography>
+        </Box>
+        <Box
+          component="button"
+          onClick={() => setBlastDrawerOpen(true)}
+          sx={{
+            display: 'flex', alignItems: 'center', gap: 1,
+            px: 2, py: 1, bgcolor: 'var(--color-primary)',
+            color: 'white', border: 'none', borderRadius: 1,
+            cursor: 'pointer', fontWeight: 600, fontSize: 14,
+          }}
+        >
+          <CampaignIcon sx={{ fontSize: 18 }} />
+          New broadcast message
+        </Box>
+      </Box>
+
+      {/* Upcoming / Past sub-tabs */}
+      <Box sx={{ display: 'flex', borderBottom: '1px solid var(--color-border-primary)', mb: 2 }}>
+        {[
+          { value: 'upcoming', label: `Upcoming${upcomingBlasts.length > 0 ? ` (${upcomingBlasts.length})` : ''}` },
+          { value: 'past',     label: `Past${pastBlasts.length > 0 ? ` (${pastBlasts.length})` : ''}` },
+        ].map(tab => (
+          <Box
+            key={tab.value}
+            onClick={() => setBroadcastSubTab(tab.value)}
+            sx={{
+              px: 2.5, py: 1.25, cursor: 'pointer', fontSize: 14,
+              fontWeight: broadcastSubTab === tab.value ? 600 : 400,
+              color: broadcastSubTab === tab.value ? 'var(--color-primary)' : 'text.secondary',
+              borderBottom: '2px solid',
+              borderBottomColor: broadcastSubTab === tab.value ? 'var(--color-primary)' : 'transparent',
+              userSelect: 'none',
+              '&:hover': { color: 'var(--color-primary)' },
+            }}
+          >
+            {tab.label}
+          </Box>
+        ))}
+      </Box>
+
+      {/* Grid or empty state */}
+      {currentRows.length === 0 ? (
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 8, color: 'text.secondary' }}>
+          <CampaignIcon sx={{ fontSize: 56, opacity: 0.2, mb: 2 }} />
+          {broadcastSubTab === 'upcoming' ? (
+            <>
+              <Typography variant="body1" fontWeight={600} color="text.secondary" sx={{ mb: 0.5 }}>
+                No scheduled messages
+              </Typography>
+              <Typography variant="body2" color="text.disabled" sx={{ mb: 2.5 }}>
+                Compose a new broadcast message to get started.
+              </Typography>
+              <Box
+                component="button"
+                onClick={() => setBlastDrawerOpen(true)}
+                sx={{
+                  display: 'flex', alignItems: 'center', gap: 1,
+                  px: 2, py: 1, bgcolor: 'var(--color-primary)',
+                  color: 'white', border: 'none', borderRadius: 1,
+                  cursor: 'pointer', fontWeight: 600, fontSize: 14,
+                }}
+              >
+                <CampaignIcon sx={{ fontSize: 18 }} />
+                New broadcast message
+              </Box>
+            </>
+          ) : (
+            <Typography variant="body1" fontWeight={600} color="text.secondary">
+              No messages have been sent yet.
+            </Typography>
+          )}
+        </Box>
+      ) : (
+        <Box sx={{
+          flex: 1, minHeight: 0, width: '100%',
+          '& .MuiDataGrid-root': { border: '1px solid var(--color-border-primary)', borderRadius: 1, bgcolor: 'var(--color-background-primary)' },
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: 'grey.50',
+            '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 600, fontSize: 13, fontFamily: 'inherit' },
+          },
+          '& .MuiDataGrid-cell': {
+            borderBottom: '1px solid var(--color-border-primary)',
+            display: 'flex', alignItems: 'center',
+            fontSize: 13, fontFamily: 'inherit', outline: 'none !important',
+          },
+          '& .MuiDataGrid-row': {
+            cursor: 'pointer',
+            '&:hover': { backgroundColor: 'rgba(0,0,0,0.02)' },
+          },
+          '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': { outline: 'none !important' },
+          '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': { outline: 'none !important' },
+        }}>
+          <MuiDataGrid
+            rows={currentRows}
+            columns={broadcastColumns}
+            disableColumnMenu
+            disableColumnFilter
+            disableColumnSelector
+            disableDensitySelector
+            disableRowSelectionOnClick
+            hideFooter={currentRows.length <= 25}
+            onRowClick={(params) => handleOpenBroadcastDetail(params.row)}
+            getRowHeight={() => 64}
+            initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
+            pageSizeOptions={[25, 50, 100]}
+          />
+        </Box>
+      )}
+    </Box>
+  )
+
   return (
-    <Box sx={{ display: 'flex', height: '100%', overflow: 'hidden', bgcolor: 'var(--color-background-primary)' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', bgcolor: 'var(--color-background-primary)' }}>
+      {/* Page-level tab strip */}
+      <Box sx={{ display: 'flex', borderBottom: '1px solid var(--color-border-primary)', flexShrink: 0 }}>
+        {[
+          { value: 'messages', label: 'Messages' },
+          { value: 'blast',    label: 'Broadcast messages', icon: <CampaignIcon sx={{ fontSize: 15 }} /> },
+        ].map((tab) => (
+          <Box
+            key={tab.value}
+            onClick={() => setMainTab(tab.value)}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.75,
+              px: 2.5,
+              py: 1.25,
+              cursor: 'pointer',
+              fontSize: 14,
+              fontWeight: mainTab === tab.value ? 600 : 400,
+              color: mainTab === tab.value ? 'var(--color-primary)' : 'text.secondary',
+              borderBottom: '2px solid',
+              borderBottomColor: mainTab === tab.value ? 'var(--color-primary)' : 'transparent',
+              transition: 'all 0.15s',
+              userSelect: 'none',
+              '&:hover': { color: 'var(--color-primary)' },
+            }}
+          >
+            {tab.icon}
+            {tab.label}
+          </Box>
+        ))}
+      </Box>
+
+      {/* Blast messages view */}
+      {mainTab === 'blast' && (
+        <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex' }}>
+          <BlastManageView />
+        </Box>
+      )}
+
+      {/* Messages view */}
+      {mainTab === 'messages' && (
+      <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
       {/* Left sidebar */}
       <Box sx={{ width: SIDEBAR_WIDTH, borderRight: '1px solid var(--color-border-primary)', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
         <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border-primary)' }}>
@@ -988,6 +1343,54 @@ export default function Messaging() {
           )}
         </Box>
       </Modal>
+      </Box>
+      )}
+
+      <BlastMessageDrawer
+        open={blastDrawerOpen}
+        onClose={() => setBlastDrawerOpen(false)}
+        onSent={handleBlastSent}
+      />
+
+      {/* Broadcast row context menu */}
+      <Menu
+        anchorEl={broadcastRowMenuAnchor}
+        open={Boolean(broadcastRowMenuAnchor)}
+        onClose={handleCloseRowMenu}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        {broadcastRowMenuTarget?.status === 'sent' && (
+          <MenuItem onClick={() => { handleOpenBroadcastDetail(broadcastRowMenuTarget); handleCloseRowMenu() }}>
+            View
+          </MenuItem>
+        )}
+        {broadcastRowMenuTarget?.status === 'scheduled' && [
+          <MenuItem key="edit" onClick={() => { handleOpenBroadcastDetail(broadcastRowMenuTarget); handleCloseRowMenu() }}>Edit</MenuItem>,
+          <MenuItem key="cancel" onClick={() => handleCancelBroadcast(broadcastRowMenuTarget)} sx={{ color: 'error.main' }}>Cancel send</MenuItem>,
+        ]}
+        {broadcastRowMenuTarget?.status === 'recurring' && [
+          <MenuItem key="edit-next" onClick={() => { setRecurringScopeTarget(broadcastRowMenuTarget); setRecurringScopeOpen(true); handleCloseRowMenu() }}>Edit next occurrence</MenuItem>,
+          <MenuItem key="edit-all" onClick={() => { setBroadcastDetail({ open: true, mode: 'edit', data: { ...broadcastRowMenuTarget, editScope: 'all' } }); handleCloseRowMenu() }}>Edit all occurrences</MenuItem>,
+          <MenuItem key="cancel" onClick={() => handleCancelBroadcast(broadcastRowMenuTarget)} sx={{ color: 'error.main' }}>Cancel series</MenuItem>,
+        ]}
+      </Menu>
+
+      {/* Recurring edit-scope confirmation */}
+      <RecurringEditScopeDialog
+        open={recurringScopeOpen}
+        onChoose={handleRecurringScopeChoose}
+        onClose={() => { setRecurringScopeOpen(false); setRecurringScopeTarget(null) }}
+      />
+
+      {/* Broadcast detail/edit drawer */}
+      <BroadcastDetailDrawer
+        open={broadcastDetail.open}
+        mode={broadcastDetail.mode}
+        broadcast={broadcastDetail.data}
+        onClose={handleCloseBroadcastDetail}
+        onSave={handleSaveBroadcast}
+      />
     </Box>
   )
 }

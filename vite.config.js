@@ -84,7 +84,7 @@ export default defineConfig({
     ]
   },
   server: {
-    port: 3001
+    port: Number(process.env.PORT) || 3001
   },
   test: {
     environment: 'jsdom',

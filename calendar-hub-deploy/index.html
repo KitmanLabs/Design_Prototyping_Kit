@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar prototypes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: #F3F4F7;
+    font-family: 'Open Sans', sans-serif;
+  }
+  .wrapper {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 64px 24px 64px;
+  }
+  h1 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #172B4D;
+    margin: 0;
+  }
+  .subheading {
+    font-size: 16px;
+    font-weight: 400;
+    color: #5F7089;
+    margin: 24px 0 0;
+  }
+  .cards {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .card {
+    background: #FFFFFF;
+    border-radius: 8px;
+    border: 1px solid #E8EAED;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #172B4D;
+    margin: 0;
+  }
+  .card-description {
+    font-size: 15px;
+    font-weight: 400;
+    color: #5F7089;
+    margin: 8px 0 20px;
+  }
+  .btn {
+    align-self: flex-end;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #3B4960;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 600;
+    height: 52px;
+    padding: 0 22px;
+    border-radius: 6px;
+    text-transform: none;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .btn:hover {
+    background: #364358;
+  }
+</style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>Calendar prototypes</h1>
+    <p class="subheading">MLS calendar upgrade, July 2026</p>
+    <div class="cards">
+      <div class="card">
+        <p class="card-title">Calendar (web)</p>
+        <p class="card-description">Full desktop calendar, filters, event creation, and message blast.</p>
+        <a class="btn" href="#REPLACE_WITH_CALENDAR_URL" target="_blank" rel="noopener">Open prototype</a>
+      </div>
+      <div class="card">
+        <p class="card-title">Coach app (mobile)</p>
+        <p class="card-description">Mobile calendar view for the Coach app.</p>
+        <a class="btn" href="#REPLACE_WITH_COACH_APP_URL" target="_blank" rel="noopener">Open prototype</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

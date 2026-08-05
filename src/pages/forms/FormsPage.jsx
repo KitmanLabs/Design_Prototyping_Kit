@@ -25,7 +25,7 @@ import {
   Badge
 } from '@mui/material'
 import { DataGrid, GridPagination, GridToolbar } from 'playbook-components'
-import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined, KeyboardArrowDownOutlined, KeyboardArrowRightOutlined, CloseOutlined, NotificationsOutlined } from '@mui/icons-material'
+import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined, KeyboardArrowDownOutlined, KeyboardArrowRightOutlined, CloseOutlined, NotificationsOutlined, AutoAwesomeOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DateRangePicker, DatePicker } from '@mui/x-date-pickers-pro'
@@ -37,6 +37,7 @@ import CreateFormDrawer from '../../components/forms/CreateFormDrawer'
 import EditScheduleDrawer from '../../components/forms/EditScheduleDrawer'
 import ExportFormDrawer from '../../components/forms/ExportFormDrawer'
 import NotificationDrawer from '../../components/forms/NotificationDrawer'
+import AiSummaryDrawer from '../../components/forms/AiSummaryDrawer'
 import athletesData from '../../data/athletes.json'
 import formsTemplatesData from '../../data/forms_templates.json'
 import { currentUser } from '../../data/layout'
@@ -388,6 +389,7 @@ export default function FormsPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false)
+  const [isAiSummaryOpen, setIsAiSummaryOpen] = useState(false)
 
   // Forms list: initial from JSON + newly created (add logic)
   const [formsList, setFormsList] = useState(initialFormsFromData)
@@ -1073,26 +1075,15 @@ export default function FormsPage() {
             Forms
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <IconButton
-              onClick={() => setIsNotificationDrawerOpen(true)}
-              size="small"
-              aria-label="Notifications"
-              sx={{ color: 'var(--color-text-secondary)' }}
+            <Button
+              variant="secondary"
+              size="medium"
+              onClick={() => setIsAiSummaryOpen(true)}
+              style={{ fontWeight: 700, fontSize: 'var(--font-size-sm)' }}
             >
-              <Badge 
-                badgeContent={3} 
-                color="error"
-                sx={{
-                  '& .MuiBadge-badge': {
-                    fontSize: 'var(--font-size-xs)',
-                    minWidth: 18,
-                    height: 18
-                  }
-                }}
-              >
-                <NotificationsOutlined />
-              </Badge>
-            </IconButton>
+              <AutoAwesomeOutlined sx={{ fontSize: 16 }} />
+              AI summary
+            </Button>
             <Button
               variant="primary"
               size="medium"
@@ -1798,6 +1789,10 @@ export default function FormsPage() {
         <NotificationDrawer
           open={isNotificationDrawerOpen}
           onClose={() => setIsNotificationDrawerOpen(false)}
+        />
+        <AiSummaryDrawer
+          open={isAiSummaryOpen}
+          onClose={() => setIsAiSummaryOpen(false)}
         />
       </Box>
     </LocalizationProvider>
