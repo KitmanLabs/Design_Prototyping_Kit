@@ -3,119 +3,86 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow">
     <title>Share Record — Prototype</title>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
-    <style>
-      #kl-password-gate {
-        position: fixed;
-        inset: 0;
-        z-index: 999999;
-        background: #FFFFFF;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: 'Open Sans', sans-serif;
-      }
-      #kl-password-gate.kl-hidden {
-        display: none;
-      }
-      #kl-password-gate .kl-gate-box {
-        width: 320px;
-        max-width: 90vw;
-        text-align: center;
-      }
-      #kl-password-gate h1 {
-        margin: 0 0 20px;
-        font-family: 'Open Sans', sans-serif;
-        font-weight: 600;
-        font-size: 20px;
-        color: #172B4D;
-      }
-      #kl-password-gate input[type="password"] {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 10px 12px;
-        background: #F3F4F7;
-        border: 1px solid #E8EAED;
-        border-radius: 4px;
-        font-family: 'Open Sans', sans-serif;
-        font-weight: 400;
-        font-size: 14px;
-        color: #172B4D;
-        outline: none;
-      }
-      #kl-password-gate button {
-        width: 100%;
-        margin-top: 12px;
-        padding: 10px 12px;
-        background: #1D2635;
-        color: #FFFFFF;
-        border: none;
-        border-radius: 4px;
-        font-family: 'Open Sans', sans-serif;
-        font-weight: 400;
-        font-size: 14px;
-        cursor: pointer;
-      }
-      #kl-password-gate .kl-gate-error {
-        display: none;
-        margin-top: 10px;
-        font-family: 'Open Sans', sans-serif;
-        font-weight: 400;
-        font-size: 13px;
-        color: #D32F2F;
-      }
-      #kl-password-gate .kl-gate-error.kl-visible {
-        display: block;
-      }
-    </style>
   </head>
   <body>
     <div id="root"></div>
-    <div id="kl-password-gate">
-      <div class="kl-gate-box">
-        <h1>Enter password</h1>
-        <input type="password" id="kl-gate-input" placeholder="Password" autocomplete="off" autofocus />
-        <button type="button" id="kl-gate-submit">Continue</button>
-        <div class="kl-gate-error" id="kl-gate-error">Incorrect password. Please try again.</div>
-      </div>
-    </div>
+    <script type="module" src="/src/main.jsx"></script>
     <script>
       (function () {
-        var KL_PASSWORD = 'kitman2026';
-        var KL_STORAGE_KEY = 'kl_prototype_unlocked';
-        var gate = document.getElementById('kl-password-gate');
-        var root = document.getElementById('root');
-        var input = document.getElementById('kl-gate-input');
-        var submit = document.getElementById('kl-gate-submit');
-        var error = document.getElementById('kl-gate-error');
-
-        if (sessionStorage.getItem(KL_STORAGE_KEY) === 'true') {
-          gate.classList.add('kl-hidden');
-        } else {
-          root.setAttribute('inert', '');
-        }
-
-        function attempt() {
-          if (input.value === KL_PASSWORD) {
-            sessionStorage.setItem(KL_STORAGE_KEY, 'true');
-            gate.classList.add('kl-hidden');
-            root.removeAttribute('inert');
-            error.classList.remove('kl-visible');
-          } else {
-            error.classList.add('kl-visible');
+        try {
+          if (sessionStorage.getItem('kl_gate') === '1') {
+            return;
           }
-        }
 
-        submit.addEventListener('click', attempt);
-        input.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter') {
-            attempt();
+          var overlay = document.createElement('div');
+          overlay.id = 'kl-gate-overlay';
+          overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;z-index:999999;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-family:"Open Sans",sans-serif;';
+
+          var box = document.createElement('div');
+          box.style.cssText = 'width:320px;max-width:90vw;text-align:center;';
+
+          var heading = document.createElement('h1');
+          heading.textContent = 'Enter password';
+          heading.style.cssText = 'margin:0 0 20px;font-family:"Open Sans",sans-serif;font-weight:600;font-size:20px;color:#172B4D;';
+
+          var input = document.createElement('input');
+          input.type = 'password';
+          input.placeholder = 'Password';
+          input.autocomplete = 'off';
+          input.style.cssText = 'width:100%;box-sizing:border-box;padding:10px 12px;background:#F3F4F7;border:1px solid #E8EAED;border-radius:4px;font-family:"Open Sans",sans-serif;font-weight:400;font-size:14px;color:#172B4D;outline:none;';
+
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.textContent = 'Continue';
+          button.style.cssText = 'width:100%;margin-top:12px;padding:10px 12px;background:#1D2635;color:#FFFFFF;border:none;border-radius:4px;font-family:"Open Sans",sans-serif;font-weight:400;font-size:14px;cursor:pointer;';
+
+          var error = document.createElement('div');
+          error.textContent = 'Incorrect password. Please try again.';
+          error.style.cssText = 'display:none;margin-top:10px;font-family:"Open Sans",sans-serif;font-weight:400;font-size:13px;color:#D32F2F;';
+
+          box.appendChild(heading);
+          box.appendChild(input);
+          box.appendChild(button);
+          box.appendChild(error);
+          overlay.appendChild(box);
+          document.body.appendChild(overlay);
+          document.body.style.overflow = 'hidden';
+
+          var attempt = function () {
+            try {
+              if (input.value === 'kitman2026') {
+                sessionStorage.setItem('kl_gate', '1');
+                overlay.remove();
+                document.body.style.overflow = '';
+              } else {
+                error.style.display = 'block';
+              }
+            } catch (e) {
+              overlay.remove();
+              document.body.style.overflow = '';
+            }
+          };
+
+          button.addEventListener('click', attempt);
+          input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+              attempt();
+            }
+          });
+
+          input.focus();
+        } catch (e) {
+          var existing = document.getElementById('kl-gate-overlay');
+          if (existing) {
+            existing.remove();
           }
-        });
+          document.body.style.overflow = '';
+        }
       })();
     </script>
-    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
