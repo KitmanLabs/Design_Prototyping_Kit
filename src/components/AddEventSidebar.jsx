@@ -27,8 +27,9 @@ import {
 } from '@mui/icons-material';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import Button from './Button';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { toMoment, withDate } from '../utils/pickerDates';
+import { Button } from '../playbook-components';
 import LocationPicker from './LocationPicker';
 import savedLocationsData from '../data/saved_locations.json';
 
@@ -245,7 +246,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
   const getAthleteLabel = (a) => (a ? `${a.firstname || ''} ${a.lastname || ''}`.trim() || a.name : '');
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <LocalizationProvider dateAdapter={AdapterMoment}>
       <Drawer
         anchor="right"
         open={open}
@@ -313,8 +314,8 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
               <Grid item xs={12}>
                 <DateTimePicker
                   label="Start date and time"
-                  value={formData.startDateTime}
-                  onChange={(newValue) => handleInputChange('startDateTime', newValue)}
+                  value={toMoment(formData.startDateTime)}
+                  onChange={withDate((newValue) => handleInputChange('startDateTime', newValue))}
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -548,10 +549,10 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
 
           <Box sx={{ padding: '16px 24px', borderTop: '1px solid var(--color-border-primary)', backgroundColor: 'var(--color-white)' }}>
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between' }}>
-              <Button onClick={onClose} variant="secondary">
+              <Button size="small" disableElevation={true} onClick={onClose} variant="contained" color="secondary">
                 Cancel
               </Button>
-              <Button onClick={handleSave} variant="primary">
+              <Button size="small" disableElevation={true} onClick={handleSave} variant="contained" color="primary">
                 Save
               </Button>
             </Box>

@@ -16,7 +16,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
@@ -47,6 +47,8 @@ jobs:
 
       - name: Build
         env:
-          VITE_PUBLIC_BUILDER_KEY: ${{ secrets.VITE_PUBLIC_BUILDER_KEY }}
           VITE_MUI_X_LICENSE_KEY: ${{ secrets.VITE_MUI_X_LICENSE_KEY }}
         run: npm run build
+
+      - name: Build Storybook
+        run: npm run build-storybook -- --quiet

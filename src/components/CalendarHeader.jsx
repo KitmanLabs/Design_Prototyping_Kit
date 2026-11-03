@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, IconButton, Badge, Popover, Menu, MenuItem } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { StaticDatePicker } from 'playbook-components';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { toMoment, withDate } from '../utils/pickerDates';
+import { Button, StaticDatePicker } from 'playbook-components';
 import { ArrowDropDownOutlined, ChevronLeftOutlined, ChevronRightOutlined, FilterAltOutlined, SettingsOutlined } from '@mui/icons-material';
-import Button from './Button';
+
 import CopyCalendarUrl from './CopyCalendarUrl';
 
 const CalendarHeader = ({
@@ -182,7 +183,8 @@ const CalendarHeader = ({
             }}
           >
             <Button
-              variant="secondary"
+              size="small" disableElevation={true}
+              variant="contained" color="secondary"
               onClick={onToggleFilters}
               style={{ ...secondaryButtonStyle, gap: '4px' }}
             >
@@ -193,7 +195,8 @@ const CalendarHeader = ({
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, ml: 1 }}>
           <Button
-            variant="secondary"
+            size="small" disableElevation={true}
+            variant="contained" color="secondary"
             onClick={() => onNavigate && onNavigate('prev')}
             style={navButtonStyle}
             type="button"
@@ -202,7 +205,8 @@ const CalendarHeader = ({
           </Button>
 
           <Button
-            variant="secondary"
+            size="small" disableElevation={true}
+            variant="contained" color="secondary"
             onClick={() => onNavigate && onNavigate('next')}
             style={navButtonStyle}
             type="button"
@@ -211,7 +215,8 @@ const CalendarHeader = ({
           </Button>
 
           <Button
-            variant="secondary"
+            size="small" disableElevation={true}
+            variant="contained" color="secondary"
             onClick={() => onNavigate && onNavigate('today')}
             style={todayButtonStyle}
           >
@@ -272,7 +277,8 @@ const CalendarHeader = ({
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'flex-end' }}>
         <Button
-          variant="secondary"
+          size="small" disableElevation={true}
+          variant="contained" color="secondary"
           onClick={handleViewMenuClick}
           style={secondaryButtonStyle}
         >
@@ -281,7 +287,8 @@ const CalendarHeader = ({
         </Button>
 
         <Button
-          variant="primary"
+          size="small" disableElevation={true}
+          variant="contained" color="primary"
           onClick={handleAddMenuClick}
           style={primaryButtonStyle}
         >
@@ -415,11 +422,11 @@ const CalendarHeader = ({
           },
         }}
       >
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <LocalizationProvider dateAdapter={AdapterMoment}>
           <StaticDatePicker
-            value={selectedDate}
-            onChange={handleDateChange}
-            onAccept={handleDateAccept}
+            value={toMoment(selectedDate)}
+            onChange={withDate(handleDateChange)}
+            onAccept={withDate(handleDateAccept)}
             views={['year', 'month', 'day']}
             openTo="day"
             displayStaticWrapperAs="desktop"

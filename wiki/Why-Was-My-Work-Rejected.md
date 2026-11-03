@@ -26,7 +26,7 @@ If a check fails, it's not personal. It's a guardrail. Here's how to fix it.
 
 **Example error:**
 ```
-ERROR: Hardcoded color #FF0000 found in src/components/Button.jsx
+ERROR: Hardcoded color #FF0000 found in src/components/StatusChip.jsx
 Colors must use design tokens like var(--color-error)
 ```
 

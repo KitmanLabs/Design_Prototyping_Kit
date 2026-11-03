@@ -20,7 +20,6 @@ import {
   Checkbox,
   InputAdornment,
   CircularProgress,
-  Button,
   Chip,
   Tooltip,
   Dialog,
@@ -28,6 +27,7 @@ import {
   DialogContent,
   DialogActions
 } from '@mui/material'
+import { Button } from '../../playbook-components'
 import {
   EditOutlined as EditIcon,
   CreateOutlined as ComposeIcon,
@@ -405,7 +405,7 @@ export default function Messaging() {
         </Box>
         <Box sx={{ flex: 1, overflow: 'auto' }}>
           <Box sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Typography variant="caption" color="text.secondary" fontWeight={600}>CHANNELS</Typography>
+            <Typography variant="caption" color="text.secondary" fontWeight={600}>Channels</Typography>
             <IconButton size="small" onClick={handleAddChannel}><AddIcon fontSize="small" /></IconButton>
           </Box>
           {conversations.filter(c => c.type === 'channel' && !c.archived).map((c) => (
@@ -421,7 +421,7 @@ export default function Messaging() {
           {conversations.filter(c => c.type === 'channel' && c.archived).length > 0 && (
             <>
               <ListItemButton onClick={() => setShowArchivedChannels(!showArchivedChannels)} sx={{ px: 2, py: 1 }}>
-                <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ flex: 1 }}>ARCHIVED CHANNELS</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ flex: 1 }}>Archived channels</Typography>
                 {showArchivedChannels ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
               </ListItemButton>
               <Collapse in={showArchivedChannels}>
@@ -438,7 +438,7 @@ export default function Messaging() {
             </>
           )}
           <Box sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Typography variant="caption" color="text.secondary" fontWeight={600}>DIRECT MESSAGES</Typography>
+            <Typography variant="caption" color="text.secondary" fontWeight={600}>Direct messages</Typography>
             <IconButton size="small" onClick={handleAddDM}><AddIcon fontSize="small" /></IconButton>
           </Box>
           {conversations.filter(c => c.type === 'dm' && !c.archived).map((c) => {
@@ -460,7 +460,7 @@ export default function Messaging() {
           {conversations.filter(c => c.type === 'dm' && c.archived).length > 0 && (
             <>
               <ListItemButton onClick={() => setShowArchivedDMs(!showArchivedDMs)} sx={{ px: 2, py: 1 }}>
-                <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ flex: 1 }}>ARCHIVED CONVERSATIONS</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ flex: 1 }}>Archived conversations</Typography>
                 {showArchivedDMs ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
               </ListItemButton>
               <Collapse in={showArchivedDMs}>
@@ -504,28 +504,28 @@ export default function Messaging() {
               <IconButton size="small" onClick={(e) => setAnchorMenu(e.currentTarget)}><MoreVertIcon /></IconButton>
             </Box>
             <Menu anchorEl={anchorMenu} open={Boolean(anchorMenu)} onClose={() => setAnchorMenu(null)}>
-              {isChannel && <MenuItem onClick={handleOpenChannelSettings}>Channel Settings</MenuItem>}
-              {isChannel && <MenuItem onClick={handleViewMembers}>View Members</MenuItem>}
-              {isChannel && <MenuItem onClick={handleManageMembers}>Manage Members</MenuItem>}
+              {isChannel && <MenuItem onClick={handleOpenChannelSettings}>Channel settings</MenuItem>}
+              {isChannel && <MenuItem onClick={handleViewMembers}>View members</MenuItem>}
+              {isChannel && <MenuItem onClick={handleManageMembers}>Manage members</MenuItem>}
               {isChannel && !selected?.archived && (
                 <MenuItem onClick={handleArchiveChannel}>
-                  Archive Channel
+                  Archive channel
                 </MenuItem>
               )}
               {isChannel && selected?.archived && (
                 <MenuItem onClick={handleUnarchiveChannel}>
-                  Unarchive Channel
+                  Unarchive channel
                 </MenuItem>
               )}
-              {isChannel && <MenuItem>Leave Channel</MenuItem>}
+              {isChannel && <MenuItem>Leave channel</MenuItem>}
               {!isChannel && !selected?.archived && (
                 <MenuItem onClick={handleArchiveDM}>
-                  Archive Conversation
+                  Archive conversation
                 </MenuItem>
               )}
               {!isChannel && selected?.archived && (
                 <MenuItem onClick={handleUnarchiveDM}>
-                  Unarchive Conversation
+                  Unarchive conversation
                 </MenuItem>
               )}
               {!isChannel && <MenuItem>View profile</MenuItem>}
@@ -669,7 +669,7 @@ export default function Messaging() {
                 <Typography variant="h6">New direct message</Typography>
                 <IconButton size="small" onClick={() => setRightPanel(null)}><CloseIcon /></IconButton>
               </Box>
-              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>CHANNEL MEMBERS</Typography>
+              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>Channel members</Typography>
               <TextField size="small" placeholder="Search" fullWidth InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment> }} sx={{ mb: 2 }} />
               <Box sx={{ flex: 1, overflow: 'auto' }}>
                 {mockSquads.map((squad) => (
@@ -697,7 +697,7 @@ export default function Messaging() {
               </Box>
               {newChannelStep === 1 ? (
                 <>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>CHANNEL MEMBERS</Typography>
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>Channel members</Typography>
                   <TextField size="small" placeholder="Search" fullWidth InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment> }} sx={{ mb: 2 }} />
                   <Box sx={{ flex: 1, overflow: 'auto' }}>
                     {mockSquads.map((s) => (
@@ -726,7 +726,7 @@ export default function Messaging() {
               ) : (
                 <>
                   <IconButton size="small" onClick={handleBackToMembers} sx={{ mb: 1 }}><ArrowBackIcon /> Back</IconButton>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>CHANNEL DETAILS</Typography>
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>Channel details</Typography>
                   <TextField size="small" label="Channel name" fullWidth value={newChannelName} onChange={(e) => setNewChannelName(e.target.value)} sx={{ mb: 2 }} />
                   <TextField size="small" label="Description" fullWidth multiline value={newChannelDescription} onChange={(e) => setNewChannelDescription(e.target.value)} sx={{ mb: 2 }} />
                   <Typography variant="subtitle2" sx={{ mb: 1 }}>Privacy</Typography>
@@ -736,7 +736,7 @@ export default function Messaging() {
                   <FormControlLabel control={<Switch checked={staffCanSend} onChange={(e) => setStaffCanSend(e.target.checked)} />} label="Staff can send messages" sx={{ display: 'block', mb: 2 }} />
                   <Box sx={{ display: 'flex', gap: 1 }}>
                     <Typography component="button" variant="body2" onClick={handleBackToMembers} sx={{ border: '1px solid', borderColor: 'grey.300', borderRadius: 1, px: 2, py: 1, cursor: 'pointer', bgcolor: 'transparent' }}>Back</Typography>
-                    <Typography component="button" variant="body2" onClick={handleCreateChannel} sx={{ bgcolor: 'var(--color-primary)', color: 'var(--color-white)', borderRadius: 1, px: 2, py: 1, cursor: 'pointer', border: 'none' }}>Create Channel</Typography>
+                    <Typography component="button" variant="body2" onClick={handleCreateChannel} sx={{ bgcolor: 'var(--color-primary)', color: 'var(--color-white)', borderRadius: 1, px: 2, py: 1, cursor: 'pointer', border: 'none' }}>Create channel</Typography>
                   </Box>
                 </>
               )}
@@ -771,7 +771,7 @@ export default function Messaging() {
             label="Show inactive members" 
             sx={{ mb: 2 }} 
           />
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>MEMBERS</Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>Members</Typography>
           <Divider />
           <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
             {channelMembers
@@ -888,10 +888,20 @@ export default function Messaging() {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setScheduleDialogOpen(false)}>Cancel</Button>
-          <Button 
-            onClick={handleCustomScheduleSend} 
-            variant="contained" 
+          <Button
+            onClick={() => setScheduleDialogOpen(false)}
+            variant="contained"
+            color="secondary"
+            size="small"
+            disableElevation={true}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCustomScheduleSend}
+            variant="contained"
+            size="small"
+            disableElevation={true}
             disabled={!scheduleDate || !scheduleTime}
           >
             Schedule send

@@ -1,5 +1,3 @@
-// @flow
-
 const sizeStyles = {
   small: {
     h1: {

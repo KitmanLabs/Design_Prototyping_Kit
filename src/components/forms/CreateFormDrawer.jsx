@@ -8,10 +8,10 @@ import {
   IconButton,
   Divider,
   TextField,
-  Button,
   Autocomplete,
   useMediaQuery
 } from '@mui/material'
+import { Button } from '../../playbook-components'
 import { CloseOutlined } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import '../../styles/design-tokens.css'

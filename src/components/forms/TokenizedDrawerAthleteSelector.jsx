@@ -6,7 +6,7 @@ function TokenizedDrawerAthleteSelector(props) {
   const theme = React.useMemo(() => {
     const root = document.documentElement
     const read = (name, fallback) => getComputedStyle(root).getPropertyValue(name).trim() || fallback
-    // eslint-disable-next-line design-system/no-hardcoded-colors
+     
     const primary = read('--color-primary', '#3B4960')
     // eslint-disable-next-line design-system/no-hardcoded-colors
     const bg = read('--color-background-primary', '#ffffff')

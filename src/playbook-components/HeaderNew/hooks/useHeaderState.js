@@ -1,35 +1,18 @@
-// @flow
 import { useState, useRef } from 'react';
 
-type UseHeaderStateReturn = {|
-  moreAnchorEl: ?HTMLElement,
-  isMoreOpen: boolean,
-  titleTooltipOpen: boolean,
-  listItemTooltipId: ?string,
-  attachmentTooltipId: ?string,
-  badgesTooltipOpen: boolean,
-  isInteractiveClickRef: { current: boolean },
-  setTitleTooltipOpen: (boolean | ((boolean) => boolean)) => void,
-  setListItemTooltipId: (?string | ((?string) => ?string)) => void,
-  setAttachmentTooltipId: (?string | ((?string) => ?string)) => void,
-  setBadgesTooltipOpen: (boolean | ((boolean) => boolean)) => void,
-  handleMoreOpen: (SyntheticMouseEvent<HTMLElement>) => void,
-  handleMoreClose: () => void,
-  handleClickAway: (MouseEvent | TouchEvent) => void,
-|};
 
-export function useHeaderState(isMobile: boolean): UseHeaderStateReturn {
-  const [moreAnchorEl, setMoreAnchorEl] = useState<?HTMLElement>(null);
+export function useHeaderState(isMobile) {
+  const [moreAnchorEl, setMoreAnchorEl] = useState(null);
   const isMoreOpen = Boolean(moreAnchorEl);
 
-  const [titleTooltipOpen, setTitleTooltipOpen] = useState<boolean>(false);
-  const [listItemTooltipId, setListItemTooltipId] = useState<?string>(null);
-  const [attachmentTooltipId, setAttachmentTooltipId] = useState<?string>(null);
-  const [badgesTooltipOpen, setBadgesTooltipOpen] = useState<boolean>(false);
+  const [titleTooltipOpen, setTitleTooltipOpen] = useState(false);
+  const [listItemTooltipId, setListItemTooltipId] = useState(null);
+  const [attachmentTooltipId, setAttachmentTooltipId] = useState(null);
+  const [badgesTooltipOpen, setBadgesTooltipOpen] = useState(false);
 
-  const isInteractiveClickRef = useRef<boolean>(false);
+  const isInteractiveClickRef = useRef(false);
 
-  const handleMoreOpen = (event: SyntheticMouseEvent<HTMLElement>) => {
+  const handleMoreOpen = (event) => {
     setMoreAnchorEl(event.currentTarget);
   };
 
@@ -37,7 +20,7 @@ export function useHeaderState(isMobile: boolean): UseHeaderStateReturn {
     setMoreAnchorEl(null);
   };
 
-  const handleClickAway = (event: MouseEvent | TouchEvent) => {
+  const handleClickAway = (event) => {
     if (!isMobile) return;
 
     if (isInteractiveClickRef.current) {

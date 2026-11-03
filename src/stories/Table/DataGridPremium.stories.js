@@ -1,9 +1,6 @@
-// @flow
 import { useState, useEffect } from 'react';
 import { Box, DataGridPremium, Typography } from '../../playbook-components';
 import {
-  type GridRowsProp,
-  type GridRowSelectionModel,
   GridLinkOperator,
 } from '@mui/x-data-grid-premium';
 import { KitmanIcon, KITMAN_ICON_NAMES } from '../../playbook-components/icons';

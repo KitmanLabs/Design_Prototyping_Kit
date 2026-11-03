@@ -1,8 +1,6 @@
-// @flow
 import { styled, lighten, darken } from '@mui/material/styles';
-import type { Theme as MUITheme } from '@mui/material/styles';
 
-export const GroupHeader = styled('div')(({ theme }: { theme: MUITheme }) => ({
+export const GroupHeader = styled('div')(({ theme }) => ({
   position: 'sticky',
   top: '-8px',
   padding: '4px 10px',

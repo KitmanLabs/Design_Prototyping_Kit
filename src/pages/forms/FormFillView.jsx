@@ -6,7 +6,6 @@ import {
   Divider, 
   TextField,
   Avatar,
-  Button as MuiButton,
   IconButton,
   Autocomplete,
   InputAdornment,
@@ -21,9 +20,10 @@ import {
 } from '@mui/material'
 import { ArrowBackOutlined, CloseOutlined, ChevronRightOutlined, LockOutlined, SearchOutlined, InfoOutlined, DiamondOutlined, DragIndicatorOutlined, KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import '../../styles/design-tokens.css'
+import { Button } from '../../playbook-components'
 
 // Medical History form template matching screenshot structure
 const medicalAssessmentTemplate = {
@@ -317,7 +317,7 @@ export default function FormFillView() {
           
           {/* Action buttons */}
           <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-            <MuiButton
+            <Button
               variant="contained"
               color="secondary"
               disableElevation
@@ -332,8 +332,8 @@ export default function FormFillView() {
               }}
             >
               Summary View
-            </MuiButton>
-            <MuiButton
+            </Button>
+            <Button
               variant="contained"
               color="secondary"
               disableElevation
@@ -349,8 +349,8 @@ export default function FormFillView() {
               }}
             >
               Save As Draft
-            </MuiButton>
-            <MuiButton
+            </Button>
+            <Button
               variant="contained"
               size="medium"
               disableElevation
@@ -366,7 +366,7 @@ export default function FormFillView() {
               }}
             >
               Submit
-            </MuiButton>
+            </Button>
           </Box>
         </Box>
 
@@ -566,7 +566,7 @@ export default function FormFillView() {
               </Typography>
               
               {/* Medical Assessment Questions */}
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <LocalizationProvider dateAdapter={AdapterMoment}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {/* Question 1: Allergies */}
                   <Box>
@@ -749,7 +749,7 @@ export default function FormFillView() {
               py: 2,
               borderTop: '1px solid var(--color-border-primary)'
             }}>
-              <MuiButton
+              <Button
                 variant="contained"
                 color="secondary"
                 disableElevation
@@ -765,8 +765,8 @@ export default function FormFillView() {
                 }}
               >
                 Back
-              </MuiButton>
-              <MuiButton
+              </Button>
+              <Button
                 variant="contained"
                 color="secondary"
                 disableElevation
@@ -780,7 +780,7 @@ export default function FormFillView() {
                 }}
               >
                 Next
-              </MuiButton>
+              </Button>
             </Box>
           </Box>
         </Box>
@@ -1063,7 +1063,7 @@ export default function FormFillView() {
 
             {/* Bottom Show More Button */}
             <Box sx={{ p: 3, borderTop: '1px solid var(--color-border-primary)' }}>
-              <MuiButton
+              <Button
                 fullWidth
                 variant="contained"
                 disableElevation
@@ -1075,7 +1075,7 @@ export default function FormFillView() {
                 }}
               >
                 Show More
-              </MuiButton>
+              </Button>
             </Box>
           </>
         )}

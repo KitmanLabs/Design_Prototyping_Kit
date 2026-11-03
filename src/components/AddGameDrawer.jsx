@@ -12,7 +12,6 @@ import {
   Chip,
   Autocomplete,
   Checkbox,
-  Paper,
   Grid,
   InputAdornment,
   Collapse,
@@ -22,7 +21,6 @@ import {
 } from '@mui/material';
 import {
   CloseOutlined,
-  AttachFileOutlined,
   PersonOutlined,
   CalendarTodayOutlined,
   ScheduleOutlined,
@@ -33,155 +31,23 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import Button from './Button';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { toMoment, withDate } from '../utils/pickerDates';
+import { Button } from '../playbook-components';
 import LocationPicker from './LocationPicker';
 import savedLocationsData from '../data/saved_locations.json';
+import {
+  DESCRIPTION_MAX,
+  MOCK_GAME_TEAMS,
+  MOCK_GAME_OPPOSITION,
+  MOCK_GAME_COMPETITIONS,
+  MOCK_GAME_VENUES,
+  MOCK_GAME_TIMEZONES,
+  MOCK_GAME_REMINDER_TYPES,
+} from '../data/calendarEventOptions';
+import { formFieldStyles } from './formFieldStyles';
+import { EventAttachmentsFields, EventConditionsFields, EventRemindersSection } from './Calendar/EventDrawerFields';
 
-// Mock data – teams, opposition, competitions, venues, etc.
-const MOCK_TEAMS = [
-  { id: '1', name: 'First Team' },
-  { id: '2', name: 'U21' },
-  { id: '3', name: 'Reserves' },
-  { id: '4', name: 'Academy' },
-];
-
-const MOCK_OPPOSITION = [
-  'Arsenal FC',
-  'Chelsea FC',
-  'Liverpool FC',
-  'Manchester United',
-  'Manchester City',
-  'Tottenham Hotspur',
-  'Newcastle United',
-  'Aston Villa',
-  'Brighton & Hove Albion',
-  'West Ham United',
-];
-
-const MOCK_COMPETITIONS = [
-  'Premier League',
-  'FA Cup',
-  'Champions League',
-  'Europa League',
-  'League Cup',
-  'Friendly',
-  'International',
-];
-
-const MOCK_VENUES = [
-  'Home Stadium',
-  'Away',
-  'Neutral venue',
-  'Training ground',
-  'Wembley Stadium',
-  'Old Trafford',
-];
-
-const MOCK_LOCATIONS = [
-  'Home Stadium',
-  'Away',
-  'Wembley Stadium',
-  'Old Trafford',
-  'Training Center A',
-  'Training Center B',
-];
-
-const MOCK_TIMEZONES = [
-  'Europe/Dublin',
-  'UTC',
-  'Europe/London',
-  'America/New_York',
-  'Europe/Paris',
-  'Australia/Sydney',
-];
-
-const MOCK_SURFACE_TYPES = ['Pitch', 'Court', 'Track', 'Gymnasium', 'Pool', 'Field'];
-
-const MOCK_SURFACE_QUALITY = ['Excellent', 'Good', 'Fair', 'Poor', 'New', 'Worn'];
-
-const MOCK_WEATHER = [
-  'Sunny',
-  'Partly cloudy',
-  'Overcast',
-  'Rainy',
-  'Snowy',
-  'Windy',
-  'Foggy',
-];
-
-const MOCK_REMINDER_EMAIL = [
-  '1 hour before',
-  '2 hours before',
-  '1 day before',
-  '2 days before',
-  'Custom',
-  'Never',
-];
-
-const MOCK_REMINDER_PUSH = [
-  '15 minutes before',
-  '30 minutes before',
-  '1 hour before',
-  'Custom',
-  'Never',
-];
-
-const MOCK_REMINDER_TYPES = [
-  'General',
-  'Pre-game check-in',
-  'Post-game feedback',
-  'Injury update',
-  'Custom',
-];
-
-const DESCRIPTION_MAX = 250;
-
-const formFieldStyles = {
-  '& .MuiInputBase-root': {
-    backgroundColor: 'var(--color-background-secondary)',
-    borderRadius: 'var(--radius-sm)',
-    '&:hover': { backgroundColor: 'var(--color-background-tertiary)' },
-    '&.Mui-focused': { backgroundColor: 'var(--color-background-primary)' },
-    '&.Mui-disabled': { backgroundColor: 'var(--color-background-tertiary)' },
-  },
-  '& .MuiInputLabel-root': {
-    color: 'var(--color-text-secondary)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 'var(--placeholder-font-weight)',
-    fontFamily: 'var(--font-family-primary)',
-    '&.Mui-focused': { color: 'var(--color-border-focus)' },
-    '&.Mui-disabled': { color: 'var(--color-text-disabled)' },
-  },
-  '& .MuiFilledInput-root': {
-    backgroundColor: 'var(--color-background-secondary)',
-    borderRadius: 'var(--radius-sm)',
-    '&:hover': { backgroundColor: 'var(--color-background-tertiary)' },
-    '&.Mui-focused': { backgroundColor: 'var(--color-background-primary)' },
-    '&:before': { borderBottom: '1px solid var(--color-border-primary)' },
-    '&:hover:not(.Mui-disabled):before': { borderBottom: '1px solid var(--color-border-focus)' },
-    '&.Mui-focused:after': { borderBottom: '2px solid var(--color-border-focus)' },
-  },
-  '& .MuiInputBase-input': {
-    color: 'var(--color-text-primary)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 'var(--font-weight-medium)',
-    fontFamily: 'var(--font-family-primary)',
-    '&::placeholder': {
-      color: 'var(--placeholder-color) !important',
-      opacity: '1 !important',
-      fontFamily: 'var(--placeholder-font-family) !important',
-      fontSize: 'var(--placeholder-font-size) !important',
-      fontWeight: 'var(--placeholder-font-weight) !important',
-    },
-  },
-  '& .MuiSelect-select': {
-    color: 'var(--color-text-primary)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 'var(--font-weight-medium)',
-    fontFamily: 'var(--font-family-primary)',
-  },
-};
 
 const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editingEvent = null }) => {
   const [attendanceOpen, setAttendanceOpen] = useState(true);
@@ -338,7 +204,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <LocalizationProvider dateAdapter={AdapterMoment}>
       <Drawer
         anchor="right"
         open={open}
@@ -376,8 +242,8 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
               <Grid item xs={12}>
                 <DatePicker
                   label="Date"
-                  value={formData.date}
-                  onChange={(newVal) => handleInputChange('date', newVal)}
+                  value={toMoment(formData.date)}
+                  onChange={withDate((newVal) => handleInputChange('date', newVal))}
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -399,8 +265,8 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
               <Grid item xs={12}>
                 <TimePicker
                   label="Start time"
-                  value={formData.startTime}
-                  onChange={(newVal) => handleInputChange('startTime', newVal)}
+                  value={toMoment(formData.startTime)}
+                  onChange={withDate((newVal) => handleInputChange('startTime', newVal))}
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -451,7 +317,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                     onChange={(e) => handleInputChange('timezone', e.target.value)}
                     label="Timezone"
                   >
-                    {MOCK_TIMEZONES.map((tz) => (
+                    {MOCK_GAME_TIMEZONES.map((tz) => (
                       <MenuItem key={tz} value={tz}>
                         {tz}
                       </MenuItem>
@@ -544,7 +410,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                     <MenuItem value="">
                       <em>Select team</em>
                     </MenuItem>
-                    {MOCK_TEAMS.map((t) => (
+                    {MOCK_GAME_TEAMS.map((t) => (
                       <MenuItem key={t.id} value={t.name}>
                         {t.name}
                       </MenuItem>
@@ -577,7 +443,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                     <MenuItem value="">
                       <em>Select opposition</em>
                     </MenuItem>
-                    {MOCK_OPPOSITION.map((opp) => (
+                    {MOCK_GAME_OPPOSITION.map((opp) => (
                       <MenuItem key={opp} value={opp}>
                         {opp}
                       </MenuItem>
@@ -614,7 +480,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                     <MenuItem value="">
                       <em>Select competition</em>
                     </MenuItem>
-                    {MOCK_COMPETITIONS.map((c) => (
+                    {MOCK_GAME_COMPETITIONS.map((c) => (
                       <MenuItem key={c} value={c}>
                         {c}
                       </MenuItem>
@@ -651,7 +517,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                     <MenuItem value="">
                       <em>Select venue</em>
                     </MenuItem>
-                    {MOCK_VENUES.map((v) => (
+                    {MOCK_GAME_VENUES.map((v) => (
                       <MenuItem key={v} value={v}>
                         {v}
                       </MenuItem>
@@ -720,94 +586,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                   </Box>
                 </Typography>
                 <Grid container spacing={2}>
-                  <Grid item xs={6}>
-                    <FormControl fullWidth variant="filled" sx={formFieldStyles}>
-                      <InputLabel shrink>Surface type</InputLabel>
-                      <Select
-                        value={formData.surfaceType}
-                        onChange={(e) =>
-                          handleInputChange('surfaceType', e.target.value)
-                        }
-                        label="Surface type"
-                        displayEmpty
-                        renderValue={(v) => v || ''}
-                      >
-                        <MenuItem value="">
-                          <em>Select</em>
-                        </MenuItem>
-                        {MOCK_SURFACE_TYPES.map((s) => (
-                          <MenuItem key={s} value={s}>
-                            {s}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <FormControl fullWidth variant="filled" sx={formFieldStyles}>
-                      <InputLabel shrink>Surface quality</InputLabel>
-                      <Select
-                        value={formData.surfaceQuality}
-                        onChange={(e) =>
-                          handleInputChange('surfaceQuality', e.target.value)
-                        }
-                        label="Surface quality"
-                        displayEmpty
-                        renderValue={(v) => v || ''}
-                      >
-                        <MenuItem value="">
-                          <em>Select</em>
-                        </MenuItem>
-                        {MOCK_SURFACE_QUALITY.map((s) => (
-                          <MenuItem key={s} value={s}>
-                            {s}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <FormControl fullWidth variant="filled" sx={formFieldStyles}>
-                      <InputLabel shrink>Weather</InputLabel>
-                      <Select
-                        value={formData.weather}
-                        onChange={(e) =>
-                          handleInputChange('weather', e.target.value)
-                        }
-                        label="Weather"
-                        displayEmpty
-                        renderValue={(v) => v || ''}
-                      >
-                        <MenuItem value="">
-                          <em>Select</em>
-                        </MenuItem>
-                        {MOCK_WEATHER.map((w) => (
-                          <MenuItem key={w} value={w}>
-                            {w}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      variant="filled"
-                      label="Temperature"
-                      value={formData.temperature}
-                      onChange={(e) =>
-                        handleInputChange('temperature', e.target.value)
-                      }
-                      placeholder="—"
-                      InputLabelProps={{ shrink: true }}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">°C</InputAdornment>
-                        ),
-                      }}
-                      sx={formFieldStyles}
-                    />
-                  </Grid>
+                  <EventConditionsFields formData={formData} onInputChange={handleInputChange} />
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
@@ -836,85 +615,14 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                 >
                   Attach
                 </Typography>
-                <Paper
-                  variant="outlined"
-                  sx={{
-                    p: 2,
-                    textAlign: 'center',
-                    border: '2px dashed var(--color-border-primary)',
-                    backgroundColor: 'var(--color-background-secondary)',
-                    cursor: 'pointer',
-                    '&:hover': { backgroundColor: 'var(--color-background-tertiary)' },
-                  }}
-                  onClick={() => document.getElementById('game-file-upload').click()}
-                >
-                  <AttachFileOutlined
-                    sx={{ fontSize: 32, color: 'var(--color-text-muted)', mb: 1 }}
-                  />
-                  <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>
-                    Drag & Drop your files or browse
-                  </Typography>
-                </Paper>
-                <input
-                  id="game-file-upload"
-                  type="file"
-                  multiple
-                  style={{ display: 'none' }}
-                  onChange={handleFileUpload}
+                <EventAttachmentsFields
+                  inputId="game-file-upload"
+                  formData={formData}
+                  onInputChange={handleInputChange}
+                  onFileUpload={handleFileUpload}
+                  onRemoveAttachment={removeAttachment}
+                  onAddLink={handleAddLink}
                 />
-                {formData.attachments.length > 0 && (
-                  <Box sx={{ mt: 2 }}>
-                    {formData.attachments.map((file, index) => (
-                      <Chip
-                        key={index}
-                        label={file.name}
-                        onDelete={() => removeAttachment(index)}
-                        sx={{
-                          mr: 1,
-                          mb: 1,
-                          backgroundColor: 'var(--color-background-selected)',
-                          color: 'var(--color-text-primary)',
-                          '& .MuiChip-deleteIcon': {
-                            color: 'var(--color-text-secondary)',
-                          },
-                        }}
-                      />
-                    ))}
-                  </Box>
-                )}
-                <Grid container spacing={2} sx={{ mt: 1 }}>
-                  <Grid item xs={12} sm={5}>
-                    <TextField
-                      fullWidth
-                      variant="filled"
-                      label="Title"
-                      value={formData.attachTitle}
-                      onChange={(e) =>
-                        handleInputChange('attachTitle', e.target.value)
-                      }
-                      InputLabelProps={{ shrink: true }}
-                      sx={formFieldStyles}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={5}>
-                    <TextField
-                      fullWidth
-                      variant="filled"
-                      label="Link"
-                      value={formData.attachLink}
-                      onChange={(e) =>
-                        handleInputChange('attachLink', e.target.value)
-                      }
-                      InputLabelProps={{ shrink: true }}
-                      sx={formFieldStyles}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={2} sx={{ display: 'flex', alignItems: 'flex-end', pb: 0.5 }}>
-                    <Button variant="primary" onClick={handleAddLink} style={{ width: '100%' }}>
-                      Add
-                    </Button>
-                  </Grid>
-                </Grid>
               </Grid>
 
               {/* Notifications */}
@@ -1006,92 +714,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                 </ToggleButtonGroup>
               </Grid>
 
-              {/* Reminders */}
-              <Grid item xs={12}>
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    mb: 1,
-                    fontWeight: 600,
-                    color: 'var(--color-text-primary)',
-                    pt: 1,
-                    borderTop: '1px solid var(--color-border-primary)',
-                  }}
-                >
-                  Reminders
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
-                    <FormControl fullWidth variant="filled" sx={formFieldStyles}>
-                      <InputLabel shrink>Email</InputLabel>
-                      <Select
-                        value={formData.reminderEmail}
-                        onChange={(e) =>
-                          handleInputChange('reminderEmail', e.target.value)
-                        }
-                        label="Email"
-                        displayEmpty
-                        renderValue={(v) => v || ''}
-                      >
-                        <MenuItem value="">
-                          <em>Select</em>
-                        </MenuItem>
-                        {MOCK_REMINDER_EMAIL.map((r) => (
-                          <MenuItem key={r} value={r}>
-                            {r}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <FormControl fullWidth variant="filled" sx={formFieldStyles}>
-                      <InputLabel shrink>Push</InputLabel>
-                      <Select
-                        value={formData.reminderPush}
-                        onChange={(e) =>
-                          handleInputChange('reminderPush', e.target.value)
-                        }
-                        label="Push"
-                        displayEmpty
-                        renderValue={(v) => v || ''}
-                      >
-                        <MenuItem value="">
-                          <em>Select</em>
-                        </MenuItem>
-                        {MOCK_REMINDER_PUSH.map((r) => (
-                          <MenuItem key={r} value={r}>
-                            {r}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormControl fullWidth variant="filled" sx={formFieldStyles}>
-                      <InputLabel shrink>Reminder</InputLabel>
-                      <Select
-                        value={formData.reminderType}
-                        onChange={(e) =>
-                          handleInputChange('reminderType', e.target.value)
-                        }
-                        label="Reminder"
-                        displayEmpty
-                        renderValue={(v) => v || ''}
-                      >
-                        <MenuItem value="">
-                          <em>Select</em>
-                        </MenuItem>
-                        {MOCK_REMINDER_TYPES.map((r) => (
-                          <MenuItem key={r} value={r}>
-                            {r}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                </Grid>
-              </Grid>
+              <EventRemindersSection formData={formData} onInputChange={handleInputChange} reminderTypes={MOCK_GAME_REMINDER_TYPES} />
             </Grid>
           </Box>
 
@@ -1103,10 +726,10 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
             }}
           >
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between' }}>
-              <Button onClick={onClose} variant="secondary">
+              <Button size="small" disableElevation={true} onClick={onClose} variant="contained" color="secondary">
                 Cancel
               </Button>
-              <Button onClick={handleSave} variant="primary">
+              <Button size="small" disableElevation={true} onClick={handleSave} variant="contained" color="primary">
                 Save
               </Button>
             </Box>

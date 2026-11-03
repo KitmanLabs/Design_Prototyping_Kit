@@ -1,6 +1,6 @@
 # Design Prototyping Kit Wiki
 
-Welcome to the **Design Prototyping Kit** — a template for rapidly prototyping product ideas using pre-built components from the real KitmanLabs design system. Build prototypes in hours, not weeks.
+Welcome to the **Design Prototyping Kit**, a template for rapidly prototyping product ideas using pre-built components from the design system behind iP: Intelligence Platform. Build prototypes in hours, not weeks.
 
 ## Where to Start
 

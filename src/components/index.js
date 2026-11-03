@@ -1,7 +1,6 @@
-// Design System Components
-// Import these components instead of creating custom ones to ensure design compliance
+// App components: things the Playbook doesn't provide.
+// For buttons, inputs, grids, drawers and so on, import from '../playbook-components' first.
 
-export { default as Button } from './Button'
 export { default as Icon } from './Icon'
 export { default as Card } from './Card'
 export { default as StatusChip } from './StatusChip'
@@ -11,10 +10,11 @@ export { default as LogoImage } from './LogoImage'
 export { default as MainNavigation } from './MainNavigation'
 export { default as AthleteDataGrid } from './AthleteDataGrid'
 
-// Usage Examples:
-// import { Button, Icon, Card, PlayerAvatar, LogoImage } from '../components'
-// 
-// <Button variant="primary" size="small">Add athlete</Button>
+// Usage examples:
+// import { Button } from '../playbook-components'
+// import { Icon, Card, PlayerAvatar, LogoImage } from '../components'
+//
+// <Button variant="contained" color="primary" size="small" disableElevation={true}>Add athlete</Button>
 // <Icon icon="dashboard" size="medium" />
 // <Card title="Athletes">Card content</Card>
 // <PlayerAvatar playerId="123" playerName="John Smith" size="medium" />

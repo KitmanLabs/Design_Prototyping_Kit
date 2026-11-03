@@ -1,25 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Paper, Typography, Autocomplete, TextField, MenuItem, IconButton } from '@mui/material';
-import { DataGrid, GridPagination } from 'playbook-components';
+import { Button, DataGrid, GridPagination } from 'playbook-components';
 import { ArrowBackOutlined, ArrowDropDownOutlined } from '@mui/icons-material';
-import { Button, StatusChip, Icon } from '../../components';
+import { StatusChip, Icon } from '../../components';
 import '../../styles/design-tokens.css';
-
-const mockData = [
-  { id: 1, athlete: 'Jordan Smith', lastUpdated: '2026-02-24', status: 'Complete' },
-  { id: 2, athlete: 'Alex Martinez', lastUpdated: '2026-02-23', status: 'Draft' },
-  { id: 3, athlete: 'Liam Johnson', lastUpdated: '2026-02-22', status: 'Not Started' },
-  { id: 4, athlete: 'Olivia Brown', lastUpdated: '2026-02-21', status: 'Complete' },
-  { id: 5, athlete: 'Noah Jones', lastUpdated: '2026-02-20', status: 'Draft' },
-  { id: 6, athlete: 'Emma Garcia', lastUpdated: '2026-02-19', status: 'Not Started' },
-  { id: 7, athlete: 'William Davis', lastUpdated: '2026-02-18', status: 'Complete' },
-  { id: 8, athlete: 'Sophia Rodriguez', lastUpdated: '2026-02-17', status: 'Draft' },
-  { id: 9, athlete: 'James Wilson', lastUpdated: '2026-02-16', status: 'Not Started' },
-  { id: 10, athlete: 'Isabella Moore', lastUpdated: '2026-02-15', status: 'Complete' },
-  { id: 11, athlete: 'Benjamin Taylor', lastUpdated: '2026-02-14', status: 'Draft' },
-  { id: 12, athlete: 'Mia Anderson', lastUpdated: '2026-02-13', status: 'Not Started' },
-];
+import { medicalAssessmentRows as mockData } from '../../data/forms';
 
 const typographyStyles = {
   fontFamily: 'var(--font-family-primary)',
@@ -51,7 +37,6 @@ const gridSx = {
   '& .grid-cell--pad-right': { pr: 3, paddingRight: '24px !important' },
   '& .MuiDataGrid-footerContainer': { px: 3 }
 };
-
 
 const MedicalAssessment = () => {
   const navigate = useNavigate();
@@ -95,7 +80,8 @@ const MedicalAssessment = () => {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-end', width: '100%' }}>
             <Button
-              variant={'secondary'}
+              disableElevation={true}
+              variant="contained" color="secondary"
               size="small"
               style={{ fontWeight: 600, fontSize: 'var(--font-size-xs)', minWidth: 72 }}
               onClick={(e) => {

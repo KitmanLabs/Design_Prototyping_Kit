@@ -43,8 +43,8 @@ Always write MUI variant and size props explicitly, even though the theme enforc
 // TextFields
 <TextField variant="filled" size="small" label="Search" />
 
-// Buttons
-<Button variant="contained" size="small" disableElevation>
+// Buttons: import from playbook-components; secondary actions use color="secondary"
+<Button variant="contained" color="primary" size="small" disableElevation={true}>
   Save
 </Button>
 
@@ -80,18 +80,26 @@ import { Add, Close, Search } from '@mui/icons-material'
 
 ## Export to barrel
 
-After creating a new component in `src/playbook-components/`, add it to the barrel:
+After creating a new component in `src/playbook-components/`, add it to the barrel. `src/playbook-components/index.js` imports each component at the top and lists it in the single `export { ... }` block at the bottom:
 
 ```js
-// src/playbook-components/index.js — add your export
-export { default as MyComponent } from './MyComponent'
+import MyComponent from './MyComponent';
+// ...
+export {
+  // ...
+  MyComponent,
+};
 ```
+
+Then add a story in `src/stories/<Group>/MyComponent.stories.js`. CI builds Storybook, so the story must build.
 
 ## Pattern reference
 
 - MUI wrapper pattern: `src/playbook-components/TabBar/index.jsx`
-- App component pattern: `src/components/Button.jsx`, `src/components/PlayerAvatar.jsx`
+- App component pattern: `src/components/PlayerAvatar.jsx`, `src/components/StatusChip.jsx`
+- Story pattern: `src/stories/Navigation/TabBar.stories.js`
+- Mock data or option lists go in `src/data/`, never inline in the component
 
 ## After creating
 
-Run `npm run lint` to confirm no design system violations before finishing.
+Run `npm run validate-design-system` to confirm no design system violations before finishing.

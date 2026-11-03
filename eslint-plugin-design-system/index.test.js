@@ -8,7 +8,7 @@ RuleTester.describe = describe
 RuleTester.it = it
 
 const ruleTester = new RuleTester({
-  parserOptions: { ecmaVersion: 2022, sourceType: 'module', ecmaFeatures: { jsx: true } }
+  languageOptions: { ecmaVersion: 2022, sourceType: 'module', parserOptions: { ecmaFeatures: { jsx: true } } }
 })
 const { rules } = plugin
 
@@ -35,6 +35,7 @@ ruleTester.run('button-variant-compliance', rules['button-variant-compliance'], 
       output: null,
       errors: [
         {
+          message: 'Button variant "outlined" not allowed. Use variant="contained" (with color="secondary" for secondary actions).',
           suggestions: [
             {
               desc: 'Use variant="contained" color="secondary"',
@@ -49,6 +50,7 @@ ruleTester.run('button-variant-compliance', rules['button-variant-compliance'], 
       output: null,
       errors: [
         {
+          message: 'Button variant "text" not allowed. Use variant="contained" (with color="secondary" for secondary actions).',
           suggestions: [
             {
               desc: 'Use variant="contained"',
@@ -86,13 +88,24 @@ ruleTester.run('icon-type-compliance', rules['icon-type-compliance'], {
     {
       code: "import { EditRounded } from '@mui/icons-material'",
       output: null,
-      errors: [{ message: 'Icon "EditRounded" should use Outlined variant. Import "EditOutlined" instead.' }]
+      errors: [
+        {
+          message: 'Icon "EditRounded" should use Outlined variant. Import "EditOutlined" instead.',
+          suggestions: [
+            {
+              desc: 'Import EditOutlined as EditRounded',
+              output: "import { EditOutlined as EditRounded } from '@mui/icons-material'"
+            }
+          ]
+        }
+      ]
     },
     {
       code: "import MailIcon from '@mui/icons-material/Mail'",
       output: null,
       errors: [
         {
+          message: 'Icon "Mail" should use Outlined variant. Import "MailOutlined" instead.',
           suggestions: [
             {
               desc: 'Import from @mui/icons-material/MailOutlined',
@@ -116,18 +129,19 @@ ruleTester.run('text-casing-compliance', rules['text-casing-compliance'], {
     {
       code: "const s = 'Add Athlete'",
       output: null,
-      errors: [{ suggestions: [{ desc: 'Change to "Add athlete"', output: "const s = 'Add athlete'" }] }]
+      errors: [{ message: 'Text "Add Athlete" should use sentence case. Consider: "Add athlete"', suggestions: [{ desc: 'Change to "Add athlete"', output: "const s = 'Add athlete'" }] }]
     },
     {
       code: "const s = 'ADD ATHLETE'",
       output: null,
-      errors: [{ suggestions: [{ desc: 'Change to "Add athlete"', output: "const s = 'Add athlete'" }] }]
+      errors: [{ message: 'Text "ADD ATHLETE" should use sentence case. Consider: "Add athlete"', suggestions: [{ desc: 'Change to "Add athlete"', output: "const s = 'Add athlete'" }] }]
     },
     {
       code: '<Button>\n  Save As Draft\n</Button>',
       output: null,
       errors: [
         {
+          message: 'Text "Save As Draft" should use sentence case. Consider: "Save as draft"',
           suggestions: [
             { desc: 'Change to "Save as draft"', output: '<Button>\n  Save as draft\n</Button>' }
           ]

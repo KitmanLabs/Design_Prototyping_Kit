@@ -1,6 +1,6 @@
 # Design Prototyping Kit
 
-**A template for rapidly building KitmanLabs product prototypes.**
+**A template for rapidly building prototypes of iP: Intelligence Platform, the Kitman Labs product.**
 
 ---
 
@@ -40,7 +40,7 @@ Just ask it to build what you need — "Add a new page showing athlete injuries"
 ## Tech
 
 - **React 18** — The UI framework
-- **Material-UI (MUI)** — Component library matching the KitmanLabs design system
+- **Material-UI (MUI)**: component library matching the iP design system
 - **Storybook** — Interactive component catalogue (run `npm run storybook` locally)
 - **Design tokens** — Automated color, typography, and spacing
 - **Mock data** — JSON files that simulate a real database

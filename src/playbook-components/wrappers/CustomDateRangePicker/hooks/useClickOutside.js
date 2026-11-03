@@ -1,16 +1,14 @@
-// @flow
-
 import { useEffect } from 'react';
 
 // Hook to detect clicks outside a referenced element and call a handler
 // I am not using our existing useClickOutside hook because it is not compatible with multi open date pickers
 
 export function useClickOutside(
-  ref: { current: ?HTMLElement },
-  handler: () => void
+  ref,
+  handler
 ) {
   useEffect(() => {
-    const listener = (event: MouseEvent | TouchEvent) => {
+    const listener = (event) => {
       if (
         !ref.current ||
         !(event.target instanceof Node) ||

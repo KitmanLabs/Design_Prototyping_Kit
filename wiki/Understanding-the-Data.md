@@ -1,15 +1,17 @@
 # Understanding the Data
 
-This prototype has no real server or database. All data lives in local JSON files — think of them like spreadsheets that power the UI. You can ask Claude to add, change, or remove entries in any of these files.
+This prototype has no real server or database. All data lives in local JSON and JavaScript files in `src/data`. Think of them like spreadsheets that power the UI. You can ask Claude to add, change, or remove entries in any of these files.
 
 ## Data Files
 
 | File | What it represents | Records |
 |------|-------------------|---------|
 | `assessments.json` | Physical assessments | 6 |
-| `athletes.json` | Athlete profiles (players in the squad) | 8 |
+| `athletes.json` | Athlete profiles (the squad) | 8 |
 | `calendar_events.json` | Calendar events | 274 |
+| `calendarEventOptions.js` | Option lists for the Add game and Add session drawers | Config |
 | `forms_templates.json` | Form templates (medical, wellness, screening) | 15 |
+| `forms.js` | Forms pages and drawers: rows, summaries and option lists | Config |
 | `games_matches.json` | Games and match events | 4 |
 | `injuries_medical.json` | Medical records and injuries | 5 |
 | `layout.js` | Layout constants (navigation, page titles) | Config |
@@ -27,7 +29,7 @@ Ask Claude Code to help you:
 - **Change existing data:** "Update the first athlete's injury status in injuries_medical.json"
 - **Remove entries:** "Remove the third game from games_matches.json"
 
-Claude will handle the JSON formatting automatically — you don't need to edit these files manually, but you can if you want to.
+Claude will handle the formatting automatically. You don't need to edit these files manually, but you can if you want to.
 
 ## Form Templates
 
@@ -35,6 +37,6 @@ The `forms_templates.json` file contains 15+ form templates (medical screening, 
 
 ## Important Notes
 
-- These are **mock data** for prototyping only — they're not connected to real KitmanLabs systems
-- Your changes only affect this prototype — they won't impact the actual product
+- These are **mock data** for prototyping only. They're not connected to iP: Intelligence Platform or any other Kitman Labs system
+- Your changes only affect this prototype, not the product
 - Use Claude Code to make changes safely without breaking the JSON structure

@@ -4,7 +4,6 @@ import {
   Box,
   Paper,
   Typography,
-  Button as MuiButton,
   Divider,
   Tabs,
   Tab,
@@ -22,9 +21,9 @@ import {
 } from '@mui/material'
 import { ArrowBackOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { DatePicker } from 'playbook-components'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import dayjs from 'dayjs'
+import { Button, DatePicker } from 'playbook-components'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import moment from 'moment'
 import '../../styles/design-tokens.css'
 import FormBuilderHeader from '../../components/forms/builder/FormBuilderHeader'
 import MenuTree from '../../components/forms/builder/MenuTree'
@@ -180,7 +179,7 @@ function evaluateDependency(question, values) {
 
 export default function Screen02_FormBuilder() {
   const navigate = useNavigate()
-  // eslint-disable-next-line no-unused-vars
+   
   const { formId } = useParams()
 
   const [form, setForm] = React.useState(() => getTemplateForFormId(formId))
@@ -444,7 +443,7 @@ export default function Screen02_FormBuilder() {
       if (question.type === 'date') {
         return (
           <DatePicker
-            value={previewValues[question.id] ? dayjs(previewValues[question.id]) : null}
+            value={previewValues[question.id] ? moment(previewValues[question.id]) : null}
             onChange={(newValue) => handlePreviewValueChange(question.id, newValue ? newValue.toISOString() : '')}
             slotProps={{
               textField: {
@@ -464,7 +463,7 @@ export default function Screen02_FormBuilder() {
         return (
           <Box sx={{ border: '1px dashed var(--color-border-primary)', borderRadius: 'var(--radius-md)', p: 2 }}>
             <input id={inputId} type="file" hidden onChange={handleFileUpload(question.id)} />
-            <MuiButton
+            <Button
               component="label"
               htmlFor={inputId}
               variant="contained"
@@ -472,7 +471,7 @@ export default function Screen02_FormBuilder() {
               sx={{ textTransform: 'none', backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-secondary-color)', '&:hover': { backgroundColor: 'var(--button-secondary-hover-bg)' } }}
             >
               Upload file
-            </MuiButton>
+            </Button>
             {fileValue && (
               <Chip
                 label={fileValue.name || 'Uploaded file'}
@@ -566,7 +565,7 @@ export default function Screen02_FormBuilder() {
           {form.title}
         </Typography>
         <Box sx={{ ml: 'auto' }}>
-          <MuiButton
+          <Button
             variant="contained"
             size="medium"
             disableElevation
@@ -579,7 +578,7 @@ export default function Screen02_FormBuilder() {
             }}
           >
             Save
-          </MuiButton>
+          </Button>
         </Box>
       </Box>
 
@@ -659,7 +658,7 @@ export default function Screen02_FormBuilder() {
               mode="preview"
             />
 
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <LocalizationProvider dateAdapter={AdapterMoment}>
               {/* eslint-disable-next-line design-system/no-hardcoded-colors */}
               <Box sx={{ p: 3, overflowY: 'auto', backgroundColor: '#fafafa' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>

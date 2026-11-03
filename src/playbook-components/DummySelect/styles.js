@@ -1,8 +1,7 @@
-// @flow
 import colors from '@kitman/common/src/variables/colors';
 import zIndices from '@kitman/common/src/variables/zIndices';
 
-const getStyles = (isOpen: boolean) => ({
+const getStyles = (isOpen) => ({
   dummySelect: {
     display: 'flex',
     flexDirection: 'column',

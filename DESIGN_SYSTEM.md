@@ -1,191 +1,129 @@
-# Design System Guide
+# Design system guide
 
-## 📦 Component library priority
+The single source of truth for design rules in this repo. Other docs (CLAUDE.md, PROJECT_STANDARDS.md, the wiki) link here rather than repeating these rules.
 
-**Use components in this order:**
+## Component priority
 
-1. **First:** **Playbook Components** (`src/playbook-components`) – Custom wrappers around Material UI. Use these whenever they provide an equivalent (e.g. Button, DataGrid, DataGridPremium, DatePicker, Drawer, Toasts, ConfirmationModal, SelectWrapper, TabBar, etc.). Import from `@kitman/playbook/components` or the barrel: `src/playbook-components` (e.g. `import { Button, DataGrid, Drawer } from '../playbook-components'` or via your path to `src/playbook-components`).
-2. **Fallback:** MUI (`@mui/material`, `@mui/icons-material`, `@mui/x-data-grid`, `@mui/x-date-pickers`) – Use when Playbook Components do not export a suitable component, or when you need a primitive not wrapped by Playbook.
+1. **Playbook Components** (`src/playbook-components`): wrappers around Material UI that match iP. Use them whenever they have an equivalent: Button, DataGrid, DataGridPremium, DatePicker, Drawer, Toasts, ConfirmationModal, SelectWrapper, TabBar and so on. The barrel also re-exports the MUI primitives (Box, Typography, TextField, Chip, ...), so most imports come from here.
+2. **App components** (`src/components`): prototype UI the Playbook doesn't provide, such as Icon, Card, StatusChip, PlayerAvatar, LogoImage, MainNavigation, AthleteDataGrid and LayoutWithMainNav.
+3. **MUI** (`@mui/material`, `@mui/x-*`): only when neither of the above has an equivalent.
 
 ```jsx
-// ✅ Prefer Playbook Components when available
+// ✅ Playbook first
 import { Button, DataGrid, Drawer } from '../playbook-components'
-// or from your path to src/playbook-components
-
-// ✅ Use MUI when Playbook has no equivalent or causes issues
-import { SomeMuiComponent } from '@mui/material'
+// ✅ App components
+import { Icon, Card, PlayerAvatar } from '../components'
+// ✅ MUI fallback when there is no Playbook equivalent
+import { Tooltip } from '@mui/material'
+// ❌ Blocked by ESLint (no-restricted-imports): Button must come from the Playbook
+import { Button } from '@mui/material'
 ```
 
-**Note:** The Saarbyrne Playbook library has been removed. Playbook Components are the in-repo custom components and are the top priority.
+## Rules
 
-## 🎨 Core Rules
+All of these are checked by `npm run lint`, `npm run lint:css` and `npm run validate-design-system` (which also runs as the pre-commit hook).
 
-### Colors (Auto-Enforced)
+### Colors: design tokens only (error)
+
 ```css
-/* ✅ CORRECT - Use design tokens */
-color: var(--color-primary);      /* #3B4960 */
-background: var(--color-secondary); /* #F1F2F3 */
-
-/* ❌ WRONG - Hardcoded colors blocked by linting */
+/* ✅ */
+color: var(--color-primary);
+background: var(--color-secondary);
+/* ❌ hex, rgb() and hsl() values are blocked */
 color: #3B4960;
-background: #F1F2F3;
 ```
 
-### Buttons (Auto-Enforced) 
+Tokens live in `src/styles/design-tokens.css`. The MUI theme palette in `src/playbook-components/themes.js` mirrors them and is the only place hex values are allowed.
+
+### Buttons: contained only (error)
+
+Primary and secondary actions are both `variant="contained"`, distinguished by `color`.
+
 ```jsx
-/* ✅ CORRECT - Only filled variants allowed */
-<Button variant="contained" size="small">Add athlete</Button>
-
-/* ❌ WRONG - Blocked by pre-commit hooks */
-<Button variant="outlined">Add Athlete</Button>
-<Button variant="text">ADD ATHLETE</Button>
+// ✅
+<Button variant="contained" color="primary" size="small" disableElevation={true}>Save</Button>
+<Button variant="contained" color="secondary" size="small" disableElevation={true}>Cancel</Button>
+// ❌
+<Button variant="outlined">Cancel</Button>
+<Button variant="text">Cancel</Button>
 ```
 
-### Icons (Auto-Enforced)
+### Icons: Outlined variants only (error)
+
 ```jsx
-/* ✅ CORRECT - Only Outlined variants allowed */
-import { DashboardOutlined } from '@mui/icons-material';
-
-/* ❌ WRONG - Blocked by ESLint rules */
-import { Dashboard } from '@mui/icons-material';
+import { DashboardOutlined } from '@mui/icons-material' // ✅
+import { Dashboard } from '@mui/icons-material'         // ❌
 ```
 
-### Text (Auto-Enforced)
+### Text: sentence case (warning)
+
+"Add athlete", not "Add Athlete" or "ADD ATHLETE". The theme also removes MUI's default uppercase on buttons and tabs, so labels render as written. Pages under `src/pages/forms`, `src/components/forms` and `src/data` are exempt because their mock content contains proper nouns.
+
+### Explicit MUI props
+
+The theme sets these defaults, but write them out so the code reads correctly:
+
+| Component | Props |
+|---|---|
+| TextField, Select, FormControl | `variant="filled" size="small"` |
+| Button, LoadingButton | `variant="contained" size="small" disableElevation={true}` |
+| Autocomplete, Chip, IconButton | `size="small"` |
+
+## Theme
+
+There is one MUI theme, `rootTheme` in `src/playbook-components/themes.js`. The app (`src/main.jsx`) and Storybook (`.storybook/preview.jsx`) both use it, so components look the same in both. Change palette, typography or component defaults there, never in a second `createTheme`.
+
+## Dates
+
+moment is the only date library. Wrap date pickers in a `LocalizationProvider` with `AdapterMoment`, or use the Playbook's preset one from `@kitman/playbook/providers`.
+
+Pickers take and return moment objects. If a component keeps its state as plain `Date` objects, convert at the picker with `src/utils/pickerDates.js`:
+
 ```jsx
-/* ✅ CORRECT - Sentence case enforced */
-"Add athlete"    "Dashboard overview"
+import { toMoment, withDate } from '../utils/pickerDates'
 
-/* ❌ WRONG - Warned by linting */
-"Add Athlete"    "DASHBOARD OVERVIEW"
+<DatePicker value={toMoment(startDate)} onChange={withDate(setStartDate)} />
 ```
 
-## 📂 File Locations
+## Drawer form fields
 
-**Project structure (data, components, design):** See **`PROJECT_STANDARDS.md`** for where data, components, and UI conventions live (e.g. `src/data`, Playbook Components first).
+Drawer forms (calendar event drawers, form drawers) style their filled inputs with the shared `formFieldStyles` from `src/components/formFieldStyles.js`. Pass it as `sx`. Don't copy it into a component.
 
-**Design Tokens:** `src/styles/design-tokens.css`
-```css
-:root {
-  --color-primary: #3B4960;
-  --color-secondary: #F1F2F3;
-  --color-success: #28a745;
-  --color-error: #dc3545;
-  --color-warning: #ffc107;
-}
-```
+## Playbook components and lint
 
-**Components:** `src/components/`
-- `Button.jsx` - Pre-configured buttons
-- `Icon.jsx` - Material Icons Outlined wrapper
-- `Card.jsx` - Consistent card styling
-- `PlayerAvatar.jsx` - Player photos with initials fallback
-- `LogoImage.jsx` - Team/organization logos
-- `MainNavigation.jsx` - Sidebar navigation
+`src/playbook-components` and `src/stories` are excluded from ESLint. The components were ported from the iP monorepo and keep its conventions. For example, the shared icon map uses some filled MUI icons where the filled and outlined versions mean different things (`Star` and `StarBorder`). New code in `src/pages` and `src/components` follows every rule above.
 
-## 📝 Quick Reference
+## Tooling
 
-### Import Components
-```jsx
-import { Button, Icon, Card, PlayerAvatar, LogoImage } from './components'
-```
-
-### Use Team Logos
-```jsx
-<LogoImage type="team" logoId="arsenal" league="premier-league" height={40} />
-<LogoImage type="team" logoId="lakers" league="nba" height={40} />
-```
-
-### Player Avatars
-```jsx
-<PlayerAvatar playerId="123" playerName="John Smith" size="medium" />
-// Shows initials "JS" if no photo available
-```
-
-## ✅ Validation Commands
+| Tool | Config | Notes |
+|---|---|---|
+| ESLint 9 | `eslint.config.js` (flat config) | Custom rules in `eslint-plugin-design-system/` (`no-hardcoded-colors`, `button-variant-compliance`, `icon-type-compliance`, `text-casing-compliance`), plus a restricted import for MUI Button |
+| Stylelint | `.stylelintrc.json` | Custom rules in `stylelint-plugin-design-system/` (`no-hardcoded-colors`, `use-design-tokens`, `font-usage`) |
+| Validation | `scripts/validate-design-system.js` | Lint, CSS lint, token and file checks; run by the Husky pre-commit hook and in CI |
+| Figma Code Connect | `figma.config.json`, `src/playbook-components/*.figma.js` | Template files; `npm run figma:publish` needs a `FIGMA_ACCESS_TOKEN` |
 
 ```bash
-# Full validation (recommended)
-npm run validate-design-system
-
-# Quick checks
-npm run lint              # JavaScript/React
-npm run lint:css          # CSS/styling
-npm run lint:fix          # Auto-fix issues
+npm run validate-design-system   # everything (what pre-commit runs)
+npm run lint                     # JS/JSX
+npm run lint:css                 # CSS
+npm run lint:fix                 # apply ESLint fixes (design rules only suggest fixes; they never auto-fix)
 ```
 
-## 🔧 Development Tools
+## Common fixes
 
-### ✅ ESLint Rules (Implemented)
-Our custom ESLint plugin automatically enforces design system compliance:
-
-- **`design-system/no-hardcoded-colors`**: Detects hardcoded hex colors and suggests design tokens
-- **`design-system/button-variant-compliance`**: Enforces filled button variants only
-- **`design-system/icon-type-compliance`**: Ensures only Material Icons Outlined are used
-- **`design-system/text-casing-compliance`**: Warns about Title Case and UPPERCASE text
-
-**Usage**: Run `npm run lint` to check JavaScript/React code compliance.
-
-### ✅ CSS Linting (Implemented)
-Our Stylelint plugin prevents CSS design violations:
-
-- **`design-system/no-hardcoded-colors`**: Blocks hardcoded hex, RGB, and HSL colors
-- **`design-system/use-design-tokens`**: Requires CSS custom properties for color values
-- **`design-system/font-usage`**: Enforces Open Sans font family usage
-- **Built-in rules**: Prevents `rgb()`, `rgba()`, `hsl()`, and `hsla()` functions
-
-**Usage**: Run `npm run lint:css` to check CSS code compliance.
-
-### ✅ Pre-commit Hooks (Implemented)
-Automatic validation runs before every commit:
-
-- **JavaScript/React validation**: ESLint with design system rules
-- **CSS validation**: Stylelint with custom design rules
-- **Hardcoded color detection**: Grep-based search for hex colors
-- **Button variant checking**: Detects outlined/text button usage
-- **Icon usage validation**: Ensures Outlined Material Icons only
-- **Design token verification**: Confirms required tokens exist
-
-**Usage**: Hooks run automatically on `git commit`, or manually with `npm run validate-design-system`.
-
-### 🎯 Validation Commands
-
-```bash
-# Full design system validation
-npm run validate-design-system
-
-# Quick lint checks only  
-npm run validate-quick
-
-# Individual checks
-npm run lint              # JavaScript/React
-npm run lint:css          # CSS/styling
-npm run lint:fix          # Auto-fix JS issues
-npm run lint:css:fix      # Auto-fix CSS issues
-```
-
-## 📝 Common Fixes
-
-**When validation fails:**
-
-```bash
-# Color issues
-- color: #3B4960;               
+```diff
+- color: #3B4960;
 + color: var(--color-primary);
 
-# Button issues
-- <Button variant="outlined">   
-+ <Button variant="contained">  
+- <Button variant="outlined">Cancel</Button>
++ <Button variant="contained" color="secondary" size="small" disableElevation={true}>Cancel</Button>
 
-# Icon issues
-- import { Dashboard }           
-+ import { DashboardOutlined }   
+- import { Button } from '@mui/material'
++ import { Button } from '../playbook-components'
 
-# Text casing
-- "Add Athlete"                 
-+ "Add athlete"                 
+- import { Dashboard } from '@mui/icons-material'
++ import { DashboardOutlined } from '@mui/icons-material'
+
+- "Add Athlete"
++ "Add athlete"
 ```
-
-**Files that auto-fix violations:**
-- `.husky/pre-commit` - Blocks commits with violations
-- `eslint-plugin-design-system/` - Custom ESLint rules
-- `stylelint-plugin-design-system/` - Custom CSS rules

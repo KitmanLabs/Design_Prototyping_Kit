@@ -85,7 +85,7 @@ Claude will:
 
 ## Important Note
 
-Never edit the `src/playbook-components-build/` folder — it's auto-generated. Claude knows this and won't touch it. If you need to change how components work, Claude will edit the source files instead.
+Ask Claude to change components rather than editing them yourself. Playbook Components (`src/playbook-components`) match iP, so Claude changes them only when you ask it to change how a component works.
 
 ---
 

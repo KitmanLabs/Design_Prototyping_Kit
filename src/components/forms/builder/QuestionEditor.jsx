@@ -6,7 +6,6 @@ import {
   Select,
   MenuItem,
   TextField,
-  Button,
   Switch,
   FormControlLabel,
   IconButton,
@@ -14,6 +13,7 @@ import {
   InputLabel,
   Paper
 } from '@mui/material'
+import { Button } from '../../../playbook-components'
 import { EditOutlined, DeleteOutlined } from '@mui/icons-material'
 
 export default function QuestionEditor({ question, index, onChange }) {

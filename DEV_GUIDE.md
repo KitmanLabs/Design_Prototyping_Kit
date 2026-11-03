@@ -1,126 +1,112 @@
-# Dev guide (step-by-step)
+# Dev guide (step by step)
 
-Simple steps to get the repo on your machine, run it, and save your work.
-
-**Project structure and standards** (where data, components, and design rules live) are in **`PROJECT_STANDARDS.md`**. Use that for data vs components vs design conventions.
+How to get the repo on your machine, run it, and save your work. For where things live, see `PROJECT_STANDARDS.md`. For design rules, see `DESIGN_SYSTEM.md`.
 
 ---
 
-## 1. Clone the repo
+## 1. Check Node
 
-Open a terminal and go to the folder where you want the project (e.g. your `dev` or `projects` folder). Then run:
+You need Node 20.19 or later (CI uses Node 24). Check with:
 
 ```bash
-git clone <REPO_URL>
+node --version
+```
+
+---
+
+## 2. Clone the repo
+
+In a terminal, go to the folder where you keep projects and run:
+
+```bash
+git clone https://github.com/KitmanLabs/Design_Prototyping_Kit.git
 cd Design_Prototyping_Kit
 ```
 
-Replace `<REPO_URL>` with the real URL. On GitHub it looks like:
-`https://github.com/your-org/Design_Prototyping_Kit.git`  
-(or the SSH version if you use SSH).
-
-After that you’re inside the project folder.
+(Use the SSH URL instead if you clone over SSH.)
 
 ---
 
-## 2. Install dependencies (npm install)
-
-Still in the project folder, run:
+## 3. Install dependencies
 
 ```bash
 npm install
 ```
 
-This downloads all packages the app needs. Wait until it finishes. Do this once after cloning, and again if someone adds new dependencies.
+Run this once after cloning, and again whenever you pull changes that touch `package.json`. It also sets up the Git pre-commit hook (Husky), which runs the design system checks before each commit.
 
 ---
 
-## 3. Run the app (npm run dev)
-
-Start the dev server:
+## 4. Run the app
 
 ```bash
 npm run dev
 ```
 
-The app will run and show a URL like `http://localhost:5173`. Open that in your browser. To stop the server, press `Ctrl+C` in the terminal.
+Open `http://localhost:3001`. Press `Ctrl+C` in the terminal to stop the server.
+
+To browse the component library instead:
+
+```bash
+npm run storybook
+```
+
+This opens Storybook at `http://localhost:6006`.
 
 ---
 
-## 4. Run tests (npm test)
-
-We keep tests **very simple and focused** so they are easy to maintain and always pass reliably.
-
-- **Test command**: run all tests with:
+## 5. Run the checks and tests
 
 ```bash
-npm test
+npm run validate-design-system   # lint, CSS lint and design checks (what pre-commit runs)
+npm test                         # Vitest + React Testing Library
 ```
 
-- **For every new critical component or page**:
-  - Add a **small test file** next to it (for example: `App.test.jsx`, `MainNavigation.test.jsx`, `Messaging.test.jsx`).
-  - The test should cover **only the most basic “does it render / route / click” behaviour**.
-  - Avoid complex mocks or flows; these are **smoke tests** to catch obvious breakages.
-
-- **For existing critical components and pages**:
-  - When you touch a component/page, add or update a **similarly small test** if it doesn’t exist yet.
-  - Prefer one or two assertions that reflect the main happy-path behaviour (e.g. “Dashboard title renders”, “Medical nav item is visible”, “Messaging header shows ‘All messages’”).
-
-Tests are powered by **Vitest + React Testing Library**, configured so that `npm test` “just works” without extra flags.
-
-## 4. Create your own branch to code
-
-Don’t code on `main`. Create a branch with your name or feature name:
-
-```bash
-git checkout -b your-name
-```
-
-Examples: `git checkout -b johnroche` or `git checkout -b john-fixes`.
-
-You’re now on your branch. All your commits will go here until you switch or merge.
+Tests are small smoke tests: does it render, route, or respond to a click. When you add or change a critical page or component, add or update a test next to it (for example `MainNavigation.test.jsx` or `Messaging.test.jsx`) with one or two happy-path assertions. Avoid complex mocks.
 
 ---
 
-## 5. Commit and push
+## 6. Create a branch
 
-When you’ve changed files and want to save them to the repo:
+Don't work on `main`. Create a branch for your change:
 
-**See what changed:**
 ```bash
-git status
+git checkout -b your-name-feature
 ```
 
-**Stage the files you want to commit** (or everything):
-```bash
-git add .
-```
-(or `git add path/to/file.js` for a single file)
+---
 
-**Commit with a short message:**
-```bash
-git commit -m "Add new dashboard widget"
-```
+## 7. Commit and push
 
-**Push your branch to the remote:**
 ```bash
-git push -u origin my-feature
+git status                          # see what changed
+git add .                           # or: git add path/to/file.jsx
+git commit -m "Add athlete availability card"
+git push -u origin your-name-feature
 ```
 
-Use your real branch name instead of `my-feature`. The first time you push a new branch, `-u origin my-feature` links it to the remote; after that you can just run `git push`.
+After the first push, `git push` on its own is enough. If the commit is blocked, the pre-commit hook found a design system issue. Fix it (see "Common fixes" in `DESIGN_SYSTEM.md`) and commit again.
+
+---
+
+## Optional: publish Figma Code Connect
+
+The Code Connect templates (`src/playbook-components/*.figma.js`) link Figma components to code snippets. Publishing needs a Figma access token:
+
+```bash
+FIGMA_ACCESS_TOKEN=<your token> npm run figma:publish
+```
 
 ---
 
 ## Quick recap
 
-| Step            | Command                |
-|-----------------|------------------------|
-| Clone           | `git clone <REPO_URL>` then `cd Design_Prototyping_Kit` |
-| Install         | `npm install`          |
-| Run app         | `npm run dev`          |
-| New branch      | `git checkout -b my-feature` |
-| Stage changes   | `git add .`            |
-| Commit          | `git commit -m "Your message"` |
-| Push branch     | `git push -u origin my-feature` |
-
-Done. You’re set to clone, install, run, branch, commit, and push.
+| Step | Command |
+|---|---|
+| Install | `npm install` |
+| Run app | `npm run dev` (http://localhost:3001) |
+| Storybook | `npm run storybook` (http://localhost:6006) |
+| Checks | `npm run validate-design-system` |
+| Tests | `npm test` |
+| New branch | `git checkout -b your-name-feature` |
+| Commit and push | `git add .`, `git commit -m "..."`, `git push` |

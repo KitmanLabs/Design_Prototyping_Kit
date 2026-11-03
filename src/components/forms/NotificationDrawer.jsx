@@ -14,7 +14,7 @@ import {
 } from '@mui/material'
 import { CloseOutlined } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
-import { Button } from '../../components'
+import { Button } from '../../playbook-components'
 import '../../styles/design-tokens.css'
 
 // Sample notification data
@@ -173,7 +173,8 @@ function NotificationDrawer({ open, onClose, notifications = sampleNotifications
         <Divider />
         <Box sx={{ px: 3, py: 2, position: 'sticky', bottom: 0, bgcolor: 'var(--color-background-primary)' }}>
           <Button
-            variant="secondary"
+            disableElevation={true}
+            variant="contained" color="secondary"
             size="medium"
             onClick={handleViewAll}
             style={{ 
