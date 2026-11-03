@@ -19,7 +19,7 @@ import {
   ListItemText,
   OutlinedInput
 } from '@mui/material'
-import { ArrowBackOutlined, Close, ChevronRight, Lock, Search, InfoOutlined, DiamondOutlined, DragIndicator, KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material'
+import { ArrowBackOutlined, CloseOutlined, ChevronRightOutlined, LockOutlined, SearchOutlined, InfoOutlined, DiamondOutlined, DragIndicatorOutlined, KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
@@ -318,38 +318,34 @@ export default function FormFillView() {
           {/* Action buttons */}
           <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
             <MuiButton
-              variant="outlined"
+              variant="contained"
+              color="secondary"
+              disableElevation
               size="medium"
               onClick={() => setIsSummaryView(prev => !prev)}
               sx={{
-                borderColor: 'var(--color-primary)',
                 color: 'var(--color-primary)',
                 textTransform: 'none',
                 fontWeight: 500,
                 px: 2,
-                '&:hover': { 
-                  borderColor: 'var(--color-primary-dark)',
-                  backgroundColor: 'var(--color-primary-light)'
-                }
+                '&:hover': { backgroundColor: 'var(--color-secondary-hover)' }
               }}
             >
               Summary View
             </MuiButton>
             <MuiButton
-              variant="outlined"
+              variant="contained"
+              color="secondary"
+              disableElevation
               size="medium"
               disabled={isSaving}
               onClick={handleSaveAsDraft}
               sx={{
-                borderColor: 'var(--color-primary)',
                 color: 'var(--color-primary)',
                 textTransform: 'none',
                 fontWeight: 500,
                 px: 2,
-                '&:hover': { 
-                  borderColor: 'var(--color-primary-dark)',
-                  backgroundColor: 'var(--color-primary-light)'
-                }
+                '&:hover': { backgroundColor: 'var(--color-secondary-hover)' }
               }}
             >
               Save As Draft
@@ -441,7 +437,7 @@ export default function FormFillView() {
                           '&:hover': { backgroundColor: 'var(--color-background-secondary)' }
                         }}
                       >
-                        <DragIndicator 
+                        <DragIndicatorOutlined 
                           sx={{ 
                             color: 'var(--color-text-disabled)', 
                             fontSize: '18px',
@@ -471,7 +467,7 @@ export default function FormFillView() {
                             {completion.completed} of {completion.total} steps completed
                           </Typography>
                         </Box>
-                        <ChevronRight 
+                        <ChevronRightOutlined 
                           sx={{ 
                             color: 'var(--color-text-secondary)', 
                             fontSize: '18px',
@@ -499,7 +495,7 @@ export default function FormFillView() {
                             '&:hover': { backgroundColor: 'var(--color-background-secondary)' }
                           }}
                         >
-                          <DragIndicator 
+                          <DragIndicatorOutlined 
                             sx={{ 
                               color: 'var(--color-text-disabled)', 
                               fontSize: '16px',
@@ -517,7 +513,7 @@ export default function FormFillView() {
                           >
                             Sub section {sectionIndex + 1}.{subIndex + 1}: {subsection.title}
                           </Typography>
-                          <ChevronRight 
+                          <ChevronRightOutlined 
                             sx={{ 
                               color: 'var(--color-text-secondary)', 
                               fontSize: '16px'
@@ -754,40 +750,33 @@ export default function FormFillView() {
               borderTop: '1px solid var(--color-border-primary)'
             }}>
               <MuiButton
-                variant="outlined"
+                variant="contained"
+                color="secondary"
+                disableElevation
                 size="medium"
-                startIcon={<KeyboardArrowLeft />}
+                startIcon={<KeyboardArrowLeftOutlined />}
                 disabled={currentSectionIndex === 0 && currentSubsectionIndex === 0}
                 sx={{
-                  borderColor: 'var(--color-border-primary)',
                   color: 'var(--color-primary)',
                   textTransform: 'none',
                   fontWeight: 500,
-                  '&:hover': { 
-                    borderColor: 'var(--color-border-focus)',
-                    backgroundColor: 'var(--color-primary-light)'
-                  },
-                  '&.Mui-disabled': {
-                    borderColor: 'var(--color-border-primary)',
-                    color: 'var(--color-text-muted)'
-                  }
+                  '&:hover': { backgroundColor: 'var(--color-secondary-hover)' },
+                  '&.Mui-disabled': { color: 'var(--color-text-muted)' }
                 }}
               >
                 Back
               </MuiButton>
               <MuiButton
-                variant="outlined"
+                variant="contained"
+                color="secondary"
+                disableElevation
                 size="medium"
-                endIcon={<KeyboardArrowRight />}
+                endIcon={<KeyboardArrowRightOutlined />}
                 sx={{
-                  borderColor: 'var(--color-border-primary)',
                   color: 'var(--color-primary)',
                   textTransform: 'none',
                   fontWeight: 500,
-                  '&:hover': { 
-                    borderColor: 'var(--color-border-focus)',
-                    backgroundColor: 'var(--color-primary-light)'
-                  }
+                  '&:hover': { backgroundColor: 'var(--color-secondary-hover)' }
                 }}
               >
                 Next
@@ -832,7 +821,7 @@ export default function FormFillView() {
                 onClick={() => { setIsSummaryView(false); setSelectedSummaryItem(null); }}
                 sx={{ color: 'var(--color-text-secondary)' }}
               >
-                <Close fontSize="small" />
+                <CloseOutlined fontSize="small" />
               </IconButton>
             </Box>
 
@@ -878,7 +867,7 @@ export default function FormFillView() {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <Lock fontSize="small" sx={{ color: 'var(--color-text-disabled)' }} />
+                      <LockOutlined fontSize="small" sx={{ color: 'var(--color-text-disabled)' }} />
                     </InputAdornment>
                   )
                 }}
@@ -983,7 +972,7 @@ export default function FormFillView() {
                 onClick={() => setIsSummaryView(false)}
                 sx={{ color: 'var(--color-text-secondary)' }}
               >
-                <Close fontSize="small" />
+                <CloseOutlined fontSize="small" />
               </IconButton>
             </Box>
 
@@ -1004,7 +993,7 @@ export default function FormFillView() {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <Lock fontSize="small" sx={{ color: 'var(--color-text-disabled)' }} />
+                      <LockOutlined fontSize="small" sx={{ color: 'var(--color-text-disabled)' }} />
                     </InputAdornment>
                   )
                 }}
@@ -1023,7 +1012,7 @@ export default function FormFillView() {
                       ...params.InputProps,
                       startAdornment: (
                         <InputAdornment position="start">
-                          <Search fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
+                          <SearchOutlined fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
                         </InputAdornment>
                       )
                     }}
@@ -1066,7 +1055,7 @@ export default function FormFillView() {
                         {item.date}
                       </Typography>
                     </Box>
-                    <ChevronRight fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
+                    <ChevronRightOutlined fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
                   </Box>
                 ))}
               </Box>

@@ -356,7 +356,9 @@ function AssignFormDrawer({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Button
             size="small"
-            variant="text"
+            variant="contained"
+            color="secondary"
+            disableElevation
             onClick={(e) => {
               e.stopPropagation()
               handleSelectAllTeam(team)

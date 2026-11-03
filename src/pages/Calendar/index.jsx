@@ -11,7 +11,6 @@ import AddGameDrawer from '../../components/AddGameDrawer';
 import calendarEventsData from '../../data/calendar_events.json';
 import athletesData from '../../data/athletes.json';
 import staffData from '../../data/users_staff.json';
-import '../../styles/calendar.css';
 
 const CalendarPage = () => {
   const [allEvents, setAllEvents] = useState([]);

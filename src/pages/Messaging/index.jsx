@@ -962,8 +962,10 @@ export default function Messaging() {
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
                       <Button 
-                        size="small" 
-                        variant="outlined"
+                        size="small"
+                        variant="contained"
+                        color="secondary"
+                        disableElevation
                         onClick={() => {
                           // Switch to the conversation if needed
                           if (selectedId !== msg.conversationId) {
