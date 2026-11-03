@@ -1,10 +1,5 @@
-// @flow
 
-import type { Athlete, Group } from './types';
-
-const STATUS_MAP: {
-  [string]: 'available' | 'injured' | 'unavailable' | 'unknown',
-} = {
+const STATUS_MAP = {
   available: 'available',
   injured: 'injured',
   unavailable: 'unavailable',
@@ -12,7 +7,7 @@ const STATUS_MAP: {
 
 export const Z_INDEX_ABOVE_DRAWER = 2147483007;
 
-export const matchesSearch = (athlete: Athlete, search: string) => {
+export const matchesSearch = (athlete, search) => {
   if (!search) {
     return true;
   }
@@ -24,11 +19,7 @@ export const filterGroup = ({
   group,
   search,
   filterAthletes = false,
-}: {
-  group: Group,
-  search: string,
-  filterAthletes?: boolean,
-}): Group | null => {
+}) => {
   const filteredAthletes =
     group.athletes?.filter((athlete) => matchesSearch(athlete, search)) ?? [];
   const filteredChildren =
@@ -53,13 +44,13 @@ export const filterGroup = ({
   };
 };
 
-export const collectGroupKeys = (groups: Group[]): string[] =>
+export const collectGroupKeys = (groups) =>
   groups.flatMap((group) => [
     group.key,
     ...(group.children ? collectGroupKeys(group.children) : []),
   ]);
 
-export const collectAthleteIds = (g: Group): number[] => [
+export const collectAthleteIds = (g) => [
   ...(g.athletes?.map((a) => Number(a.id)) ?? []),
   ...(g.children ? g.children.flatMap(collectAthleteIds) : []),
 ];
@@ -68,8 +59,8 @@ export const collectAthleteIds = (g: Group): number[] => [
  * Get all athlete IDs from a group recursively.
  * Similar to collectAthleteIds but returns a mutable array.
  */
-export const getAllAthleteIdsFromGroup = (group: Group): number[] => {
-  const ids: number[] = [];
+export const getAllAthleteIdsFromGroup = (group) => {
+  const ids = [];
 
   (group.athletes || []).forEach((athlete) => {
     ids.push(athlete.id);
@@ -84,10 +75,10 @@ export const getAllAthleteIdsFromGroup = (group: Group): number[] => {
 
 const SQUAD_KEY_PREFIX = 'squad';
 
-export const getSquadKey = (squadId: number): string =>
+export const getSquadKey = (squadId) =>
   `${SQUAD_KEY_PREFIX}-${squadId}`;
 
-export const getSquadIdFromKey = (key: string): number | null => {
+export const getSquadIdFromKey = (key) => {
   const match = key.match(new RegExp(`^${SQUAD_KEY_PREFIX}-(\\d+)$`));
   return match ? parseInt(match[1], 10) : null;
 };
@@ -95,7 +86,7 @@ export const getSquadIdFromKey = (key: string): number | null => {
 /**
  * Get the first uppercase character for avatar fallback.
  */
-export function getInitial(name: string): string {
+export function getInitial(name) {
   return name && name.length > 0 ? name[0].toUpperCase() : '';
 }
 
@@ -103,8 +94,8 @@ export function getInitial(name: string): string {
  * Normalize the backend status to a canonical key used in the UI.
  */
 export function normalizeStatus(
-  status?: ?string
-): 'available' | 'injured' | 'unavailable' | 'unknown' {
+  status
+) {
   if (!status) return 'unknown';
   const key = String(status).toLowerCase();
   return STATUS_MAP[key] || 'unknown';
@@ -114,8 +105,8 @@ export function normalizeStatus(
  * Map normalized status to MUI Chip color.
  */
 export const chipColorFor = (
-  status: ?string
-): 'success' | 'error' | 'default' => {
+  status
+) => {
   const s = normalizeStatus(status);
   if (s === 'available') return 'success';
   if (s === 'injured') return 'error';

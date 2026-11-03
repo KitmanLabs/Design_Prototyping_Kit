@@ -1,29 +1,18 @@
-// @flow
-import type { AthletesInAssociationHierarchy } from '@kitman/services/src/services/athlete/associationHierarchy/types';
-import type { Group, Athlete } from '../../shared/types';
 
-type MappedData = {
-  groups: Group[],
-  athletes: Athlete[],
-};
-
-type MappingParams = {
-  identifier: 'userId' | 'athleteId',
-};
 
 const mapAthletesToOrganizationGroups =
-  ({ identifier }: MappingParams) =>
-  (hierarchy: AthletesInAssociationHierarchy): MappedData => {
+  ({ identifier }) =>
+  (hierarchy) => {
     const association = hierarchy.association;
-    const groups: Group[] = [];
-    const athleteMap = new Map<number, Athlete>(); // to skip duplicates
+    const groups = [];
+    const athleteMap = new Map(); // to skip duplicates
 
     const athleteIdKey = identifier === 'userId' ? 'user_id' : 'id';
 
     association.organisations.forEach((organization) => {
       const orgChildren = organization.squads.map((squad) => {
         const mappedAthletes = squad.athletes.map((athlete) => {
-          const mapped: Athlete = {
+          const mapped = {
             key: `org-${organization.id}-squad-${squad.id}-athlete-${athlete[athleteIdKey]}`,
             id: athlete[athleteIdKey],
             name: athlete.fullname,
@@ -63,10 +52,10 @@ const mapAthletesToOrganizationGroups =
   };
 
 const mapAthleteToSquadGroups =
-  ({ identifier }: MappingParams) =>
-  (hierarchy: AthletesInAssociationHierarchy): MappedData => {
+  ({ identifier }) =>
+  (hierarchy) => {
     const { association } = hierarchy;
-    const athleteMap = new Map<number, Athlete>();
+    const athleteMap = new Map();
 
     const athleteIdKey = identifier === 'userId' ? 'user_id' : 'id';
 
@@ -86,7 +75,7 @@ const mapAthleteToSquadGroups =
 
     const groups = uniqueSquads.map((squad) => {
       const mappedAthletes = squad.athletes.map((athlete) => {
-        const mapped: Athlete = {
+        const mapped = {
           key: `squad-${squad.id}-athlete-${athlete[athleteIdKey]}`,
           id: athlete[athleteIdKey],
           name: athlete.fullname,

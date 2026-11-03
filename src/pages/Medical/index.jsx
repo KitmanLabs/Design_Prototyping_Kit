@@ -10,13 +10,13 @@ import {
   IconButton,
   Chip,
 } from '@mui/material';
-import { DataGrid } from 'playbook-components';
+import { Button, DataGrid } from 'playbook-components';
 import {
   SearchOutlined,
   MoreVertOutlined,
   WarningOutlined,
 } from '@mui/icons-material';
-import { Button, PlayerAvatar, StatusChip } from '../../components';
+import { PlayerAvatar, StatusChip } from '../../components';
 import athletesData from '../../data/athletes.json';
 import injuriesData from '../../data/injuries_medical.json';
 import '../../styles/design-tokens.css';
@@ -86,7 +86,7 @@ const generateMedicalRosterData = () => {
     // Generate mock data for other fields
     const statuses = ['Out', 'Preliminary', 'Full'];
     const cardiacStatuses = ['Outstanding', 'Complete', 'Pending'];
-    const allergies = ['None', 'Penicillin', 'NSAIDs', 'None Known', 'Latex'];
+    const allergies = ['None', 'Penicillin', 'NSAIDs', 'None known', 'Latex'];
     const rosterTypes = ['Active', 'IR', 'PUP', 'NFI'];
 
     return {
@@ -119,12 +119,12 @@ function MedicalPage() {
     'Notes',
     'Diagnostics',
     'Procedures',
-    'Medical Flags',
-    'Shared Players',
-    'Past Players',
+    'Medical flags',
+    'Shared players',
+    'Past players',
     'Documents',
-    "Coach's Report",
-    'Daily Status Report',
+    "Coach's report",
+    'Daily status report',
   ];
 
   const rosterData = useMemo(() => generateMedicalRosterData(), []);
@@ -442,10 +442,10 @@ function MedicalPage() {
             Roster
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button variant="primary" size="small">
+            <Button disableElevation={true} variant="contained" color="primary" size="small">
               Add
             </Button>
-            <Button variant="secondary" size="small">
+            <Button disableElevation={true} variant="contained" color="secondary" size="small">
               Download
             </Button>
           </Box>

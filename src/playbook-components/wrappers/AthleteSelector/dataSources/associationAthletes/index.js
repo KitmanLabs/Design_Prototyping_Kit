@@ -1,10 +1,6 @@
-// @flow
-
 import { useEffect, useMemo, useState } from 'react';
 import getAssociationHierarchy from '@kitman/services/src/services/athlete/associationHierarchy/getAssociationHierarchy';
-import type { AthletesInAssociationHierarchy } from '@kitman/services/src/services/athlete/associationHierarchy/types';
 import i18n from '@kitman/common/src/utils/i18n';
-import type { UseDataResult } from '../../shared/types';
 import {
   mapAthletesToOrganizationGroups,
   mapAthleteToSquadGroups,
@@ -15,14 +11,9 @@ const AssociationGroups = {
   SQUAD: 'squad',
 };
 
-type IdentifierType = 'userId' | 'athleteId';
 
-type Params = {
-  skip?: boolean,
-  identifier?: IdentifierType,
-};
 
-const getMapper = (identifier: IdentifierType) => ({
+const getMapper = (identifier) => ({
   [AssociationGroups.ORGANISATION]: mapAthletesToOrganizationGroups({
     identifier,
   }),
@@ -34,13 +25,13 @@ const labels = {
   [AssociationGroups.SQUAD]: i18n.t('Squad') ?? 'Squad',
 };
 
-const useAssociationAthletes = (params?: Params): UseDataResult => {
-  const [groupMode, setGroupMode] = useState<string>(
+const useAssociationAthletes = (params) => {
+  const [groupMode, setGroupMode] = useState(
     AssociationGroups.ORGANISATION
   );
   const [isLoading, setIsLoading] = useState(!params?.skip);
-  const [data, setData] = useState<AthletesInAssociationHierarchy | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
   const identifier = params?.identifier ?? 'athleteId';
 
   useEffect(() => {
@@ -84,7 +75,7 @@ const useAssociationAthletes = (params?: Params): UseDataResult => {
   }, [identifier, data, groupMode]);
 
   const grouping = {
-    options: (Object.keys(labels): Array<$Keys<typeof labels>>).map((key) => ({
+    options: (Object.keys(labels)).map((key) => ({
       value: key,
       label: labels[key],
     })),

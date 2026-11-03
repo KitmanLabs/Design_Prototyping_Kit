@@ -1,4 +1,3 @@
-// @flow
 import {
   extension,
   PlainExtension,
@@ -6,12 +5,9 @@ import {
 } from '@remirror/core';
 import { filterTransaction } from './utils';
 
-export interface CharacterLimitOptions {
-  limit?: number;
-}
 
 // This extension is inspired by: https://github.com/ueberdosis/tiptap/blob/main/packages/extension-character-count/src/character-count.ts
-export class CharacterLimitExtension extends PlainExtension<CharacterLimitOptions> {
+export class CharacterLimitExtension extends PlainExtension {
   get name() {
     return 'characterLimit';
   }

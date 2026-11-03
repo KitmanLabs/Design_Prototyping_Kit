@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Typography, Button, Divider } from '@mui/material';
+import { Box, Typography, Divider } from '@mui/material';
+import { Button } from '../playbook-components';
 import { RefreshOutlined } from '@mui/icons-material';
 
 const EventTooltip = ({

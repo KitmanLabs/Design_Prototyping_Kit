@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useState } from 'react';
-import { useArgs } from '@storybook/client-api';
+import { useArgs } from 'storybook/preview-api';
 import { Box, Tabs, Tab, Typography } from '../../playbook-components';
 
 const docs = {

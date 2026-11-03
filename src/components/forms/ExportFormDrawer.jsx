@@ -11,7 +11,6 @@ import {
   TextField,
   FormControlLabel,
   Checkbox,
-  Button,
   Switch,
   Avatar,
   Paper,
@@ -22,6 +21,7 @@ import {
   Snackbar,
   Slide
 } from '@mui/material'
+import { Button } from '../../playbook-components'
 import { ClickAwayListener } from '@mui/base'
 import {
   CloseOutlined,
@@ -33,49 +33,11 @@ import {
 import { useTheme } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { toMoment, withDate } from '../../utils/pickerDates'
 import '../../styles/design-tokens.css'
-
-const formFieldStyles = {
-  '& .MuiInputBase-root': {
-    backgroundColor: 'var(--color-background-secondary)',
-    borderRadius: 'var(--radius-sm)',
-    '&:hover': { backgroundColor: 'var(--color-background-tertiary)' },
-    '&.Mui-focused': { backgroundColor: 'var(--color-background-primary)' },
-  },
-  '& .MuiInputLabel-root': {
-    color: 'var(--color-text-secondary)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 'var(--placeholder-font-weight)',
-    fontFamily: 'var(--font-family-primary)',
-    '&.Mui-focused': { color: 'var(--color-border-focus)' },
-  },
-  '& .MuiFilledInput-root': {
-    backgroundColor: 'var(--color-background-secondary)',
-    borderRadius: 'var(--radius-sm)',
-    '&:hover': { backgroundColor: 'var(--color-background-tertiary)' },
-    '&.Mui-focused': { backgroundColor: 'var(--color-background-primary)' },
-    '&:before': { borderBottom: '1px solid var(--color-border-primary)' },
-    '&:hover:not(.Mui-disabled):before': { borderBottom: '1px solid var(--color-border-focus)' },
-    '&.Mui-focused:after': { borderBottom: '2px solid var(--color-border-focus)' },
-  },
-  '& .MuiInputBase-input': {
-    color: 'var(--color-text-primary)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 'var(--font-weight-medium)',
-    fontFamily: 'var(--font-family-primary)',
-  },
-}
-
-// Default export column fields
-const DEFAULT_EXPORT_FIELDS = [
-  { id: 'athleteName', label: 'Athlete name', checked: true },
-  { id: 'formName', label: 'Form name', checked: true },
-  { id: 'productArea', label: 'Product area', checked: true },
-  { id: 'category', label: 'Category', checked: true },
-  { id: 'completionDate', label: 'Completion date', checked: true },
-  { id: 'status', label: 'Status', checked: true },
-]
+import { DEFAULT_EXPORT_FIELDS } from '../../data/forms'
+import { formFieldStyles } from '../formFieldStyles'
 
 function ExportFormDrawer({
   open,
@@ -595,7 +557,7 @@ function ExportFormDrawer({
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <LocalizationProvider dateAdapter={AdapterMoment}>
       <Drawer
         anchor={isMobile ? 'bottom' : 'right'}
         open={open}
@@ -711,8 +673,8 @@ function ExportFormDrawer({
               <Stack direction="row" spacing={2} alignItems="center">
                 <DatePicker
                   label="Start date"
-                  value={startDate}
-                  onChange={(newValue) => setStartDate(newValue)}
+                  value={toMoment(startDate)}
+                  onChange={withDate((newValue) => setStartDate(newValue))}
                   slotProps={{
                     textField: {
                       size: 'small',
@@ -732,8 +694,8 @@ function ExportFormDrawer({
                 </Typography>
                 <DatePicker
                   label="End date"
-                  value={endDate}
-                  onChange={(newValue) => setEndDate(newValue)}
+                  value={toMoment(endDate)}
+                  onChange={withDate((newValue) => setEndDate(newValue))}
                   slotProps={{
                     textField: {
                       size: 'small',

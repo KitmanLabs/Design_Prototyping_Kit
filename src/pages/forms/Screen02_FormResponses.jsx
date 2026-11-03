@@ -12,12 +12,13 @@ import {
   Link
 } from '@mui/material'
 import { ArrowDropDownOutlined } from '@mui/icons-material'
-import { DataGrid, GridPagination, GridToolbar, DatePicker } from 'playbook-components'
+import { Button, DataGrid, GridPagination, GridToolbar, DatePicker } from 'playbook-components'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import dayjs from 'dayjs'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import moment from 'moment'
 import '../../styles/design-tokens.css'
-import { Button, StatusChip, Icon, PlayerAvatar } from '../../components'
+import { StatusChip, Icon, PlayerAvatar } from '../../components'
+import { formResponseTemplates, formResponseCompletedRows, formResponseComplianceRows } from '../../data/forms'
 
 function a11yProps(index) {
   return {
@@ -47,14 +48,7 @@ function Screen02_FormResponses() {
   const location = useLocation()
   const locationState = location?.state || {}
 
-  // Stubbed data for the grid; wire this to real data later
-  const allForms = React.useMemo(() => ([
-    { id: 378, name: 'Test - Toggle Switch', updatedAt: 'July 17, 2025 11:22 am' },
-    { id: 364, name: 'RFU Exit Medical', updatedAt: 'May 20, 2025 11:49 am' },
-    { id: 348, name: 'More than equal', updatedAt: 'April 09, 2025 9:57 am' },
-    { id: 347, name: 'Hilly test', updatedAt: 'March 28, 2025 2:03 pm' },
-    { id: 346, name: 'Form with conditional', updatedAt: 'March 21, 2025 12:18 pm' },
-  ]), [])
+  const allForms = formResponseTemplates
 
   const [tabValue, setTabValue] = React.useState(
     locationState.initialTab === 'compliance' ? 2 : (locationState.initialTab === 'completed' ? 1 : 0)
@@ -62,17 +56,7 @@ function Screen02_FormResponses() {
   const [selectedFormName, setSelectedFormName] = React.useState(null)
   const [paginationModel, setPaginationModel] = React.useState({ page: 0, pageSize: 25 })
 
-  // Stubbed data for Completed tab based on the provided dump
-  const completedRows = React.useMemo(() => ([
-    { id: 467635, athleteName: 'Allan Santos Athlete', name: 'Test - Toggle Switch', productArea: 'Medical', category: 'Other', examiner: 'Bhuvan Bhatt', completionDate: 'Jul 17, 2025', status: 'Complete' },
-    { id: 467105, athleteName: 'test', name: 'Test - Toggle Switch', productArea: 'Medical', category: 'Other', examiner: 'Bhuvan Bhatt', completionDate: 'Jul 17, 2025', status: 'Complete' },
-    { id: 467101, athleteName: 'Allan Santos', name: 'Test - Toggle Switch', productArea: 'Medical', category: 'Other', examiner: 'Bhuvan Bhatt', completionDate: 'Jul 17, 2025', status: 'Complete' },
-    { id: 467095, athleteName: 'Akanksha', name: 'Test - Toggle Switch', productArea: 'Medical', category: 'Other', examiner: 'Bhuvan Bhatt', completionDate: 'Jul 17, 2025', status: 'Complete' },
-    { id: 467088, athleteName: 'Adam Conway', name: 'Test - Toggle Switch', productArea: 'Medical', category: 'Other', examiner: 'Bhuvan Bhatt', completionDate: 'Jul 17, 2025', status: 'Complete' },
-    { id: 467087, athleteName: 'Adam Conway', name: 'General Medical', productArea: 'Medical', category: 'Other', examiner: 'Willian Gama', completionDate: 'Jul 2, 2025', status: 'Complete' },
-    { id: 467083, athleteName: 'Adam Conway', name: 'General Medical', productArea: 'Medical', category: 'Other', examiner: 'Willian Gama', completionDate: 'Jul 2, 2025', status: 'Complete' },
-    { id: 467079, athleteName: 'Adam Conway', name: 'Kiosk Test', productArea: 'Medical', category: 'Other', examiner: 'Adam Conway', completionDate: 'Jun 26, 2025', status: 'Complete' },
-  ]), [])
+  const completedRows = formResponseCompletedRows
 
   const [completedFormName, setCompletedFormName] = React.useState(null)
 
@@ -189,13 +173,14 @@ function Screen02_FormResponses() {
       cellClassName: 'grid-cell--pad-right',
       renderCell: (params) => (
         <Button
+          disableElevation={true}
           size="small"
-          variant="secondary"
+          variant="contained" color="secondary"
           aria-label="Delete"
           onClick={(e) => {
             e.stopPropagation()
             // TODO: hook up real delete
-            // eslint-disable-next-line no-console
+             
             console.log('Delete clicked for', params.row.id)
           }}
         >
@@ -205,27 +190,7 @@ function Screen02_FormResponses() {
     },
   ]), [navigate])
 
-  // Compliance tab: group by player with collapsible sections
-  // Prototype data set for compliance view: includes mixed statuses and timestamps
-  const complianceRows = React.useMemo(() => ([
-    { id: 500001, athleteName: 'Harry Anderson', name: 'Medical Exam', lastUpdated: '2025-01-10T10:15:00Z', status: 'Draft' },
-    { id: 500002, athleteName: 'Harry Anderson', name: 'Ortho Exam', lastUpdated: '2025-01-10T10:15:00Z', status: 'Draft' },
-    { id: 500003, athleteName: 'Harry Anderson', name: 'Medical History Form', lastUpdated: '2025-01-05T10:15:00Z', status: 'Complete' },
-    { id: 500004, athleteName: 'Harry Anderson', name: 'Use & Disclosure/Release', lastUpdated: '2025-01-10T10:15:00Z', status: 'Not started' },
-    { id: 500005, athleteName: 'Harry Anderson', name: 'Tryout Agreement', lastUpdated: '2025-01-10T10:15:00Z', status: 'Not started' },
-    { id: 500006, athleteName: 'Harry Anderson', name: 'Notice of Privacy Practice', lastUpdated: '2025-01-10T10:15:00Z', status: 'Not started' },
-    { id: 500007, athleteName: 'Harry Anderson', name: 'Prescription Pick up', lastUpdated: '2025-01-10T10:15:00Z', status: 'Not started' },
-    { id: 500008, athleteName: 'Harry Anderson', name: 'Medical Update Release', lastUpdated: '2025-01-10T10:15:00Z', status: 'Not started' },
-
-    { id: 500101, athleteName: 'Bill Bryson', name: 'Medical Exam', lastUpdated: '2025-01-10T10:15:00Z', status: 'Done' },
-    { id: 500102, athleteName: 'Bill Bryson', name: 'Ortho Exam', lastUpdated: '2025-01-10T10:15:00Z', status: 'Complete' },
-    { id: 500103, athleteName: 'Bill Bryson', name: 'Medical History Form', lastUpdated: '2025-01-05T10:15:00Z', status: 'Complete' },
-    { id: 500104, athleteName: 'Bill Bryson', name: 'Use & Disclosure/Release', lastUpdated: '2025-01-10T10:15:00Z', status: 'Not started' },
-
-    { id: 500201, athleteName: 'Elena Rodriguez', name: 'Medical Exam', lastUpdated: '2025-01-11T09:20:00Z', status: 'In progress' },
-    { id: 500202, athleteName: 'Elena Rodriguez', name: 'Ortho Exam', lastUpdated: '2025-01-11T09:20:00Z', status: 'Not started' },
-    { id: 500203, athleteName: 'Elena Rodriguez', name: 'Medical History Form', lastUpdated: '2025-01-09T13:00:00Z', status: 'Draft' },
-  ]), [])
+  const complianceRows = formResponseComplianceRows
 
   const [selectedPlayer, setSelectedPlayer] = React.useState(null)
   const [complianceFormName, setComplianceFormName] = React.useState(null)
@@ -240,8 +205,8 @@ function Screen02_FormResponses() {
     if (selectedPlayer) rows = rows.filter(r => r.athleteName === selectedPlayer)
     if (complianceFormName) rows = rows.filter(r => r.name.toLowerCase().includes(String(complianceFormName).toLowerCase()))
     if (selectedStatus) rows = rows.filter(r => r.status === selectedStatus)
-    if (startDate) rows = rows.filter(r => dayjs(r.lastUpdated).isAfter(dayjs(startDate).startOf('day')) || dayjs(r.lastUpdated).isSame(dayjs(startDate).startOf('day')))
-    if (endDate) rows = rows.filter(r => dayjs(r.lastUpdated).isBefore(dayjs(endDate).endOf('day')) || dayjs(r.lastUpdated).isSame(dayjs(endDate).endOf('day')))
+    if (startDate) rows = rows.filter(r => moment(r.lastUpdated).isAfter(moment(startDate).startOf('day')) || moment(r.lastUpdated).isSame(moment(startDate).startOf('day')))
+    if (endDate) rows = rows.filter(r => moment(r.lastUpdated).isBefore(moment(endDate).endOf('day')) || moment(r.lastUpdated).isSame(moment(endDate).endOf('day')))
     return rows
   }, [complianceRows, selectedPlayer, complianceFormName, selectedStatus, startDate, endDate])
 
@@ -274,8 +239,6 @@ function Screen02_FormResponses() {
       setExpandedGroups(all)
     }
   }
-
-
 
   // Build grid rows (group header + children if expanded)
   const complianceGridRows = React.useMemo(() => {
@@ -347,7 +310,7 @@ function Screen02_FormResponses() {
         if (row.type === 'group') return null
         return (
           <Box sx={{ color: 'var(--color-text-primary)' }}>
-            {dayjs(row.lastUpdated).format('MMMM D, YYYY [at] h:mm a')}
+            {moment(row.lastUpdated).format('MMMM D, YYYY [at] h:mm a')}
           </Box>
         )
       }
@@ -584,5 +547,4 @@ function Screen02_FormResponses() {
 }
 
 export default Screen02_FormResponses
-
 

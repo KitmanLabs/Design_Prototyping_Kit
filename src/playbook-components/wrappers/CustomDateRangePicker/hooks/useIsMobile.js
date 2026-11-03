@@ -1,5 +1,3 @@
-// @flow
-
 import { useMediaQuery, useTheme } from '@mui/material';
 
 // Simple hook to detect mobile devices using Material-UI breakpoints

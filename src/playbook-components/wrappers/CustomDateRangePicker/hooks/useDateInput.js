@@ -1,20 +1,13 @@
-// @flow
 import { useState } from 'react';
 import { formatDateInput } from '../utils';
-import type { DateRange } from '../types';
 
-type Props = {
-  dateRange: DateRange,
-  updateDateRange: (range: DateRange) => void,
-  organisationLocale: string,
-};
 
 // Custom hook to handle keyboard input in the date range text field
 
-export function useDateInput({ updateDateRange, organisationLocale }: Props) {
+export function useDateInput({ updateDateRange, organisationLocale }) {
   const [inputValue, setInputValue] = useState('');
 
-  const handleInputChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
+  const handleInputChange = (e) => {
     const input = e.target.value;
     const numbers = input.replace(/\D/g, '');
 
@@ -27,7 +20,7 @@ export function useDateInput({ updateDateRange, organisationLocale }: Props) {
     }
   };
 
-  const handleInputKeyDown = (e: SyntheticKeyboardEvent<HTMLInputElement>) => {
+  const handleInputKeyDown = (e) => {
     if (e.key === 'Backspace') {
       setInputValue((prev) => {
         const numbers = prev.replace(/\D/g, '');

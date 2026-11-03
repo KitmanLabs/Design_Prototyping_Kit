@@ -1,9 +1,10 @@
 import React from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { Box, Paper, Typography, Divider, Switch, Checkbox, FormControlLabel, Button as MuiButton, IconButton } from '@mui/material'
+import { Box, Paper, Typography, Divider, Switch, Checkbox, FormControlLabel, IconButton } from '@mui/material'
 import { ArrowBackOutlined } from '@mui/icons-material'
 import '../../styles/design-tokens.css'
-import { Button, Icon, StatusChip } from '../../components'
+import { Button } from '../../playbook-components'
+import { Icon, StatusChip } from '../../components'
 import testToggleTemplate from '../../data/formTemplates/test-toggle-switch.json'
 import MenuTree from '../../components/forms/builder/MenuTree'
 
@@ -91,7 +92,7 @@ export default function Screen04_FormAnswerSet() {
             {location.state?.athleteName || 'Athlete'}
           </Typography>
           <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 2 }}>
-            <MuiButton
+            <Button
               variant="contained"
               size="small"
               disableElevation
@@ -99,7 +100,7 @@ export default function Screen04_FormAnswerSet() {
               sx={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-color)', textTransform: 'none', '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' } }}
             >
               {isEditMode ? 'Done' : 'Edit'}
-            </MuiButton>
+            </Button>
           </Box>
         </Box>
 
@@ -151,7 +152,7 @@ export default function Screen04_FormAnswerSet() {
                                 <FormControlLabel control={<Switch color="default" checked={answer} onChange={handleToggleAnswer(q.id)} />} label={answer ? 'Yes' : 'No'} />
                               )}
                               {q.ui?.style === 'toggle' && (
-                                <Button size="small" variant={answer ? 'primary' : 'secondary'} onClick={handleToggleAnswer(q.id)}>
+                                <Button disableElevation={true} size="small" variant="contained" color={answer ? 'primary' : 'secondary'} onClick={handleToggleAnswer(q.id)}>
                                   {answer ? 'Yes' : 'No'}
                                 </Button>
                               )}
@@ -170,8 +171,9 @@ export default function Screen04_FormAnswerSet() {
             <Box sx={{ borderTop: '1px solid var(--color-border-primary)', backgroundColor: 'var(--color-background-primary)', px: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1.5 }}>
                 <Button
+                  disableElevation={true}
                   size="small"
-                  variant="secondary"
+                  variant="contained" color="secondary"
                   disabled={!selectedQuestionId || allQuestions.findIndex(q => q.id === selectedQuestionId) <= 0}
                   onClick={() => {
                     const idx = allQuestions.findIndex(q => q.id === selectedQuestionId)
@@ -181,8 +183,9 @@ export default function Screen04_FormAnswerSet() {
                   Previous
                 </Button>
                 <Button
+                  disableElevation={true}
                   size="small"
-                  variant="primary"
+                  variant="contained" color="primary"
                   disabled={!selectedQuestionId || allQuestions.findIndex(q => q.id === selectedQuestionId) >= allQuestions.length - 1}
                   onClick={() => {
                     const idx = allQuestions.findIndex(q => q.id === selectedQuestionId)
@@ -199,5 +202,4 @@ export default function Screen04_FormAnswerSet() {
     </Box>
   )
 }
-
 

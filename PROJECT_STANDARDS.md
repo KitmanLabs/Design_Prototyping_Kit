@@ -1,37 +1,48 @@
 # Project standards
 
-Use these conventions for all current and future work. They are the source of truth for structure and where things live.
+Where things live. For design rules (tokens, buttons, icons, casing, theme, dates), see `DESIGN_SYSTEM.md`.
 
----
+## Layout
+
+```
+src/
+├── components/            # App components (Icon, Card, StatusChip, drawers, navigation)
+│   ├── Calendar/          # Calendar view, shared event drawer sections
+│   ├── forms/             # Form builder and form drawers
+│   └── formFieldStyles.js # Shared filled-input styling for drawer forms
+├── data/                  # All mock data, option lists and fixtures
+│   └── formTemplates/     # Form template JSON
+├── pages/                 # Page-level views (Calendar, Medical, Messaging, forms)
+├── playbook-components/   # Playbook Components ported from the iP monorepo (edit here)
+├── stories/               # Storybook stories for the Playbook Components
+├── styles/                # design-tokens.css and global styles
+└── utils/                 # Shared helpers (pickerDates.js, assetManager.js)
+```
 
 ## Data
 
-- **All mock data, constants, fixtures, mock responses, and sample datasets go in `src/data`** (or `src/db` if you introduce a database layer).
-- Keep JSON datasets, form templates, and any mock API data under `src/data`. Use `src/data.js` as the main re-export for app data if you want a single entry point; individual modules (e.g. `src/data/messaging.js`, `src/data/layout.js`) are fine for feature-specific mocks.
-
----
+- All mock data, constants, option lists and fixtures go in `src/data`, never inline in a component. Components import from there.
+- Use one module per feature: `messaging.js`, `forms.js` (Forms pages and drawers), `calendarEventOptions.js` (Add game and Add session drawers), plus the JSON datasets (`athletes.json`, `calendar_events.json`, ...).
+- Form templates go in `src/data/formTemplates/`.
 
 ## Components
 
-- **Components live in the components structure, with Playbook Components first.**
-- Prefer **Playbook Components** (`src/playbook-components`) whenever they provide an equivalent. Use the barrel or `@kitman/playbook` aliases.
-- App-level React components live under `src/components/` (layout, navigation, pages-specific UI). Do not add new one-off components at the repo root; keep them under `src/components` or the appropriate subfolder.
+- Check `src/playbook-components` first, then `src/components`. Add new app components under `src/components` (or a feature subfolder), never at the repo root.
+- When two components share a block of UI, extract it once (see `src/components/Calendar/EventDrawerFields.jsx`) rather than copying it.
+- Playbook source is plain JavaScript. It still imports through the monorepo package names (`@kitman/playbook/...`, `@kitman/common/...`, `@kitman/modules/...`, `@kitman/components`). `vite.config.js` aliases these onto `src/playbook-components`. Anything under `common/`, `modules/` and `kitman-components-stub/` is a small stand-in for the monorepo code, kept only while something imports it.
 
----
+## Stories
 
-## Design / UI
-
-- **The design and UI layer follows the component system and wrappers, with Playbook Components as the first choice.**
-- Use Playbook wrappers (e.g. Button, DataGrid, DatePicker, Drawer, Toasts) before reaching for raw MUI. See `DESIGN_SYSTEM.md` for tokens, buttons, icons, and text rules.
-
----
+- Every Playbook component that is exported from the barrel should have a story in `src/stories/<Group>/<Name>.stories.js`, using the existing group names (Data Display, Inputs, Navigation, Surfaces, Table, ...).
+- `npm run build-storybook` runs in CI, so a story that doesn't build fails the pipeline.
 
 ## Quick reference
 
-| What                | Where                                      |
-|---------------------|--------------------------------------------|
-| Mock data / fixtures| `src/data` (or `src/db`)                   |
-| Components          | `src/components`; prefer `src/playbook-components` |
-| Design tokens       | `src/styles/design-tokens.css`            |
-| Design rules        | `DESIGN_SYSTEM.md`                        |
-| Dev setup           | `DEV_GUIDE.md`                            |
+| What | Where |
+|---|---|
+| Mock data and option lists | `src/data` |
+| Components | `src/playbook-components` first, then `src/components` |
+| Theme | `src/playbook-components/themes.js` |
+| Design tokens | `src/styles/design-tokens.css` |
+| Design rules | `DESIGN_SYSTEM.md` |
+| Setup and workflow | `DEV_GUIDE.md` |

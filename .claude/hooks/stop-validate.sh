@@ -14,7 +14,7 @@ if [ ! -x node_modules/.bin/eslint ]; then
 fi
 
 changed=$(git status --porcelain -- src eslint-plugin-design-system stylelint-plugin-design-system \
-  scripts/validate-design-system.js .eslintrc.js .eslintignore .stylelintrc.json .stylelintignore 2>/dev/null)
+  scripts/validate-design-system.js eslint.config.js .stylelintrc.json .stylelintignore 2>/dev/null)
 [ -z "$changed" ] && exit 0
 
 out=$(npm run --silent validate-design-system 2>&1) && exit 0

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogActions, Box, Typography, Button, Divider, Chip, Link } from '@mui/material';
+import { Dialog, DialogContent, DialogActions, Box, Typography, Divider, Chip, Link } from '@mui/material';
+import { Button } from '../playbook-components';
 import { RefreshOutlined, AttachFileOutlined, PersonOutlined, LocationOnOutlined } from '@mui/icons-material';
 
 const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff = [] }) => {

@@ -1,6 +1,8 @@
 # Design System & Component Library
 
-This prototype uses pre-built components that match the KitmanLabs design system. Browse, combine, and customize them to build your prototype fast.
+This prototype uses pre-built components that match the Kitman Labs design system used in iP: Intelligence Platform. Browse, combine, and customize them to build your prototype fast.
+
+The full design rules (tokens, buttons, icons, text casing, dates) live in [`DESIGN_SYSTEM.md`](https://github.com/KitmanLabs/Design_Prototyping_Kit/blob/main/DESIGN_SYSTEM.md) in the repo. This page is the designer's overview.
 
 ## What is Storybook?
 
@@ -62,7 +64,7 @@ Claude knows all these components and will import them correctly.
 There are three tiers of components:
 
 1. **Playbook Components** — Custom wrappers that match the real product (use these first)
-2. **App Components** — Pre-built composite UI (player cards, status badges, etc.)
+2. **App Components**: pre-built composite UI (athlete avatars, status badges, etc.)
 3. **MUI** — Generic Material-UI components (fallback only)
 
 Always ask Claude to use a Playbook Component first. Claude knows this priority and will automatically choose the right one.

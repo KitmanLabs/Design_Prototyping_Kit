@@ -8,10 +8,10 @@ import {
   TextField,
   IconButton,
   Box,
-  Button,
   Typography,
-  Tooltip,
+  Tooltip
 } from '@mui/material';
+import { Button } from '../playbook-components';
 import { RefreshOutlined, ContentCopyOutlined, CheckOutlined } from '@mui/icons-material';
 
 const CopyCalendarUrl = ({ 

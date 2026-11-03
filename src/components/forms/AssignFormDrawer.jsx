@@ -7,7 +7,6 @@ import {
   IconButton,
   Divider,
   TextField,
-  Button,
   FormControl,
   FormControlLabel,
   RadioGroup,
@@ -26,79 +25,24 @@ import {
   InputAdornment,
   Checkbox
 } from '@mui/material'
+import { Button } from '../../playbook-components'
 import { ClickAwayListener } from '@mui/base'
 import { CloseOutlined, DeleteOutlined, AddOutlined, CheckOutlined, KeyboardArrowDownOutlined, ChevronLeftOutlined, ChevronRightOutlined, SyncOutlined } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { toMoment, withDate } from '../../utils/pickerDates'
 import '../../styles/design-tokens.css'
-
-const TIMEZONES = [
-  'Europe/Dublin',
-  'UTC',
-  'Europe/London',
-  'America/New_York',
-  'Europe/Paris',
-  'Australia/Sydney',
-]
-
-const RESPONSES_PER_PLAYER_OPTIONS = [
-  { value: 1, label: '1 response per player' },
-  { value: 2, label: '2 responses per player' },
-  { value: 3, label: '3 responses per player' },
-  { value: 5, label: '5 responses per player' },
-  { value: 10, label: '10 responses per player' },
-  { value: -1, label: 'Unlimited responses' },
-]
+import { TIMEZONES, RESPONSES_PER_PLAYER_OPTIONS, MOCK_TEAMS } from '../../data/forms'
+import { formFieldStyles } from '../formFieldStyles'
 
 const NOTIFICATION_TIMING_OPTIONS = [
   { value: 'start-date', label: 'Start date' },
   { value: 'end-date', label: 'End date' },
   { value: 'custom-date', label: 'Custom date' },
 ]
-
-// Mock teams for athlete grouping
-const MOCK_TEAMS = [
-  { id: 1, name: 'First Team', status: 'active' },
-  { id: 2, name: 'Reserve Team', status: 'active' },
-  { id: 3, name: 'Academy U21', status: 'active' },
-  { id: 4, name: 'Academy U18', status: 'active' },
-  { id: 5, name: 'Munster NTS', status: 'active' },
-  { id: 6, name: 'Club Ops', status: 'inactive' },
-]
-
-const formFieldStyles = {
-  '& .MuiInputBase-root': {
-    backgroundColor: 'var(--color-background-secondary)',
-    borderRadius: 'var(--radius-sm)',
-    '&:hover': { backgroundColor: 'var(--color-background-tertiary)' },
-    '&.Mui-focused': { backgroundColor: 'var(--color-background-primary)' },
-  },
-  '& .MuiInputLabel-root': {
-    color: 'var(--color-text-secondary)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 'var(--placeholder-font-weight)',
-    fontFamily: 'var(--font-family-primary)',
-    '&.Mui-focused': { color: 'var(--color-border-focus)' },
-  },
-  '& .MuiFilledInput-root': {
-    backgroundColor: 'var(--color-background-secondary)',
-    borderRadius: 'var(--radius-sm)',
-    '&:hover': { backgroundColor: 'var(--color-background-tertiary)' },
-    '&.Mui-focused': { backgroundColor: 'var(--color-background-primary)' },
-    '&:before': { borderBottom: '1px solid var(--color-border-primary)' },
-    '&:hover:not(.Mui-disabled):before': { borderBottom: '1px solid var(--color-border-focus)' },
-    '&.Mui-focused:after': { borderBottom: '2px solid var(--color-border-focus)' },
-  },
-  '& .MuiInputBase-input': {
-    color: 'var(--color-text-primary)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 'var(--font-weight-medium)',
-    fontFamily: 'var(--font-family-primary)',
-  },
-}
 
 function AssignFormDrawer({
   open,
@@ -633,7 +577,7 @@ function AssignFormDrawer({
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <LocalizationProvider dateAdapter={AdapterMoment}>
       <Drawer
         anchor={isMobile ? 'bottom' : 'right'}
         open={open}
@@ -915,8 +859,8 @@ function AssignFormDrawer({
                     <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
                       <DatePicker
                         label="Start Date"
-                        value={startDate}
-                        onChange={(newValue) => setStartDate(newValue)}
+                        value={toMoment(startDate)}
+                        onChange={withDate((newValue) => setStartDate(newValue))}
                         slotProps={{
                           textField: {
                             size: 'small',
@@ -927,8 +871,8 @@ function AssignFormDrawer({
                       />
                       <DatePicker
                         label="End Date"
-                        value={endDate}
-                        onChange={(newValue) => setEndDate(newValue)}
+                        value={toMoment(endDate)}
+                        onChange={withDate((newValue) => setEndDate(newValue))}
                         slotProps={{
                           textField: {
                             size: 'small',
@@ -943,8 +887,8 @@ function AssignFormDrawer({
                     {/* Start Time Picker */}
                     <TimePicker
                       label="Start Time"
-                      value={startTime}
-                      onChange={(newValue) => setStartTime(newValue)}
+                      value={toMoment(startTime)}
+                      onChange={withDate((newValue) => setStartTime(newValue))}
                       slotProps={{
                         textField: {
                           size: 'small',
@@ -1044,12 +988,12 @@ function AssignFormDrawer({
                     <Box sx={{ display: 'flex', gap: 1.5, mb: 2 }}>
                       <DatePicker
                         label="Date"
-                        value={notification.customDate || null}
-                        onChange={(newValue) => {
+                        value={toMoment(notification.customDate || null)}
+                        onChange={withDate((newValue) => {
                           setNotifications(prev => prev.map((n, i) => 
                             i === index ? { ...n, customDate: newValue } : n
                           ))
-                        }}
+                        })}
                         slotProps={{
                           textField: {
                             size: 'small',
@@ -1060,12 +1004,12 @@ function AssignFormDrawer({
                       />
                       <TimePicker
                         label="Time"
-                        value={notification.customTime || null}
-                        onChange={(newValue) => {
+                        value={toMoment(notification.customTime || null)}
+                        onChange={withDate((newValue) => {
                           setNotifications(prev => prev.map((n, i) => 
                             i === index ? { ...n, customTime: newValue } : n
                           ))
-                        }}
+                        })}
                         slotProps={{
                           textField: {
                             size: 'small',

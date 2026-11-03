@@ -2,9 +2,9 @@ import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Box, Paper, Typography, Autocomplete, TextField, Link } from '@mui/material'
 import { ArrowDropDownOutlined } from '@mui/icons-material'
-import { DataGrid, GridPagination } from 'playbook-components'
+import { Button, DataGrid, GridPagination } from 'playbook-components'
 import '../../styles/design-tokens.css'
-import { Button, Icon, StatusChip } from '../../components'
+import { Icon, StatusChip } from '../../components'
 import { athletesSimple } from '../../data'
 
 // Map of known form ids to names for display only
@@ -98,7 +98,7 @@ function Screen03_FormResponsesForTemplate() {
       headerClassName: 'grid-cell--pad-right',
       cellClassName: 'grid-cell--pad-right',
       renderCell: () => (
-        <Button size="small" variant="secondary">Start</Button>
+        <Button disableElevation={true} size="small" variant="contained" color="secondary">Start</Button>
       )
     }
   ]), [navigate])
@@ -107,7 +107,7 @@ function Screen03_FormResponsesForTemplate() {
     <Box sx={{ py: 2, bgcolor: 'var(--color-background-primary)', height: '100%' }}>
       <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
         <Box sx={{ px: 3, pt: 2, pb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Button variant="secondary" size="small" aria-label="Back" onClick={() => navigate('/forms')}>
+          <Button disableElevation={true} variant="contained" color="secondary" size="small" aria-label="Back" onClick={() => navigate('/forms')}>
             <Icon icon="arrow_back" />
           </Button>
           <Typography variant="h5" sx={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
@@ -177,5 +177,4 @@ function Screen03_FormResponsesForTemplate() {
 }
 
 export default Screen03_FormResponsesForTemplate
-
 

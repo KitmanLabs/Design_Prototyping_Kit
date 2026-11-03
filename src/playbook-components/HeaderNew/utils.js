@@ -1,14 +1,9 @@
-// @flow
-
 import { MAX_LIST_ITEM_CHARS } from './constants';
 
 export function getTruncatedText(
-  text: string,
-  max: number = MAX_LIST_ITEM_CHARS,
-): {|
-  display: string,
-  isTruncated: boolean,
-|} {
+  text,
+  max = MAX_LIST_ITEM_CHARS,
+) {
   if (text.length <= max) {
     return { display: text, isTruncated: false };
   }

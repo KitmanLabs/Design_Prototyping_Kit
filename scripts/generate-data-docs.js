@@ -5,7 +5,7 @@ const path = require('path');
 
 // Friendly names for data files
 const FILE_NAMES = {
-  'athletes.json': 'Athlete profiles (players in the squad)',
+  'athletes.json': 'Athlete profiles (the squad)',
   'squads_teams.json': 'Squads and team definitions',
   'games_matches.json': 'Games and match events',
   'training_sessions.json': 'Training sessions and workouts',
@@ -18,6 +18,8 @@ const FILE_NAMES = {
   'forms_templates.json': 'Form templates (medical, wellness, screening)',
   'layout.js': 'Layout constants (navigation, page titles)',
   'messaging.js': 'Messaging and chat data',
+  'forms.js': 'Forms pages and drawers: rows, summaries and option lists',
+  'calendarEventOptions.js': 'Option lists for the Add game and Add session drawers',
 };
 
 const DATA_DIR = path.join(__dirname, '../src/data');
@@ -84,7 +86,7 @@ function generateMarkdown() {
   // Generate markdown
   let markdown = `# Understanding the Data
 
-This prototype has no real server or database. All data lives in local JSON files — think of them like spreadsheets that power the UI. You can ask Claude to add, change, or remove entries in any of these files.
+This prototype has no real server or database. All data lives in local JSON and JavaScript files in \`src/data\`. Think of them like spreadsheets that power the UI. You can ask Claude to add, change, or remove entries in any of these files.
 
 ## Data Files
 
@@ -104,7 +106,7 @@ Ask Claude Code to help you:
 - **Change existing data:** "Update the first athlete's injury status in injuries_medical.json"
 - **Remove entries:** "Remove the third game from games_matches.json"
 
-Claude will handle the JSON formatting automatically — you don't need to edit these files manually, but you can if you want to.
+Claude will handle the formatting automatically. You don't need to edit these files manually, but you can if you want to.
 
 ## Form Templates
 
@@ -112,8 +114,8 @@ The \`forms_templates.json\` file contains 15+ form templates (medical screening
 
 ## Important Notes
 
-- These are **mock data** for prototyping only — they're not connected to real KitmanLabs systems
-- Your changes only affect this prototype — they won't impact the actual product
+- These are **mock data** for prototyping only. They're not connected to iP: Intelligence Platform or any other Kitman Labs system
+- Your changes only affect this prototype, not the product
 - Use Claude Code to make changes safely without breaking the JSON structure
 `;
 

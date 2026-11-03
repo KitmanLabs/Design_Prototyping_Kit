@@ -1,7 +1,4 @@
-// @flow
-import { type GridColDef, type GridRowsProp } from '@mui/x-data-grid-premium';
-
-export const baseColumns: Array<GridColDef> = [
+export const baseColumns = [
   {
     field: 'id',
     headerName: 'ID',
@@ -43,12 +40,12 @@ export const baseColumns: Array<GridColDef> = [
     headerName: 'Last Updated',
     type: 'date',
     width: 180,
-    valueGetter: (value: string) => value && new Date(value), // Ensure it's a Date object for MUI
+    valueGetter: (value) => value && new Date(value), // Ensure it's a Date object for MUI
     groupable: false,
   },
 ];
 
-export const sampleRows: GridRowsProp = [
+export const sampleRows = [
   {
     id: 1,
     name: 'Alpha Item',

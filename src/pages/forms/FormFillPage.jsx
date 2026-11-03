@@ -27,9 +27,11 @@ import {
   InfoOutlined
 } from '@mui/icons-material'
 import '../../styles/design-tokens.css'
-import { Button, Icon, StatusChip } from '../../components'
+import { Button } from '../../playbook-components'
+import { Icon, StatusChip } from '../../components'
 import testToggleTemplate from '../../data/formTemplates/test-toggle-switch.json'
 import MenuTree from '../../components/forms/builder/MenuTree'
+import { mockRecentSummaries, mockSummaryDetails } from '../../data/forms'
 
 // Mock form templates for summary view
 const mockFormTemplates = [
@@ -39,89 +41,6 @@ const mockFormTemplates = [
   { id: 4, name: 'Nutritional Assessment' },
   { id: 5, name: 'Performance Review' }
 ]
-
-// Mock recent form summaries
-const mockRecentSummaries = [
-  { id: 1, title: 'Nutritional Assessment and Dietary Planning', date: 'Sep 27, 2025' },
-  { id: 2, title: 'Skill Development and Tactical Review', date: 'Sep 25, 2025' },
-  { id: 3, title: 'Pre-Season Medical Screening', date: 'Sep 20, 2025' },
-  { id: 4, title: 'Daily Wellness Check', date: 'Sep 18, 2025' },
-  { id: 5, title: 'Post-Match Recovery Assessment', date: 'Sep 15, 2025' },
-  { id: 6, title: 'Training Load Monitoring', date: 'Sep 12, 2025' },
-  { id: 7, title: 'Mental Health and Wellbeing Check', date: 'Sep 10, 2025' }
-]
-
-// Mock detailed summary content for drill-down view
-const mockSummaryDetails = {
-  1: {
-    sections: [
-      {
-        title: 'Nutritional Overview',
-        items: [
-          {
-            headline: 'Current Diet Assessment',
-            content: 'Athlete maintains a balanced macronutrient intake with adequate protein (1.8g/kg body weight). Carbohydrate timing around training sessions is well-optimized for performance.'
-          },
-          {
-            headline: 'Hydration Status',
-            content: 'Consistent daily fluid intake of 3-4 liters. Pre and post-training hydration protocols are being followed effectively.'
-          },
-          {
-            headline: 'Supplement Recommendations',
-            content: 'Continue with current Vitamin D supplementation (2000 IU daily). Consider adding omega-3 fatty acids to support joint health and recovery.'
-          }
-        ]
-      },
-      {
-        title: 'Recommendations',
-        items: [
-          {
-            headline: 'Immediate Actions',
-            content: 'Increase iron-rich food intake to address borderline ferritin levels. Schedule follow-up blood work in 4 weeks.'
-          },
-          {
-            headline: 'Dietary Adjustments',
-            content: 'Increase complex carbohydrate intake on high-intensity training days. Add pre-sleep casein protein to support overnight recovery.'
-          }
-        ]
-      }
-    ]
-  },
-  3: {
-    sections: [
-      {
-        title: 'Athlete Medical Summary',
-        items: [
-          {
-            headline: 'Concussion History',
-            content: 'Significant history of concussion. Sustained a concussion in high school (2012) resulting in loss of consciousness and hospitalization. Recent hospitalization for concussion on March 11, 2025.'
-          },
-          {
-            headline: 'Musculoskeletal History',
-            content: 'Right Low Back: History of imaging (X-ray, MRI, CT, or bone scan) performed on December 24, 2024 for chronic issues.'
-          },
-          {
-            headline: 'Vaccination Status',
-            content: 'Incomplete vaccination history: Mumps: Unknown, Pneumonia: Tetanus: No'
-          }
-        ]
-      },
-      {
-        title: 'Recommendations',
-        items: [
-          {
-            headline: 'Immediate Actions',
-            content: 'Player should be immediately held from all contact and throwing activities. Urgent comprehensive orthopedic evaluation of the right shoulder is required. Urgent comprehensive neurological evaluation, including a detailed concussion assessment, is required.'
-          },
-          {
-            headline: 'Diagnostic Next Steps',
-            content: 'Obtain an MRI of the right shoulder to assess rotator cuff integrity and extent of injury. Conduct a full neuropsychological assessment (e.g., ImPACT testing) and a thorough neurological examination to evaluate sequelae of the recent concussion. Review medical records from the March 11, 2025 hospitalization.'
-          }
-        ]
-      }
-    ]
-  }
-}
 
 // Generate default summary details for items without specific content
 const getDefaultSummaryDetail = (summary) => ({
@@ -231,13 +150,13 @@ export default function FormFillPage() {
   }
 
   const handleSaveAsDraft = () => {
-    // eslint-disable-next-line no-console
+     
     console.log('Saved as draft:', answers)
     navigate('/medical-assessment')
   }
 
   const handleSubmit = () => {
-    // eslint-disable-next-line no-console
+     
     console.log('Submitted:', answers)
     navigate('/medical-assessment')
   }
@@ -317,7 +236,8 @@ export default function FormFillPage() {
             <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1.5 }}>
               {/* Summary View button */}
               <Button
-                variant="secondary"
+                disableElevation={true}
+                variant="contained" color="secondary"
                 size="small"
                 onClick={() => setSummaryDrawerOpen(true)}
                 style={{ fontWeight: 600, fontSize: 'var(--font-size-sm)', display: 'flex', alignItems: 'center', gap: 6 }}
@@ -328,7 +248,8 @@ export default function FormFillPage() {
 
               {/* Save as Draft */}
               <Button
-                variant="secondary"
+                disableElevation={true}
+                variant="contained" color="secondary"
                 size="small"
                 onClick={handleSaveAsDraft}
                 style={{ fontWeight: 600, fontSize: 'var(--font-size-sm)' }}
@@ -338,7 +259,8 @@ export default function FormFillPage() {
 
               {/* Submit */}
               <Button
-                variant="primary"
+                disableElevation={true}
+                variant="contained" color="primary"
                 size="small"
                 onClick={handleSubmit}
                 style={{ fontWeight: 600, fontSize: 'var(--font-size-sm)' }}
@@ -455,16 +377,18 @@ export default function FormFillPage() {
                                 {q.ui?.style === 'toggle' && (
                                   <Box sx={{ display: 'flex', gap: 1 }}>
                                     <Button
+                                      disableElevation={true}
                                       size="small"
-                                      variant={answer === true ? 'primary' : 'secondary'}
+                                      variant="contained" color={answer === true ? 'primary' : 'secondary'}
                                       onClick={() => setAnswers((prev) => ({ ...prev, [q.id]: true }))}
                                       style={{ fontWeight: 600, fontSize: 'var(--font-size-xs)' }}
                                     >
                                       Yes
                                     </Button>
                                     <Button
+                                      disableElevation={true}
                                       size="small"
-                                      variant={answer === false ? 'primary' : 'secondary'}
+                                      variant="contained" color={answer === false ? 'primary' : 'secondary'}
                                       onClick={() => setAnswers((prev) => ({ ...prev, [q.id]: false }))}
                                       style={{ fontWeight: 600, fontSize: 'var(--font-size-xs)' }}
                                     >
@@ -486,8 +410,9 @@ export default function FormFillPage() {
               <Box sx={{ borderTop: '1px solid var(--color-border-primary)', backgroundColor: 'var(--color-background-primary)', px: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1.5 }}>
                   <Button
+                    disableElevation={true}
                     size="small"
-                    variant="secondary"
+                    variant="contained" color="secondary"
                     disabled={!selectedQuestionId || allQuestions.findIndex((q) => q.id === selectedQuestionId) <= 0}
                     onClick={() => {
                       const idx = allQuestions.findIndex((q) => q.id === selectedQuestionId)
@@ -497,8 +422,9 @@ export default function FormFillPage() {
                     Previous
                   </Button>
                   <Button
+                    disableElevation={true}
                     size="small"
-                    variant="primary"
+                    variant="contained" color="primary"
                     disabled={!selectedQuestionId || allQuestions.findIndex((q) => q.id === selectedQuestionId) >= allQuestions.length - 1}
                     onClick={() => {
                       const idx = allQuestions.findIndex((q) => q.id === selectedQuestionId)
@@ -848,7 +774,8 @@ export default function FormFillPage() {
                 {/* Show More button */}
                 <Box sx={{ px: 3, py: 2 }}>
                   <Button
-                    variant="secondary"
+                    disableElevation={true}
+                    variant="contained" color="secondary"
                     size="small"
                     style={{
                       width: '100%',

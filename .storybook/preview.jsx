@@ -1,15 +1,21 @@
 import React from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { LocalizationProvider } from '@mui/x-date-pickers-pro';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { rootTheme } from '../src/playbook-components/themes';
 import '../src/styles/design-tokens.css';
+import { LicenseInfo } from '@mui/x-license-pro';
+
+const muiLicenseKey = import.meta.env.VITE_MUI_X_LICENSE_KEY;
+if (muiLicenseKey) {
+  LicenseInfo.setLicenseKey(muiLicenseKey);
+}
 
 const preview = {
   decorators: [
     (Story) => (
       <ThemeProvider theme={rootTheme}>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <LocalizationProvider dateAdapter={AdapterMoment}>
           <Story />
         </LocalizationProvider>
       </ThemeProvider>

@@ -160,7 +160,7 @@ console.log('Starting comprehensive design system validation...\n');
 
 // Essential files
 checkFileExists('src/styles/design-tokens.css', 'Design tokens file');
-checkFileExists('.eslintrc.js', 'ESLint configuration');
+checkFileExists('eslint.config.js', 'ESLint configuration');
 checkFileExists('.stylelintrc.json', 'Stylelint configuration');
 // Pre-commit hook is optional in CI environments
 if (fs.existsSync('.husky/pre-commit')) {
