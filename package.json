@@ -4,6 +4,7 @@
   "private": true,
   "description": "Design prototype template with comprehensive design system and navigation",
   "scripts": {
+    "prepare": "husky install",
     "strip-flow": "node scripts/strip-flow.js",
     "prebuild": "npm run strip-flow",
     "predev": "npm run strip-flow",
@@ -14,6 +15,7 @@
     "lint:fix": "eslint src --ext .js,.jsx --fix",
     "lint:css": "stylelint 'src/**/*.css' --allow-empty-input",
     "lint:css:fix": "stylelint 'src/**/*.css' --fix --allow-empty-input",
+    "pretest": "npm run strip-flow",
     "test": "vitest",
     "validate-design-system": "node scripts/validate-design-system.js",
     "validate-quick": "npm run lint && npm run lint:css",
@@ -86,10 +88,5 @@
     "vite": "^7.1.9",
     "vite-plugin-flow": "^0.2.1",
     "vitest": "^4.0.18"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run validate-design-system"
-    }
   }
 }
