@@ -3,7 +3,16 @@
 // and configurable loading overlay variants.
 
 import { useState, useMemo, } from 'react';
-import { DataGridPremium as MUIDataGridPremium } from '@mui/x-data-grid-premium';
+import {
+  DataGridPremium as MUIDataGridPremium,
+  GridAiAssistantPanel,
+  GridChartsPanel,
+  GridChartsIntegrationContextProvider,
+  GridChartsRendererProxy,
+} from '@mui/x-data-grid-premium';
+import { configurationOptions } from '@mui/x-charts-premium/ChartsRenderer';
+import { Box } from '@kitman/playbook/components';
+import GridChartArea, { GRID_CHART_ID } from './components/GridChartArea';
 import {
   DEFAULT_PAGE_SIZE_OPTIONS,
   DEFAULT_INITIAL_PAGE_SIZE,
@@ -48,6 +57,13 @@ const DataGridPremium = ({
   showExportButton = true,
   showQuickFilter = true,
   slots: slotsProp, // Custom slots for toolbar, pagination, etc.
+  // Kit: taken out of `rest` so the final `{...rest}` spread can't replace the merged slotProps below.
+  slotProps: slotPropsProp,
+  // Kit: the AI Assistant. Pass `onPrompt` (and optionally `aiAssistantSuggestions`) with it.
+  aiAssistant = false,
+  // Kit: charts from the grid's data, set up in the Charts panel or by the AI Assistant and
+  // drawn below the grid. Needs a parent with a height, like the grid itself.
+  chartsIntegration = false,
   sx: sxProp, // Deconstructing sx to merge with internal styles
   ...rest // Spread any other valid DataGridPremiumProps
 }) => {
@@ -134,10 +150,16 @@ const DataGridPremium = ({
         },
       };
     }
+    if (chartsIntegration && !initialState?.chartsIntegration) {
+      baseState.chartsIntegration = {
+        activeChartId: GRID_CHART_ID,
+        charts: { [GRID_CHART_ID]: { chartType: 'column' } },
+      };
+    }
     // If asyncPagination is true, muiPaginationModel will be passed as a direct prop,
     // and MUI prioritizes direct props over initialState for controlled components.
     return baseState;
-  }, [initialState, pageSizeProp, asyncPagination, muiPaginationModel]);
+  }, [initialState, pageSizeProp, asyncPagination, muiPaginationModel, chartsIntegration]);
 
   // Conditional Toolbar and Overlay Logic
   const showBulkActionUI =
@@ -183,13 +205,19 @@ const DataGridPremium = ({
     if (asyncPagination) {
       determinedSlots.pagination = CustomPagination;
     }
+    if (aiAssistant) {
+      determinedSlots.aiAssistantPanel = GridAiAssistantPanel;
+    }
+    if (chartsIntegration) {
+      determinedSlots.chartsPanel = GridChartsPanel;
+    }
     // If slotsProp is provided, merge it with the determined slots
     // This allows users to override or extend the default slots
     return {
       ...determinedSlots,
       ...(slotsProp || {}),
     };
-  }, [calculatedSlots, asyncPagination, slotsProp]);
+  }, [calculatedSlots, asyncPagination, aiAssistant, chartsIntegration, slotsProp]);
 
   const slotProps = useMemo(() => {
     let toolbarSpecificProps;
@@ -198,7 +226,7 @@ const DataGridPremium = ({
         selectedRowIds: selectedIds,
         bulkActions: bulkActions || [],
         // Allow user to pass additional props to BulkActionsToolbar
-        ...(rest.slotProps?.toolbar || {}),
+        ...(slotPropsProp?.toolbar || {}),
       };
     } else {
       // Props for the ConfigurableGridToolbar
@@ -208,6 +236,10 @@ const DataGridPremium = ({
         showDensitySelectorButton,
         showExportButton,
         showQuickFilter,
+        showAiAssistantButton: aiAssistant,
+        showChartsButton: chartsIntegration,
+        // The AI Assistant can turn pivoting on, so people need the Pivot panel to turn it off.
+        showPivotButton: aiAssistant || chartsIntegration,
         excelExportOptions,
         quickFilterProps: {
           debounceMs: 500,
@@ -219,7 +251,7 @@ const DataGridPremium = ({
       // Merge with user-provided slotProps.toolbar, allowing override of quickFilterProps etc.
       toolbarSpecificProps = {
         ...configurableGridToolbarProps,
-        ...(rest.slotProps?.toolbar || {}),
+        ...(slotPropsProp?.toolbar || {}),
       };
     }
 
@@ -244,19 +276,20 @@ const DataGridPremium = ({
         color: 'secondary',
         size: 'small',
       },
+      ...(chartsIntegration && { chartsPanel: { schema: configurationOptions } }),
     };
 
     let finalSlotPropsConfig = {
       toolbar: toolbarSpecificProps,
       ...commonSlotProps,
       // Merge other user-defined slotProps, ensuring they don't overwrite toolbar or commonSlotProps already handled
-      ...Object.keys(rest.slotProps || {}).reduce((acc, key) => {
+      ...Object.keys(slotPropsProp || {}).reduce((acc, key) => {
         if (
           key !== 'toolbar' &&
           key !== 'loadingOverlay' &&
           !(key in commonSlotProps)
         ) {
-          acc[key] = rest.slotProps[key];
+          acc[key] = slotPropsProp[key];
         }
         return acc;
       }, {}),
@@ -266,14 +299,14 @@ const DataGridPremium = ({
       finalSlotPropsConfig = {
         ...finalSlotPropsConfig,
         loadingOverlay: {
-          ...(rest.slotProps?.loadingOverlay || {}),
+          ...(slotPropsProp?.loadingOverlay || {}),
           ...loadingOverlayConfig,
         },
       };
-    } else if (rest.slotProps?.loadingOverlay) {
+    } else if (slotPropsProp?.loadingOverlay) {
       finalSlotPropsConfig = {
         ...finalSlotPropsConfig,
-        loadingOverlay: rest.slotProps.loadingOverlay,
+        loadingOverlay: slotPropsProp.loadingOverlay,
       };
     }
 
@@ -285,7 +318,9 @@ const DataGridPremium = ({
     excelExportOptions,
     loading,
     loadingVariant,
-    rest.slotProps,
+    slotPropsProp,
+    aiAssistant,
+    chartsIntegration,
     showColumnSelectorButton,
     showFilterButton,
     showDensitySelectorButton,
@@ -293,7 +328,7 @@ const DataGridPremium = ({
     showQuickFilter,
   ]);
 
-  return (
+  const grid = (
     <MUIDataGridPremium
       rows={rows}
       columns={columns}
@@ -321,6 +356,8 @@ const DataGridPremium = ({
       hideFooterSelectedRowCount={hideFooterSelectedRowCount}
       // MUI X v8+ only renders the toolbar slot when showToolbar is set.
       showToolbar
+      aiAssistant={aiAssistant}
+      chartsIntegration={chartsIntegration}
       sx={{
         ...style.gridToolBar,
         ...style.pagination,
@@ -328,6 +365,17 @@ const DataGridPremium = ({
       }}
       {...rest}
     />
+  );
+
+  if (!chartsIntegration) return grid;
+
+  return (
+    <GridChartsIntegrationContextProvider>
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', minHeight: 0 }}>
+        <Box sx={{ flex: 1, minHeight: 0 }}>{grid}</Box>
+        <GridChartsRendererProxy id={GRID_CHART_ID} renderer={GridChartArea} />
+      </Box>
+    </GridChartsIntegrationContextProvider>
   );
 };
 

@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Box, Paper, Typography, Autocomplete, TextField, Link } from '@mui/material'
 import { ArrowDropDownOutlined } from '@mui/icons-material'
-import { Button, DataGrid, GridPagination } from 'playbook-components'
+import { Button, DataGridPremium, GridPagination } from 'playbook-components'
 import '../../styles/design-tokens.css'
 import { dataGridStyles } from '../../components/dataGridStyles'
 import { Icon, StatusChip } from '../../components'
@@ -145,7 +145,7 @@ function Screen03_FormResponsesForTemplate() {
 
         {/* Grid */}
         <Box sx={{ ...dataGridStyles, height: 560, width: '100%' }}>
-          <DataGrid
+          <DataGridPremium
             rows={filteredRows}
             columns={columns}
             disableRowSelectionOnClick

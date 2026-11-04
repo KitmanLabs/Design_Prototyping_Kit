@@ -12,7 +12,7 @@ import {
   MenuItem,
   Link
 } from '@mui/material'
-import { Button, DataGrid, GridPagination } from 'playbook-components'
+import { Button, DataGridPremium, GridPagination } from 'playbook-components'
 import { SearchOutlined, ExpandMoreOutlined, MoreVertOutlined } from '@mui/icons-material'
 import '../../styles/design-tokens.css'
 import { dataGridStyles } from '../../components/dataGridStyles'
@@ -231,7 +231,7 @@ function Screen01_FormsHome() {
         </Box>
         <Divider />
         <Box sx={{ ...dataGridStyles, height: 560, width: '100%' }}>
-          <DataGrid
+          <DataGridPremium
             rows={rows}
             columns={columns}
             disableRowSelectionOnClick

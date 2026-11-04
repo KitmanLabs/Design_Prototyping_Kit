@@ -50,8 +50,6 @@ function Athletes() {
         <AthleteDataGrid 
           data={athletesData}
           height={700}
-          showToolbar={true}
-          groupingEnabled={true}
           onBulkAction={handleBulkAction}
         />
       </Paper>
