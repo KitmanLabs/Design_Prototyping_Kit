@@ -56,6 +56,41 @@ describe('pages', () => {
     expect(await screen.findByText("This athlete doesn't exist")).toBeInTheDocument()
   })
 
+  it('starts Log injury from the athlete, with Next disabled until the step is complete', async () => {
+    renderAt('/medical/log-injury?athleteId=2')
+    expect(await screen.findByText(/log injury for elena rodriguez/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
+  })
+
+  it('asks before discarding a Log injury that has changes', async () => {
+    renderAt('/medical/log-injury')
+    fireEvent.mouseDown(await screen.findByRole('combobox', { name: 'Athlete' }))
+    fireEvent.click(await screen.findByRole('option', { name: /marcus johnson/i }))
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(await screen.findByText('Discard unsaved changes?')).toBeInTheDocument()
+  })
+
+  it('shows the Settings save bar only while there are unsaved changes', async () => {
+    renderAt('/administration')
+    const name = await screen.findByRole('textbox', { name: 'Organization name' })
+    expect(screen.queryByTestId('FloorplanFooter')).not.toBeInTheDocument()
+    fireEvent.change(name, { target: { value: 'New name' } })
+    expect(screen.getByTestId('FloorplanFooter')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    expect(await screen.findByText('Settings saved')).toBeInTheDocument()
+    expect(screen.queryByTestId('FloorplanFooter')).not.toBeInTheDocument()
+  })
+
+  it('opens Notifications on the Unread queue', async () => {
+    renderAt('/notifications')
+    expect(await screen.findByRole('tab', { name: /unread/i })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('offers Log injury from Medical', async () => {
+    renderAt('/medical/rosters')
+    expect(await screen.findByRole('button', { name: 'Log injury' })).toBeInTheDocument()
+  })
+
   it('renders a form template’s assignments with its title', async () => {
     renderAt('/forms/medical-assessment/assignments')
     expect(await screen.findByRole('heading', { name: /medical assessment/i })).toBeInTheDocument()

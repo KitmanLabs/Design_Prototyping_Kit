@@ -19,6 +19,7 @@ export const availableSquads = [
 export const pageTitles = {
   '/dashboard': 'Dashboard',
   '/medical/rosters': 'Medical',
+  '/medical': 'Medical',
   '/analysis': 'Analysis',
   '/athletes': 'Athletes',
   '/workloads': 'Workloads',
@@ -28,6 +29,7 @@ export const pageTitles = {
   '/forms/form_answers_sets': 'Forms',
   '/calendar': 'Calendar',
   '/messaging': 'Messaging',
+  '/notifications': 'Notifications',
   '/activity': 'Activity',
   '/administration': 'Administration',
   '/help': 'Help'
@@ -35,7 +37,7 @@ export const pageTitles = {
 
 // Paths (and everything under them) whose pages render their own page header, usually a
 // floorplan's PageHeader. The app bar shows their title as a quieter section label.
-export const pagesWithOwnHeader = ['/calendar', '/forms', '/athletes']
+export const pagesWithOwnHeader = ['/calendar', '/forms', '/athletes', '/medical', '/messaging', '/notifications', '/administration']
 
 // Earlier kit paths, redirected to the iP paths above
 export const legacyRedirects = {

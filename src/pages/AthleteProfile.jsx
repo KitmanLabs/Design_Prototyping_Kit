@@ -21,6 +21,7 @@ import {
   RecordFields,
   RecordNavigation,
   useToasts,
+  useNavigationToast,
 } from '../floorplans'
 import athletesData from '../data/athletes.json'
 import injuriesData from '../data/injuries_medical.json'
@@ -68,6 +69,7 @@ function AthleteProfile() {
   const navigate = useNavigate()
   const location = useLocation()
   const { showToast, toasts } = useToasts()
+  useNavigationToast(showToast)
   const [tab, setTab] = useState('#overview')
 
   // Edits made in this session, keyed by athlete id, so they survive tab and record changes
@@ -225,7 +227,7 @@ function AthleteProfile() {
             { id: 'country', label: 'Country', value: athlete.country },
           ]}
           badges={[{ id: 'availability', label: athlete.availability_status, color: availabilityColor }]}
-          primaryAction={{ id: 'log-injury', label: 'Log injury', onClick: notInPrototype('Log injury') }}
+          primaryAction={{ id: 'log-injury', label: 'Log injury', onClick: () => navigate(`/medical/log-injury?athleteId=${id}`) }}
           moreActions={[
             { id: 'assign', label: 'Assign form', onClick: notInPrototype('Assign form') },
             { id: 'archive', label: 'Archive athlete', onClick: notInPrototype('Archive athlete') },

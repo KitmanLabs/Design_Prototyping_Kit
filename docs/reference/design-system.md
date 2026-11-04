@@ -47,13 +47,13 @@ If none fits, say why in a comment at the top of the page (`// Floorplan: none. 
 | Floorplan | Job | Reference page |
 |---|---|---|
 | Overview | Where a role starts the day: what needs attention, and where to go next | Planned |
-| Collection | Find, filter and act on many records of one kind. The queue variant swaps the filters for tabs with counts | `/athletes` (`src/pages/Athletes.jsx`) |
+| Collection | Find, filter and act on many records of one kind. The queue variant adds tabs with counts for the work waiting | `/athletes` (`src/pages/Athletes.jsx`); queue: `/notifications` |
 | Record | Everything about one athlete, injury, session or response, and the actions on it | `/athletes/:athleteId` (`src/pages/AthleteProfile.jsx`) |
-| List-detail | Work through items one after another without losing your place | Planned |
+| List-detail | Work through items one after another without losing your place | `/messaging` |
 | Analysis | Spot a pattern, drill into its cause, act on the records behind it | Planned |
-| Guided flow | A long, unfamiliar or high-stakes task in 3 to 8 steps | Planned |
+| Guided flow | A long, unfamiliar or high-stakes task in 3 to 8 steps | `/medical/log-injury` (`src/pages/Medical/LogInjury.jsx`) |
 | Workspace | Make or arrange something directly: schedules, forms, plans | `/calendar`, `/forms/:formId/build` (both predate `PageFrame`) |
-| Settings | Configure how the organization, squad or account behaves | Planned |
+| Settings | Configure how the organization, squad or account behaves | `/administration` |
 
 ### Page anatomy
 
@@ -68,8 +68,10 @@ If none fits, say why in a comment at the top of the page (`// Floorplan: none. 
 | Content | the floorplan | Pass `fill` when the content scrolls on its own (List-detail, Workspace). |
 | Record content | `RecordLayout`, `RecordSection`, `RecordFields`, `RecordNavigation` | Tabs for the Record's facets, not one long page. Each section has its own Edit, Cancel and Save. A supporting pane (timeline, notes) sits on the right from `lg` and moves under the main column below it. Previous and next sit at the right of the tabs when the Record was opened from a Collection, following the Collection's filtered order. |
 | Footer action bar | `FloorplanFooter` | Only in create and edit, or while there are unsaved changes. Cancel on the left; the primary action on the far right, with `loading` while it runs. |
+| Guided flow content | `GuidedFlowLayout` | A step rail on the left (a progress bar below `md`) and one step at a time. Completed steps can be revisited. The last step is always Review, with an Edit for each step. The footer holds Cancel, Save draft, Back and Next (Submit on Review); Next stays disabled until the step's required fields are filled. |
+| Settings content | `SettingsLayout`, `SettingsGroup` | Section navigation on the left (a select below `md`), then groups with a heading, a short description and controls. The footer opens only while there are unsaved changes, with Discard and Save. |
 | Page states | `PageState` | Empty, no results, no access, error and loading, each with a message and an optional action. |
-| Feedback | `useToasts` (the Playbook Toasts), `ConfirmationModal` | A toast after every completed action. A confirmation before destructive actions and before discarding unsaved changes. |
+| Feedback | `useToasts` (the Playbook Toasts), `DiscardChangesDialog` (the Playbook ConfirmationModal) | A toast after every completed action. When an action finishes on another page, pass the message in navigation state (`navigate(path, { state: { toast } })`) and call `useNavigationToast` on the page that receives it. Discarding unsaved changes always goes through `DiscardChangesDialog`. |
 
 When a page has its own header, add its path to `pagesWithOwnHeader` in `src/data/layout.js`, so the app bar shows its title as a quieter section label.
 
