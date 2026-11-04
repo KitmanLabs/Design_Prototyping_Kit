@@ -10,7 +10,9 @@ import {
   IconButton,
   Chip,
 } from '@mui/material';
-import { Button, DataGrid } from 'playbook-components';
+import { Button, DataGridPremium } from 'playbook-components';
+import { resolveGridPrompt } from '../../utils/gridAiAssistant';
+import { MEDICAL_ROSTER_AI_SUGGESTIONS } from '../../data/gridAiSuggestions';
 import {
   SearchOutlined,
   MoreVertOutlined,
@@ -518,15 +520,20 @@ function MedicalPage() {
               overflow: 'hidden',
             }}
           >
-            <DataGrid
+            <DataGridPremium
               rows={filteredData}
               columns={columns}
               pageSize={10}
-              rowsPerPageOptions={[10, 25, 50]}
-              disableSelectionOnClick
+              pageSizeOptions={[10, 25, 50]}
               disableColumnMenu
               rowHeight={72}
-              headerHeight={56}
+              columnHeaderHeight={56}
+              aiAssistant
+              chartsIntegration
+              onPrompt={resolveGridPrompt}
+              aiAssistantSuggestions={MEDICAL_ROSTER_AI_SUGGESTIONS}
+              // Mock data only: sends sample values with each prompt (see AthleteDataGrid)
+              allowAiAssistantDataSampling
               sx={{
                 // Shared styles come from gridSx on the wrapper; these are the Medical-only additions
                 border: 'none',
