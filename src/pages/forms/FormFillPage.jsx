@@ -187,7 +187,6 @@ export default function FormFillPage() {
             {/* Back button */}
             <IconButton
               aria-label="Back"
-              size="small"
               onClick={handleBack}
               sx={{ color: 'var(--color-text-secondary)' }}
             >
@@ -238,7 +237,6 @@ export default function FormFillPage() {
               <Button
                 disableElevation={true}
                 variant="contained" color="secondary"
-                size="small"
                 onClick={() => setSummaryDrawerOpen(true)}
                 style={{ fontWeight: 600, fontSize: 'var(--font-size-sm)', display: 'flex', alignItems: 'center', gap: 6 }}
               >
@@ -250,7 +248,6 @@ export default function FormFillPage() {
               <Button
                 disableElevation={true}
                 variant="contained" color="secondary"
-                size="small"
                 onClick={handleSaveAsDraft}
                 style={{ fontWeight: 600, fontSize: 'var(--font-size-sm)' }}
               >
@@ -261,7 +258,6 @@ export default function FormFillPage() {
               <Button
                 disableElevation={true}
                 variant="contained" color="primary"
-                size="small"
                 onClick={handleSubmit}
                 style={{ fontWeight: 600, fontSize: 'var(--font-size-sm)' }}
               >
@@ -378,7 +374,6 @@ export default function FormFillPage() {
                                   <Box sx={{ display: 'flex', gap: 1 }}>
                                     <Button
                                       disableElevation={true}
-                                      size="small"
                                       variant="contained" color={answer === true ? 'primary' : 'secondary'}
                                       onClick={() => setAnswers((prev) => ({ ...prev, [q.id]: true }))}
                                       style={{ fontWeight: 600, fontSize: 'var(--font-size-xs)' }}
@@ -387,7 +382,6 @@ export default function FormFillPage() {
                                     </Button>
                                     <Button
                                       disableElevation={true}
-                                      size="small"
                                       variant="contained" color={answer === false ? 'primary' : 'secondary'}
                                       onClick={() => setAnswers((prev) => ({ ...prev, [q.id]: false }))}
                                       style={{ fontWeight: 600, fontSize: 'var(--font-size-xs)' }}
@@ -411,7 +405,6 @@ export default function FormFillPage() {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1.5 }}>
                   <Button
                     disableElevation={true}
-                    size="small"
                     variant="contained" color="secondary"
                     disabled={!selectedQuestionId || allQuestions.findIndex((q) => q.id === selectedQuestionId) <= 0}
                     onClick={() => {
@@ -423,7 +416,6 @@ export default function FormFillPage() {
                   </Button>
                   <Button
                     disableElevation={true}
-                    size="small"
                     variant="contained" color="primary"
                     disabled={!selectedQuestionId || allQuestions.findIndex((q) => q.id === selectedQuestionId) >= allQuestions.length - 1}
                     onClick={() => {
@@ -472,7 +464,6 @@ export default function FormFillPage() {
               >
                 <IconButton
                   onClick={() => setSelectedSummary(null)}
-                  size="small"
                   aria-label="Back to list"
                   sx={{ color: 'var(--color-text-secondary)' }}
                 >
@@ -494,7 +485,6 @@ export default function FormFillPage() {
                     setSelectedSummary(null)
                     setSummaryDrawerOpen(false)
                   }}
-                  size="small"
                   aria-label="Close drawer"
                   sx={{ color: 'var(--color-text-secondary)' }}
                 >
@@ -649,7 +639,6 @@ export default function FormFillPage() {
               >
                 <IconButton
                   onClick={() => setSummaryDrawerOpen(false)}
-                  size="small"
                   aria-label="Close drawer"
                   sx={{ color: 'var(--color-text-secondary)' }}
                 >
@@ -780,7 +769,6 @@ export default function FormFillPage() {
                   <Button
                     disableElevation={true}
                     variant="contained" color="secondary"
-                    size="small"
                     style={{
                       width: '100%',
                       fontWeight: 600,

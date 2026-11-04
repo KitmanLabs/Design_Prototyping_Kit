@@ -9,6 +9,6 @@ const state = figma.selectedInstance.getEnum('State', { Disabled: 'disabled', Er
 export default {
   id: 'TextField',
   imports: ["import { TextField } from 'playbook-components'"],
-  example: figma.code`<TextField variant="filled" size="small" label="${label}"${state ? ` ${state}` : ''} />`,
+  example: figma.code`<TextField variant="filled" label="${label}"${state ? ` ${state}` : ''} />`,
   metadata: { nestable: true },
 }

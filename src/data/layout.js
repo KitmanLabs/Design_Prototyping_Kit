@@ -15,19 +15,29 @@ export const availableSquads = [
   { id: 4, name: 'Academy U18', short: 'U18' }
 ]
 
+// Paths and titles follow iP's side nav (kitman-frontend MainNav/resources/menuItems.js)
 export const pageTitles = {
   '/dashboard': 'Dashboard',
-  '/medical': 'Medical',
+  '/medical/rosters': 'Medical',
   '/analysis': 'Analysis',
-  '/athlete': 'Athletes',
-  '/workloads': 'Workload',
+  '/athletes': 'Athletes',
+  '/workloads': 'Workloads',
   '/questionnaires': 'Forms',
   '/forms': 'Forms',
   '/forms/form_templates': 'Forms',
   '/forms/form_answers_sets': 'Forms',
-  '/planning': 'Calendar',
-  '/messages': 'All messages',
-  '/activity': 'Activity log',
-  '/settings': 'Admin',
+  '/calendar': 'Calendar',
+  '/messaging': 'Messaging',
+  '/activity': 'Activity',
+  '/administration': 'Administration',
   '/help': 'Help'
+}
+
+// Earlier kit paths, redirected to the iP paths above
+export const legacyRedirects = {
+  '/medical': '/medical/rosters',
+  '/athlete': '/athletes',
+  '/planning': '/calendar',
+  '/messages': '/messaging',
+  '/settings': '/administration'
 }

@@ -79,7 +79,7 @@ const CopyCalendarUrl = ({
 
           <Tooltip title={refreshing ? 'Refreshing...' : 'Refresh'}>
             <span>
-              <IconButton onClick={handleRefresh} size="small" disabled={refreshing}>
+              <IconButton onClick={handleRefresh} disabled={refreshing}>
                 <RefreshOutlined />
               </IconButton>
             </span>
@@ -87,7 +87,7 @@ const CopyCalendarUrl = ({
 
           <Tooltip title={copied ? 'Copied' : 'Copy'}>
             <span>
-              <IconButton onClick={handleCopy} size="small">
+              <IconButton onClick={handleCopy}>
                 {copied ? <CheckOutlined sx={{ color: 'var(--color-success)' }} /> : <ContentCopyOutlined />}
               </IconButton>
             </span>

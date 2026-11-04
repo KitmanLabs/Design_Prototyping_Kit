@@ -187,7 +187,7 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
             <Typography variant="subtitle2" sx={{ color: 'var(--color-text-secondary)', mb: 1 }}>Attendees</Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {resolveAthletes().map((name, i) => (
-                <Chip key={`a-${i}`} icon={<PersonOutlined />} label={name} size="small" />
+                <Chip key={`a-${i}`} icon={<PersonOutlined />} label={name} />
               ))}
             </Box>
           </Box>
@@ -199,7 +199,7 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
             <Typography variant="subtitle2" sx={{ color: 'var(--color-text-secondary)', mb: 1 }}>Staff</Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {resolveStaff().map((name, i) => (
-                <Chip key={`s-${i}`} icon={<PersonOutlined />} label={name} size="small" />
+                <Chip key={`s-${i}`} icon={<PersonOutlined />} label={name} />
               ))}
             </Box>
           </Box>

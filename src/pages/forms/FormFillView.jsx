@@ -279,7 +279,6 @@ export default function FormFillView() {
         }}>
           {/* Back arrow */}
           <IconButton
-            size="small"
             onClick={() => navigate(-1)}
             sx={{ 
               color: 'var(--color-text-secondary)',
@@ -580,7 +579,7 @@ export default function FormFillView() {
                     >
                       1. Do you currently have any allergies?
                     </Typography>
-                    <FormControl size="small" sx={{ minWidth: 200, mb: 2 }}>
+                    <FormControl sx={{ minWidth: 200, mb: 2 }}>
                       <InputLabel>Select</InputLabel>
                       <Select
                         value={hasAllergies}
@@ -616,7 +615,7 @@ export default function FormFillView() {
                     >
                       2. Have you sustained any injuries in the past 12 months?
                     </Typography>
-                    <FormControl size="small" sx={{ minWidth: 300, mb: 2 }}>
+                    <FormControl sx={{ minWidth: 300, mb: 2 }}>
                       <InputLabel>Select injuries</InputLabel>
                       <Select
                         multiple
@@ -707,7 +706,7 @@ export default function FormFillView() {
                     >
                       5. Do you have any pre-existing medical conditions?
                     </Typography>
-                    <FormControl size="small" sx={{ minWidth: 300, mb: 2 }}>
+                    <FormControl sx={{ minWidth: 300, mb: 2 }}>
                       <InputLabel>Select conditions</InputLabel>
                       <Select
                         multiple
@@ -810,14 +809,12 @@ export default function FormFillView() {
             {/* Detail Header */}
             <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <IconButton
-                size="small"
                 onClick={() => setSelectedSummaryItem(null)}
                 sx={{ color: 'var(--color-text-secondary)' }}
               >
                 <ArrowBackOutlined fontSize="small" />
               </IconButton>
               <IconButton
-                size="small"
                 onClick={() => { setIsSummaryView(false); setSelectedSummaryItem(null); }}
                 sx={{ color: 'var(--color-text-secondary)' }}
               >
@@ -832,7 +829,6 @@ export default function FormFillView() {
                   {selectedSummaryItem.title}
                 </Typography>
                 <Chip
-                  size="small"
                   icon={<DiamondOutlined sx={{ fontSize: '14px !important' }} />}
                   label="AI Generated"
                   sx={{
@@ -970,7 +966,6 @@ export default function FormFillView() {
                 Form Summaries
               </Typography>
               <IconButton
-                size="small"
                 onClick={() => setIsSummaryView(false)}
                 sx={{ color: 'var(--color-text-secondary)' }}
               >

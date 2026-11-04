@@ -150,7 +150,7 @@ function EditScheduleDrawer({
             >
               Form Assignment
             </Typography>
-            <IconButton onClick={handleClose} size="small" aria-label="Close">
+            <IconButton onClick={handleClose} aria-label="Close">
               <CloseOutlined />
             </IconButton>
           </Box>
@@ -187,7 +187,6 @@ function EditScheduleDrawer({
                         <Chip
                           key={option.id}
                           label={option.formName}
-                          size="small"
                           {...getItemProps({ index })}
                           sx={{
                             backgroundColor: 'var(--color-primary-light)',
@@ -204,7 +203,6 @@ function EditScheduleDrawer({
                       {moreCount > 0 && (
                         <Chip
                           label={`+${moreCount} more`}
-                          size="small"
                           sx={{
                             backgroundColor: 'var(--color-background-tertiary)',
                             color: 'var(--color-text-secondary)',
@@ -259,7 +257,6 @@ function EditScheduleDrawer({
                         <Chip
                           key={option.id}
                           label={option.name}
-                          size="small"
                           {...getItemProps({ index })}
                           sx={{
                             backgroundColor: 'var(--color-primary-light)',
@@ -276,7 +273,6 @@ function EditScheduleDrawer({
                       {moreCount > 0 && (
                         <Chip
                           label={`+${moreCount} more`}
-                          size="small"
                           sx={{
                             backgroundColor: 'var(--color-background-tertiary)',
                             color: 'var(--color-text-secondary)',
@@ -375,7 +371,7 @@ function EditScheduleDrawer({
                   />
 
                   {/* Responses per Player */}
-                  <FormControl fullWidth size="small" variant="filled">
+                  <FormControl fullWidth variant="filled">
                     <InputLabel 
                       sx={{
                         color: 'var(--color-text-secondary)',

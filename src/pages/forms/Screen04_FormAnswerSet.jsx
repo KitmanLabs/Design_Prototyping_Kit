@@ -85,7 +85,7 @@ export default function Screen04_FormAnswerSet() {
     <Box sx={{ py: 2, bgcolor: 'var(--color-background-primary)', height: '100%' }}>
       <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
         <Box sx={{ px: 3, height: 72, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton aria-label="Back" size="small" onClick={() => navigate('/forms', { state: { initialTab: 'completed' } })} sx={{ color: 'var(--color-text-secondary)' }}>
+          <IconButton aria-label="Back" onClick={() => navigate('/forms', { state: { initialTab: 'completed' } })} sx={{ color: 'var(--color-text-secondary)' }}>
             <ArrowBackOutlined fontSize="small" />
           </IconButton>
           <Typography variant="h5" sx={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
@@ -94,7 +94,6 @@ export default function Screen04_FormAnswerSet() {
           <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 2 }}>
             <Button
               variant="contained"
-              size="small"
               disableElevation
               onClick={() => setIsEditMode(v => !v)}
               sx={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-color)', textTransform: 'none', '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' } }}
@@ -152,7 +151,7 @@ export default function Screen04_FormAnswerSet() {
                                 <FormControlLabel control={<Switch color="default" checked={answer} onChange={handleToggleAnswer(q.id)} />} label={answer ? 'Yes' : 'No'} />
                               )}
                               {q.ui?.style === 'toggle' && (
-                                <Button disableElevation={true} size="small" variant="contained" color={answer ? 'primary' : 'secondary'} onClick={handleToggleAnswer(q.id)}>
+                                <Button disableElevation={true} variant="contained" color={answer ? 'primary' : 'secondary'} onClick={handleToggleAnswer(q.id)}>
                                   {answer ? 'Yes' : 'No'}
                                 </Button>
                               )}
@@ -172,7 +171,6 @@ export default function Screen04_FormAnswerSet() {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1.5 }}>
                 <Button
                   disableElevation={true}
-                  size="small"
                   variant="contained" color="secondary"
                   disabled={!selectedQuestionId || allQuestions.findIndex(q => q.id === selectedQuestionId) <= 0}
                   onClick={() => {
@@ -184,7 +182,6 @@ export default function Screen04_FormAnswerSet() {
                 </Button>
                 <Button
                   disableElevation={true}
-                  size="small"
                   variant="contained" color="primary"
                   disabled={!selectedQuestionId || allQuestions.findIndex(q => q.id === selectedQuestionId) >= allQuestions.length - 1}
                   onClick={() => {

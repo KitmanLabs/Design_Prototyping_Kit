@@ -48,19 +48,20 @@ import { Button } from '@mui/material'
 
 ## MUI component defaults (non-negotiable)
 
-Always write these props explicitly. The theme sets them at runtime, but explicit props keep code readable:
+`rootTheme` mirrors the real Playbook theme (KitmanLabs/kitman-playbook), so prototypes match iP. Write the variant props explicitly; leave size to the theme unless a design calls for a different one:
 
-| Component     | Required props                                             |
-|---------------|------------------------------------------------------------|
-| TextField     | `variant="filled" size="small"`                            |
-| Button        | `variant="contained" size="small" disableElevation={true}` |
-| Select        | `variant="filled" size="small"`                            |
-| FormControl   | `variant="filled" size="small"`                            |
-| Autocomplete  | `size="small"`                                             |
-| Chip          | `size="small"`                                             |
-| IconButton    | `size="small"`                                             |
+| Component     | Write explicitly                          | Theme default size (as in iP) |
+|---------------|-------------------------------------------|-------------------------------|
+| TextField     | `variant="filled"`                        | small                         |
+| Select        | `variant="filled"`                        | small                         |
+| FormControl   | `variant="filled"`                        | medium, full width            |
+| Button        | `variant="contained" disableElevation={true}` | medium                    |
+| Chip          |                                           | medium                        |
+| IconButton    |                                           | medium (MUI default)          |
 
 For a loading state, use Button's `loading` prop (there is no LoadingButton in MUI 9).
+
+The kit runs MUI 9 ahead of iP on purpose: iP is moving to MUI 9 and MUI X 9.
 
 ## MUI 9 APIs (critical)
 - **slotProps, not the removed props**: `InputProps` → `slotProps.input`, `inputProps` → `slotProps.htmlInput`, `InputLabelProps` → `slotProps.inputLabel`, `SelectProps` → `slotProps.select`, Menu/Popover/Drawer/Dialog `PaperProps` → `slotProps.paper`, `MenuListProps` → `slotProps.list`

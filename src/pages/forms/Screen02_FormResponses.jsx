@@ -175,7 +175,6 @@ function Screen02_FormResponses() {
       renderCell: (params) => (
         <Button
           disableElevation={true}
-          size="small"
           variant="contained" color="secondary"
           aria-label="Delete"
           onClick={(e) => {

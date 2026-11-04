@@ -99,7 +99,7 @@ function Screen03_FormResponsesForTemplate() {
       headerClassName: 'grid-cell--pad-right',
       cellClassName: 'grid-cell--pad-right',
       renderCell: () => (
-        <Button disableElevation={true} size="small" variant="contained" color="secondary">Start</Button>
+        <Button disableElevation={true} variant="contained" color="secondary">Start</Button>
       )
     }
   ]), [navigate])
@@ -108,7 +108,7 @@ function Screen03_FormResponsesForTemplate() {
     <Box sx={{ py: 2, bgcolor: 'var(--color-background-primary)', height: '100%' }}>
       <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
         <Box sx={{ px: 3, pt: 2, pb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Button disableElevation={true} variant="contained" color="secondary" size="small" aria-label="Back" onClick={() => navigate('/forms')}>
+          <Button disableElevation={true} variant="contained" color="secondary" aria-label="Back" onClick={() => navigate('/forms')}>
             <Icon icon="arrow_back" />
           </Button>
           <Typography variant="h5" sx={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>

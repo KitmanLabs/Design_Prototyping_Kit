@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import LayoutWithMainNav from './components/LayoutWithMainNav'
 import SimplePage from './pages/SimplePage'
 import Athletes from './pages/Athletes'
@@ -12,17 +12,19 @@ import Screen04_FormAnswerSet from './pages/forms/Screen04_FormAnswerSet'
 import Messaging from './pages/Messaging'
 import MedicalAssessment from './pages/forms/MedicalAssessment'
 import FormFillView from './pages/forms/FormFillView'
+import { legacyRedirects } from './data/layout'
 
+// Paths follow iP's (kitman-frontend Router.js) where the kit has an equivalent page.
 function App() {
   return (
     <LayoutWithMainNav>
       <Routes>
         <Route path="/" element={<SimplePage pageName="Home" />} />
         <Route path="/dashboard" element={<SimplePage pageName="Dashboard" />} />
-        <Route path="/medical" element={<MedicalPage />} />
+        <Route path="/medical/rosters" element={<MedicalPage />} />
         <Route path="/analysis" element={<SimplePage pageName="Analysis" />} />
-        <Route path="/athlete" element={<Athletes />} />
-        <Route path="/workloads" element={<SimplePage pageName="Workload" />} />
+        <Route path="/athletes" element={<Athletes />} />
+        <Route path="/workloads" element={<SimplePage pageName="Workloads" />} />
         <Route path="/questionnaires" element={<Screen01_FormsHome />} />
         <Route path="/forms" element={<FormsPage />} />
         <Route path="/forms/form_templates" element={<FormsPage />} />
@@ -32,12 +34,16 @@ function App() {
         <Route path="/medical-assessment" element={<MedicalAssessment />} />
         <Route path="/form-fill/:athleteId" element={<FormFillView />} />
         <Route path="/forms/:formId/build" element={<Screen02_FormBuilder />} />
-        <Route path="/planning" element={<CalendarPage />} />
-        <Route path="/messages" element={<Messaging />} />
+        <Route path="/calendar" element={<CalendarPage />} />
+        <Route path="/messaging" element={<Messaging />} />
         <Route path="/notifications" element={<SimplePage pageName="Notifications" />} />
-        <Route path="/activity" element={<SimplePage pageName="Activity log" />} />
-        <Route path="/settings" element={<SimplePage pageName="Admin" />} />
+        <Route path="/activity" element={<SimplePage pageName="Activity" />} />
+        <Route path="/administration" element={<SimplePage pageName="Administration" />} />
         <Route path="/help" element={<SimplePage pageName="Help" />} />
+        {/* Old kit paths, kept so existing links still work */}
+        {Object.entries(legacyRedirects).map(([from, to]) => (
+          <Route key={from} path={from} element={<Navigate to={to} replace />} />
+        ))}
       </Routes>
     </LayoutWithMainNav>
   )

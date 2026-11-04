@@ -75,7 +75,7 @@ export default function MenuTree({ form, selectedQuestionId, onSelectQuestion, m
                     </Typography>
                   </Box>
                   {mode === 'build' && (
-                    <IconButton size="small" aria-label="section actions">
+                    <IconButton aria-label="section actions">
                       <MoreVertOutlined fontSize="small" />
                     </IconButton>
                   )}
@@ -100,7 +100,7 @@ export default function MenuTree({ form, selectedQuestionId, onSelectQuestion, m
                                 </Typography>
                               </Box>
                               {mode === 'build' && (
-                                <IconButton size="small" aria-label="subsection actions">
+                                <IconButton aria-label="subsection actions">
                                   <MoreVertOutlined fontSize="small" />
                                 </IconButton>
                               )}

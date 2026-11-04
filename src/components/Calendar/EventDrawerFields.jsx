@@ -302,7 +302,7 @@ export const EventAttachmentsFields = ({
             xs: 12,
             sm: 2
           }}>
-          <Button size="small" disableElevation={true} variant="contained" color="primary" onClick={onAddLink} style={{ width: '100%' }}>
+          <Button disableElevation={true} variant="contained" color="primary" onClick={onAddLink} style={{ width: '100%' }}>
             Add
           </Button>
         </Grid>

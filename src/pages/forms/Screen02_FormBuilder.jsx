@@ -475,7 +475,6 @@ export default function Screen02_FormBuilder() {
               component="label"
               htmlFor={inputId}
               variant="contained"
-              size="small"
               sx={{ textTransform: 'none', backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-secondary-color)', '&:hover': { backgroundColor: 'var(--button-secondary-hover-bg)' } }}
             >
               Upload file

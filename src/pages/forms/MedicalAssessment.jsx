@@ -65,7 +65,6 @@ const MedicalAssessment = () => {
             <Button
               disableElevation={true}
               variant="contained" color="secondary"
-              size="small"
               style={{ fontWeight: 600, fontSize: 'var(--font-size-xs)', minWidth: 72 }}
               onClick={(e) => {
                 e.stopPropagation();
@@ -81,7 +80,6 @@ const MedicalAssessment = () => {
               {isStarted ? 'Continue' : 'Start'}
             </Button>
             <IconButton 
-              size="small" 
               sx={{ 
                 color: 'var(--color-text-secondary)',
                 visibility: isStarted ? 'visible' : 'hidden'
