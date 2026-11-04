@@ -91,6 +91,20 @@ describe('pages', () => {
     expect(await screen.findByRole('button', { name: 'Log injury' })).toBeInTheDocument()
   })
 
+  it('renders the Overview with today\'s availability', async () => {
+    renderAt('/')
+    expect(await screen.findByRole('region', { name: 'Availability today' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'To do' })).toBeInTheDocument()
+  })
+
+  it('filters Squad load to load spikes from the KPI tile', async () => {
+    renderAt('/workloads')
+    fireEvent.click(await screen.findByRole('button', { name: /load spikes/i }))
+    expect(screen.getByText('Showing Load spikes')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Show all athletes' }))
+    expect(screen.queryByText('Showing Load spikes')).not.toBeInTheDocument()
+  })
+
   it('renders a form template’s assignments with its title', async () => {
     renderAt('/forms/medical-assessment/assignments')
     expect(await screen.findByRole('heading', { name: /medical assessment/i })).toBeInTheDocument()

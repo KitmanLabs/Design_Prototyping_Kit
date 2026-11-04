@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import LayoutWithMainNav from './components/LayoutWithMainNav'
 import SimplePage from './pages/SimplePage'
 import Athletes from './pages/Athletes'
+import Overview from './pages/Overview'
+import SquadLoad from './pages/SquadLoad'
 import AthleteProfile from './pages/AthleteProfile'
 import CalendarPage from './pages/Calendar'
 import MedicalPage from './pages/Medical'
@@ -23,14 +25,14 @@ function App() {
   return (
     <LayoutWithMainNav>
       <Routes>
-        <Route path="/" element={<SimplePage pageName="Home" />} />
-        <Route path="/dashboard" element={<SimplePage pageName="Dashboard" />} />
+        <Route path="/" element={<Overview />} />
+        <Route path="/dashboard" element={<Overview />} />
         <Route path="/medical/rosters" element={<MedicalPage />} />
         <Route path="/medical/log-injury" element={<LogInjury />} />
         <Route path="/analysis" element={<SimplePage pageName="Analysis" />} />
         <Route path="/athletes" element={<Athletes />} />
         <Route path="/athletes/:athleteId" element={<AthleteProfile />} />
-        <Route path="/workloads" element={<SimplePage pageName="Workloads" />} />
+        <Route path="/workloads" element={<SquadLoad />} />
         <Route path="/questionnaires" element={<Screen01_FormsHome />} />
         <Route path="/forms" element={<FormsPage />} />
         <Route path="/forms/form_templates" element={<FormsPage />} />

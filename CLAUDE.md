@@ -71,7 +71,7 @@ The kit runs MUI 9 ahead of iP on purpose: iP is moving to MUI 9 and MUI X 9.
 - **Grid**: `<Grid size={{ xs: 12, sm: 6 }}>`; no `item`, no `xs=`/`sm=` props
 - **DataGrid**: `valueGetter`/`valueFormatter` take `(value, row)`; `rowSelectionModel` is `{ type, ids: Set }`; a toolbar slot only shows with `showToolbar`
 - Details and the full list: `docs/reference/design-system.md` → "MUI 9 APIs"
-- Also installed: MUI X Scheduler (beta), Chat (alpha) and Data Grid Premium with the AI Assistant. Usage notes and stories: `docs/reference/design-system.md` → "Scheduler, Chat and the Data Grid AI Assistant". The AI Assistant needs an `onPrompt` resolver; there is no model behind it in this prototype.
+- Also installed: MUI X Charts, Scheduler (beta), Chat (alpha) and Data Grid Premium with the AI Assistant. Usage notes and stories: `docs/reference/design-system.md` → "Charts, Scheduler, Chat and the Data Grid AI Assistant". The AI Assistant needs an `onPrompt` resolver; there is no model behind it in this prototype.
 
 ## Design rules (enforced by linting)
 - **Colors**: always `var(--color-primary)` and other tokens, never hardcoded hex/rgb/hsl

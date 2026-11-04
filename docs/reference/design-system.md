@@ -46,11 +46,11 @@ If none fits, say why in a comment at the top of the page (`// Floorplan: none. 
 
 | Floorplan | Job | Reference page |
 |---|---|---|
-| Overview | Where a role starts the day: what needs attention, and where to go next | Planned |
+| Overview | Where a role starts the day: what needs attention, and where to go next | `/` and `/dashboard` (`src/pages/Overview.jsx`), for practitioners |
 | Collection | Find, filter and act on many records of one kind. The queue variant adds tabs with counts for the work waiting | `/athletes` (`src/pages/Athletes.jsx`); queue: `/notifications` |
 | Record | Everything about one athlete, injury, session or response, and the actions on it | `/athletes/:athleteId` (`src/pages/AthleteProfile.jsx`) |
 | List-detail | Work through items one after another without losing your place | `/messaging` |
-| Analysis | Spot a pattern, drill into its cause, act on the records behind it | Planned |
+| Analysis | Spot a pattern, drill into its cause, act on the records behind it | `/workloads` (`src/pages/SquadLoad.jsx`) |
 | Guided flow | A long, unfamiliar or high-stakes task in 3 to 8 steps | `/medical/log-injury` (`src/pages/Medical/LogInjury.jsx`) |
 | Workspace | Make or arrange something directly: schedules, forms, plans | `/calendar`, `/forms/:formId/build` (both predate `PageFrame`) |
 | Settings | Configure how the organization, squad or account behaves | `/administration` |
@@ -70,6 +70,8 @@ If none fits, say why in a comment at the top of the page (`// Floorplan: none. 
 | Footer action bar | `FloorplanFooter` | Only in create and edit, or while there are unsaved changes. Cancel on the left; the primary action on the far right, with `loading` while it runs. |
 | Guided flow content | `GuidedFlowLayout` | A step rail on the left (a progress bar below `md`) and one step at a time. Completed steps can be revisited. The last step is always Review, with an Edit for each step. The footer holds Cancel, Save draft, Back and Next (Submit on Review); Next stays disabled until the step's required fields are filled. |
 | Settings content | `SettingsLayout`, `SettingsGroup` | Section navigation on the left (a select below `md`), then groups with a heading, a short description and controls. The footer opens only while there are unsaved changes, with Discard and Save. |
+| Overview content | `OverviewCard` in an MUI `Grid` | The highest-priority card is largest and top left (`priority`). Cards summarize and link out with one secondary button; they never hold editing or filters. Five kinds: status count, trend, to-do list, events, details. |
+| Analysis content | `KpiTile`, `@mui/x-charts`, a linked `DataGrid` | Up to three KPI tiles, each also a filter. Selecting a chart item filters the table; the toolbar shows the active filter with a way to clear it, and a Table only switch hides the charts. |
 | Page states | `PageState` | Empty, no results, no access, error and loading, each with a message and an optional action. |
 | Feedback | `useToasts` (the Playbook Toasts), `DiscardChangesDialog` (the Playbook ConfirmationModal) | A toast after every completed action. When an action finishes on another page, pass the message in navigation state (`navigate(path, { state: { toast } })`) and call `useNavigationToast` on the page that receives it. Discarding unsaved changes always goes through `DiscardChangesDialog`. |
 
@@ -179,18 +181,20 @@ Data Grid:
 - Grid-internal buttons are contained secondary, set once in the theme (`MuiDataGrid` default `slotProps.baseButton`).
 - `@mui/x-data-grid-premium` is installed, so Premium features (row grouping, aggregation, Excel export, the AI Assistant) work. Without a Premium license key they show a watermark and log a license warning; with a Pro key they log a plan-mismatch error but keep working.
 
-## Scheduler, Chat and the Data Grid AI Assistant
+## Charts, Scheduler, Chat and the Data Grid AI Assistant
 
-These MUI X packages are installed; each has a story showing minimal, offline usage.
+These MUI X packages are installed; each has a story or a reference page showing minimal, offline usage.
 
 | Package | Tier | Status | Story |
 |---|---|---|---|
+| `@mui/x-charts` (`LineChart`, `BarChart`, `SparkLineChart`) | Community (MIT) | Stable | Reference pages `/workloads` and `/` |
 | `@mui/x-scheduler` (`EventCalendar`) | Community (MIT) | Beta | `Scheduler/EventCalendar` |
 | `@mui/x-scheduler-premium` (`EventTimelinePremium`, recurring events) | Premium | Beta | `Scheduler/EventTimelinePremium` |
 | `@mui/x-chat` (`ChatBox`) | MIT | Alpha | `Chat/ChatBox` |
 | `@mui/x-data-grid-premium` AI Assistant | Premium | Stable (prompt resolver helper is `unstable_`) | `Table/DataGridAiAssistant` |
 
 - Beta and alpha versions are pinned exactly in `package.json`; expect API changes when bumping them.
+- Charts: colour series with the chart tokens (`color: 'var(--color-chart-1)'`); use `--color-chart-1` for the main series and `--color-text-muted` for context such as raw daily values. Give bottom x-axes `height: 32`: with the theme's line height, tick labels don't fit the default 25px and the chart hides them. Charts sit in a bordered `Paper` with a `subtitle1` heading, and a chart that filters the page says so in a caption ("Select a bar to see that athlete in the table").
 - Scheduler events take ISO `start`/`end` strings (no date adapter); give the component an explicit height.
 - The Calendar page runs on `EventCalendar`, wrapped in `src/components/Calendar/SchedulerCalendar.jsx`. The page keeps its own header, filters pane, tooltip and create panels:
   - View and date are controlled from `CalendarHeader`; the Scheduler's toolbar and side panel are hidden.

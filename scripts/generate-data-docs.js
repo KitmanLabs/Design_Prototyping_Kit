@@ -23,6 +23,7 @@ const FILE_NAMES = {
   'injuryOptions.js': 'Steps and option lists for the Log injury flow',
   'notifications.js': 'Notifications and category filters for the Notifications queue',
   'settings.js': 'Sections, defaults and option lists for Administration',
+  'workloads.js': 'Generated daily training load and availability trend for Squad load and the Overview',
   'calendarEventOptions.js': 'Option lists for the Add game and Add session drawers',
 };
 

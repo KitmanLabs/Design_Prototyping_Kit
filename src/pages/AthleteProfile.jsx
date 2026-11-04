@@ -70,7 +70,7 @@ function AthleteProfile() {
   const location = useLocation()
   const { showToast, toasts } = useToasts()
   useNavigationToast(showToast)
-  const [tab, setTab] = useState('#overview')
+  const [tab, setTab] = useState(location.state?.initialTab || '#overview')
 
   // Edits made in this session, keyed by athlete id, so they survive tab and record changes
   const [edits, setEdits] = useState({})

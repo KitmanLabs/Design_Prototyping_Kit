@@ -27,6 +27,7 @@ This prototype has no real server or database. All data lives in local JSON and 
 | `squads_teams.json` | Squads and team definitions | 4 |
 | `training_sessions.json` | Training sessions and workouts | 6 |
 | `users_staff.json` | Staff and user accounts | 10 |
+| `workloads.js` | Generated daily training load and availability trend for Squad load and the Overview | Config |
 
 ## How to change the data
 
