@@ -214,9 +214,9 @@ export const WithCustomization = () => {
       </Button>
       <StyledMenu
         id="demo-customized-menu"
-        MenuListProps={{
+        slotProps={{ list: {
           'aria-labelledby': 'demo-customized-button',
-        }}
+        } }}
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}

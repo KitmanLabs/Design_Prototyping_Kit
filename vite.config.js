@@ -17,7 +17,6 @@ export default defineConfig({
       { find: /^@kitman\/playbook\/components\/(.+)$/, replacement: `${playbook}/$1` },
       { find: '@kitman/playbook/components', replacement: path.join(playbook, 'index.js') },
       { find: 'playbook-components', replacement: playbook },
-      { find: '@mui/x-data-grid-premium', replacement: path.resolve(__dirname, 'node_modules/@mui/x-data-grid-pro') },
       { find: '@kitman/playbook/themes', replacement: path.join(playbook, 'themes.js') },
       { find: '@kitman/playbook/icons', replacement: path.join(playbook, 'icons.jsx') },
       { find: '@kitman/playbook/hooks', replacement: path.join(playbook, 'hooks.js') },

@@ -17,6 +17,9 @@ import CustomPagination from './components/CustomPagination'; // Custom paginati
 
 
 
+const toSelectionModel = (model) =>
+  Array.isArray(model) ? { type: 'include', ids: new Set(model) } : model;
+
 const DataGridPremium = ({
   rows,
   columns,
@@ -49,13 +52,17 @@ const DataGridPremium = ({
   ...rest // Spread any other valid DataGridPremiumProps
 }) => {
   // Row Selection State Management
+  // MUI X v8+ models selection as { type: 'include' | 'exclude', ids: Set }. The grid runs with
+  // disableRowSelectionExcludeModel, so ids are always the selected rows. Callers may still
+  // pass an array of ids; selectedIds is the array the rest of the wrapper works with.
   const [internalSelectionModel, setInternalSelectionModel] = useState(
-    []
+    () => toSelectionModel([])
   );
   const isSelectionControlled = rowSelectionModelProp !== undefined;
   const currentSelectionModel = isSelectionControlled
-    ? rowSelectionModelProp
+    ? toSelectionModel(rowSelectionModelProp)
     : internalSelectionModel;
+  const selectedIds = [...currentSelectionModel.ids];
 
   const handleRowSelectionModelChange = (newSelectionModel) => {
     if (!isSelectionControlled) {
@@ -71,7 +78,7 @@ const DataGridPremium = ({
     checkboxSelectionProp ?? (!!bulkActions && bulkActions.length > 0);
   const hideFooter = hideFooterProp ?? false;
   const shouldDefaultHideSelectedCountFooter =
-    currentSelectionModel.length > 0 && !!bulkActions && bulkActions.length > 0;
+    selectedIds.length > 0 && !!bulkActions && bulkActions.length > 0;
   const hideFooterSelectedRowCount =
     hideFooterSelectedRowCountProp ?? shouldDefaultHideSelectedCountFooter;
 
@@ -134,7 +141,7 @@ const DataGridPremium = ({
 
   // Conditional Toolbar and Overlay Logic
   const showBulkActionUI =
-    currentSelectionModel.length > 0 && bulkActions && bulkActions.length > 0;
+    selectedIds.length > 0 && bulkActions && bulkActions.length > 0;
 
   const calculatedSlots = useMemo(() => {
     const determinedSlots = {};
@@ -188,7 +195,7 @@ const DataGridPremium = ({
     let toolbarSpecificProps;
     if (showBulkActionUI) {
       toolbarSpecificProps = {
-        selectedRowIds: currentSelectionModel,
+        selectedRowIds: selectedIds,
         bulkActions: bulkActions || [],
         // Allow user to pass additional props to BulkActionsToolbar
         ...(rest.slotProps?.toolbar || {}),
@@ -305,12 +312,15 @@ const DataGridPremium = ({
       checkboxSelection={checkboxSelection}
       rowSelectionModel={currentSelectionModel}
       onRowSelectionModelChange={handleRowSelectionModelChange}
+      disableRowSelectionExcludeModel
       disableRowSelectionOnClick={disableRowSelectionOnClick}
       autoHeight={autoHeight}
       slots={finalSlots}
       slotProps={slotProps}
       hideFooter={hideFooter}
       hideFooterSelectedRowCount={hideFooterSelectedRowCount}
+      // MUI X v8+ only renders the toolbar slot when showToolbar is set.
+      showToolbar
       sx={{
         ...style.gridToolBar,
         ...style.pagination,

@@ -30,7 +30,12 @@ const GenericActionBar = ({
         justifyContent: 'space-between',
       }}
     >
-      <Box display="flex" alignItems="center" gap={2}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2
+        }}>
         {selectedCount > 0 && (
           <Typography variant="subtitle1">
             {selectedCount} {t('selected')}

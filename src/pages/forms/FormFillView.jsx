@@ -864,12 +864,14 @@ export default function FormFillView() {
                     backgroundColor: 'var(--color-background-secondary)',
                   }
                 }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <LockOutlined fontSize="small" sx={{ color: 'var(--color-text-disabled)' }} />
-                    </InputAdornment>
-                  )
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <LockOutlined fontSize="small" sx={{ color: 'var(--color-text-disabled)' }} />
+                      </InputAdornment>
+                    )
+                  }
                 }}
               />
             </Box>
@@ -990,12 +992,14 @@ export default function FormFillView() {
                     backgroundColor: 'var(--color-background-secondary)',
                   }
                 }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <LockOutlined fontSize="small" sx={{ color: 'var(--color-text-disabled)' }} />
-                    </InputAdornment>
-                  )
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <LockOutlined fontSize="small" sx={{ color: 'var(--color-text-disabled)' }} />
+                      </InputAdornment>
+                    )
+                  }
                 }}
               />
               {/* Template selector */}
@@ -1008,13 +1012,17 @@ export default function FormFillView() {
                     {...params}
                     variant="filled"
                     placeholder="Search templates"
-                    InputProps={{
-                      ...params.InputProps,
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchOutlined fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
-                        </InputAdornment>
-                      )
+                    slotProps={{
+                      ...params.slotProps,
+
+                      input: {
+                        ...params.slotProps.input,
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchOutlined fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
+                          </InputAdornment>
+                        )
+                      }
                     }}
                   />
                 )}
@@ -1081,5 +1089,5 @@ export default function FormFillView() {
         )}
       </Box>
     </Box>
-  )
+  );
 }

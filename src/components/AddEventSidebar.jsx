@@ -251,7 +251,9 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
         anchor="right"
         open={open}
         onClose={onClose}
-        PaperProps={{ sx: { width: '480px', maxWidth: '90vw' } }}
+        slotProps={{
+          paper: { sx: { width: '480px', maxWidth: '90vw' } }
+        }}
       >
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--color-background-primary)' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 24px 16px 24px', borderBottom: '1px solid var(--color-border-primary)' }}>
@@ -265,7 +267,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
 
           <Box sx={{ flex: 1, overflow: 'auto', padding: '24px' }}>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <FormControl fullWidth variant="filled" error={!!errors.eventType} sx={formFieldStyles}>
                   <InputLabel>Event type</InputLabel>
                   <Select
@@ -283,7 +285,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TextField
                   fullWidth
                   variant="filled"
@@ -296,7 +298,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TextField
                   fullWidth
                   variant="filled"
@@ -306,12 +308,14 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   helperText={`${formData.description.length}/250 characters remaining`}
-                  inputProps={{ maxLength: 250 }}
                   sx={formFieldStyles}
+                  slotProps={{
+                    htmlInput: { maxLength: 250 }
+                  }}
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <DateTimePicker
                   label="Start date and time"
                   value={toMoment(formData.startDateTime)}
@@ -322,20 +326,27 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                       variant: 'filled',
                       error: !!errors.startDateTime,
                       helperText: errors.startDateTime,
-                      InputProps: {
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <CalendarTodayOutlined fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      },
                       sx: formFieldStyles,
+
+                      slotProps: {
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <CalendarTodayOutlined fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        },
+                      },
                     },
                   }}
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <TextField
                   fullWidth
                   variant="filled"
@@ -345,12 +356,18 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                   onChange={(e) => handleInputChange('duration', parseInt(e.target.value, 10) || 0)}
                   error={!!errors.duration}
                   helperText={errors.duration || 'minutes'}
-                  InputProps={{ endAdornment: <InputAdornment position="end">mins</InputAdornment> }}
                   sx={formFieldStyles}
+                  slotProps={{
+                    input: { endAdornment: <InputAdornment position="end">mins</InputAdornment> }
+                  }}
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <FormControl fullWidth variant="filled" sx={formFieldStyles}>
                   <InputLabel>Timezone</InputLabel>
                   <Select
@@ -366,7 +383,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <FormControl fullWidth variant="filled" sx={formFieldStyles}>
                   <InputLabel>Repeats</InputLabel>
                   <Select
@@ -381,7 +398,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <LocationPicker
                   value={formData.location}
                   onChange={(value) => handleInputChange('location', value)}
@@ -389,19 +406,19 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Autocomplete
                   multiple
                   options={athletes}
                   getOptionLabel={getAthleteLabel}
                   value={formData.selectedAthletes}
                   onChange={(event, newValue) => handleInputChange('selectedAthletes', newValue)}
-                  renderTags={(value, getTagProps) =>
+                  renderValue={(value, getItemProps) =>
                     value.map((option, index) => (
                       <Chip
                         key={option.id}
                         label={getAthleteLabel(option)}
-                        {...getTagProps({ index })}
+                        {...getItemProps({ index })}
                         icon={<PersonOutlined />}
                         sx={{
                           backgroundColor: 'var(--color-background-selected)',
@@ -441,19 +458,19 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                 </Box>
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Autocomplete
                   multiple
                   options={staff}
                   getOptionLabel={(option) => `${option.firstname} ${option.lastname} (${option.role})`}
                   value={formData.selectedStaff}
                   onChange={(event, newValue) => handleInputChange('selectedStaff', newValue)}
-                  renderTags={(value, getTagProps) =>
+                  renderValue={(value, getItemProps) =>
                     value.map((option, index) => (
                       <Chip
                         key={option.id}
                         label={`${option.firstname} ${option.lastname}`}
-                        {...getTagProps({ index })}
+                        {...getItemProps({ index })}
                         icon={<PersonOutlined />}
                         sx={{
                           backgroundColor: 'var(--color-background-selected)',
@@ -469,7 +486,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: 'var(--color-text-primary)' }}>
                   Staff visibility
                 </Typography>
@@ -497,7 +514,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
                 </RadioGroup>
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: 'var(--color-text-primary)' }}>
                   Attach
                 </Typography>

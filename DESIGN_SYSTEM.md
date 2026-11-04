@@ -66,12 +66,58 @@ The theme sets these defaults, but write them out so the code reads correctly:
 | Component | Props |
 |---|---|
 | TextField, Select, FormControl | `variant="filled" size="small"` |
-| Button, LoadingButton | `variant="contained" size="small" disableElevation={true}` |
+| Button | `variant="contained" size="small" disableElevation={true}` (use the `loading` prop for a loading state) |
 | Autocomplete, Chip, IconButton | `size="small"` |
 
 ## Theme
 
 There is one MUI theme, `rootTheme` in `src/playbook-components/themes.js`. The app (`src/main.jsx`) and Storybook (`.storybook/preview.jsx`) both use it, so components look the same in both. Change palette, typography or component defaults there, never in a second `createTheme`.
+
+## MUI 9 APIs
+
+The repo is on Material UI 9 and MUI X 9. Props that were deprecated in v5 to v7 are removed, so the old forms no longer work.
+
+| Old | MUI 9 |
+|---|---|
+| TextField `InputProps` / `inputProps` / `InputLabelProps` / `SelectProps` / `FormHelperTextProps` | `slotProps={{ input, htmlInput, inputLabel, select, formHelperText }}` |
+| Menu, Popover, Drawer, Dialog `PaperProps` | `slotProps={{ paper: {...} }}` |
+| Menu `MenuListProps` | `slotProps={{ list: {...} }}` |
+| `TransitionComponent` / `TransitionProps` | `slots={{ transition }}` / `slotProps={{ transition }}` |
+| `<Grid item xs={12} sm={6}>` | `<Grid size={{ xs: 12, sm: 6 }}>` |
+| `<ListItem button>` | `<ListItemButton>` |
+| `LoadingButton` (`@mui/lab`) | `<Button loading>` |
+
+Data Grid:
+- `valueGetter`, `valueFormatter` and friends take positional arguments: `(value, row, column, apiRef)`.
+- `rowSelectionModel` is `{ type: 'include' | 'exclude', ids: Set }`. Pass `disableRowSelectionExcludeModel` when you need the ids to always be the selected rows, and convert with `[...model.ids]`.
+- The toolbar slot only renders with `showToolbar`. Custom toolbars must render toolbar parts (quick filter, buttons) inside `GridToolbarContainer` or the grid's `Toolbar`.
+- Grid-internal buttons are contained secondary, set once in the theme (`MuiDataGrid` default `slotProps.baseButton`).
+- `@mui/x-data-grid-premium` is installed, so Premium features (row grouping, aggregation, Excel export, the AI Assistant) work. Without a Premium licence key they show a watermark and log a licence warning; with a Pro key they log a plan-mismatch error but keep working.
+
+## Scheduler, Chat and the Data Grid AI Assistant
+
+These MUI X packages are installed; each has a story showing minimal, offline usage.
+
+| Package | Tier | Status | Story |
+|---|---|---|---|
+| `@mui/x-scheduler` (`EventCalendar`) | Community (MIT) | Beta | `Scheduler/EventCalendar` |
+| `@mui/x-scheduler-premium` (`EventTimelinePremium`, recurring events) | Premium | Beta | `Scheduler/EventTimelinePremium` |
+| `@mui/x-chat` (`ChatBox`) | MIT | Alpha | `Chat/ChatBox` |
+| `@mui/x-data-grid-premium` AI Assistant | Premium | Stable (prompt resolver helper is `unstable_`) | `Table/DataGridAiAssistant` |
+
+- Beta and alpha versions are pinned exactly in `package.json`; expect API changes when bumping them.
+- Scheduler events take ISO `start`/`end` strings (no date adapter); give the component an explicit height.
+- Chat needs an `adapter`. The stories use `createEchoAdapter()`; a real one streams replies from a backend (there is an AI SDK adapter in `@mui/x-chat/headless`).
+- The AI Assistant does not call a model itself: `onPrompt` must return a `PromptResponse` (filters, sorting, grouping, aggregation). In iP that means a server route that asks a language model, with keys kept on the server. Prototypes here use the offline stub in `src/stories/Table/utils/aiPromptStub.js`.
+- The Playbook DataGridPremium wrapper's toolbar has no AI Assistant trigger; use MUI's `DataGridPremium` with `showToolbar` for AI Assistant screens.
+
+Date pickers:
+- Range pickers default to a single input in v9. For separate Start and End fields, pass `slots={{ field: MultiInputDateRangeField }}`.
+- Picker text-field props go under `slotProps={{ textField: { slotProps: { input, htmlInput } } }}`.
+
+Icons: bare `*Outline` icons (for example `DeleteOutline`) were removed; use the `*Outlined` variant.
+
+The theme also overrides `react-is` to React 18's version (`overrides` in `package.json`), as the MUI guides advise for React 18.
 
 ## Dates
 

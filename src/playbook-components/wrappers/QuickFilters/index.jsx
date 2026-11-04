@@ -9,7 +9,12 @@ function QuickFilters({
   // Combine filters properly
 
   return (
-    <Box display="flex" flexWrap="wrap" gap={1} sx={getQuickFiltersBoxStyles()}>
+    <Box
+      sx={[{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 1
+      }, getQuickFiltersBoxStyles()]}>
       {filters.map((filter) => (
         <Chip
           key={filter.key}

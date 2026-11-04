@@ -217,7 +217,7 @@ function CustomDateRangePicker({
     if (!isCalendarOpen) return;
 
     const addEventListeners = () => {
-      document.querySelectorAll('.MuiPickersDay-root').forEach((day) => {
+      document.querySelectorAll('.MuiPickerDay-root').forEach((day) => {
         day.addEventListener('mouseenter', handleDayMouseEnter);
         day.addEventListener('mouseleave', handleDayMouseLeave);
       });
@@ -228,7 +228,7 @@ function CustomDateRangePicker({
     // eslint-disable-next-line consistent-return
     return () => {
       clearTimeout(timer);
-      document.querySelectorAll('.MuiPickersDay-root').forEach((day) => {
+      document.querySelectorAll('.MuiPickerDay-root').forEach((day) => {
         day.removeEventListener('mouseenter', handleDayMouseEnter);
         day.removeEventListener('mouseleave', handleDayMouseLeave);
       });
@@ -256,28 +256,30 @@ function CustomDateRangePicker({
           value={inputValue || getDisplayValue()}
           onChange={handleInputChange}
           onKeyDown={handleInputKeyDown}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  edge="end"
-                  size="small"
-                  onClick={handleClearButtonClick}
-                >
-                  {hasSelectedDates ? <Clear /> : <ArrowDropDown />}
-                </IconButton>
-              </InputAdornment>
-            ),
-            sx: {
-              justifyContent: 'space-between',
-              input: {
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                minWidth: 160,
-                maxWidth: 300,
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    edge="end"
+                    size="small"
+                    onClick={handleClearButtonClick}
+                  >
+                    {hasSelectedDates ? <Clear /> : <ArrowDropDown />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+              sx: {
+                justifyContent: 'space-between',
+                input: {
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  minWidth: 160,
+                  maxWidth: 300,
+                },
               },
-            },
+            }
           }}
         />
       );
@@ -297,20 +299,22 @@ function CustomDateRangePicker({
         onChange={handleInputChange}
         onKeyDown={handleInputKeyDown}
         label={label}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton
-                onClick={handleClearButtonClick}
-                edge="end"
-                size="small"
-              >
-                {hasSelectedDates ? <Clear /> : <CalendarToday />}
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
         sx={getTextFieldStyles(variant || 'default')}
+        slotProps={{
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={handleClearButtonClick}
+                  edge="end"
+                  size="small"
+                >
+                  {hasSelectedDates ? <Clear /> : <CalendarToday />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }
+        }}
       />
     );
   };
@@ -320,10 +324,11 @@ function CustomDateRangePicker({
       <GlobalStyles styles={globalStyles} />
       <Box
         ref={wrapperRef}
-        display="flex"
-        flexDirection="column"
-        sx={{ position: 'relative' }}
-      >
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          position: 'relative'
+        }}>
         <LocalizationProvider>
           {renderTextField()}
           {/* Render desktop version when calendar is open and not mobile */}

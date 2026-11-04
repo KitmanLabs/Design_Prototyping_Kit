@@ -132,10 +132,11 @@ function ResponsivePageHeader(props) {
           {/* Top row: Back button and mobile actions */}
           <Stack
             direction="row"
-            alignItems="center"
-            justifyContent="space-between"
             spacing={1}
-          >
+            sx={{
+              alignItems: "center",
+              justifyContent: "space-between"
+            }}>
             {shouldShowBackButton && (
               <Button
                 onClick={onBackClick}
@@ -152,9 +153,10 @@ function ResponsivePageHeader(props) {
               <Stack
                 direction="row"
                 spacing={1}
-                alignItems="center"
-                sx={{ flexShrink: 0 }}
-              >
+                sx={{
+                  alignItems: "center",
+                  flexShrink: 0
+                }}>
                 {mainAction && (
                   <>
                     {PrimaryActionComponent ? (
@@ -319,9 +321,11 @@ function ResponsivePageHeader(props) {
               <Stack
                 direction="row"
                 spacing={1}
-                alignItems="baseline"
-                sx={{ flexShrink: 0, marginLeft: 'auto !important' }}
-              >
+                sx={{
+                  alignItems: "baseline",
+                  flexShrink: 0,
+                  marginLeft: 'auto !important'
+                }}>
                 {desktopPrimaryVisible &&
                   primaryAction &&
                   (PrimaryActionComponent ? (

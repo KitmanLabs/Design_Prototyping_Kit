@@ -33,7 +33,9 @@ const FilesDock = ({
       case 'inprogress': {
         return (
           <>
-            <Typography variant="body2" color="primary.main">
+            <Typography variant="body2" sx={{
+              color: "primary.main"
+            }}>
               {`${t('Processing')}...`}
             </Typography>
             <Box sx={{ width: '40%' }}>
@@ -47,7 +49,9 @@ const FilesDock = ({
       }
       case 'uploaded': {
         return (
-          <Typography variant="body2" color="primary.main">
+          <Typography variant="body2" sx={{
+            color: "primary.main"
+          }}>
             {`${t('Confirming')}...`}
           </Typography>
         );
@@ -55,7 +59,9 @@ const FilesDock = ({
 
       case 'confirmed': {
         return (
-          <Typography variant="body2" color="success.main">
+          <Typography variant="body2" sx={{
+            color: "success.main"
+          }}>
             {t('Completed')}
           </Typography>
         );
@@ -143,7 +149,9 @@ const FilesDock = ({
         </ListItemAvatar>
         <></>
         <Stack spacing={0} sx={{ width: '100%' }}>
-          <Typography variant="body1" color="primary.main">
+          <Typography variant="body1" sx={{
+            color: "primary.main"
+          }}>
             {`${name} - ${fileSizeLabel(size, true)}`}
           </Typography>
           {!url && renderStatus(status, progressPercentage)}
@@ -159,7 +167,13 @@ const FilesDock = ({
   return (
     <Box ref={filesDockRef} sx={{ width: fitContent ? 'fit-content' : '100%' }}>
       {!hideTitle && (
-        <Typography variant="subtitle1" mt={2} fontWeight={500} gutterBottom>
+        <Typography
+          variant="subtitle1"
+          gutterBottom
+          sx={{
+            mt: 2,
+            fontWeight: 500
+          }}>
           {t('Attached')}
         </Typography>
       )}

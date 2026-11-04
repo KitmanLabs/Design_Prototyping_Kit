@@ -230,12 +230,14 @@ const FiltersSidebar = ({
               onChange={(e) => onSearchChange(e.target.value)}
               size="small"
               sx={formFieldStyles}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <SearchOutlined sx={{ fontSize: 20, color: 'var(--color-text-secondary)' }} />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <SearchOutlined sx={{ fontSize: 20, color: 'var(--color-text-secondary)' }} />
+                    </InputAdornment>
+                  ),
+                }
               }}
             />
           )}
@@ -259,12 +261,14 @@ const FiltersSidebar = ({
               onChange={(e) => onSearchChange(e.target.value)}
               size="small"
               sx={{ ...formFieldStyles, mt: 1 }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <SearchOutlined sx={{ fontSize: 20, color: 'var(--color-text-secondary)' }} />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <SearchOutlined sx={{ fontSize: 20, color: 'var(--color-text-secondary)' }} />
+                    </InputAdornment>
+                  ),
+                }
               }}
             />
           )}
@@ -400,7 +404,7 @@ const FiltersSidebar = ({
                 sx={formFieldStyles}
               />
             )}
-            componentsProps={{
+            slotProps={{
               popper: {
                 sx: { zIndex: 1300 },
               },
@@ -478,7 +482,7 @@ const FiltersSidebar = ({
                 sx={formFieldStyles}
               />
             )}
-            componentsProps={{
+            slotProps={{
               popper: {
                 sx: { zIndex: 1300 },
               },
@@ -511,7 +515,7 @@ const FiltersSidebar = ({
                 sx={formFieldStyles}
               />
             )}
-            componentsProps={{
+            slotProps={{
               popper: {
                 sx: { zIndex: 1300 },
               },

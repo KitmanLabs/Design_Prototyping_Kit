@@ -58,7 +58,7 @@ export default function QuestionEditor({ question, index, onChange }) {
       </Box>
 
       <Grid container spacing={3}>
-        <Grid item>
+        <Grid>
           <Box sx={{ minWidth: 240 }}>
             <FormControl fullWidth size="small" variant="filled">
               <InputLabel id="qs-label">Question style</InputLabel>
@@ -72,7 +72,7 @@ export default function QuestionEditor({ question, index, onChange }) {
             </FormControl>
           </Box>
         </Grid>
-        <Grid item>
+        <Grid>
           <Box sx={{ minWidth: 320 }}>
             <TextField
               size="small"
@@ -87,7 +87,7 @@ export default function QuestionEditor({ question, index, onChange }) {
       </Grid>
 
       <Grid container spacing={3} direction="column" sx={{ mt: 0.5 }}>
-        <Grid item>
+        <Grid>
           <TextField
             size="small"
             variant="filled"
@@ -97,7 +97,7 @@ export default function QuestionEditor({ question, index, onChange }) {
             onChange={(e) => handleUpdate({ description: e.target.value })}
           />
         </Grid>
-        <Grid item>
+        <Grid>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
             <FormControl fullWidth sx={{ maxWidth: 220 }} size="small" variant="filled">
               <InputLabel id="style-label">Style</InputLabel>
@@ -132,7 +132,7 @@ export default function QuestionEditor({ question, index, onChange }) {
         </Grid>
       </Grid>
     </Paper>
-  )
+  );
 }
 
 

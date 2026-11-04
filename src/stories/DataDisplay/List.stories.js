@@ -61,7 +61,7 @@ export default {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component="a" href="#simple-list">
+            <ListItemButton component="a" nativeButton={false} href="#simple-list">
               <ListItemText primary="Spam" />
             </ListItemButton>
           </ListItem>
@@ -221,7 +221,11 @@ export const InteractiveList = () => {
         />
       </FormGroup>
       <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}>
           <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
             Text only
           </Typography>
@@ -238,7 +242,11 @@ export const InteractiveList = () => {
             </List>
           </Demo>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}>
           <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
             Icon with text
           </Typography>
@@ -260,7 +268,11 @@ export const InteractiveList = () => {
         </Grid>
       </Grid>
       <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}>
           <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
             Avatar with text
           </Typography>
@@ -282,7 +294,11 @@ export const InteractiveList = () => {
             </List>
           </Demo>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}>
           <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
             Avatar with text and icon
           </Typography>
@@ -346,7 +362,9 @@ export const ListControls = () => {
                 edge="end"
                 onChange={handleToggle(value)}
                 checked={checked.indexOf(value) !== -1}
-                inputProps={{ 'aria-labelledby': labelId }}
+                slotProps={{
+                  input: { 'aria-labelledby': labelId }
+                }}
               />
             }
             disablePadding

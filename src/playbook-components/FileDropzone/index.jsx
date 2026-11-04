@@ -23,7 +23,11 @@ const DEFAULT_FILE_TYPES = [...docFileTypes, ...imageFileTypes];
 
 
 const DefaultTitle = ({ t }) => (
-  <Typography sx={{ mt: '16px' }} color="text.primary">
+  <Typography
+    sx={{
+      color: "text.primary",
+      mt: '16px'
+    }}>
     <span style={{ textDecoration: 'underline' }}>{t('Click to upload')}</span>{' '}
     {t('or gran and drop')}
   </Typography>
@@ -131,7 +135,9 @@ export default function FileDropzone({
   };
 
   return (
-    <Box paddingBottom={1}>
+    <Box sx={{
+      paddingBottom: 1
+    }}>
       <Box
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
@@ -181,7 +187,11 @@ export default function FileDropzone({
           {title || <DefaultTitle t={t} />}
           {subtitle && <Typography>{subtitle}</Typography>}
           {inputError && (
-            <Typography color="error.main" fontSize={12}>
+            <Typography
+              sx={{
+                color: "error.main",
+                fontSize: 12
+              }}>
               {inputError}
             </Typography>
           )}
@@ -219,22 +229,27 @@ export default function FileDropzone({
           <CardContent sx={{ flexGrow: 1, p: 1 }}>
             <Typography variant="body2">{file.name}</Typography>
             {!file.error && (
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" sx={{
+                color: "text.secondary"
+              }}>
                 {file.size} kb &#8226; {t('Completed')}
               </Typography>
             )}
             {file.error && (
-              <Typography variant="caption" color="error.main">
+              <Typography variant="caption" sx={{
+                color: "error.main"
+              }}>
                 {file.error} &#8226; {t('Failed')}
               </Typography>
             )}
           </CardContent>
           <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            gap={1}
-          >
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 1
+            }}>
             <IconButton onClick={() => handleRemove(index)}>
               <KitmanIcon name={KITMAN_ICON_NAMES.DeleteOutline} />
             </IconButton>

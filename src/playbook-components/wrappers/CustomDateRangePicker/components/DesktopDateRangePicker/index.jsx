@@ -32,7 +32,10 @@ function DesktopDateRangePicker({
   closeCalendar,
 }) {
   return (
-    <Box display="flex" sx={getCalendarContainerStyles(variant)}>
+    <Box
+      sx={[{
+        display: "flex"
+      }, getCalendarContainerStyles(variant)]}>
       <Box sx={getQuickFiltersContainerStyles()}>
         <QuickFilters
           selectedFilter={selectedFilter}
@@ -46,9 +49,9 @@ function DesktopDateRangePicker({
       <Box data-calendar-type="start">
         <Typography
           variant="body2"
-          bgcolor="white"
-          sx={getCalendarHeaderStyles()}
-        >
+          sx={[{
+            bgcolor: "white"
+          }, getCalendarHeaderStyles()]}>
           {i18n.t('Start date')}
         </Typography>
         <StaticDatePicker
@@ -67,10 +70,10 @@ function DesktopDateRangePicker({
 
       <Box data-calendar-type="end">
         <Typography
-          bgcolor={colors.white}
           variant="body2"
-          sx={getEndCalendarHeaderStyles()}
-        >
+          sx={[{
+            bgcolor: colors.white
+          }, getEndCalendarHeaderStyles()]}>
           {i18n.t('End date')}
         </Typography>
         <StaticDatePicker
@@ -88,7 +91,10 @@ function DesktopDateRangePicker({
           }}
         />
 
-        <Box width="100%" sx={getButtonContainerStyles()}>
+        <Box
+          sx={[{
+            width: "100%"
+          }, getButtonContainerStyles()]}>
           <Button
             onClick={handleClearDates}
             variant="text"

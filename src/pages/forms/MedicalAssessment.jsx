@@ -43,7 +43,7 @@ const MedicalAssessment = () => {
 
   const columns = [
     { field: 'athlete', headerName: 'Athlete', flex: 1, headerClassName: 'grid-cell--pad-left', cellClassName: 'grid-cell--pad-left' },
-    { field: 'lastUpdated', headerName: 'Last Updated', flex: 1, valueFormatter: (params) => new Date(params.value).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) },
+    { field: 'lastUpdated', headerName: 'Last Updated', flex: 1, valueFormatter: (value) => new Date(value).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) },
     {
       field: 'status',
       headerName: 'Status',
@@ -139,7 +139,9 @@ const MedicalAssessment = () => {
             label="Status"
             defaultValue=""
             sx={{ minWidth: 220 }}
-            InputProps={{ sx: typographyStyles }}
+            slotProps={{
+              input: { sx: typographyStyles }
+            }}
           >
             <MenuItem value="">All</MenuItem>
             <MenuItem value="Complete">Complete</MenuItem>

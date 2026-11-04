@@ -89,7 +89,6 @@ function LazyAutocomplete({
       onInputChange={debouncedSearchExpression}
       value={options.find((option) => option.id === value) ?? null}
       renderInput={(params) => <TextField {...params} label={label} />}
-      ListboxComponent={VirtualizedListboxComponent}
       onChange={(_, option) => onChange(option)}
       renderOption={(listProps, option, { index }) => {
         const isLastElement = index === options.length - 1;
@@ -105,6 +104,11 @@ function LazyAutocomplete({
             {option.label}
           </li>
         );
+      }}
+      slotProps={{
+        listbox: {
+          component: VirtualizedListboxComponent
+        }
       }}
     />
   );

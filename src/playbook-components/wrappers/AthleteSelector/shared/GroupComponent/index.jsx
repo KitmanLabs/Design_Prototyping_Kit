@@ -79,12 +79,16 @@ const GroupComponent = ({
       >
         <Stack
           direction="row"
-          alignItems="center"
           spacing={1}
-          sx={{ width: '100%', margin: 0 }}
-        >
+          sx={{
+            alignItems: "center",
+            width: '100%',
+            margin: 0
+          }}>
           <ExpandMoreIcon className="expandIcon" />
-          <Box flex={1}>
+          <Box sx={{
+            flex: 1
+          }}>
             <Typography>{`${group.title} ${
               selectedCount ? `(${selectedCount})` : ''
             }`}</Typography>
@@ -113,7 +117,9 @@ const GroupComponent = ({
           <>
             {group.athletes && renderAthletes(group.athletes)}
             {group.children?.length > 0 && (
-              <Box ml={1}>
+              <Box sx={{
+                ml: 1
+              }}>
                 {group.children.map((childGroup) => (
                   <GroupComponent
                     key={childGroup.key}

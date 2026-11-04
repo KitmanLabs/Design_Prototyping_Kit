@@ -460,13 +460,15 @@ function MedicalPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             sx={{ minWidth: 260 }}
-            InputProps={{
-              sx: typographyStyles,
-              endAdornment: (
-                <InputAdornment position="end">
-                  <SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />
-                </InputAdornment>
-              )
+            slotProps={{
+              input: {
+                sx: typographyStyles,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />
+                  </InputAdornment>
+                )
+              }
             }}
           />
           <TextField
@@ -477,7 +479,9 @@ function MedicalPage() {
             value={activeRosterFilter}
             onChange={(e) => setActiveRosterFilter(e.target.value)}
             sx={{ minWidth: 220 }}
-            InputProps={{ sx: typographyStyles }}
+            slotProps={{
+              input: { sx: typographyStyles }
+            }}
           >
             <MenuItem value="">All</MenuItem>
             <MenuItem value="Active">Active</MenuItem>
@@ -493,7 +497,9 @@ function MedicalPage() {
             value={positionFilter}
             onChange={(e) => setPositionFilter(e.target.value)}
             sx={{ minWidth: 220 }}
-            InputProps={{ sx: typographyStyles }}
+            slotProps={{
+              input: { sx: typographyStyles }
+            }}
           >
             <MenuItem value="">All</MenuItem>
             {positions.map((pos) => (
@@ -510,7 +516,9 @@ function MedicalPage() {
             value={injuredFilter}
             onChange={(e) => setInjuredFilter(e.target.value)}
             sx={{ minWidth: 220 }}
-            InputProps={{ sx: typographyStyles }}
+            slotProps={{
+              input: { sx: typographyStyles }
+            }}
           >
             <MenuItem value="">All</MenuItem>
             <MenuItem value="Yes">Yes</MenuItem>

@@ -53,19 +53,20 @@ const FileUploads = ({
     return renderToString(
       <>
         <KitmanIcon name={KITMAN_ICON_NAMES.UploadFile} />
-        <Typography fontFamily={theme.typography.fontFamily}>
+        <Typography sx={{
+          fontFamily: theme.typography.fontFamily
+        }}>
           <span className="filepond--label-action">{t('Click to upload')}</span>
           {t(' or drag and drop')}
         </Typography>
         {acceptedFileTypesLabel && (
           <Typography
-            fontFamily={theme.typography.fontFamily}
             color={colors.grey_300}
             sx={{
+              fontFamily: theme.typography.fontFamily,
               fontSize: `${convertPixelsToREM(14)}!important`,
-              fontWeight: 400,
-            }}
-          >
+              fontWeight: 400
+            }}>
             {acceptedFileTypesLabel}
             {maxFileSize &&
               t(' (max. {{maxFileSize}})', {
@@ -75,13 +76,12 @@ const FileUploads = ({
         )}
         {!!maxFiles && (
           <Typography
-            fontFamily={theme.typography.fontFamily}
             color={colors.grey_300}
             sx={{
+              fontFamily: theme.typography.fontFamily,
               fontSize: `${convertPixelsToREM(14)}!important`,
-              fontWeight: 400,
-            }}
-          >
+              fontWeight: 400
+            }}>
             {t(`(max files: {{maxNumberOfFiles}})`, {
               maxFiles,
             })}

@@ -16,7 +16,9 @@ function BadgesSection(props) {
   const renderOverflowTooltip = () => (
     <Box sx={{ py: 0.5, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
       {overflowBadges.map((badge) => (
-        <Stack key={badge.id} direction="row" spacing={1} alignItems="center">
+        <Stack key={badge.id} direction="row" spacing={1} sx={{
+          alignItems: "center"
+        }}>
           <Chip
             label={badge.label}
             color={badge.color || 'default'}

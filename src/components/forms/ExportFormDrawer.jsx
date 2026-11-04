@@ -22,7 +22,7 @@ import {
   Slide
 } from '@mui/material'
 import { Button } from '../../playbook-components'
-import { ClickAwayListener } from '@mui/base'
+import { ClickAwayListener } from '@mui/material'
 import {
   CloseOutlined,
   KeyboardArrowDownOutlined,
@@ -367,13 +367,14 @@ function ExportFormDrawer({
       <Box>
         {/* Header */}
         <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          px={2}
-          pt={2}
-          pb={1}
-        >
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            px: 2,
+            pt: 2,
+            pb: 1
+          }}>
           <Typography
             variant="h6"
             sx={{
@@ -481,7 +482,11 @@ function ExportFormDrawer({
             </Box>
           </>
         ) : (
-          <Box px={2} pb={1}>
+          <Box
+            sx={{
+              px: 2,
+              pb: 1
+            }}>
             <Chip
               size="small"
               variant="filled"
@@ -553,7 +558,7 @@ function ExportFormDrawer({
           </Button>
         </Box>
       </Box>
-    )
+    );
   }
 
   return (
@@ -563,13 +568,15 @@ function ExportFormDrawer({
         open={open}
         onClose={handleClose}
         ModalProps={{ keepMounted: true }}
-        PaperProps={{
-          sx: {
-            width: isMobile ? '100vw' : 480,
-            maxWidth: '100vw',
-            height: isMobile ? '90vh' : '100vh',
-            boxShadow: theme.shadows[16],
-            display: 'flex'
+        slotProps={{
+          paper: {
+            sx: {
+              width: isMobile ? '100vw' : 480,
+              maxWidth: '100vw',
+              height: isMobile ? '90vh' : '100vh',
+              boxShadow: theme.shadows[16],
+              display: 'flex'
+            }
           }
         }}
       >
@@ -614,23 +621,25 @@ function ExportFormDrawer({
                   value={triggerDisplayText}
                   placeholder="Select players"
                   onClick={handleOpenSelector}
-                  InputProps={{
-                    readOnly: true,
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <KeyboardArrowDownOutlined
-                          fontSize="small"
-                          sx={{ color: 'var(--color-text-secondary)' }}
-                        />
-                      </InputAdornment>
-                    )
-                  }}
                   sx={{
                     ...formFieldStyles,
                     cursor: 'pointer',
                     '& .MuiInputBase-input': {
                       ...formFieldStyles['& .MuiInputBase-input'],
                       cursor: 'pointer'
+                    }
+                  }}
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <KeyboardArrowDownOutlined
+                            fontSize="small"
+                            sx={{ color: 'var(--color-text-secondary)' }}
+                          />
+                        </InputAdornment>
+                      )
                     }
                   }}
                 />
@@ -670,7 +679,9 @@ function ExportFormDrawer({
               </Popper>
 
               {/* Date Range */}
-              <Stack direction="row" spacing={2} alignItems="center">
+              <Stack direction="row" spacing={2} sx={{
+                alignItems: "center"
+              }}>
                 <DatePicker
                   label="Start date"
                   value={toMoment(startDate)}
@@ -773,7 +784,9 @@ function ExportFormDrawer({
               bgcolor: 'var(--color-background-primary)'
             }}
           >
-            <Stack direction="row" justifyContent="space-between" spacing={1.5}>
+            <Stack direction="row" spacing={1.5} sx={{
+              justifyContent: "space-between"
+            }}>
               <Button
                 variant="contained"
                 size="small"
@@ -814,8 +827,10 @@ function ExportFormDrawer({
         open={snackbarOpen}
         autoHideDuration={2500}
         onClose={handleSnackbarClose}
-        TransitionComponent={SlideTransition}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        slots={{
+          transition: SlideTransition
+        }}
       >
         <Box
           sx={{
@@ -857,7 +872,7 @@ function ExportFormDrawer({
         </Box>
       </Snackbar>
     </LocalizationProvider>
-  )
+  );
 }
 
 ExportFormDrawer.propTypes = {

@@ -72,8 +72,10 @@ export const Story = {
 export const PositionedTooltips = () => {
   return (
     <Box sx={{ width: 500 }}>
-      <Grid container justifyContent="center">
-        <Grid item>
+      <Grid container sx={{
+        justifyContent: "center"
+      }}>
+        <Grid>
           <Tooltip title="Add" arrow placement="top-start">
             <Button>top-start</Button>
           </Tooltip>
@@ -85,8 +87,10 @@ export const PositionedTooltips = () => {
           </Tooltip>
         </Grid>
       </Grid>
-      <Grid container justifyContent="center">
-        <Grid item xs={6}>
+      <Grid container sx={{
+        justifyContent: "center"
+      }}>
+        <Grid size={6}>
           <Tooltip title="Add" arrow placement="left-start">
             <Button>left-start</Button>
           </Tooltip>
@@ -99,26 +103,30 @@ export const PositionedTooltips = () => {
             <Button>left-end</Button>
           </Tooltip>
         </Grid>
-        <Grid item container xs={6} alignItems="flex-end" direction="column">
-          <Grid item>
+        <Grid container direction="column" size={6} sx={{
+          alignItems: "flex-end"
+        }}>
+          <Grid>
             <Tooltip title="Add" arrow placement="right-start">
               <Button>right-start</Button>
             </Tooltip>
           </Grid>
-          <Grid item>
+          <Grid>
             <Tooltip title="Add" arrow placement="right">
               <Button>right</Button>
             </Tooltip>
           </Grid>
-          <Grid item>
+          <Grid>
             <Tooltip title="Add" arrow placement="right-end">
               <Button>right-end</Button>
             </Tooltip>
           </Grid>
         </Grid>
       </Grid>
-      <Grid container justifyContent="center">
-        <Grid item>
+      <Grid container sx={{
+        justifyContent: "center"
+      }}>
+        <Grid>
           <Tooltip title="Add" arrow placement="bottom-start">
             <Button>bottom-start</Button>
           </Tooltip>

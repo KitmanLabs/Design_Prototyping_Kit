@@ -8,7 +8,13 @@ const DrawerSkeleton = () => {
     <Box sx={{ px: 2, pt: 1 }}>
       {[0, 1, 2].map((g) => (
         <Box key={g} sx={{ mb: 2 }}>
-          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              alignItems: "center",
+              mb: 1
+            }}>
             <Skeleton variant="circular" width={24} height={24} />
             <Skeleton variant="text" width={220} height={28} />
             <Box sx={{ flex: 1 }} />
@@ -18,10 +24,12 @@ const DrawerSkeleton = () => {
             <Stack
               key={r}
               direction="row"
-              alignItems="center"
               spacing={2}
-              sx={{ py: 1, px: 1 }}
-            >
+              sx={{
+                alignItems: "center",
+                py: 1,
+                px: 1
+              }}>
               <Skeleton variant="rectangular" width={20} height={20} />
               <Skeleton variant="circular" width={36} height={36} />
               <Box sx={{ flex: 1 }}>
@@ -59,10 +67,11 @@ const BodySkeleton = (props) => {
             key={g}
             data-testid="skeleton-row"
             direction="row"
-            alignItems="center"
             spacing={2}
-            sx={{ mb: 1 }}
-          >
+            sx={{
+              alignItems: "center",
+              mb: 1
+            }}>
             <Skeleton
               data-testid="skeleton-text"
               variant="text"

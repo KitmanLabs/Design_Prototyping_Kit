@@ -71,13 +71,15 @@ function NotificationDrawer({ open, onClose, notifications = sampleNotifications
       open={open}
       onClose={handleClose}
       ModalProps={{ keepMounted: true }}
-      PaperProps={{
-        sx: {
-          width: isMobile ? '100vw' : 400,
-          maxWidth: '100vw',
-          height: isMobile ? '90vh' : '100vh',
-          boxShadow: theme.shadows[16],
-          display: 'flex'
+      slotProps={{
+        paper: {
+          sx: {
+            width: isMobile ? '100vw' : 400,
+            maxWidth: '100vw',
+            height: isMobile ? '90vh' : '100vh',
+            boxShadow: theme.shadows[16],
+            display: 'flex'
+          }
         }
       }}
     >
@@ -117,8 +119,6 @@ function NotificationDrawer({ open, onClose, notifications = sampleNotifications
                   }}
                 >
                   <ListItemText
-                    primaryTypographyProps={{ component: 'div' }}
-                    secondaryTypographyProps={{ component: 'div' }}
                     primary={
                       <Typography
                         variant="body2"
@@ -159,7 +159,10 @@ function NotificationDrawer({ open, onClose, notifications = sampleNotifications
                         </Typography>
                       </Box>
                     }
-                  />
+                    slotProps={{
+                      primary: { component: 'div' },
+                      secondary: { component: 'div' }
+                    }} />
                 </ListItem>
                 {index < notifications.length - 1 && (
                   <Divider sx={{ borderColor: 'var(--color-border-secondary)' }} />
@@ -188,7 +191,7 @@ function NotificationDrawer({ open, onClose, notifications = sampleNotifications
         </Box>
       </Box>
     </Drawer>
-  )
+  );
 }
 
 NotificationDrawer.propTypes = {

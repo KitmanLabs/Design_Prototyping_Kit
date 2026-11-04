@@ -67,11 +67,13 @@ const CopyCalendarUrl = ({
             onChange={(e) => setUrl(e.target.value)}
             fullWidth
             size="small"
-            InputProps={{ readOnly: false }}
             sx={{
               '& .MuiInputBase-root': {
                 backgroundColor: 'transparent',
               },
+            }}
+            slotProps={{
+              input: { readOnly: false }
             }}
           />
 

@@ -39,7 +39,9 @@ export default {
           <Link underline="hover" color="inherit" href="#">
             Core
           </Link>
-          <Typography color="text.primary">Breadcrumbs</Typography>
+          <Typography sx={{
+            color: "text.primary"
+          }}>Breadcrumbs</Typography>
         </Breadcrumbs>
       </div>
     );
@@ -104,7 +106,9 @@ export const WithActiveLast = () => (
       <Link underline="hover" color="inherit" href="#">
         Core
       </Link>
-      <Link underline="hover" color="text.primary" aria-current="page" href="#">
+      <Link underline="hover" aria-current="page" href="#" sx={{
+        color: "text.primary"
+      }}>
         Breadcrumbs
       </Link>
     </Breadcrumbs>
@@ -119,7 +123,9 @@ export const WithCustomSeparator = () => {
     <Link underline="hover" key="2" color="inherit" href="#" onClick={() => {}}>
       Core
     </Link>,
-    <Typography key="3" color="text.primary">
+    <Typography key="3" sx={{
+      color: "text.primary"
+    }}>
       Breadcrumb
     </Typography>,
   ];
@@ -164,9 +170,11 @@ export const WithIcons = () => (
         Dashboard
       </Link>
       <Typography
-        sx={{ display: 'flex', alignItems: 'center' }}
-        color="text.primary"
-      >
+        sx={{
+          color: "text.primary",
+          display: 'flex',
+          alignItems: 'center'
+        }}>
         <Settings sx={{ mr: 0.5 }} fontSize="inherit" />
         Settings
       </Typography>
@@ -201,9 +209,11 @@ export const WithIcons = () => (
         Projects
       </Link>
       <Typography
-        sx={{ display: 'flex', alignItems: 'center' }}
-        color="text.primary"
-      >
+        sx={{
+          color: "text.primary",
+          display: 'flex',
+          alignItems: 'center'
+        }}>
         <Description sx={{ mr: 0.5 }} fontSize="inherit" />
         Report.pdf
       </Typography>
@@ -232,9 +242,11 @@ export const WithIcons = () => (
         Users
       </Link>
       <Typography
-        sx={{ display: 'flex', alignItems: 'center' }}
-        color="text.primary"
-      >
+        sx={{
+          color: "text.primary",
+          display: 'flex',
+          alignItems: 'center'
+        }}>
         <Settings sx={{ mr: 0.5 }} fontSize="inherit" />
         Profile Settings
       </Typography>

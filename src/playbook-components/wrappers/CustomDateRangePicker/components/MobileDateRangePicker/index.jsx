@@ -31,16 +31,26 @@ function MobileDateRangePicker({
       {mobileStep === 'start' && (
         <Box
           data-calendar-type="start"
-          display="flex"
-          flexDirection="column"
-          sx={{ mt: 2 }}
-        >
-          <Box display="flex" alignItems="center" sx={getMobileHeaderStyles()}>
-            <Typography bgcolor="white" variant="body1">
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            mt: 2
+          }}>
+          <Box
+            sx={[{
+              display: "flex",
+              alignItems: "center"
+            }, getMobileHeaderStyles()]}>
+            <Typography variant="body1" sx={{
+              bgcolor: "white"
+            }}>
               {i18n.t('Start date')}
             </Typography>
           </Box>
-          <Box display="flex" sx={getMobileQuickFiltersStyles()}>
+          <Box
+            sx={[{
+              display: "flex"
+            }, getMobileQuickFiltersStyles()]}>
             <QuickFilters
               selectedFilter={selectedFilter}
               onQuickSelect={handleQuickSelect}
@@ -67,15 +77,25 @@ function MobileDateRangePicker({
       {mobileStep === 'end' && (
         <Box
           data-calendar-type="end"
-          display="flex"
-          flexDirection="column"
-          sx={{ mt: 2 }}
-        >
-          <Box display="flex" alignItems="center" sx={getMobileHeaderStyles()}>
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            mt: 2
+          }}>
+          <Box
+            sx={[{
+              display: "flex",
+              alignItems: "center"
+            }, getMobileHeaderStyles()]}>
             <IconButton onClick={() => setMobileStep('start')} size="small">
               <ChevronLeft />
             </IconButton>
-            <Typography bgcolor="white" variant="body1" sx={{ ml: 1 }}>
+            <Typography
+              variant="body1"
+              sx={{
+                bgcolor: "white",
+                ml: 1
+              }}>
               {i18n.t('End date')}
             </Typography>
           </Box>

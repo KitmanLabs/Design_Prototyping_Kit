@@ -9,7 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Checkbox from '@mui/material/Checkbox';
 import Alert from '@mui/material/Alert';
-import { ClickAwayListener } from '@mui/base';
+import { ClickAwayListener } from '@mui/material';
 import i18n from '@kitman/common/src/utils/i18n';
 import Popper from '@mui/material/Popper';
 import { ChevronLeft } from '@mui/icons-material';
@@ -386,7 +386,9 @@ const AthleteSelectorDropdown = ({
         </Button>
 
         <Box>
-          <Typography variant="body2" color="text.primary">
+          <Typography variant="body2" sx={{
+            color: "text.primary"
+          }}>
             {currentGroup.title}
           </Typography>
           {currentGroup.subtitle && (
@@ -429,10 +431,11 @@ const AthleteSelectorDropdown = ({
           {isEmpty && (
             <Typography
               variant="body2"
-              color="text.secondary"
-              textAlign="center"
-              py={2}
-            >
+              sx={{
+                color: "text.secondary",
+                textAlign: "center",
+                py: 2
+              }}>
               {i18n.t('No results')}
             </Typography>
           )}
@@ -491,12 +494,13 @@ const AthleteSelectorDropdown = ({
             <ClickAwayListener onClickAway={handleClose}>
               <Box>
                 <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  px={2}
-                  pt={2}
-                >
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    px: 2,
+                    pt: 2
+                  }}>
                   <Typography variant="h6">
                     {title ?? i18n.t('Select Athletes')}
                   </Typography>
@@ -507,11 +511,12 @@ const AthleteSelectorDropdown = ({
 
                 <Stack
                   direction="row"
-                  alignItems="center"
                   spacing={1}
-                  px={2}
-                  py={1}
-                >
+                  sx={{
+                    alignItems: "center",
+                    px: 2,
+                    py: 1
+                  }}>
                   <SearchBar
                     onSearchChange={setSearchInput}
                     grouping={grouping}
@@ -520,7 +525,11 @@ const AthleteSelectorDropdown = ({
                   />
                 </Stack>
 
-                <Box px={2} pb={1}>
+                <Box
+                  sx={{
+                    px: 2,
+                    pb: 1
+                  }}>
                   <Chip
                     size="small"
                     variant="filled"
@@ -534,16 +543,19 @@ const AthleteSelectorDropdown = ({
 
                 <Divider />
 
-                <Box flex={1}>{renderLevel()}</Box>
+                <Box sx={{
+                  flex: 1
+                }}>{renderLevel()}</Box>
 
                 <Divider />
 
                 <Stack
                   direction="row"
-                  justifyContent="flex-end"
                   spacing={1}
-                  p={2}
-                >
+                  sx={{
+                    justifyContent: "flex-end",
+                    p: 2
+                  }}>
                   <Button
                     variant="contained"
                     onClick={onDone}

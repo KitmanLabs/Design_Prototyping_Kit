@@ -26,7 +26,7 @@ import {
   Checkbox
 } from '@mui/material'
 import { Button } from '../../playbook-components'
-import { ClickAwayListener } from '@mui/base'
+import { ClickAwayListener } from '@mui/material'
 import { CloseOutlined, DeleteOutlined, AddOutlined, CheckOutlined, KeyboardArrowDownOutlined, ChevronLeftOutlined, ChevronRightOutlined, SyncOutlined } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
@@ -387,13 +387,14 @@ function AssignFormDrawer({
       <Box>
         {/* Header */}
         <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          px={2}
-          pt={2}
-          pb={1}
-        >
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            px: 2,
+            pt: 2,
+            pb: 1
+          }}>
           <Typography
             variant="h6"
             sx={{
@@ -501,7 +502,11 @@ function AssignFormDrawer({
             </Box>
           </>
         ) : (
-          <Box px={2} pb={1}>
+          <Box
+            sx={{
+              px: 2,
+              pb: 1
+            }}>
             <Chip
               size="small"
               variant="filled"
@@ -573,7 +578,7 @@ function AssignFormDrawer({
           </Button>
         </Box>
       </Box>
-    )
+    );
   }
 
   return (
@@ -583,13 +588,15 @@ function AssignFormDrawer({
         open={open}
         onClose={handleClose}
         ModalProps={{ keepMounted: true }}
-        PaperProps={{
-          sx: {
-            width: isMobile ? '100vw' : 480,
-            maxWidth: '100vw',
-            height: isMobile ? '90vh' : '100vh',
-            boxShadow: theme.shadows[16],
-            display: 'flex'
+        slotProps={{
+          paper: {
+            sx: {
+              width: isMobile ? '100vw' : 480,
+              maxWidth: '100vw',
+              height: isMobile ? '90vh' : '100vh',
+              boxShadow: theme.shadows[16],
+              display: 'flex'
+            }
           }
         }}
       >
@@ -631,10 +638,12 @@ function AssignFormDrawer({
               variant="filled"
               label="Form"
               value={formName}
-              InputProps={{
-                readOnly: true,
-              }}
               sx={formFieldStyles}
+              slotProps={{
+                input: {
+                  readOnly: true,
+                }
+              }}
             />
 
             {/* Players Selector Trigger (same as Export drawer) */}
@@ -647,23 +656,25 @@ function AssignFormDrawer({
                 value={triggerDisplayText}
                 placeholder="Select players"
                 onClick={handleOpenSelector}
-                InputProps={{
-                  readOnly: true,
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <KeyboardArrowDownOutlined
-                        fontSize="small"
-                        sx={{ color: 'var(--color-text-secondary)' }}
-                      />
-                    </InputAdornment>
-                  )
-                }}
                 sx={{
                   ...formFieldStyles,
                   cursor: 'pointer',
                   '& .MuiInputBase-input': {
                     ...formFieldStyles['& .MuiInputBase-input'],
                     cursor: 'pointer'
+                  }
+                }}
+                slotProps={{
+                  input: {
+                    readOnly: true,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <KeyboardArrowDownOutlined
+                          fontSize="small"
+                          sx={{ color: 'var(--color-text-secondary)' }}
+                        />
+                      </InputAdornment>
+                    )
                   }
                 }}
               />
@@ -1175,7 +1186,9 @@ function AssignFormDrawer({
             bgcolor: 'var(--color-background-primary)'
           }}
         >
-          <Stack direction="row" justifyContent="flex-end" spacing={1.5}>
+          <Stack direction="row" spacing={1.5} sx={{
+            justifyContent: "flex-end"
+          }}>
             <Button
               variant="contained"
               size="small"
@@ -1211,7 +1224,7 @@ function AssignFormDrawer({
       </Box>
     </Drawer>
     </LocalizationProvider>
-  )
+  );
 }
 
 AssignFormDrawer.propTypes = {

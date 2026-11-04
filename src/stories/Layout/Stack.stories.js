@@ -71,9 +71,11 @@ export const WithDividers = () => (
   <Box sx={{ width: 300 }}>
     <Stack
       direction="column"
-      justifyContent="center"
       spacing={2}
       divider={<Divider orientation="horizontal" flexItem />}
+      sx={{
+        justifyContent: "center"
+      }}
     >
       <Item>Item 1</Item>
       <Item>Item 2</Item>

@@ -321,9 +321,11 @@ export default function Screen02_FormBuilder() {
             onChange={(event) => handlePreviewValueChange(question.id, event.target.value)}
             multiline={Boolean(question.meta?.multiline)}
             minRows={question.meta?.multiline ? 3 : undefined}
-            InputLabelProps={{ shrink: false }}
+            slotProps={{
+              inputLabel: { shrink: false }
+            }}
           />
-        )
+        );
       }
 
       if (question.type === 'select') {
@@ -335,7 +337,9 @@ export default function Screen02_FormBuilder() {
             select
             value={previewValues[question.id] || ''}
             onChange={(event) => handlePreviewValueChange(question.id, event.target.value)}
-            SelectProps={{ displayEmpty: true }}
+            slotProps={{
+              select: { displayEmpty: true }
+            }}
           >
             <MenuItem value="">
               <em>Select</em>
@@ -344,7 +348,7 @@ export default function Screen02_FormBuilder() {
               <MenuItem key={option} value={option}>{option}</MenuItem>
             ))}
           </TextField>
-        )
+        );
       }
 
       if (question.type === 'radio' || question.type === 'checkbox') {
@@ -361,16 +365,18 @@ export default function Screen02_FormBuilder() {
                 size="small"
                 fullWidth
                 select
-                SelectProps={{
-                  multiple: true,
-                  displayEmpty: true,
-                  renderValue: (selected) => {
-                    if (!selected || selected.length === 0) return <em>Select multiple</em>
-                    return selected.join(', ')
-                  }
-                }}
                 value={Array.isArray(previewValues[question.id]) ? previewValues[question.id] : []}
                 onChange={(event) => handlePreviewValueChange(question.id, event.target.value)}
+                slotProps={{
+                  select: {
+                    multiple: true,
+                    displayEmpty: true,
+                    renderValue: (selected) => {
+                      if (!selected || selected.length === 0) return <em>Select multiple</em>
+                      return selected.join(', ')
+                    }
+                  }
+                }}
               >
                 {(question.options || []).map((option) => (
                   <MenuItem key={option} value={option}>
@@ -379,7 +385,7 @@ export default function Screen02_FormBuilder() {
                   </MenuItem>
                 ))}
               </TextField>
-            )
+            );
           }
           // Radio with >3 options
           return (
@@ -390,14 +396,16 @@ export default function Screen02_FormBuilder() {
               select
               value={previewValues[question.id] || ''}
               onChange={(event) => handlePreviewValueChange(question.id, event.target.value)}
-              SelectProps={{ displayEmpty: true }}
+              slotProps={{
+                select: { displayEmpty: true }
+              }}
             >
               <MenuItem value=""><em>Select</em></MenuItem>
               {(question.options || []).map((option) => (
                 <MenuItem key={option} value={option}>{option}</MenuItem>
               ))}
             </TextField>
-          )
+          );
         }
 
         if (question.type === 'radio') {
@@ -692,7 +700,11 @@ export default function Screen02_FormBuilder() {
           <Box sx={{ p: 2 }}>
             <Grid container spacing={2}>
               {/* Actions card */}
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <Paper elevation={1} sx={{ borderRadius: 'var(--radius-md)' }}>
                   <Box sx={{ p: 2 }}>
                     <Typography variant="h6" sx={{ color: 'var(--color-text-primary)', mb: 1 }}>
@@ -737,7 +749,11 @@ export default function Screen02_FormBuilder() {
               </Grid>
 
               {/* Input method card */}
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <Paper elevation={1} sx={{ borderRadius: 'var(--radius-md)' }}>
                   <Box sx={{ p: 2 }}>
                     <Typography variant="h6" sx={{ color: 'var(--color-text-primary)', mb: 1 }}>
@@ -785,5 +801,5 @@ export default function Screen02_FormBuilder() {
         </TabPanel>
       </Paper>
     </Box>
-  )
+  );
 }

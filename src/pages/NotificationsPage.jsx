@@ -332,13 +332,15 @@ export default function NotificationsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             sx={{ minWidth: 260 }}
-            InputProps={{
-              sx: typographyStyles,
-              endAdornment: (
-                <InputAdornment position="end">
-                  <SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />
-                </InputAdornment>
-              )
+            slotProps={{
+              input: {
+                sx: typographyStyles,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />
+                  </InputAdornment>
+                )
+              }
             }}
           />
           <TextField
@@ -349,7 +351,9 @@ export default function NotificationsPage() {
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
             sx={{ minWidth: 160 }}
-            InputProps={{ sx: typographyStyles }}
+            slotProps={{
+              input: { sx: typographyStyles }
+            }}
           >
             <MenuItem value="">All</MenuItem>
             <MenuItem value="Submission">Submission</MenuItem>
@@ -366,7 +370,9 @@ export default function NotificationsPage() {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             sx={{ minWidth: 140 }}
-            InputProps={{ sx: typographyStyles }}
+            slotProps={{
+              input: { sx: typographyStyles }
+            }}
           >
             <MenuItem value="">All</MenuItem>
             <MenuItem value="Unread">Unread</MenuItem>
@@ -401,5 +407,5 @@ export default function NotificationsPage() {
         </Box>
       </Paper>
     </Box>
-  )
+  );
 }

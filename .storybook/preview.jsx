@@ -4,7 +4,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers-pro';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { rootTheme } from '../src/playbook-components/themes';
 import '../src/styles/design-tokens.css';
-import { LicenseInfo } from '@mui/x-license-pro';
+import { LicenseInfo } from '@mui/x-license';
 
 const muiLicenseKey = import.meta.env.VITE_MUI_X_LICENSE_KEY;
 if (muiLicenseKey) {

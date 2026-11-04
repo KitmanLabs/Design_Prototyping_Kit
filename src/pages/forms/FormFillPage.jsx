@@ -445,11 +445,13 @@ export default function FormFillPage() {
         variant="persistent"
         anchor="right"
         open={summaryDrawerOpen}
-        PaperProps={{
-          sx: {
-            width: drawerWidth,
-            borderLeft: '1px solid var(--color-border-primary)',
-            boxShadow: 'none'
+        slotProps={{
+          paper: {
+            sx: {
+              width: drawerWidth,
+              borderLeft: '1px solid var(--color-border-primary)',
+              boxShadow: 'none'
+            }
           }
         }}
       >
@@ -744,24 +746,26 @@ export default function FormFillPage() {
                         <ListItemText
                           primary={summary.title}
                           secondary={summary.date}
-                          primaryTypographyProps={{
-                            sx: {
-                              fontFamily: 'var(--font-family-primary)',
-                              fontSize: 'var(--font-size-sm)',
-                              fontWeight: 500,
-                              color: 'var(--color-text-primary)',
-                              lineHeight: 1.4
+                          slotProps={{
+                            primary: {
+                              sx: {
+                                fontFamily: 'var(--font-family-primary)',
+                                fontSize: 'var(--font-size-sm)',
+                                fontWeight: 500,
+                                color: 'var(--color-text-primary)',
+                                lineHeight: 1.4
+                              }
+                            },
+
+                            secondary: {
+                              sx: {
+                                fontFamily: 'var(--font-family-primary)',
+                                fontSize: 'var(--font-size-xs)',
+                                color: 'var(--color-text-secondary)',
+                                mt: 0.5
+                              }
                             }
-                          }}
-                          secondaryTypographyProps={{
-                            sx: {
-                              fontFamily: 'var(--font-family-primary)',
-                              fontSize: 'var(--font-size-xs)',
-                              color: 'var(--color-text-secondary)',
-                              mt: 0.5
-                            }
-                          }}
-                        />
+                          }} />
                         <ChevronRightOutlined
                           fontSize="small"
                           sx={{ color: 'var(--color-text-tertiary)', ml: 1 }}
@@ -792,5 +796,5 @@ export default function FormFillPage() {
         </Box>
       </Drawer>
     </Box>
-  )
+  );
 }

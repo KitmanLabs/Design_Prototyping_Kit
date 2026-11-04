@@ -122,7 +122,7 @@ export const applyRangeStyles = (
   isMobile
 ) => {
   // First, clear all existing styles
-  document.querySelectorAll('.MuiPickersDay-root').forEach((day) => {
+  document.querySelectorAll('.MuiPickerDay-root').forEach((day) => {
     const dayElement = day;
     dayElement.style.backgroundColor = '';
     dayElement.style.color = '';
@@ -134,7 +134,7 @@ export const applyRangeStyles = (
 
   calendarContainers.forEach((container) => {
     const calendarType = container.getAttribute('data-calendar-type');
-    const daysInCalendar = container.querySelectorAll('.MuiPickersDay-root');
+    const daysInCalendar = container.querySelectorAll('.MuiPickerDay-root');
 
     // Get the month/year this calendar is showing
     const currentMonthYear = getCurrentMonthYear(container);

@@ -160,9 +160,11 @@ const AthleteSelectorDrawerContent = ({
         >
           <ChevronLeft />
           <Typography
-            color="text.primary"
-            sx={{ fontSize: '16px', fontWeight: 400 }}
-          >
+            sx={{
+              color: "text.primary",
+              fontSize: '16px',
+              fontWeight: 400
+            }}>
             {`${currentGroup.title} ${
               selectedCount ? `(${selectedCount})` : ''
             }`}
@@ -196,10 +198,11 @@ const AthleteSelectorDrawerContent = ({
         {isEmpty && (
           <Typography
             variant="body2"
-            color="text.secondary"
-            textAlign="center"
-            py={2}
-          >
+            sx={{
+              color: "text.secondary",
+              textAlign: "center",
+              py: 2
+            }}>
             {i18n.t('No results')}
           </Typography>
         )}
@@ -209,7 +212,9 @@ const AthleteSelectorDrawerContent = ({
 
   return (
     <>
-      <Stack direction="row" spacing={1} px={2}>
+      <Stack direction="row" spacing={1} sx={{
+        px: 2
+      }}>
         <SearchBar
           Search={Search}
           onSearchChange={setSearchInput}
@@ -218,7 +223,11 @@ const AthleteSelectorDrawerContent = ({
         />
       </Stack>
 
-      <Box px={2} pb={1}>
+      <Box
+        sx={{
+          px: 2,
+          pb: 1
+        }}>
         <Chip
           size="small"
           variant="filled"
@@ -234,7 +243,12 @@ const AthleteSelectorDrawerContent = ({
 
       <Divider />
 
-      <Box flex={1} overflow="auto" sx={{ marginTop: '-8px' }}>
+      <Box
+        sx={{
+          flex: 1,
+          overflow: "auto",
+          marginTop: '-8px'
+        }}>
         {renderLevel()}
       </Box>
     </>

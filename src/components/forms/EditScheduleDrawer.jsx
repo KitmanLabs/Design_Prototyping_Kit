@@ -115,13 +115,15 @@ function EditScheduleDrawer({
         open={open}
         onClose={handleClose}
         ModalProps={{ keepMounted: true }}
-        PaperProps={{
-          sx: {
-            width: isMobile ? '100vw' : 480,
-            maxWidth: '100vw',
-            height: isMobile ? '90vh' : '100vh',
-            boxShadow: theme.shadows[16],
-            display: 'flex'
+        slotProps={{
+          paper: {
+            sx: {
+              width: isMobile ? '100vw' : 480,
+              maxWidth: '100vw',
+              height: isMobile ? '90vh' : '100vh',
+              boxShadow: theme.shadows[16],
+              display: 'flex'
+            }
           }
         }}
       >
@@ -174,7 +176,7 @@ function EditScheduleDrawer({
                     sx={formFieldStyles}
                   />
                 )}
-                renderTags={(value, getTagProps) => {
+                renderValue={(value, getItemProps) => {
                   const maxVisible = 3
                   const visibleTags = value.slice(0, maxVisible)
                   const moreCount = value.length - maxVisible
@@ -186,7 +188,7 @@ function EditScheduleDrawer({
                           key={option.id}
                           label={option.formName}
                           size="small"
-                          {...getTagProps({ index })}
+                          {...getItemProps({ index })}
                           sx={{
                             backgroundColor: 'var(--color-primary-light)',
                             color: 'var(--color-text-primary)',
@@ -212,7 +214,7 @@ function EditScheduleDrawer({
                         />
                       )}
                     </>
-                  )
+                  );
                 }}
                 renderOption={(props, option) => (
                   <Box
@@ -246,7 +248,7 @@ function EditScheduleDrawer({
                     sx={formFieldStyles}
                   />
                 )}
-                renderTags={(value, getTagProps) => {
+                renderValue={(value, getItemProps) => {
                   const maxVisible = 3
                   const visibleTags = value.slice(0, maxVisible)
                   const moreCount = value.length - maxVisible
@@ -258,7 +260,7 @@ function EditScheduleDrawer({
                           key={option.id}
                           label={option.name}
                           size="small"
-                          {...getTagProps({ index })}
+                          {...getItemProps({ index })}
                           sx={{
                             backgroundColor: 'var(--color-primary-light)',
                             color: 'var(--color-text-primary)',
@@ -284,7 +286,7 @@ function EditScheduleDrawer({
                         />
                       )}
                     </>
-                  )
+                  );
                 }}
                 renderOption={(props, option) => (
                   <Box
@@ -472,10 +474,12 @@ function EditScheduleDrawer({
           onClose={() => setConfirmModalOpen(false)}
           aria-labelledby="confirm-save-dialog-title"
           aria-describedby="confirm-save-dialog-description"
-          PaperProps={{
-            sx: {
-              borderRadius: 'var(--radius-md)',
-              padding: 1
+          slotProps={{
+            paper: {
+              sx: {
+                borderRadius: 'var(--radius-md)',
+                padding: 1
+              }
             }
           }}
         >
@@ -542,7 +546,7 @@ function EditScheduleDrawer({
           </DialogActions>
         </Dialog>      </Drawer>
     </LocalizationProvider>
-  )
+  );
 }
 
 EditScheduleDrawer.propTypes = {

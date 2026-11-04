@@ -16,7 +16,7 @@ import {
 /** Surface type, surface quality, weather and temperature: four half-width Grid items. */
 export const EventConditionsFields = ({ formData, onInputChange }) => (
   <>
-      <Grid item xs={6}>
+      <Grid size={6}>
         <FormControl fullWidth variant="filled" sx={formFieldStyles}>
           <InputLabel shrink>Surface type</InputLabel>
           <Select
@@ -39,7 +39,7 @@ export const EventConditionsFields = ({ formData, onInputChange }) => (
           </Select>
         </FormControl>
       </Grid>
-      <Grid item xs={6}>
+      <Grid size={6}>
         <FormControl fullWidth variant="filled" sx={formFieldStyles}>
           <InputLabel shrink>Surface quality</InputLabel>
           <Select
@@ -62,7 +62,7 @@ export const EventConditionsFields = ({ formData, onInputChange }) => (
           </Select>
         </FormControl>
       </Grid>
-      <Grid item xs={6}>
+      <Grid size={6}>
         <FormControl fullWidth variant="filled" sx={formFieldStyles}>
           <InputLabel shrink>Weather</InputLabel>
           <Select
@@ -85,7 +85,7 @@ export const EventConditionsFields = ({ formData, onInputChange }) => (
           </Select>
         </FormControl>
       </Grid>
-      <Grid item xs={6}>
+      <Grid size={6}>
         <TextField
           fullWidth
           variant="filled"
@@ -95,14 +95,16 @@ export const EventConditionsFields = ({ formData, onInputChange }) => (
             onInputChange('temperature', e.target.value)
           }
           placeholder="—"
-          InputLabelProps={{ shrink: true }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">°C</InputAdornment>
-            ),
-          }}
           sx={formFieldStyles}
-        />
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">°C</InputAdornment>
+              ),
+            },
+
+            inputLabel: { shrink: true }
+          }} />
       </Grid>
   </>
 );
@@ -111,7 +113,7 @@ export const EventConditionsFields = ({ formData, onInputChange }) => (
 export const EventRemindersSection = ({ formData, onInputChange, reminderTypes }) => (
   <>
       {/* Reminders */}
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Typography
           variant="subtitle2"
           sx={{
@@ -125,7 +127,7 @@ export const EventRemindersSection = ({ formData, onInputChange, reminderTypes }
           Reminders
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+          <Grid size={6}>
             <FormControl fullWidth variant="filled" sx={formFieldStyles}>
               <InputLabel shrink>Email</InputLabel>
               <Select
@@ -148,7 +150,7 @@ export const EventRemindersSection = ({ formData, onInputChange, reminderTypes }
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={6}>
             <FormControl fullWidth variant="filled" sx={formFieldStyles}>
               <InputLabel shrink>Push</InputLabel>
               <Select
@@ -171,7 +173,7 @@ export const EventRemindersSection = ({ formData, onInputChange, reminderTypes }
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <FormControl fullWidth variant="filled" sx={formFieldStyles}>
               <InputLabel shrink>Reminder</InputLabel>
               <Select
@@ -256,7 +258,11 @@ export const EventAttachmentsFields = ({
         </Box>
       )}
       <Grid container spacing={2} sx={{ mt: 1 }}>
-        <Grid item xs={12} sm={5}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 5
+          }}>
           <TextField
             fullWidth
             variant="filled"
@@ -265,11 +271,17 @@ export const EventAttachmentsFields = ({
             onChange={(e) =>
               onInputChange('attachTitle', e.target.value)
             }
-            InputLabelProps={{ shrink: true }}
             sx={formFieldStyles}
+            slotProps={{
+              inputLabel: { shrink: true }
+            }}
           />
         </Grid>
-        <Grid item xs={12} sm={5}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 5
+          }}>
           <TextField
             fullWidth
             variant="filled"
@@ -278,11 +290,18 @@ export const EventAttachmentsFields = ({
             onChange={(e) =>
               onInputChange('attachLink', e.target.value)
             }
-            InputLabelProps={{ shrink: true }}
             sx={formFieldStyles}
+            slotProps={{
+              inputLabel: { shrink: true }
+            }}
           />
         </Grid>
-        <Grid item xs={12} sm={2} sx={{ display: 'flex', alignItems: 'flex-end', pb: 0.5 }}>
+        <Grid
+          sx={{ display: 'flex', alignItems: 'flex-end', pb: 0.5 }}
+          size={{
+            xs: 12,
+            sm: 2
+          }}>
           <Button size="small" disableElevation={true} variant="contained" color="primary" onClick={onAddLink} style={{ width: '100%' }}>
             Add
           </Button>
