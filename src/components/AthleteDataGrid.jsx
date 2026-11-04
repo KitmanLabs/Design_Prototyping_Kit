@@ -20,6 +20,7 @@ import {
 } from '@mui/icons-material';
 import athletesData from '../data/athletes.json';
 import '../styles/design-tokens.css';
+import { dataGridStyles } from './dataGridStyles';
 
 const BulkActionsToolbar = React.forwardRef(({ numSelected, onBulkAction }, ref) => {
   if (numSelected === 0) return null;
@@ -287,24 +288,10 @@ const AthleteDataGrid = ({
     };
   }, [selectedRows, onBulkAction, data]);
 
-  // Basic styling for the grid container
   const containerStyles = {
+    ...dataGridStyles,
     height,
     width: '100%',
-    '& .MuiDataGrid-root': {
-      border: 'none',
-    },
-    '& .MuiDataGrid-cell': {
-      borderBottom: '1px solid var(--color-border-secondary)',
-    },
-    '& .MuiDataGrid-columnHeaders': {
-      borderBottom: '1px solid var(--color-border-primary)',
-      backgroundColor: 'var(--color-background-secondary)',
-    },
-    '& .MuiDataGrid-footerContainer': {
-      borderTop: '1px solid var(--color-border-primary)',
-      justifyContent: 'flex-start',
-    },
   };
 
   return (
