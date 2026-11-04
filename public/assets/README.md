@@ -1,79 +1,46 @@
-# Assets Directory
+# Images and logos
 
-This directory contains all images and media assets for the Medinah design prototype.
+Static images for the prototype. Vite serves everything in `public/` from the site root, so `public/assets/logos/...` is available at `/assets/logos/...`.
 
-## 📁 Directory Structure
+## What's here
 
 ```
 assets/
-├── players/          # Player headshots and photos
-├── logos/           # Organization and team logos
-├── badges/          # Achievement badges and icons
-├── teams/           # Team crests and emblems
-└── README.md        # This file
+├── logos/
+│   ├── Kitman Labs base.png     # Kitman Labs logo
+│   └── teams/
+│       ├── nba/                 # NBA team logos (bulls.png, celtics.png, ...)
+│       └── premier-league/      # Premier League club logos (arsenal.png, chelsea.png, ...)
+└── README.md
 ```
 
-## 🖼️ Image Guidelines
+There are no athlete photos. Athlete avatars fall back to initials (see below).
 
-### **File Naming Convention**
-- Use lowercase with hyphens: `player-name.jpg`
-- Include player ID when possible: `player-123-john-smith.jpg`
-- Logos: `organization-logo.png`, `team-logo-main.svg`
+## Using them
 
-### **Image Specifications**
-- **Player photos**: 400x400px, JPG format, square aspect ratio
-- **Logos**: SVG preferred, PNG as fallback, transparent background
-- **Team badges**: 200x200px, PNG/SVG, square format
-- **File size**: Keep under 500KB for optimal loading
+Prefer the components, which handle missing images for you:
 
-### **Recommended Formats**
-- **Photos**: JPG (better compression for photos)
-- **Logos/Icons**: SVG (scalable) or PNG (transparent background)
-- **Badges**: PNG or SVG
-
-## 📋 Usage Examples
-
-### **In React Components**
 ```jsx
-// Player images
-<img src="/assets/players/john-smith.jpg" alt="John Smith" />
+import { LogoImage, PlayerAvatar } from '../components'
 
-// Logos
-<img src="/assets/logos/medinah-logo.svg" alt="Medinah Logo" />
-
-// Team badges
-<img src="/assets/teams/first-team-badge.png" alt="First Team" />
+<LogoImage type="team" logoId="arsenal" league="premier-league" height={40} />
+<PlayerAvatar playerId="123" playerName="Marcus Johnson" size="medium" />
 ```
 
-### **In CSS**
-```css
-.player-avatar {
-  background-image: url('/assets/players/player-123.jpg');
-}
+Both resolve paths through `src/utils/assetManager.js`. If you need a path directly, use its helpers (`getTeamLogo`, `getOrganizationLogo`, `getPlayerImage`) rather than hardcoding `/assets/...`.
 
-.header-logo {
-  background-image: url('/assets/logos/organization-logo.svg');
-}
-```
+## Missing images
 
-## 🎨 Asset Management
+`assetManager.js` expects some folders that don't exist yet (`players/`, `badges/`) and placeholder files that aren't in the repo. In practice:
 
-The prototype includes an asset management system that:
-- Provides fallback placeholder images
-- Handles missing images gracefully
-- Maintains consistent aspect ratios
-- Supports different image sizes
+- Athlete avatars always show the athlete's initials: `getPlayerImage` doesn't look up photos yet, even if you add them
+- If a logo file is missing, `LogoImage` shows a "Team" or "Logo" label in its place
 
-## 📝 Adding New Assets
+So a prototype never breaks for want of an image, but add real files if a screen needs them.
 
-1. **Add image files** to the appropriate directory
-2. **Follow naming conventions** for consistency
-3. **Update asset registry** if using the asset management system
-4. **Test in prototype** to ensure proper loading
+## Adding images
 
-## 🔄 Placeholder System
-
-When images are missing, the system automatically:
-- Shows player initials for missing player photos
-- Displays generic logos for missing team images
-- Maintains proper layout with placeholder dimensions
+1. Put the file in the matching folder, creating `badges/` if you need it (athlete photos also need a change to `getPlayerImage` before they show)
+2. Name it in lowercase with hyphens: `manchester-city.png`, `athlete-123.jpg`
+3. For a new team logo, use `logos/teams/<league>/<team>.png` so `LogoImage` finds it
+4. Keep files small: under 500 KB, square for avatars and badges, transparent PNG or SVG for logos

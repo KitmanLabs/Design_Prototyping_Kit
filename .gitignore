@@ -160,3 +160,7 @@ sftp-config.json
 
 # Storybook build output (npm run build-storybook)
 storybook-static/
+
+# Claude Code worktrees (local, per developer). The rest of .claude/ (hooks,
+# settings, skills) is shared project config and stays tracked.
+.claude/worktrees/

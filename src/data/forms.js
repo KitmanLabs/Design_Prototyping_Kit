@@ -1,5 +1,5 @@
 // Mock data and option lists for the Forms pages and drawers (no backend).
-// All mock data lives in src/data (see PROJECT_STANDARDS).
+// All mock data lives in src/data (see docs/reference/project-structure.md).
 
 // Used by: pages/forms/FormsPage.jsx
 export const completedRowsData = [

@@ -18,8 +18,7 @@ moment.js.
 
 ```plaintext
 CustomDateRangePicker/
-├── index.js # Main component
-├── types.js # Flow types
+├── index.jsx # Main component
 ├── constants.js # Constants (default filters)
 ├── utils.js # Date utilities
 ├── styles.js # Component styles
@@ -28,12 +27,8 @@ CustomDateRangePicker/
 │   ├── useIsMobile.js # Hook for mobile device detection
 │   └── useClickOutside.js # Hook for closing calendar on outside click
 └── components/
-    ├── DesktopDateRangePicker/ # Desktop version
-    │   ├── index.js
-    │   └── types.js
-    └── MobileDateRangePicker/ # Mobile version
-        ├── index.js
-        └── types.js
+    ├── DesktopDateRangePicker/index.jsx # Desktop version
+    └── MobileDateRangePicker/index.jsx # Mobile version
 ```
 
 ## API

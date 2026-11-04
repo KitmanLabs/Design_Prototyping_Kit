@@ -1,4 +1,4 @@
-# ResponsivePageHeader — Documentation
+# ResponsivePageHeader documentation
 
 `ResponsivePageHeader` is a fully responsive page header component used across Playbook and Profiler.  
 It provides a unified layout for:
@@ -12,7 +12,7 @@ It provides a unified layout for:
 - Overflow menu (more actions + export actions)  
 - Mobile truncation and tooltips  
 
-This component manages layout and display only — not routing or business logic.
+This component manages layout and display only, not routing or business logic.
 
 ---
 

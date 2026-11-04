@@ -1,5 +1,5 @@
 // Mock data for messaging – no backend
-// All messaging mock data lives in src/data (see PROJECT_STANDARDS)
+// All messaging mock data lives in src/data (see docs/reference/project-structure.md)
 // Avatars: Pravatar (real-looking face photos, free, no API key). Same id = same image.
 // Some users have no avatarUrl – UI falls back to initials.
 
