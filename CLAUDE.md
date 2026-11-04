@@ -23,6 +23,7 @@ src/
 ├── App.jsx                # routes; App wraps every route in LayoutWithMainNav
 ├── components/            # App components (Icon, Card, PlayerAvatar, MainNavigation, drawers)
 ├── data/                  # All mock data, option lists, fixtures, form templates
+├── floorplans/            # Page types: PageFrame and its regions; every page starts here
 ├── pages/                 # Page-level views (Calendar, Medical, Messaging, forms)
 ├── playbook-components/   # Playbook Components (MUI wrappers ported from the iP monorepo); edit here
 ├── stories/               # Storybook stories for the Playbook Components
@@ -31,6 +32,8 @@ src/
 ```
 
 ## Component priority (critical)
+Every page starts from a floorplan (`src/floorplans`): pick one with the decision list in `docs/reference/design-system.md` → "Floorplans", compose `PageFrame` with `PageHeader`, `PageToolbar`, `FloorplanFooter` and `PageState`, then fill it:
+
 1. **Playbook Components first**: import from `src/playbook-components` (Button, DataGrid, DataGridPremium, DatePicker, Drawer, Toasts, ConfirmationModal, TabBar, SelectWrapper, Autocomplete, and MUI primitives re-exported by the barrel)
 2. **App components**: import from `src/components` (Icon, Card, PlayerAvatar, LogoImage, StatusChip, AthleteDataGrid, LayoutWithMainNav)
 3. **MUI fallback**: `@mui/material` only when 1 and 2 have no equivalent

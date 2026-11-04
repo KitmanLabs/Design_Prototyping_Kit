@@ -33,6 +33,10 @@ export const pageTitles = {
   '/help': 'Help'
 }
 
+// Paths (and everything under them) whose pages render their own page header, usually a
+// floorplan's PageHeader. The app bar shows their title as a quieter section label.
+export const pagesWithOwnHeader = ['/calendar', '/forms']
+
 // Earlier kit paths, redirected to the iP paths above
 export const legacyRedirects = {
   '/medical': '/medical/rosters',

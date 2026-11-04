@@ -17,7 +17,7 @@ import {
   NotificationsOutlined
 } from '@mui/icons-material'
 import MainNavigation from './MainNavigation'
-import { currentUser, availableSquads, pageTitles } from '../data/layout'
+import { currentUser, availableSquads, pageTitles, pagesWithOwnHeader } from '../data/layout'
 import '../styles/design-tokens.css'
 
 function MedinahLayoutWithMainNav({ children }) {
@@ -49,8 +49,10 @@ function MedinahLayoutWithMainNav({ children }) {
     setCurrentSquad(squad)
   }
 
-  const isCalendarPage = location.pathname === '/calendar'
-  const isFormsPage = location.pathname.startsWith('/forms')
+  // Pages with their own page header show the app bar title as a quieter section label
+  const hasPageHeader = pagesWithOwnHeader.some(
+    (path) => location.pathname === path || location.pathname.startsWith(`${path}/`)
+  )
 
   return (
     <>
@@ -90,9 +92,9 @@ function MedinahLayoutWithMainNav({ children }) {
               variant="h6" 
               component="h1"
               sx={{ 
-                fontWeight: (isCalendarPage || isFormsPage) ? 500 : 600,
-                fontSize: (isCalendarPage || isFormsPage) ? '14px' : undefined,
-                color: (isCalendarPage || isFormsPage) ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+                fontWeight: hasPageHeader ? 500 : 600,
+                fontSize: hasPageHeader ? '14px' : undefined,
+                color: hasPageHeader ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
                 fontFamily: 'var(--font-family-primary)',
                 textTransform: 'none'
               }}

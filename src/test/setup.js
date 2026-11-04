@@ -11,9 +11,14 @@ afterEach(() => {
 })
 
 if (typeof window !== 'undefined' && !window.matchMedia) {
-  window.matchMedia = () => ({
+  // Matches nothing, so responsive components render their smallest (xs) layout.
+  // MUI 9's useMediaQuery subscribes with addEventListener.
+  window.matchMedia = (query) => ({
     matches: false,
+    media: query,
     addListener: () => {},
-    removeListener: () => {}
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {}
   })
 }

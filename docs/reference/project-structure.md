@@ -29,6 +29,7 @@ src/
 │   └── formFieldStyles.js # Shared filled-input styling for drawer forms
 ├── data/                  # All mock data, option lists and fixtures
 │   └── formTemplates/     # Form template JSON
+├── floorplans/            # Page types: PageFrame and its regions (header, toolbar, footer, states)
 ├── pages/                 # Page-level views (Calendar, Medical, Messaging, forms)
 ├── playbook-components/   # Playbook Components ported from the iP monorepo (edit here)
 ├── stories/               # Storybook stories
@@ -38,6 +39,7 @@ src/
 
 ## Pages and navigation
 
+- Start from a floorplan: compose `PageFrame` from `src/floorplans` (see [Floorplans](design-system.md#floorplans)).
 - Add the page under `src/pages/` and its route in `src/App.jsx`. `App` already wraps every route in `LayoutWithMainNav`, so a page renders only its own content.
 - Add a sidebar item in `navigationItems` in `src/components/MainNavigation.jsx`, and a header title in `pageTitles` in `src/data/layout.js` if the page needs one.
 - The `/new-page` skill walks Claude through these steps.
@@ -51,6 +53,7 @@ src/
 
 ## Components
 
+- Page regions (header, toolbar, selection bar, footer, page states) belong in `src/floorplans`. Extend those rather than building a page-specific header or footer.
 - Check `src/playbook-components` first, then `src/components`. Add new app components under `src/components` (or a feature subfolder), never at the repo root.
 - When two components share a block of UI, extract it once (see `src/components/Calendar/EventDrawerFields.jsx`) rather than copying it.
 - Playbook source is plain JavaScript. It still imports through the monorepo package names (`@kitman/playbook/...`, `@kitman/common/...`, `@kitman/modules/...`, `@kitman/components`). `vite.config.js` aliases these onto `src/playbook-components`. Anything under `common/`, `modules/` and `kitman-components-stub/` is a small stand-in for the monorepo code, kept only while something imports it.
@@ -58,7 +61,7 @@ src/
 
 ## Stories
 
-- Every Playbook Component exported from the barrel should have a story in `src/stories/<Group>/<Name>.stories.js`, using the existing groups (Data Display, Date & Time Pickers, Feedback, Inputs, Layout, Navigation, Surfaces, Table, Utils, Scheduler, Chat).
+- Every Playbook Component exported from the barrel should have a story in `src/stories/<Group>/<Name>.stories.js`, using the existing groups (Data Display, Date & Time Pickers, Feedback, Inputs, Layout, Navigation, Surfaces, Table, Utils, Scheduler, Chat). Floorplan regions have theirs in `src/stories/Floorplans/`.
 - Story-only helpers go next to the stories (for example `src/stories/Table/utils/`).
 - `npm run build-storybook` runs in CI, so a story that doesn't build fails the pipeline.
 
@@ -74,6 +77,7 @@ src/
 | Routes | `src/App.jsx` |
 | Sidebar items | `src/components/MainNavigation.jsx` |
 | Mock data and option lists | `src/data` |
+| Page types | `src/floorplans` |
 | Components | `src/playbook-components` first, then `src/components` |
 | Theme | `src/playbook-components/themes.js` |
 | Design tokens | `src/styles/design-tokens.css` |
