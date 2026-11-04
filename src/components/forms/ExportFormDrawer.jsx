@@ -22,7 +22,7 @@ import {
   Slide
 } from '@mui/material'
 import { Button } from '../../playbook-components'
-import { ClickAwayListener } from '@mui/base'
+import { ClickAwayListener } from '@mui/material'
 import {
   CloseOutlined,
   KeyboardArrowDownOutlined,

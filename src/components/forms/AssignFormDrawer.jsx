@@ -26,7 +26,7 @@ import {
   Checkbox
 } from '@mui/material'
 import { Button } from '../../playbook-components'
-import { ClickAwayListener } from '@mui/base'
+import { ClickAwayListener } from '@mui/material'
 import { CloseOutlined, DeleteOutlined, AddOutlined, CheckOutlined, KeyboardArrowDownOutlined, ChevronLeftOutlined, ChevronRightOutlined, SyncOutlined } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'

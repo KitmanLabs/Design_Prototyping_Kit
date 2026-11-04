@@ -9,7 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Checkbox from '@mui/material/Checkbox';
 import Alert from '@mui/material/Alert';
-import { ClickAwayListener } from '@mui/base';
+import { ClickAwayListener } from '@mui/material';
 import i18n from '@kitman/common/src/utils/i18n';
 import Popper from '@mui/material/Popper';
 import { ChevronLeft } from '@mui/icons-material';

@@ -151,7 +151,7 @@ import Stack from '@mui/material/Stack';
 /**
  * UTILS
  */
-import { ClickAwayListener, NoSsr, Portal, TextareaAutosize } from '@mui/base';
+import { ClickAwayListener, NoSsr, Portal, TextareaAutosize } from '@mui/material';
 import Collapse from '@mui/material/Collapse';
 import CssBaseline from '@mui/material/CssBaseline';
 import Fade from '@mui/material/Fade';
