@@ -18,6 +18,6 @@ const color = figma.selectedInstance.getEnum('Color', {
 export default {
   id: 'Chip',
   imports: ["import { Chip } from 'playbook-components'"],
-  example: figma.code`<Chip label="${label}" size="small"${color && color !== 'default' ? ` color="${color}"` : ''}${disabled ? ' disabled' : ''} />`,
+  example: figma.code`<Chip label="${label}"${color && color !== 'default' ? ` color="${color}"` : ''}${disabled ? ' disabled' : ''} />`,
   metadata: { nestable: true },
 }

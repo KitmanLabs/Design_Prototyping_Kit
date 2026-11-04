@@ -41,8 +41,8 @@ Primary and secondary actions are both `variant="contained"`, distinguished by `
 
 ```jsx
 // ✅
-<Button variant="contained" color="primary" size="small" disableElevation={true}>Save</Button>
-<Button variant="contained" color="secondary" size="small" disableElevation={true}>Cancel</Button>
+<Button variant="contained" color="primary" disableElevation={true}>Save</Button>
+<Button variant="contained" color="secondary" disableElevation={true}>Cancel</Button>
 // ❌
 <Button variant="outlined">Cancel</Button>
 <Button variant="text">Cancel</Button>
@@ -61,17 +61,25 @@ import { Dashboard } from '@mui/icons-material'         // ❌
 
 ### Explicit MUI props
 
-The theme sets these defaults, but write them out so the code reads correctly:
+Write the variant props out so the code reads correctly. Leave size to the theme, which uses iP's defaults, unless a design calls for a different size:
 
-| Component | Props |
-|---|---|
-| TextField, Select, FormControl | `variant="filled" size="small"` |
-| Button | `variant="contained" size="small" disableElevation={true}` (use the `loading` prop for a loading state) |
-| Autocomplete, Chip, IconButton | `size="small"` |
+| Component | Write explicitly | Theme default size (as in iP) |
+|---|---|---|
+| TextField, Select | `variant="filled"` | small |
+| FormControl | `variant="filled"` | medium, full width |
+| Button | `variant="contained" disableElevation={true}` (use the `loading` prop for a loading state) | medium |
+| Chip | | medium |
+| IconButton | | medium (MUI default) |
+
+FormControl is full width by default, as in iP. Pass `fullWidth={false}` for a control that sits inline in a toolbar or filter row.
 
 ## Theme
 
 There is one MUI theme, `rootTheme` in `src/playbook-components/themes.js`. The app (`src/main.jsx`) and Storybook (`.storybook/preview.jsx`) both use it, so components look the same in both. Change palette, typography or component defaults there, never in a second `createTheme`.
+
+`rootTheme` mirrors the real Playbook theme (`themes/index.ts` in KitmanLabs/kitman-playbook): the same palette, type scale, component defaults and overrides, with colour values from iP's `packages/common/src/variables/colors.js`. The status tokens in `design-tokens.css` use the same iP colours. Kit-only additions (sentence case through a CSS variable, token-driven button styles, secondary buttons inside data grids) are marked `Kit:` in the file. When the Playbook theme changes, update `rootTheme` to match.
+
+The kit runs Material UI 9 and MUI X 9 ahead of iP, which still uses Material UI 5. This is deliberate: iP is moving to MUI 9.
 
 ## MUI 9 APIs
 
@@ -166,7 +174,7 @@ npm run lint:fix                 # apply ESLint fixes (design rules only suggest
 + color: var(--color-primary);
 
 - <Button variant="outlined">Cancel</Button>
-+ <Button variant="contained" color="secondary" size="small" disableElevation={true}>Cancel</Button>
++ <Button variant="contained" color="secondary" disableElevation={true}>Cancel</Button>
 
 - import { Button } from '@mui/material'
 + import { Button } from '../playbook-components'

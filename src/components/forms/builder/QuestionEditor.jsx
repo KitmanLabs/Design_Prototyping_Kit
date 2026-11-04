@@ -60,7 +60,7 @@ export default function QuestionEditor({ question, index, onChange }) {
       <Grid container spacing={3}>
         <Grid>
           <Box sx={{ minWidth: 240 }}>
-            <FormControl fullWidth size="small" variant="filled">
+            <FormControl fullWidth variant="filled">
               <InputLabel id="qs-label">Question style</InputLabel>
               <Select
                 labelId="qs-label"
@@ -99,7 +99,7 @@ export default function QuestionEditor({ question, index, onChange }) {
         </Grid>
         <Grid>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-            <FormControl fullWidth sx={{ maxWidth: 220 }} size="small" variant="filled">
+            <FormControl fullWidth sx={{ maxWidth: 220 }} variant="filled">
               <InputLabel id="style-label">Style</InputLabel>
               <Select
                 labelId="style-label"

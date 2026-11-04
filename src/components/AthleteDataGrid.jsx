@@ -205,7 +205,6 @@ const AthleteDataGrid = ({
       renderCell: (params) => (
         <Chip
           label={params.value}
-          size="small"
           color={
             params.value === 'Available' ? 'success' :
             params.value === 'Injured' ? 'error' :

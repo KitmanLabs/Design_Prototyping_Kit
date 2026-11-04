@@ -49,7 +49,7 @@ function MedinahLayoutWithMainNav({ children }) {
     setCurrentSquad(squad)
   }
 
-  const isCalendarPage = location.pathname === '/planning'
+  const isCalendarPage = location.pathname === '/calendar'
   const isFormsPage = location.pathname.startsWith('/forms')
 
   return (

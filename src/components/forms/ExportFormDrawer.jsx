@@ -281,7 +281,6 @@ function ExportFormDrawer({
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Button
-            size="small"
             variant="contained"
             onClick={(e) => {
               e.stopPropagation()
@@ -386,7 +385,7 @@ function ExportFormDrawer({
           >
             Select Athletes
           </Typography>
-          <IconButton size="small" onClick={handleCloseSelector}>
+          <IconButton onClick={handleCloseSelector}>
             <CloseOutlined fontSize="small" />
           </IconButton>
         </Box>
@@ -407,7 +406,6 @@ function ExportFormDrawer({
               <Button
                 startIcon={<ChevronLeftOutlined fontSize="small" />}
                 onClick={handleBack}
-                size="small"
                 sx={{
                   textTransform: 'none',
                   fontFamily: 'var(--font-family-primary)',
@@ -452,7 +450,6 @@ function ExportFormDrawer({
               }}
             >
               <Chip
-                size="small"
                 variant="filled"
                 disabled={selectedIds.size === 0}
                 color="primary"
@@ -488,7 +485,6 @@ function ExportFormDrawer({
               pb: 1
             }}>
             <Chip
-              size="small"
               variant="filled"
               disabled={selectedIds.size === 0}
               color="primary"
@@ -539,7 +535,6 @@ function ExportFormDrawer({
         <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
           <Button
             variant="contained"
-            size="small"
             onClick={handleDone}
             disabled={selectedIds.size === 0}
             sx={{
@@ -603,7 +598,7 @@ function ExportFormDrawer({
             >
               Export
             </Typography>
-            <IconButton onClick={handleClose} size="small" aria-label="Close">
+            <IconButton onClick={handleClose} aria-label="Close">
               <CloseOutlined />
             </IconButton>
           </Box>
@@ -789,7 +784,6 @@ function ExportFormDrawer({
             }}>
               <Button
                 variant="contained"
-                size="small"
                 disableElevation
                 sx={{
                   backgroundColor: 'var(--button-secondary-bg)',
@@ -804,7 +798,6 @@ function ExportFormDrawer({
               </Button>
               <Button
                 variant="contained"
-                size="small"
                 disableElevation
                 sx={{
                   backgroundColor: 'var(--color-primary)',
@@ -856,7 +849,6 @@ function ExportFormDrawer({
             Export successful
           </Typography>
           <Button
-            size="small"
             variant="contained"
             sx={{
               color: 'var(--color-white)',

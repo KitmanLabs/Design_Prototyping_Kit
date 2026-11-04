@@ -15,7 +15,7 @@ const color = figma.selectedInstance.getEnum('Variant', {
 export default {
   id: 'Button',
   imports: ["import { Button } from 'playbook-components'"],
-  example: figma.code`<Button variant="contained" color="${color || 'primary'}" size="small" disableElevation={true}${disabled ? ' disabled' : ''}>
+  example: figma.code`<Button variant="contained" color="${color || 'primary'}" disableElevation={true}${disabled ? ' disabled' : ''}>
   ${label}
 </Button>`,
   metadata: { nestable: true },

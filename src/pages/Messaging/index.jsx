@@ -396,7 +396,7 @@ export default function Messaging() {
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             {scheduledMessages.length > 0 && (
               <Tooltip title="View all scheduled messages">
-                <IconButton size="small" onClick={() => setViewScheduledOpen(true)}>
+                <IconButton onClick={() => setViewScheduledOpen(true)}>
                   <ScheduleIcon fontSize="small" />
                   {scheduledMessages.length > 0 && (
                     <Box component="span" sx={{ position: 'absolute', top: 4, right: 4, width: 8, height: 8, borderRadius: '50%', bgcolor: 'info.main' }} />
@@ -404,7 +404,7 @@ export default function Messaging() {
                 </IconButton>
               </Tooltip>
             )}
-            <IconButton size="small" onClick={handleAddDM}><ComposeIcon /></IconButton>
+            <IconButton onClick={handleAddDM}><ComposeIcon /></IconButton>
           </Box>
         </Box>
         <Box sx={{ flex: 1, overflow: 'auto' }}>
@@ -415,7 +415,7 @@ export default function Messaging() {
                 color: "text.secondary",
                 fontWeight: 600
               }}>Channels</Typography>
-            <IconButton size="small" onClick={handleAddChannel}><AddIcon fontSize="small" /></IconButton>
+            <IconButton onClick={handleAddChannel}><AddIcon fontSize="small" /></IconButton>
           </Box>
           {conversations.filter(c => c.type === 'channel' && !c.archived).map((c) => (
             <ListItemButton key={c.id} selected={selectedId === c.id} onClick={() => handleSelectConversation(c.id)} sx={{ py: 1 }}>
@@ -463,7 +463,7 @@ export default function Messaging() {
                 color: "text.secondary",
                 fontWeight: 600
               }}>Direct messages</Typography>
-            <IconButton size="small" onClick={handleAddDM}><AddIcon fontSize="small" /></IconButton>
+            <IconButton onClick={handleAddDM}><AddIcon fontSize="small" /></IconButton>
           </Box>
           {conversations.filter(c => c.type === 'dm' && !c.archived).map((c) => {
             const otherId = c.participantIds?.find(pid => pid !== currentUserId)
@@ -542,7 +542,7 @@ export default function Messaging() {
                     ml: 1
                   }}>{formatTime(selected.lastActivity)}</Typography>
               </Box>
-              <IconButton size="small" onClick={(e) => setAnchorMenu(e.currentTarget)}><MoreVertIcon /></IconButton>
+              <IconButton onClick={(e) => setAnchorMenu(e.currentTarget)}><MoreVertIcon /></IconButton>
             </Box>
             <Menu anchorEl={anchorMenu} open={Boolean(anchorMenu)} onClose={() => setAnchorMenu(null)}>
               {isChannel && <MenuItem onClick={handleOpenChannelSettings}>Channel settings</MenuItem>}
@@ -607,7 +607,7 @@ export default function Messaging() {
                           {editingMessageId === msg.id ? (
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, width: '100%', maxWidth: '75%' }}>
                               <TextField size="small" fullWidth value={editText} onChange={(e) => setEditText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()} />
-                              <Box sx={{ display: 'flex', gap: 1 }}><IconButton size="small" onClick={handleSend}>Save</IconButton><IconButton size="small" onClick={handleCancelEdit}>Cancel</IconButton></Box>
+                              <Box sx={{ display: 'flex', gap: 1 }}><IconButton onClick={handleSend}>Save</IconButton><IconButton onClick={handleCancelEdit}>Cancel</IconButton></Box>
                             </Box>
                           ) : (
                             <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
@@ -621,7 +621,7 @@ export default function Messaging() {
                                   }}>📎 {msg.attachments.length} file(s)</Typography>}
                               </Box>
                               {isOwn && (
-                                <IconButton size="small" onClick={(e) => handleOpenMessageMenu(e, msg)}><MoreVertIcon fontSize="small" /></IconButton>
+                                <IconButton onClick={(e) => handleOpenMessageMenu(e, msg)}><MoreVertIcon fontSize="small" /></IconButton>
                               )}
                             </Box>
                           )}
@@ -634,7 +634,7 @@ export default function Messaging() {
                           {editingMessageId === msg.id ? (
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, width: '100%' }}>
                               <TextField size="small" fullWidth value={editText} onChange={(e) => setEditText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()} />
-                              <Box sx={{ display: 'flex', gap: 1 }}><IconButton size="small" onClick={handleSend}>Save</IconButton><IconButton size="small" onClick={handleCancelEdit}>Cancel</IconButton></Box>
+                              <Box sx={{ display: 'flex', gap: 1 }}><IconButton onClick={handleSend}>Save</IconButton><IconButton onClick={handleCancelEdit}>Cancel</IconButton></Box>
                             </Box>
                           ) : (
                             <>
@@ -649,7 +649,7 @@ export default function Messaging() {
                                 <Typography variant="caption" sx={{ opacity: 0.8 }}>{formatTime(msg.timestamp)}</Typography>
                               </Box>
                               {isOwn && (
-                                <IconButton size="small" onClick={(e) => handleOpenMessageMenu(e, msg)}><MoreVertIcon fontSize="small" /></IconButton>
+                                <IconButton onClick={(e) => handleOpenMessageMenu(e, msg)}><MoreVertIcon fontSize="small" /></IconButton>
                               )}
                             </>
                           )}
@@ -672,13 +672,13 @@ export default function Messaging() {
                   {attachments.map(a => (
                     <Box key={a.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, bgcolor: 'grey.100', borderRadius: 1, px: 1, py: 0.5 }}>
                       <Typography variant="caption">{a.name}</Typography>
-                      <IconButton size="small" onClick={() => removeAttachment(a.id)}><CloseIcon sx={{ fontSize: 14 }} /></IconButton>
+                      <IconButton onClick={() => removeAttachment(a.id)}><CloseIcon sx={{ fontSize: 14 }} /></IconButton>
                     </Box>
                   ))}
                 </Box>
               )}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <IconButton size="small" onClick={handleAttachClick} title="Attach file"><AttachFileIcon /></IconButton>
+                <IconButton onClick={handleAttachClick} title="Attach file"><AttachFileIcon /></IconButton>
                 <TextField
                   fullWidth
                   size="small"
@@ -692,7 +692,6 @@ export default function Messaging() {
                 />
                 <Tooltip title="Schedule send">
                   <IconButton 
-                    size="small" 
                     onClick={handleOpenScheduleSend} 
                     disabled={!inputValue.trim() && attachments.length === 0}
                     sx={{ color: 'action.active' }}
@@ -711,7 +710,7 @@ export default function Messaging() {
                   }}>
                     {scheduledMessages.filter(m => m.conversationId === selectedId).length} scheduled message(s)
                   </Typography>
-                  <Button size="small" onClick={() => setViewScheduledOpen(true)}>View</Button>
+                  <Button onClick={() => setViewScheduledOpen(true)}>View</Button>
                 </Box>
               )}
             </Box>
@@ -735,7 +734,7 @@ export default function Messaging() {
             <>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                 <Typography variant="h6">New direct message</Typography>
-                <IconButton size="small" onClick={() => setRightPanel(null)}><CloseIcon /></IconButton>
+                <IconButton onClick={() => setRightPanel(null)}><CloseIcon /></IconButton>
               </Box>
               <Typography
                 variant="subtitle2"
@@ -770,7 +769,7 @@ export default function Messaging() {
             <>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                 <Typography variant="h6">New private channel</Typography>
-                <IconButton size="small" onClick={() => { setRightPanel(null); setNewChannelStep(1) }}><CloseIcon /></IconButton>
+                <IconButton onClick={() => { setRightPanel(null); setNewChannelStep(1) }}><CloseIcon /></IconButton>
               </Box>
               {newChannelStep === 1 ? (
                 <>
@@ -809,7 +808,7 @@ export default function Messaging() {
                 </>
               ) : (
                 <>
-                  <IconButton size="small" onClick={handleBackToMembers} sx={{ mb: 1 }}><ArrowBackIcon /> Back</IconButton>
+                  <IconButton onClick={handleBackToMembers} sx={{ mb: 1 }}><ArrowBackIcon /> Back</IconButton>
                   <Typography
                     variant="subtitle2"
                     sx={{
@@ -841,7 +840,7 @@ export default function Messaging() {
             <>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                 <Typography variant="h6">Channel settings</Typography>
-                <IconButton size="small" onClick={() => setRightPanel(null)}><CloseIcon /></IconButton>
+                <IconButton onClick={() => setRightPanel(null)}><CloseIcon /></IconButton>
               </Box>
               <Typography variant="body2" sx={{
                 color: "text.secondary"
@@ -860,7 +859,7 @@ export default function Messaging() {
         <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 480, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 24, p: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
             <Typography variant="h6">Manage channel members</Typography>
-            <IconButton size="small" onClick={() => setChannelMembersOpen(false)}><CloseIcon /></IconButton>
+            <IconButton onClick={() => setChannelMembersOpen(false)}><CloseIcon /></IconButton>
           </Box>
           <FormControlLabel 
             control={<Switch checked={showInactiveMembers} onChange={(e) => setShowInactiveMembers(e.target.checked)} />} 
@@ -902,7 +901,7 @@ export default function Messaging() {
                         secondary: { sx: { color: isInactive ? 'warning.main' : undefined } }
                       }} />
                     {!m.isAdmin && (
-                      <IconButton size="small" onClick={(e) => handleOpenMemberMenu(e, m.id)}>
+                      <IconButton onClick={(e) => handleOpenMemberMenu(e, m.id)}>
                         <MoreVertIcon fontSize="small" />
                       </IconButton>
                     )}
@@ -1010,7 +1009,6 @@ export default function Messaging() {
             onClick={() => setScheduleDialogOpen(false)}
             variant="contained"
             color="secondary"
-            size="small"
             disableElevation={true}
           >
             Cancel
@@ -1018,7 +1016,6 @@ export default function Messaging() {
           <Button
             onClick={handleCustomScheduleSend}
             variant="contained"
-            size="small"
             disableElevation={true}
             disabled={!scheduleDate || !scheduleTime}
           >
@@ -1044,7 +1041,7 @@ export default function Messaging() {
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
             <Typography variant="h6">Scheduled messages</Typography>
-            <IconButton size="small" onClick={() => setViewScheduledOpen(false)}><CloseIcon /></IconButton>
+            <IconButton onClick={() => setViewScheduledOpen(false)}><CloseIcon /></IconButton>
           </Box>
           
           {scheduledMessages.length === 0 ? (
@@ -1088,7 +1085,6 @@ export default function Messaging() {
                         <Chip 
                           icon={<ScheduleIcon />} 
                           label={formatScheduledTime(msg.scheduledFor)} 
-                          size="small" 
                           color="info"
                           sx={{ mb: 1 }}
                         />
@@ -1104,7 +1100,6 @@ export default function Messaging() {
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
                       <Button 
-                        size="small"
                         variant="contained"
                         color="secondary"
                         disableElevation
@@ -1119,7 +1114,6 @@ export default function Messaging() {
                         Send now
                       </Button>
                       <Button 
-                        size="small" 
                         color="error"
                         onClick={() => handleCancelScheduled(msg.id)}
                       >

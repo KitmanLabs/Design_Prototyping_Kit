@@ -97,13 +97,13 @@ function MedicalPage() {
   const [injuredFilter, setInjuredFilter] = useState('');
 
   const tabs = [
-    'Roster',
+    'Team',
     'Notes',
     'Diagnostics',
     'Procedures',
     'Medical flags',
     'Shared players',
-    'Past players',
+    'Past athletes',
     'Documents',
     "Coach's report",
     'Daily status report',
@@ -293,7 +293,6 @@ function MedicalPage() {
         return (
           <Chip
             label={params.row.cardiacScreening}
-            size="small"
             icon={isOutstanding ? <WarningOutlined fontSize="small" /> : undefined}
             sx={{
               backgroundColor: isOutstanding
@@ -344,7 +343,7 @@ function MedicalPage() {
       headerClassName: 'grid-cell--pad-right',
       cellClassName: 'grid-cell--pad-right',
       renderCell: () => (
-        <IconButton size="small" sx={{ color: 'var(--color-text-secondary)' }}>
+        <IconButton sx={{ color: 'var(--color-text-secondary)' }}>
           <MoreVertOutlined fontSize="small" />
         </IconButton>
       ),
@@ -421,13 +420,13 @@ function MedicalPage() {
               fontFamily: 'var(--font-family-primary)',
             }}
           >
-            Roster
+            Team
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button disableElevation={true} variant="contained" color="primary" size="small">
+            <Button disableElevation={true} variant="contained" color="primary">
               Add
             </Button>
-            <Button disableElevation={true} variant="contained" color="secondary" size="small">
+            <Button disableElevation={true} variant="contained" color="secondary">
               Download
             </Button>
           </Box>

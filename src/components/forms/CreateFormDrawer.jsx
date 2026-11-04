@@ -58,7 +58,7 @@ function CreateFormDrawer({ open, onClose, onSubmit, categories = [] }) {
         {/* Header */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3, py: 1.5 }}>
           <Typography variant="h6" sx={{ fontWeight: 600, fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-lg)', color: 'var(--color-text-primary)' }}>Create form</Typography>
-          <IconButton onClick={handleClose} size="small" aria-label="Close">
+          <IconButton onClick={handleClose} aria-label="Close">
             <CloseOutlined />
           </IconButton>
         </Box>
@@ -112,7 +112,6 @@ function CreateFormDrawer({ open, onClose, onSubmit, categories = [] }) {
           }}>
             <Button
               variant="contained"
-              size="small"
               disableElevation
               sx={{
                 backgroundColor: 'var(--button-secondary-bg)',
@@ -126,7 +125,6 @@ function CreateFormDrawer({ open, onClose, onSubmit, categories = [] }) {
             </Button>
             <Button
               variant="contained"
-              size="small"
               disableElevation
               disabled={!title.trim()}
               sx={{

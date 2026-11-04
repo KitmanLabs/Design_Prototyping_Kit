@@ -37,25 +37,26 @@ src/playbook-components/ComponentName.jsx
 
 ## Required prop patterns
 
-Always write MUI variant and size props explicitly, even though the theme enforces them as defaults:
+Always write MUI variant props explicitly. Leave size to the theme, which uses iP's Playbook defaults (TextField and Select small; Button, Chip, IconButton and FormControl medium), unless a design calls for a different size:
 
 ```jsx
 // TextFields
-<TextField variant="filled" size="small" label="Search" />
+<TextField variant="filled" label="Search" />
 
 // Buttons: import from playbook-components; secondary actions use color="secondary"
-<Button variant="contained" color="primary" size="small" disableElevation={true}>
+<Button variant="contained" color="primary" disableElevation={true}>
   Save
 </Button>
 
-// Selects
-<Select variant="filled" size="small" />
-<FormControl variant="filled" size="small">...</FormControl>
+// Selects: FormControl is full width by default, as in iP
+<FormControl variant="filled">
+  <Select variant="filled" />
+</FormControl>
+<FormControl variant="filled" fullWidth={false}>...</FormControl> // inline in a toolbar
 
-// Chips, IconButtons, Autocomplete
-<Chip size="small" label="Tag" />
-<IconButton size="small"><CloseOutlined /></IconButton>
-<Autocomplete size="small" ... />
+// Chips and IconButtons
+<Chip label="Tag" />
+<IconButton><CloseOutlined /></IconButton>
 ```
 
 ## Colors: always use CSS custom properties

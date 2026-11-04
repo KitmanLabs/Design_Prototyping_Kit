@@ -183,7 +183,7 @@ const CalendarHeader = ({
             }}
           >
             <Button
-              size="small" disableElevation={true}
+ disableElevation={true}
               variant="contained" color="secondary"
               onClick={onToggleFilters}
               style={{ ...secondaryButtonStyle, gap: '4px' }}
@@ -195,7 +195,7 @@ const CalendarHeader = ({
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, ml: 1 }}>
           <Button
-            size="small" disableElevation={true}
+ disableElevation={true}
             variant="contained" color="secondary"
             onClick={() => onNavigate && onNavigate('prev')}
             style={navButtonStyle}
@@ -205,7 +205,7 @@ const CalendarHeader = ({
           </Button>
 
           <Button
-            size="small" disableElevation={true}
+ disableElevation={true}
             variant="contained" color="secondary"
             onClick={() => onNavigate && onNavigate('next')}
             style={navButtonStyle}
@@ -215,7 +215,7 @@ const CalendarHeader = ({
           </Button>
 
           <Button
-            size="small" disableElevation={true}
+ disableElevation={true}
             variant="contained" color="secondary"
             onClick={() => onNavigate && onNavigate('today')}
             style={todayButtonStyle}
@@ -248,7 +248,6 @@ const CalendarHeader = ({
         </Typography>
         <IconButton
           onClick={handleDateClick}
-          size="small"
           sx={{
             color: 'var(--color-primary)',
             padding: '2px',
@@ -261,7 +260,6 @@ const CalendarHeader = ({
         </IconButton>
         <IconButton
           onClick={handleSettingsClick}
-          size="small"
           sx={{
             color: 'var(--color-primary)',
             padding: '4px',
@@ -277,7 +275,7 @@ const CalendarHeader = ({
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'flex-end' }}>
         <Button
-          size="small" disableElevation={true}
+ disableElevation={true}
           variant="contained" color="secondary"
           onClick={handleViewMenuClick}
           style={secondaryButtonStyle}
@@ -287,7 +285,7 @@ const CalendarHeader = ({
         </Button>
 
         <Button
-          size="small" disableElevation={true}
+ disableElevation={true}
           variant="contained" color="primary"
           onClick={handleAddMenuClick}
           style={primaryButtonStyle}

@@ -101,7 +101,6 @@ const EventTooltip = ({
           </Typography>
         </Box>
         <Button
-          size="small"
           onClick={onDuplicate}
           sx={{
             // eslint-disable-next-line design-system/no-hardcoded-colors
@@ -159,7 +158,6 @@ const EventTooltip = ({
 
       <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between' }}>
         <Button
-          size="small"
           onClick={() => onDelete(event)}
           sx={{
             // eslint-disable-next-line design-system/no-hardcoded-colors
@@ -176,7 +174,6 @@ const EventTooltip = ({
         </Button>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
-            size="small"
             onClick={() => onEdit(event)}
             sx={{
               color: 'var(--color-text-primary)',
@@ -191,7 +188,6 @@ const EventTooltip = ({
             Edit
           </Button>
           <Button
-            size="small"
             onClick={() => onMoreDetails(event)}
             variant="contained"
             sx={{

@@ -260,7 +260,7 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
             <Typography variant="h6" sx={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
               {editingEvent ? 'Edit event' : 'New event'}
             </Typography>
-            <IconButton onClick={onClose} size="small">
+            <IconButton onClick={onClose}>
               <CloseOutlined />
             </IconButton>
           </Box>
@@ -566,10 +566,10 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
 
           <Box sx={{ padding: '16px 24px', borderTop: '1px solid var(--color-border-primary)', backgroundColor: 'var(--color-white)' }}>
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between' }}>
-              <Button size="small" disableElevation={true} onClick={onClose} variant="contained" color="secondary">
+              <Button disableElevation={true} onClick={onClose} variant="contained" color="secondary">
                 Cancel
               </Button>
-              <Button size="small" disableElevation={true} onClick={handleSave} variant="contained" color="primary">
+              <Button disableElevation={true} onClick={handleSave} variant="contained" color="primary">
                 Save
               </Button>
             </Box>

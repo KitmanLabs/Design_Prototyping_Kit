@@ -36,7 +36,7 @@ function DrawerAthleteSelector({ open, onClose, title = 'Assign athletes', athle
     }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1.5 }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{title}</Typography>
-        <IconButton onClick={onClose} size="small">
+        <IconButton onClick={onClose}>
           <CloseOutlined />
         </IconButton>
       </Box>

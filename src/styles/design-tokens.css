@@ -5,7 +5,7 @@
   --color-primary: #3B4960;
   --color-primary-hover: #2f3a4d;
   --color-primary-light: #f2f3f5;
-  --color-primary-dark: #232b3a;
+  --color-primary-dark: #0d1b30; /* iP grey_400 */
   
   /* Secondary Colors */
   --color-secondary: #F1F2F3;
@@ -13,8 +13,8 @@
   --color-secondary-light: #f8f9fa;
   
   /* Text Colors */
-  --color-text-primary: #333333;
-  --color-text-secondary: #666666;
+  --color-text-primary: #3b4960; /* iP grey_200, the Playbook's text.primary */
+  --color-text-secondary: #5f7089; /* iP grey_100, iP's lighter body grey */
   --color-text-muted: #999999;
   --color-text-disabled: #cccccc;
   --color-white: #ffffff;
@@ -33,18 +33,19 @@
   --color-border-secondary: #f0f0f0;
   --color-border-focus: #3B4960;
   
-  /* Status Colors */
-  --color-success: #28a745;
-  --color-success-light: #d4edda;
-  --color-success-dark: #155724;
-  
-  --color-warning: #ffc107;
-  --color-warning-light: #fff3cd;
-  --color-warning-dark: #856404;
-  
-  --color-error: #dc3545;
-  --color-error-light: #f8d7da;
-  --color-error-dark: #721c24;
+  /* Status Colors: iP values from packages/common/src/variables/colors.js,
+     matching the Playbook theme palette */
+  --color-success: #0a875a; /* green_200 */
+  --color-success-light: #d9f0e3; /* green_100_20 */
+  --color-success-dark: #0a6644; /* green_300 */
+
+  --color-warning: #e55e38; /* orange_200 */
+  --color-warning-light: #fff4e5; /* beige_50, iP's warning alert background */
+  --color-warning-dark: #663c00; /* brown_600, iP's warning alert text */
+
+  --color-error: #b11b27; /* red_200 */
+  --color-error-light: #feedee; /* red_light */
+  --color-error-dark: #931621; /* red_300 */
   
   --color-info: #3B4960;
   --color-info-light: #f2f3f5;

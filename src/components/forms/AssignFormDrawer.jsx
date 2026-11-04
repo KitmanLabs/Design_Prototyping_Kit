@@ -299,7 +299,6 @@ function AssignFormDrawer({
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Button
-            size="small"
             variant="contained"
             color="secondary"
             disableElevation
@@ -406,7 +405,7 @@ function AssignFormDrawer({
           >
             Select Athletes
           </Typography>
-          <IconButton size="small" onClick={handleCloseSelector}>
+          <IconButton onClick={handleCloseSelector}>
             <CloseOutlined fontSize="small" />
           </IconButton>
         </Box>
@@ -427,7 +426,6 @@ function AssignFormDrawer({
               <Button
                 startIcon={<ChevronLeftOutlined fontSize="small" />}
                 onClick={handleBack}
-                size="small"
                 sx={{
                   textTransform: 'none',
                   fontFamily: 'var(--font-family-primary)',
@@ -472,7 +470,6 @@ function AssignFormDrawer({
               }}
             >
               <Chip
-                size="small"
                 variant="filled"
                 disabled={selectedIds.size === 0}
                 color="primary"
@@ -508,7 +505,6 @@ function AssignFormDrawer({
               pb: 1
             }}>
             <Chip
-              size="small"
               variant="filled"
               disabled={selectedIds.size === 0}
               color="primary"
@@ -559,7 +555,6 @@ function AssignFormDrawer({
         <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
           <Button
             variant="contained"
-            size="small"
             onClick={handleDone}
             disabled={selectedIds.size === 0}
             sx={{
@@ -623,7 +618,7 @@ function AssignFormDrawer({
           >
             Form Assignment
           </Typography>
-          <IconButton onClick={handleClose} size="small" aria-label="Close">
+          <IconButton onClick={handleClose} aria-label="Close">
             <CloseOutlined />
           </IconButton>
         </Box>
@@ -837,7 +832,6 @@ function AssignFormDrawer({
                       Schedule
                     </Typography>
                     <IconButton
-                      size="small"
                       onClick={() => {
                         setScheduleTitle('')
                         setStartDate(new Date())
@@ -910,7 +904,7 @@ function AssignFormDrawer({
                     />
 
                     {/* Timezone Selector */}
-                    <FormControl size="small" variant="filled" sx={formFieldStyles}>
+                    <FormControl variant="filled" sx={formFieldStyles}>
                       <InputLabel>Time Zone</InputLabel>
                       <Select
                         value={timezone}
@@ -926,7 +920,7 @@ function AssignFormDrawer({
                     </FormControl>
 
                     {/* Responses per Player Selector */}
-                    <FormControl size="small" variant="filled" sx={formFieldStyles}>
+                    <FormControl variant="filled" sx={formFieldStyles}>
                       <InputLabel>Responses per Player</InputLabel>
                       <Select
                         value={responsesPerPlayer}
@@ -962,7 +956,6 @@ function AssignFormDrawer({
                 </Typography>
                 {notifications.length > 0 && (
                   <IconButton
-                    size="small"
                     onClick={() => setNotifications([])}
                     aria-label="Remove notifications"
                     sx={{ color: 'var(--color-text-secondary)', '&:hover': { color: 'var(--color-error)' } }}
@@ -975,7 +968,7 @@ function AssignFormDrawer({
               {/* Show added notifications */}
               {notifications.map((notification, index) => (
                 <Box key={index} sx={{ mb: 2 }}>
-                  <FormControl size="small" variant="filled" sx={{ ...formFieldStyles, mb: 2, width: 200 }}>
+                  <FormControl variant="filled" sx={{ ...formFieldStyles, mb: 2, width: 200 }}>
                     <InputLabel>When to notify</InputLabel>
                     <Select
                       value={notification.timing}
@@ -1144,7 +1137,6 @@ function AssignFormDrawer({
               {/* Add Notification Button */}
               <Button
                 variant="contained"
-                size="small"
                 disableElevation
                 startIcon={<AddOutlined fontSize="small" />}
                 onClick={() => {
@@ -1191,7 +1183,6 @@ function AssignFormDrawer({
           }}>
             <Button
               variant="contained"
-              size="small"
               disableElevation
               sx={{
                 backgroundColor: 'var(--button-secondary-bg)',
@@ -1206,7 +1197,6 @@ function AssignFormDrawer({
             </Button>
             <Button
               variant="contained"
-              size="small"
               disableElevation
               sx={{
                 backgroundColor: 'var(--color-primary)',

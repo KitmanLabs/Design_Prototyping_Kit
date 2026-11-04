@@ -97,7 +97,7 @@ function NotificationDrawer({ open, onClose, notifications = sampleNotifications
           >
             Notifications
           </Typography>
-          <IconButton onClick={handleClose} size="small" aria-label="Close">
+          <IconButton onClick={handleClose} aria-label="Close">
             <CloseOutlined />
           </IconButton>
         </Box>

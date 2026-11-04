@@ -9,9 +9,9 @@ const disabled = figma.selectedInstance.getEnum('State', { Disabled: true })
 export default {
   id: 'Select',
   imports: ["import { FormControl, InputLabel, MenuItem, Select } from 'playbook-components'"],
-  example: figma.code`<FormControl variant="filled" size="small" fullWidth${disabled ? ' disabled' : ''}>
+  example: figma.code`<FormControl variant="filled"${disabled ? ' disabled' : ''}>
   <InputLabel>${label}</InputLabel>
-  <Select variant="filled" size="small" value={value} onChange={handleChange}>
+  <Select variant="filled" value={value} onChange={handleChange}>
     <MenuItem value="">None</MenuItem>
   </Select>
 </FormControl>`,

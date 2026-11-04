@@ -206,7 +206,6 @@ export default function FormsPage() {
       cellClassName: 'grid-cell--pad-right',
       renderCell: (params) => (
         <IconButton
-          size="small"
           aria-label="more"
           onClick={(e) => {
             e.stopPropagation()
@@ -317,7 +316,6 @@ export default function FormsPage() {
         cellClassName: 'grid-cell--pad-right',
         renderCell: (params) => (
           <IconButton
-            size="small"
             aria-label="Delete"
             onClick={(e) => {
               e.stopPropagation()
@@ -390,7 +388,6 @@ export default function FormsPage() {
           const isExpanded = expandedRows.has(params.row.id)
           return (
             <IconButton
-              size="small"
               onClick={(e) => {
                 e.stopPropagation()
                 toggleRowExpansion(params.row.id)
@@ -703,7 +700,6 @@ export default function FormsPage() {
           const isExpanded = schedulingExpandedRows.has(params.row.id)
           return (
             <IconButton
-              size="small"
               onClick={(e) => {
                 e.stopPropagation()
                 toggleSchedulingRowExpansion(params.row.id)
@@ -771,7 +767,6 @@ export default function FormsPage() {
           if (params.row.isSubRow) return null
           return (
             <IconButton
-              size="small"
               aria-label="more"
               onClick={(e) => {
                 e.stopPropagation()
@@ -801,7 +796,6 @@ export default function FormsPage() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <IconButton
               onClick={() => setIsNotificationDrawerOpen(true)}
-              size="small"
               aria-label="Notifications"
               sx={{ color: 'var(--color-text-secondary)' }}
             >
@@ -1383,7 +1377,7 @@ export default function FormsPage() {
             >
               Assigned Players
             </Typography>
-            <IconButton onClick={handleCloseAssignedPlayersDrawer} size="small" aria-label="Close">
+            <IconButton onClick={handleCloseAssignedPlayersDrawer} aria-label="Close">
               <CloseOutlined />
             </IconButton>
           </Box>
@@ -1462,7 +1456,7 @@ export default function FormsPage() {
             }}
           >
             <Button
-              size="small" disableElevation={true}
+ disableElevation={true}
               variant="contained" color="secondary"
               onClick={handleCloseAssignedPlayersDrawer}
               sx={{
@@ -1481,7 +1475,7 @@ export default function FormsPage() {
               Cancel
             </Button>
             <Button
-              size="small" disableElevation={true}
+ disableElevation={true}
               variant="contained" color="primary"
               onClick={handleSaveAssignedPlayers}
               sx={{

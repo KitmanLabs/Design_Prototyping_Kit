@@ -98,7 +98,7 @@ function Screen01_FormsHome() {
       headerClassName: 'grid-cell--pad-right',
       cellClassName: 'grid-cell--pad-right',
       renderCell: (params) => (
-        <IconButton size="small" aria-label="more" onClick={(e) => {
+        <IconButton aria-label="more" onClick={(e) => {
           e.stopPropagation();
           setActionMenuAnchor(e.currentTarget);
           setActionRowId(params.row.id);
@@ -217,7 +217,6 @@ function Screen01_FormsHome() {
           <Box sx={{ flexGrow: 1 }} />
           <Button 
             variant="contained" 
-            size="small"
             disableElevation
             sx={{
               backgroundColor: 'var(--button-primary-bg)',

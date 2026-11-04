@@ -14,7 +14,7 @@ export { default as AthleteDataGrid } from './AthleteDataGrid'
 // import { Button } from '../playbook-components'
 // import { Icon, Card, PlayerAvatar, LogoImage } from '../components'
 //
-// <Button variant="contained" color="primary" size="small" disableElevation={true}>Add athlete</Button>
+// <Button variant="contained" color="primary" disableElevation={true}>Add athlete</Button>
 // <Icon icon="dashboard" size="medium" />
 // <Card title="Athletes">Card content</Card>
 // <PlayerAvatar playerId="123" playerName="John Smith" size="medium" />

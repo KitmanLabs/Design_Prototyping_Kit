@@ -222,7 +222,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
             <Typography variant="h6" sx={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
               {editingEvent ? 'Edit session' : 'New session'}
             </Typography>
-            <IconButton onClick={onClose} size="small">
+            <IconButton onClick={onClose}>
               <CloseOutlined />
             </IconButton>
           </Box>
@@ -460,7 +460,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                   >
                     Attendance
                   </Typography>
-                  <IconButton size="small">
+                  <IconButton>
                     {attendanceOpen ? <ExpandLessOutlined /> : <ExpandMoreOutlined />}
                   </IconButton>
                 </Box>
@@ -749,10 +749,10 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
             }}
           >
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between' }}>
-              <Button size="small" disableElevation={true} onClick={onClose} variant="contained" color="secondary">
+              <Button disableElevation={true} onClick={onClose} variant="contained" color="secondary">
                 Cancel
               </Button>
-              <Button size="small" disableElevation={true} onClick={handleSave} variant="contained" color="primary">
+              <Button disableElevation={true} onClick={handleSave} variant="contained" color="primary">
                 Save
               </Button>
             </Box>
