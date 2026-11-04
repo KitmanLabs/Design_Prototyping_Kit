@@ -34,5 +34,12 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: './src/test/setup.js',
+    server: {
+      deps: {
+        // The Scheduler deep-imports @atlaskit/pragmatic-drag-and-drop by directory, which
+        // Node's ESM loader rejects. Letting Vite transform these packages resolves it, as in the app.
+        inline: [/@mui\/x-scheduler/, /@atlaskit\/pragmatic-drag-and-drop/],
+      },
+    },
   },
 })

@@ -115,6 +115,11 @@ These MUI X packages are installed; each has a story showing minimal, offline us
 
 - Beta and alpha versions are pinned exactly in `package.json`; expect API changes when bumping them.
 - Scheduler events take ISO `start`/`end` strings (no date adapter); give the component an explicit height.
+- The Calendar page runs on `EventCalendar`, wrapped in `src/components/Calendar/SchedulerCalendar.jsx`. The page keeps its own header, filters pane, tooltip and create panels:
+  - View and date are controlled from `CalendarHeader`; the Scheduler's toolbar and side panel are hidden.
+  - `onEventEditingStart` cancels the built-in event dialog and opens the page's tooltip at `eventDetails.anchor`.
+  - `eventModelStructure` reads the existing event shape, so `calendar_events.json` and the panels are unchanged.
+  - The Scheduler only accepts named colours, so `schedulerModel.js` gives each event a class that sets the Scheduler's `--event-*` colour variables from the event's own colour.
 - Chat needs an `adapter`. The stories use `createEchoAdapter()`; a real one streams replies from a backend (there is an AI SDK adapter in `@mui/x-chat/headless`).
 - The AI Assistant does not call a model itself: `onPrompt` must return a `PromptResponse` (filters, sorting, grouping, aggregation). In iP that means a server route that asks a language model, with keys kept on the server. Prototypes here use the offline stub in `src/stories/Table/utils/aiPromptStub.js`.
 - The Playbook DataGridPremium wrapper's toolbar has no AI Assistant trigger; use MUI's `DataGridPremium` with `showToolbar` for AI Assistant screens.
