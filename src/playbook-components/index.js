@@ -19,7 +19,6 @@ import InputAdornment from '@mui/material/InputAdornment';
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
 import InputLabel from '@mui/material/InputLabel';
-import LoadingButton from '@mui/lab/LoadingButton';
 import NativeSelect from '@mui/material/NativeSelect';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Radio from '@mui/material/Radio';
@@ -70,8 +69,6 @@ import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import TreeView from '@mui/lab/TreeView';
-import TreeItem from '@mui/lab/TreeItem';
 
 /**
  * FEEDBACK
@@ -137,9 +134,6 @@ import Step from '@mui/material/Step';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import Tab from '@mui/material/Tab';
 import TabBar from './TabBar';
-import TabContext from '@mui/lab/TabContext';
-import TabList from '@mui/lab/TabList';
-import TabPanel from '@mui/lab/TabPanel';
 import Tabs from '@mui/material/Tabs';
 import TabScrollButton from '@mui/material/TabScrollButton';
 
@@ -152,7 +146,6 @@ import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
 import Grid from '@mui/material/Grid';
-import Grid2 from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
 
 /**
@@ -230,7 +223,7 @@ import {
   MultiInputTimeRangeField,
   MultiSectionDigitalClock,
   PickersActionBar,
-  PickersDay,
+  PickerDay,
   PickersLayout,
   PickersShortcuts,
   SingleInputDateRangeField,
@@ -276,7 +269,6 @@ export {
   ButtonGroup,
   Checkbox,
   FavoriteCheckbox,
-  LoadingButton,
   Fab,
   FilledInput,
   FormControl,
@@ -335,8 +327,6 @@ export {
   TableSortLabel,
   Tooltip,
   Typography,
-  TreeView,
-  TreeItem,
 
   // FEEDBACK
   Alert,
@@ -395,9 +385,6 @@ export {
   SwipeableDrawer,
   Tab,
   TabBar,
-  TabContext,
-  TabList,
-  TabPanel,
   TabScrollButton,
   Tabs,
 
@@ -405,7 +392,6 @@ export {
   Box,
   Container,
   Grid,
-  Grid2,
   ImageList,
   ImageListItem,
   ImageListItemBar,
@@ -483,7 +469,7 @@ export {
   MultiInputTimeRangeField,
   MultiSectionDigitalClock,
   PickersActionBar,
-  PickersDay,
+  PickerDay,
   PickersLayout,
   PickersShortcuts,
   SingleInputDateRangeField,

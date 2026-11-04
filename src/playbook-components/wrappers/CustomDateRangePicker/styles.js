@@ -1,7 +1,7 @@
 import { colors } from '@kitman/common/src/variables';
 
 export const globalStyles = {
-  '.MuiPickersDay-root:active': {
+  '.MuiPickerDay-root:active': {
     backgroundColor: `${colors.neutral_light} !important`,
     color: 'white !important',
     borderRadius: '50% !important',

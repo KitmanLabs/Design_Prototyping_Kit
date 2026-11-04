@@ -22,7 +22,7 @@ const createDatePickerTheme = (theme) =>
         },
       },
 
-      MuiPickersDay: {
+      MuiPickerDay: {
         styleOverrides: {
           root: {
             '&.Mui-selected': { backgroundColor: rootTheme.palette.info.light },

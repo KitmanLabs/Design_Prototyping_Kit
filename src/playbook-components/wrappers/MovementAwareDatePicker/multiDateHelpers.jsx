@@ -5,10 +5,10 @@ import {
 } from '@mui/x-date-pickers/PickersLayout';
 import {
   Box,
-  PickersDay,
+  PickerDay,
   TextField,
   Chip,
-  Grid2 as Grid,
+  Grid,
   Typography,
 } from '@kitman/playbook/components';
 import { usePickerLayout } from '@kitman/playbook/hooks';
@@ -27,7 +27,7 @@ export function MultiDayRenderer({ selections, onClick, ...rest }) {
   );
 
   return (
-    <PickersDay
+    <PickerDay
       {...rest}
       selected={selected}
       onClick={() => {
@@ -54,25 +54,38 @@ export function CustomLayout({
       >
         {tabs}
         {content}
-        <Box m="4px" width="100%">
+        <Box
+          sx={{
+            m: "4px",
+            width: "100%"
+          }}>
           <Typography
             variant="subtitle1"
-            fontWeight={400}
-            sx={{ color: 'text.primary', fontSize: '14px' }}
-          >
+            sx={{
+              fontWeight: 400,
+              color: 'text.primary',
+              fontSize: '14px'
+            }}>
             {selectionAreaTitle}
           </Typography>
           <Grid
             container
-            sx={{ width: '320px', maxHeight: '120px', overflow: 'auto' }}
             columns={2}
-            gap="1px"
-          >
+            sx={{
+              gap: "1px",
+              width: '320px',
+              maxHeight: '120px',
+              overflow: 'auto'
+            }}>
             {selections.map((date) => {
               const dateString = formatShort(date);
               return (
                 <Grid size={1} key={dateString}>
-                  <Box m="auto" width="100%">
+                  <Box
+                    sx={{
+                      m: "auto",
+                      width: "100%"
+                    }}>
                     <Chip
                       label={dateString}
                       onDelete={() => handleDateDelete(date)}

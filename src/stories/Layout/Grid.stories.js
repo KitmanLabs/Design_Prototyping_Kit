@@ -31,16 +31,16 @@ export default {
   render: ({ ...args }) => (
     <Box sx={{ width: 800 }}>
       <Grid {...args} container spacing={2}>
-        <Grid xs={8}>
+        <Grid size={8}>
           <Item>xs=8</Item>
         </Grid>
-        <Grid xs={4}>
+        <Grid size={4}>
           <Item>xs=4</Item>
         </Grid>
-        <Grid xs={5}>
+        <Grid size={5}>
           <Item>xs=5</Item>
         </Grid>
-        <Grid xs={7}>
+        <Grid size={7}>
           <Item>xs=7</Item>
         </Grid>
       </Grid>
@@ -96,10 +96,12 @@ export const WithSpacingBetweenGrids = () => {
 
   return (
     <Grid sx={{ flexGrow: 1 }} container spacing={2}>
-      <Grid item xs={12}>
-        <Grid container justifyContent="center" spacing={spacing}>
+      <Grid size={12}>
+        <Grid container spacing={spacing} sx={{
+          justifyContent: "center"
+        }}>
           {[0, 1, 2].map((value) => (
-            <Grid key={value} item>
+            <Grid key={value}>
               <Paper
                 sx={{
                   height: 140,
@@ -111,10 +113,12 @@ export const WithSpacingBetweenGrids = () => {
           ))}
         </Grid>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Paper sx={{ p: 2 }}>
-          <Grid container justifyContent="center">
-            <Grid item>
+          <Grid container sx={{
+            justifyContent: "center"
+          }}>
+            <Grid>
               <FormControl component="fieldset">
                 <FormLabel component="legend">spacing</FormLabel>
                 <RadioGroup
@@ -145,16 +149,16 @@ export const WithSpacingBetweenGrids = () => {
 export const WithCustomColumnNumber = () => (
   <Box sx={{ width: 800 }}>
     <Grid container spacing={2} columns={16}>
-      <Grid xs={8}>
+      <Grid size={8}>
         <Item>xs=8</Item>
       </Grid>
-      <Grid xs={8}>
+      <Grid size={8}>
         <Item>xs=8</Item>
       </Grid>
-      <Grid xs={4}>
+      <Grid size={4}>
         <Item>xs=4</Item>
       </Grid>
-      <Grid xs={12}>
+      <Grid size={12}>
         <Item>xs=12</Item>
       </Grid>
     </Grid>

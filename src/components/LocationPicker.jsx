@@ -5,7 +5,6 @@ import {
   TextField,
   InputAdornment,
   List,
-  ListItem,
   ListItemIcon,
   ListItemText,
   Paper,
@@ -13,6 +12,8 @@ import {
 import { LocationOnOutlined } from '@mui/icons-material';
 import { useJsApiLoader, Autocomplete, GoogleMap, Marker } from '@react-google-maps/api';
 import { GOOGLE_MAPS_API_KEY } from '../config/googleMaps';
+
+import ListItemButton from '@mui/material/ListItemButton';
 
 const libraries = ['places'];
 
@@ -286,17 +287,19 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
       onKeyDown={handleKeyDown}
       placeholder="Find location or enter address"
       inputRef={inputRef}
-      InputProps={{
-        ...params.InputProps,
-        startAdornment: (
-          <InputAdornment position="start">
-            <LocationOnOutlined sx={{ color: 'var(--color-text-secondary)', fontSize: '20px' }} />
-          </InputAdornment>
-        ),
-      }}
-      InputLabelProps={{ shrink: true }}
       sx={formFieldStyles}
-    />
+      slotProps={{
+        input: {
+          ...params.InputProps,
+          startAdornment: (
+            <InputAdornment position="start">
+              <LocationOnOutlined sx={{ color: 'var(--color-text-secondary)', fontSize: '20px' }} />
+            </InputAdornment>
+          ),
+        },
+
+        inputLabel: { shrink: true }
+      }} />
   );
 
   return (
@@ -363,9 +366,8 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
               >
                 <List sx={{ padding: 0 }}>
                   {filteredLocations.map((location, index) => (
-                    <ListItem
+                    <ListItemButton
                       key={location.id || `saved-${index}`}
-                      button
                       onClick={() => handleLocationSelect(location)}
                       sx={{
                         padding: '12px 16px',
@@ -376,35 +378,36 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
                           backgroundColor: 'var(--color-background-tertiary)',
                         },
                         cursor: 'pointer',
-                      }}
-                    >
+                      }}>
                       <ListItemIcon sx={{ minWidth: '36px' }}>
                         <LocationOnOutlined sx={{ color: 'var(--color-text-secondary)', fontSize: '20px' }} />
                       </ListItemIcon>
                       <ListItemText
                         primary={location.name}
                         secondary={location.address}
-                        primaryTypographyProps={{
-                          sx: {
-                            color: 'var(--color-text-primary)',
-                            fontSize: 'var(--font-size-sm)',
-                            fontFamily: 'var(--font-family-primary)',
-                            fontWeight: 'var(--font-weight-medium)',
+                        slotProps={{
+                          primary: {
+                            sx: {
+                              color: 'var(--color-text-primary)',
+                              fontSize: 'var(--font-size-sm)',
+                              fontFamily: 'var(--font-family-primary)',
+                              fontWeight: 'var(--font-weight-medium)',
+                            },
                           },
-                        }}
-                        secondaryTypographyProps={{
-                          sx: {
-                            color: 'var(--color-text-secondary)',
-                            fontSize: 'var(--font-size-xs)',
-                            fontFamily: 'var(--font-family-primary)',
-                            fontWeight: 'var(--font-weight-regular)',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          },
-                        }}
-                      />
-                    </ListItem>
+
+                          secondary: {
+                            sx: {
+                              color: 'var(--color-text-secondary)',
+                              fontSize: 'var(--font-size-xs)',
+                              fontFamily: 'var(--font-family-primary)',
+                              fontWeight: 'var(--font-weight-regular)',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            },
+                          }
+                        }} />
+                    </ListItemButton>
                   ))}
                 </List>
               </Paper>
@@ -437,9 +440,8 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
               >
                 <List sx={{ padding: 0 }}>
                   {suggestions.slice(0, 5).map((location, index) => (
-                    <ListItem
+                    <ListItemButton
                       key={`suggestion-${index}`}
-                      button
                       onClick={() => handleLocationSelect(location)}
                       sx={{
                         padding: '12px 16px',
@@ -450,35 +452,36 @@ const LocationPicker = ({ value, onChange, savedLocations = [] }) => {
                           backgroundColor: 'var(--color-background-tertiary)',
                         },
                         cursor: 'pointer',
-                      }}
-                    >
+                      }}>
                       <ListItemIcon sx={{ minWidth: '36px' }}>
                         <LocationOnOutlined sx={{ color: 'var(--color-text-secondary)', fontSize: '20px' }} />
                       </ListItemIcon>
                       <ListItemText
                         primary={location.name}
                         secondary={location.address}
-                        primaryTypographyProps={{
-                          sx: {
-                            color: 'var(--color-text-primary)',
-                            fontSize: 'var(--font-size-sm)',
-                            fontFamily: 'var(--font-family-primary)',
-                            fontWeight: 'var(--font-weight-medium)',
+                        slotProps={{
+                          primary: {
+                            sx: {
+                              color: 'var(--color-text-primary)',
+                              fontSize: 'var(--font-size-sm)',
+                              fontFamily: 'var(--font-family-primary)',
+                              fontWeight: 'var(--font-weight-medium)',
+                            },
                           },
-                        }}
-                        secondaryTypographyProps={{
-                          sx: {
-                            color: 'var(--color-text-secondary)',
-                            fontSize: 'var(--font-size-xs)',
-                            fontFamily: 'var(--font-family-primary)',
-                            fontWeight: 'var(--font-weight-regular)',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          },
-                        }}
-                      />
-                    </ListItem>
+
+                          secondary: {
+                            sx: {
+                              color: 'var(--color-text-secondary)',
+                              fontSize: 'var(--font-size-xs)',
+                              fontFamily: 'var(--font-family-primary)',
+                              fontWeight: 'var(--font-weight-regular)',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            },
+                          }
+                        }} />
+                    </ListItemButton>
                   ))}
                 </List>
               </Paper>

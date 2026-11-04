@@ -48,15 +48,15 @@ const Toast = ({ toast, onClose, onLinkClick, toastRemovalDelay }) => {
 
         {links && links.length > 0 && (
           <Box
-            mt={description ? 2 : 1}
             sx={{
+              mt: description ? 2 : 1,
               display: 'flex',
               flexWrap: 'wrap',
+
               'div:not(:last-child)': {
                 marginRight: '6px',
-              },
-            }}
-          >
+              }
+            }}>
             {links.map((link) => (
               <Box key={link.id}>
                 <Link

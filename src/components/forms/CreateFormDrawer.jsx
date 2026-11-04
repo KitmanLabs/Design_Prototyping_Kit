@@ -42,13 +42,15 @@ function CreateFormDrawer({ open, onClose, onSubmit, categories = [] }) {
       open={open}
       onClose={handleClose}
       ModalProps={{ keepMounted: true }}
-      PaperProps={{
-        sx: {
-          width: isMobile ? '100vw' : 460,
-          maxWidth: '100vw',
-          height: isMobile ? '90vh' : '100vh',
-          boxShadow: theme.shadows[16],
-          display: 'flex'
+      slotProps={{
+        paper: {
+          sx: {
+            width: isMobile ? '100vw' : 460,
+            maxWidth: '100vw',
+            height: isMobile ? '90vh' : '100vh',
+            boxShadow: theme.shadows[16],
+            display: 'flex'
+          }
         }
       }}
     >
@@ -72,7 +74,9 @@ function CreateFormDrawer({ open, onClose, onSubmit, categories = [] }) {
             label="Template title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            inputProps={{ maxLength: 100 }}
+            slotProps={{
+              htmlInput: { maxLength: 100 }
+            }}
           />
 
           <TextField
@@ -82,8 +86,10 @@ function CreateFormDrawer({ open, onClose, onSubmit, categories = [] }) {
             label="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            inputProps={{ maxLength: 100 }}
             helperText="Optional"
+            slotProps={{
+              htmlInput: { maxLength: 100 }
+            }}
           />
 
           <Autocomplete
@@ -101,7 +107,9 @@ function CreateFormDrawer({ open, onClose, onSubmit, categories = [] }) {
         {/* Footer */}
         <Divider />
         <Box sx={{ px: 3, py: 2, position: 'sticky', bottom: 0, bgcolor: 'var(--color-background-primary)' }}>
-          <Stack direction="row" justifyContent="flex-end" spacing={1.5}>
+          <Stack direction="row" spacing={1.5} sx={{
+            justifyContent: "flex-end"
+          }}>
             <Button
               variant="contained"
               size="small"
@@ -136,7 +144,7 @@ function CreateFormDrawer({ open, onClose, onSubmit, categories = [] }) {
         </Box>
       </Box>
     </Drawer>
-  )
+  );
 }
 
 CreateFormDrawer.propTypes = {

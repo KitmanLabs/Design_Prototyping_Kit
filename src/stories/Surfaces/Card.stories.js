@@ -30,13 +30,22 @@ export default {
     return (
       <Card sx={{ minWidth: 275 }} {...args}>
         <CardContent>
-          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+          <Typography
+            gutterBottom
+            sx={{
+              color: "text.secondary",
+              fontSize: 14
+            }}>
             Word of the Day
           </Typography>
           <Typography variant="h5" component="div">
             be{bull}nev{bull}o{bull}lent
           </Typography>
-          <Typography sx={{ mb: 1.5 }} color="text.secondary">
+          <Typography
+            sx={{
+              color: "text.secondary",
+              mb: 1.5
+            }}>
             adjective
           </Typography>
           <Typography variant="body2">
@@ -78,13 +87,22 @@ export const Story = {
 export const WithVariantOutlined = () => (
   <Card sx={{ minWidth: 275 }} variant="outlined">
     <CardContent>
-      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+      <Typography
+        gutterBottom
+        sx={{
+          color: "text.secondary",
+          fontSize: 14
+        }}>
         Word of the Day
       </Typography>
       <Typography variant="h5" component="div">
         be{bull}nev{bull}o{bull}lent
       </Typography>
-      <Typography sx={{ mb: 1.5 }} color="text.secondary">
+      <Typography
+        sx={{
+          color: "text.secondary",
+          mb: 1.5
+        }}>
         adjective
       </Typography>
       <Typography variant="body2">
@@ -110,7 +128,9 @@ export const WithImage = () => (
       <Typography gutterBottom variant="h5" component="div">
         Lizard
       </Typography>
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body2" sx={{
+        color: "text.secondary"
+      }}>
         Lizards are a widespread group of squamate reptiles, with over 6,000
         species, ranging across all continents except Antarctica
       </Typography>

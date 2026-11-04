@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Box, Typography, IconButton, Menu, MenuItem, Tooltip, Chip } from '@mui/material';
 import {
   DataGrid,
+  GridToolbarContainer,
   GridToolbarColumnsButton,
   GridToolbarFilterButton,
   GridToolbarDensitySelector,
@@ -89,9 +90,11 @@ BulkActionsToolbar.propTypes = {
 
 BulkActionsToolbar.displayName = 'BulkActionsToolbar';
 
+// MUI X v8+ requires toolbar subcomponents (quick filter, buttons) inside the grid's
+// Toolbar context; GridToolbarContainer provides it, as in the Playbook DataGrid wrapper.
 const CustomToolbar = React.forwardRef((props, ref) => {
   return (
-    <Box
+    <GridToolbarContainer
       ref={ref}
       sx={{
         height: '56px',
@@ -134,7 +137,7 @@ const CustomToolbar = React.forwardRef((props, ref) => {
         }}
         debounceMs={150}
       />
-    </Box>
+    </GridToolbarContainer>
   );
 });
 
@@ -217,7 +220,7 @@ const AthleteDataGrid = ({
       type: 'number',
       width: 110,
       filterable: true,
-      valueFormatter: (params) => `${params.value}%`,
+      valueFormatter: (value) => `${value}%`,
     },
     {
       field: 'fitness_level',
@@ -239,7 +242,7 @@ const AthleteDataGrid = ({
       type: 'number',
       width: 130,
       filterable: true,
-      valueFormatter: (params) => params.value ? params.value.toFixed(1) : '-',
+      valueFormatter: (value) => value ? value.toFixed(1) : '-',
     },
     {
       field: 'wellbeing_score',
@@ -247,7 +250,7 @@ const AthleteDataGrid = ({
       type: 'number',
       width: 110,
       filterable: true,
-      valueFormatter: (params) => params.value ? params.value.toFixed(1) : '-',
+      valueFormatter: (value) => value ? value.toFixed(1) : '-',
     },
     {
       field: 'last_assessment',
@@ -313,7 +316,8 @@ const AthleteDataGrid = ({
         disableRowSelectionOnClick
         density="comfortable"
         loading={safeData.length === 0}
-        onRowSelectionModelChange={setSelectedRows}
+        disableRowSelectionExcludeModel
+        onRowSelectionModelChange={(model) => setSelectedRows([...model.ids])}
         hideFooter
         slots={{ toolbar: CustomToolbarComponent }}
         slotProps={{
@@ -333,7 +337,7 @@ const AthleteDataGrid = ({
           },
         }}
         {...props}
-      />
+        showToolbar={showToolbar} />
     </Box>
   );
 };

@@ -269,7 +269,8 @@ const DataGrid = ({
       disableColumnReorder={disableColumnReorder}
       disableMultipleColumnsSorting={disableMultipleColumnsSorting}
       disableMultipleColumnsFiltering={disableMultipleColumnsFiltering}
-      disableVirtualization // TODO: (more investigation) can't have this long term. (virtualization makes testing with RTL fail)
+      // TODO: (more investigation) can't have this long term. (virtualization makes testing with RTL fail)
+      disableVirtualization
       initialState={
         initialState ?? {
           pinnedColumns: {
@@ -301,6 +302,10 @@ const DataGrid = ({
         (asyncPagination ? defaultPaginationModel : undefined)
       }
       pageSizeOptions={paginationEnabled ? pageSizeOptions : [rows.length]}
+      // MUI X v8+ only renders the toolbar slot when showToolbar is set. Keep the v6
+      // behaviour: show it when the effective slots include a toolbar (callers' `slots`
+      // replace the defaults above). Callers can still pass showToolbar themselves.
+      showToolbar={muiDataGridProps.slots ? Boolean(muiDataGridProps.slots.toolbar) : true}
       {...muiDataGridProps}
       sx={{
         ...muiDataGridProps.sx,

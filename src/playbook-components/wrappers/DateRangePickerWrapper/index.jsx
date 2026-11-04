@@ -164,16 +164,19 @@ export function DateRangePickerWrapper(props) {
               fullWidth: true,
               disabled,
               helperText,
-              InputProps: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <CalendarTodayIcon
-                      sx={dateRangePickerStyles.calendarIcon}
-                    />
-                  </InputAdornment>
-                ),
-              },
               sx: dateRangePickerStyles.datePickerInput,
+
+              slotProps: {
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <CalendarTodayIcon
+                        sx={dateRangePickerStyles.calendarIcon}
+                      />
+                    </InputAdornment>
+                  ),
+                },
+              },
             },
           }}
         />
@@ -201,6 +204,7 @@ export function DateRangePickerWrapper(props) {
           slotProps={{
             textField: {
               inputRef: endRef,
+
               onClick: (e) => {
                 // Prevent calendar if no start date
                 if (currentStartDate) {
@@ -209,20 +213,24 @@ export function DateRangePickerWrapper(props) {
                 }
                 e.preventDefault();
               },
+
               label: 'End date',
               fullWidth: true,
               disabled: disabled || !currentStartDate,
               helperText,
-              InputProps: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <CalendarTodayIcon
-                      sx={dateRangePickerStyles.calendarIcon}
-                    />
-                  </InputAdornment>
-                ),
-              },
               sx: dateRangePickerStyles.datePickerInput,
+
+              slotProps: {
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <CalendarTodayIcon
+                        sx={dateRangePickerStyles.calendarIcon}
+                      />
+                    </InputAdornment>
+                  ),
+                },
+              },
             },
           }}
         />

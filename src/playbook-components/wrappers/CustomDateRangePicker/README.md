@@ -281,7 +281,7 @@ This is the most complex part of the component. The function works as follows:
 ```js
 export const applyRangeStyles = (dateRange, hoveredDate, isMobile) => {
 // 1. First clear all styles
-  document.querySelectorAll('.MuiPickersDay-root').forEach((day) => {
+  document.querySelectorAll('.MuiPickerDay-root').forEach((day) => {
     day.style.backgroundColor = '';
     day.style.color = '';
     day.style.borderRadius = '';

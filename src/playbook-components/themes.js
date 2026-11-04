@@ -52,8 +52,16 @@ const rootTheme = createTheme({
         },
       },
     },
-    MuiLoadingButton: { defaultProps: { variant: 'contained', size: 'small', disableElevation: true } },
     MuiTab: { styleOverrides: { root: sentenceCase } },
+    // Grid-internal buttons (toolbar, filter panel) inherit the MuiButton defaults above,
+    // so make them contained secondary per the design rules rather than contained primary.
+    // Theme slotProps merge per slot with each grid's own slotProps.
+    MuiDataGrid: {
+      defaultProps: {
+        // disableElevation comes from MuiButton defaults; setting it here leaks to icon buttons.
+        slotProps: { baseButton: { variant: 'contained', color: 'secondary' } },
+      },
+    },
     MuiAutocomplete: { defaultProps: { size: 'small' } },
     MuiChip: { defaultProps: { size: 'small' } },
     MuiIconButton: { defaultProps: { size: 'small' } },

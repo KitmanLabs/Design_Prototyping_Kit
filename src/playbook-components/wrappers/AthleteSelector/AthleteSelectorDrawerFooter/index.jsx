@@ -8,7 +8,13 @@ const AthleteSelectorDrawerFooter = (props) => {
   return (
     <>
       <Divider />
-      <Stack direction="row" justifyContent="flex-end" spacing={1} p={2}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          justifyContent: "flex-end",
+          p: 2
+        }}>
         <Button
           variant="contained"
           onClick={props.onDone}

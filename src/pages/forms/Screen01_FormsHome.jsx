@@ -57,7 +57,7 @@ function Screen01_FormsHome() {
       field: 'category',
       headerName: 'Category',
       width: 160,
-      valueGetter: (params) => (params?.row && params.row.category) ? params.row.category : '—',
+      valueGetter: (_value, row) => row?.category || '—',
     },
     {
       field: 'description',
@@ -132,189 +132,193 @@ function Screen01_FormsHome() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, bgcolor: 'var(--color-background-primary)' }}>
       {/* Header / Toolbar */}
-  {/* Filters + Table combined in a single Paper (no gaps) */}
-  <Paper
-    elevation={0}
-    sx={{
-      borderRadius: 'var(--radius-md)',
-      border: 'none',
-      width: '100%'
-    }}
-  >
-    <Box sx={{
-      px: 3,
-      pt: 1,
-      pb: 1,
-      display: 'flex',
-      alignItems: 'center',
-      gap: 1.5,
-      flexWrap: 'wrap',
-      bgcolor: 'var(--color-background-primary)'
-    }}>
-      <TextField 
-        size="small" 
-        variant="filled" 
-        placeholder="Search" 
+      {/* Filters + Table combined in a single Paper (no gaps) */}
+      <Paper
+        elevation={0}
         sx={{
-          minWidth: 260,
-          '& .MuiFilledInput-root': {
-            '&:after': {
-              borderBottomColor: 'var(--color-black)'
-            }
-          }
+          borderRadius: 'var(--radius-md)',
+          border: 'none',
+          width: '100%'
         }}
-        InputProps={{ 
-          endAdornment: (
-            <InputAdornment position="end">
-              <SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />
-            </InputAdornment>
-          ) 
-        }}
-      />
-      <TextField
-        select
-        size="small"
-        variant="filled"
-        label="Category"
-        value=""
-        sx={{
-          minWidth: 220,
-          '& .MuiFilledInput-root': {
-            '&:after': {
-              borderBottomColor: 'var(--color-black)'
-            }
-          }
-        }}
-        SelectProps={{
-          MenuProps: {
-            PaperProps: {
-              sx: {
-                '& .MuiMenuItem-root': {
-                  '&:hover': {
-                    backgroundColor: 'var(--color-background-tertiary)'
-                  },
-                  '&.Mui-selected': {
-                    backgroundColor: 'var(--color-background-tertiary)',
-                    '&:hover': {
-                      backgroundColor: 'var(--color-background-tertiary)'
+      >
+        <Box sx={{
+          px: 3,
+          pt: 1,
+          pb: 1,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5,
+          flexWrap: 'wrap',
+          bgcolor: 'var(--color-background-primary)'
+        }}>
+          <TextField 
+            size="small" 
+            variant="filled" 
+            placeholder="Search" 
+            sx={{
+              minWidth: 260,
+              '& .MuiFilledInput-root': {
+                '&:after': {
+                  borderBottomColor: 'var(--color-black)'
+                }
+              }
+            }}
+            slotProps={{
+              input: { 
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />
+                  </InputAdornment>
+                ) 
+              }
+            }}
+          />
+          <TextField
+            select
+            size="small"
+            variant="filled"
+            label="Category"
+            value=""
+            sx={{
+              minWidth: 220,
+              '& .MuiFilledInput-root': {
+                '&:after': {
+                  borderBottomColor: 'var(--color-black)'
+                }
+              }
+            }}
+            slotProps={{
+              select: {
+                MenuProps: {
+                  slotProps: { paper: {
+                    sx: {
+                      '& .MuiMenuItem-root': {
+                        '&:hover': {
+                          backgroundColor: 'var(--color-background-tertiary)'
+                        },
+                        '&.Mui-selected': {
+                          backgroundColor: 'var(--color-background-tertiary)',
+                          '&:hover': {
+                            backgroundColor: 'var(--color-background-tertiary)'
+                          }
+                        }
+                      }
                     }
-                  }
+                  } }
+                }
+              }
+            }}
+          >
+            <MenuItem value="">Category</MenuItem>
+            <MenuItem value="medical">Medical</MenuItem>
+            <MenuItem value="performance">Performance</MenuItem>
+          </TextField>
+          <Box sx={{ flexGrow: 1 }} />
+          <Button 
+            variant="contained" 
+            size="small"
+            disableElevation
+            sx={{
+              backgroundColor: 'var(--button-primary-bg)',
+              color: 'var(--button-primary-color)',
+              textTransform: 'none',
+              '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' }
+            }}
+            onClick={() => setIsCreateOpen(true)}
+          >
+            Create
+          </Button>
+        </Box>
+        <Divider />
+        <Box sx={{
+          height: 560,
+          width: '100%',
+          '& .MuiDataGrid-root': { border: 'none' },
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: 'var(--color-background-primary)',
+            '& .MuiDataGrid-columnHeaderTitle': {
+              fontWeight: 600,
+              fontSize: '14px'
+            }
+          },
+          '& .MuiDataGrid-cell': {
+            borderBottom: '1px solid var(--color-border-secondary)',
+            display: 'flex',
+            alignItems: 'center'
+          },
+          '& .MuiDataGrid-withBorderColor': {},
+          '& .grid-cell--pad-left': { pl: 3, paddingLeft: '24px !important' },
+          '& .grid-cell--pad-right': { pr: 3, paddingRight: '24px !important' },
+          '& .MuiDataGrid-footerContainer': { px: 3 },
+        }}>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            disableRowSelectionOnClick
+            pagination
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
+            pageSizeOptions={[25, 50, 100]}
+            slots={{ pagination: GridPagination }}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 25 } },
+            }}
+          />
+        </Box>
+      </Paper>
+
+      {/* Row actions menu */}
+      <Menu
+        anchorEl={actionMenuAnchor}
+        open={Boolean(actionMenuAnchor)}
+        onClose={() => { setActionMenuAnchor(null); setActionRowId(null); }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        slotProps={{ paper: {
+          sx: {
+            '& .MuiMenuItem-root': {
+              '&:hover': {
+                backgroundColor: 'var(--color-background-tertiary)'
+              },
+              '&.Mui-selected': {
+                backgroundColor: 'var(--color-background-tertiary)',
+                '&:hover': {
+                  backgroundColor: 'var(--color-background-tertiary)'
                 }
               }
             }
           }
-        }}
+        } }}
       >
-        <MenuItem value="">Category</MenuItem>
-        <MenuItem value="medical">Medical</MenuItem>
-        <MenuItem value="performance">Performance</MenuItem>
-      </TextField>
-      <Box sx={{ flexGrow: 1 }} />
-      <Button 
-        variant="contained" 
-        size="small"
-        disableElevation
-        sx={{
-          backgroundColor: 'var(--button-primary-bg)',
-          color: 'var(--button-primary-color)',
-          textTransform: 'none',
-          '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' }
-        }}
-        onClick={() => setIsCreateOpen(true)}
-      >
-        Create
-      </Button>
-    </Box>
-    <Divider />
-    <Box sx={{
-      height: 560,
-      width: '100%',
-      '& .MuiDataGrid-root': { border: 'none' },
-      '& .MuiDataGrid-columnHeaders': {
-        backgroundColor: 'var(--color-background-primary)',
-        '& .MuiDataGrid-columnHeaderTitle': {
-          fontWeight: 600,
-          fontSize: '14px'
-        }
-      },
-      '& .MuiDataGrid-cell': {
-        borderBottom: '1px solid var(--color-border-secondary)',
-        display: 'flex',
-        alignItems: 'center'
-      },
-      '& .MuiDataGrid-withBorderColor': {},
-      '& .grid-cell--pad-left': { pl: 3, paddingLeft: '24px !important' },
-      '& .grid-cell--pad-right': { pr: 3, paddingRight: '24px !important' },
-      '& .MuiDataGrid-footerContainer': { px: 3 },
-    }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        disableRowSelectionOnClick
-        pagination
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        pageSizeOptions={[25, 50, 100]}
-        slots={{ pagination: GridPagination }}
-        initialState={{
-          pagination: { paginationModel: { pageSize: 25 } },
-        }}
+        <MenuItem onClick={() => { setActionMenuAnchor(null); setActionRowId(null); }}>Edit</MenuItem>
+        <MenuItem onClick={() => { setActionMenuAnchor(null); /* open drawer below */ setAssignOpen(true); }}>Assign</MenuItem>
+        <MenuItem onClick={() => { setActionMenuAnchor(null); setActionRowId(null); }}>Delete</MenuItem>
+      </Menu>
+
+      <TokenizedDrawerAthleteSelector 
+        open={assignOpen}
+        onClose={() => setAssignOpen(false)}
+        athletes={drawerAthletes}
+        selectedAthletes={selectedAthletes}
+        onSelectionChange={setSelectedAthletes}
       />
-    </Box>
-  </Paper>
 
-  {/* Row actions menu */}
-  <Menu
-    anchorEl={actionMenuAnchor}
-    open={Boolean(actionMenuAnchor)}
-    onClose={() => { setActionMenuAnchor(null); setActionRowId(null); }}
-    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-    PaperProps={{
-      sx: {
-        '& .MuiMenuItem-root': {
-          '&:hover': {
-            backgroundColor: 'var(--color-background-tertiary)'
-          },
-          '&.Mui-selected': {
-            backgroundColor: 'var(--color-background-tertiary)',
-            '&:hover': {
-              backgroundColor: 'var(--color-background-tertiary)'
-            }
-          }
-        }
-      }
-    }}
-  >
-    <MenuItem onClick={() => { setActionMenuAnchor(null); setActionRowId(null); }}>Edit</MenuItem>
-    <MenuItem onClick={() => { setActionMenuAnchor(null); /* open drawer below */ setAssignOpen(true); }}>Assign</MenuItem>
-    <MenuItem onClick={() => { setActionMenuAnchor(null); setActionRowId(null); }}>Delete</MenuItem>
-  </Menu>
-
-  <TokenizedDrawerAthleteSelector 
-    open={assignOpen}
-    onClose={() => setAssignOpen(false)}
-    athletes={drawerAthletes}
-    selectedAthletes={selectedAthletes}
-    onSelectionChange={setSelectedAthletes}
-  />
-
-  <CreateFormDrawer 
-    open={isCreateOpen}
-    onClose={() => setIsCreateOpen(false)}
-    onSubmit={(payload) => {
-      // For now, just log. Integrate with actual creation flow later.
-       
-      console.log('Create form payload', payload)
-      setIsCreateOpen(false)
-    }}
-    categories={[ 'Medical', 'Performance', 'Wellbeing' ]}
-  />
+      <CreateFormDrawer 
+        open={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onSubmit={(payload) => {
+          // For now, just log. Integrate with actual creation flow later.
+           
+          console.log('Create form payload', payload)
+          setIsCreateOpen(false)
+        }}
+        categories={[ 'Medical', 'Performance', 'Wellbeing' ]}
+      />
 
       {/* Table */}
       {/* (Table now included in the Paper above) */}
     </Box>
-  )
+  );
 }
 
 export default Screen01_FormsHome

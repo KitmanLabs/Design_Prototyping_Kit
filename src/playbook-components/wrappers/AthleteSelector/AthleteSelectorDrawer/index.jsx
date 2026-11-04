@@ -24,14 +24,21 @@ const AthleteSelectorDrawer = ({
       onClose={onClose}
       sx={drawerMixin({ theme, isOpen: open })}
     >
-      <Box display="flex" flexDirection="column" height="100%" gap="0.5rem">
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          gap: "0.5rem"
+        }}>
         <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          px={2}
-          pt={2}
-        >
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            px: 2,
+            pt: 2
+          }}>
           <Typography variant="h6">
             {title ?? i18n.t('Select Athletes')}
           </Typography>

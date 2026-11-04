@@ -103,7 +103,7 @@ const AthletesListNew = (props) => {
         headerName: t('Full Name'),
         flex: 1,
         minWidth: 160,
-        valueGetter: (params) => params.row.username || params.row.fullname,
+        valueGetter: (_value, row) => row.username || row.fullname,
         renderCell: (params) => (
           <Stack direction="column" spacing={0}>
             <Box sx={{ fontWeight: 600, lineHeight: 1.2 }}>
@@ -149,12 +149,14 @@ const AthletesListNew = (props) => {
             onChange={(e) => setSearch(e.target.value)}
             size="small"
             sx={{ width: 320 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" />
+                  </InputAdornment>
+                ),
+              }
             }}
           />
 
@@ -180,9 +182,9 @@ const AthletesListNew = (props) => {
               onChange={(e) => setPositionsFilter((e.target.value))}
               renderValue={(selected) => (selected).join(', ')}
               MenuProps={{
-                PaperProps: {
+                slotProps: { paper: {
                   sx: { maxHeight: 300 },
-                },
+                } },
               }}
             >
               {[...new Set(rows.map((r) => r.position).filter(Boolean))].map(
@@ -227,7 +229,7 @@ const AthletesListNew = (props) => {
           onRowClick={handleRowClick} /* open athlete profile */
           noRowsMessage={t('There are no athletes within this squad')}
           sx={{
-            '&, & .MuiDataGrid-main, & .MuiDataGrid-columnHeaders, & .MuiDataGrid-virtualScroller, & .MuiDataGrid-virtualScrollerContent, & .MuiDataGrid-row, & .MuiDataGrid-cell':
+            '&, & .MuiDataGrid-main, & .MuiDataGrid-columnHeaders, & .MuiDataGrid-virtualScroller, & .MuiDataGrid-virtualScrollerRenderZone, & .MuiDataGrid-row, & .MuiDataGrid-cell':
               {
                 backgroundColor: colors.p06,
               },

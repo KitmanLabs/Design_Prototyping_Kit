@@ -86,10 +86,12 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
       onClose={onClose} 
       fullWidth 
       maxWidth="sm"
-      PaperProps={{
-        sx: {
-          borderRadius: '8px',
-          boxShadow: 'var(--shadow-dialog)',
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: '8px',
+            boxShadow: 'var(--shadow-dialog)',
+          }
         }
       }}
     >

@@ -22,12 +22,14 @@ const SearchBar = ({ onSearchChange, isLoading, grouping, Search, hideGroupBy = 
           onChange={(e) => debounceHandleSearch(e.target.value)}
           fullWidth
           disabled={isLoading}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              ),
+            }
           }}
         />
       );
@@ -43,7 +45,9 @@ const SearchBar = ({ onSearchChange, isLoading, grouping, Search, hideGroupBy = 
 
   return (
     <>
-      <Stack flex={1}>{renderSearch()}</Stack>
+      <Stack sx={{
+        flex: 1
+      }}>{renderSearch()}</Stack>
       {!hideGroupBy && (
         <Stack direction="row" spacing={1}>
           <Tooltip title={i18n.t('Group by')}>

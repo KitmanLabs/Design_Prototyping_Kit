@@ -209,7 +209,9 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
         anchor="right"
         open={open}
         onClose={onClose}
-        PaperProps={{ sx: { width: '480px', maxWidth: '90vw' } }}
+        slotProps={{
+          paper: { sx: { width: '480px', maxWidth: '90vw' } }
+        }}
       >
         <Box
           sx={{
@@ -239,7 +241,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
           <Box sx={{ flex: 1, overflow: 'auto', padding: '24px' }}>
             <Grid container spacing={3}>
               {/* Date */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <DatePicker
                   label="Date"
                   value={toMoment(formData.date)}
@@ -248,21 +250,25 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                     textField: {
                       fullWidth: true,
                       variant: 'filled',
-                      InputLabelProps: { shrink: true },
-                      InputProps: {
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <CalendarTodayOutlined fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      },
                       sx: formFieldStyles,
+
+                      slotProps: {
+                        inputLabel: { shrink: true },
+
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <CalendarTodayOutlined fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        },
+                      },
                     },
                   }}
                 />
               </Grid>
               {/* Start time */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TimePicker
                   label="Start time"
                   value={toMoment(formData.startTime)}
@@ -271,21 +277,29 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                     textField: {
                       fullWidth: true,
                       variant: 'filled',
-                      InputLabelProps: { shrink: true },
-                      InputProps: {
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <ScheduleOutlined fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      },
                       sx: formFieldStyles,
+
+                      slotProps: {
+                        inputLabel: { shrink: true },
+
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <ScheduleOutlined fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        },
+                      },
                     },
                   }}
                 />
               </Grid>
               {/* Duration */}
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <TextField
                   fullWidth
                   variant="filled"
@@ -295,21 +309,27 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                   onChange={(e) =>
                     handleInputChange('duration', parseInt(e.target.value, 10) || 0)
                   }
-                  InputLabelProps={{ shrink: true }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Typography component="span" sx={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)' }}>
-                          mins
-                        </Typography>
-                      </InputAdornment>
-                    ),
-                  }}
                   sx={formFieldStyles}
-                />
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Typography component="span" sx={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)' }}>
+                            mins
+                          </Typography>
+                        </InputAdornment>
+                      ),
+                    },
+
+                    inputLabel: { shrink: true }
+                  }} />
               </Grid>
               {/* Timezone */}
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <FormControl fullWidth variant="filled" sx={formFieldStyles}>
                   <InputLabel shrink>Timezone</InputLabel>
                   <Select
@@ -326,7 +346,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                 </FormControl>
               </Grid>
               {/* Location */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <LocationPicker
                   value={formData.location}
                   onChange={(value) => handleInputChange('location', value)}
@@ -335,7 +355,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
               </Grid>
 
               {/* Attendance (collapsible) */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Box
                   onClick={() => setAttendanceOpen(!attendanceOpen)}
                   sx={{
@@ -365,12 +385,12 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                     onChange={(event, newValue) =>
                       handleInputChange('selectedAthletes', newValue)
                     }
-                    renderTags={(value, getTagProps) =>
+                    renderValue={(value, getItemProps) =>
                       value.map((option, index) => (
                         <Chip
                           key={option.id}
                           label={getAthleteLabel(option)}
-                          {...getTagProps({ index })}
+                          {...getItemProps({ index })}
                           icon={<PersonOutlined />}
                           sx={{
                             backgroundColor: 'var(--color-background-selected)',
@@ -388,8 +408,11 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                         variant="filled"
                         label="Athletes"
                         placeholder="No athletes selected"
-                        InputLabelProps={{ shrink: true }}
                         sx={formFieldStyles}
+                        slotProps={{
+                          ...params.slotProps,
+                          inputLabel: { shrink: true }
+                        }}
                       />
                     )}
                   />
@@ -397,7 +420,11 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
               </Grid>
 
               {/* Game details: Team, Score, Opposition, Score, Competition */}
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <FormControl fullWidth variant="filled" sx={formFieldStyles}>
                   <InputLabel shrink>Team</InputLabel>
                   <Select
@@ -418,7 +445,11 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <TextField
                   fullWidth
                   variant="filled"
@@ -426,11 +457,17 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                   value={formData.teamScore}
                   onChange={(e) => handleInputChange('teamScore', e.target.value)}
                   placeholder="—"
-                  InputLabelProps={{ shrink: true }}
                   sx={formFieldStyles}
+                  slotProps={{
+                    inputLabel: { shrink: true }
+                  }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <FormControl fullWidth variant="filled" sx={formFieldStyles}>
                   <InputLabel shrink>Opposition</InputLabel>
                   <Select
@@ -451,7 +488,11 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <TextField
                   fullWidth
                   variant="filled"
@@ -461,11 +502,13 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                     handleInputChange('oppositionScore', e.target.value)
                   }
                   placeholder="—"
-                  InputLabelProps={{ shrink: true }}
                   sx={formFieldStyles}
+                  slotProps={{
+                    inputLabel: { shrink: true }
+                  }}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <FormControl fullWidth variant="filled" sx={formFieldStyles}>
                   <InputLabel shrink>Competition</InputLabel>
                   <Select
@@ -490,7 +533,11 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
               </Grid>
 
               {/* Round number (optional), Venue */}
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <TextField
                   fullWidth
                   variant="filled"
@@ -500,11 +547,17 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                     handleInputChange('roundNumber', e.target.value)
                   }
                   placeholder="Optional"
-                  InputLabelProps={{ shrink: true }}
                   sx={formFieldStyles}
+                  slotProps={{
+                    inputLabel: { shrink: true }
+                  }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <FormControl fullWidth variant="filled" sx={formFieldStyles}>
                   <InputLabel shrink>Venue</InputLabel>
                   <Select
@@ -527,7 +580,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
               </Grid>
 
               {/* Turnaround marker */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -564,14 +617,16 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                       handleInputChange('turnaroundPrefix', e.target.value)
                     }
                     placeholder="Enter prefix"
-                    InputLabelProps={{ shrink: true }}
                     sx={{ ...formFieldStyles, mt: 1 }}
+                    slotProps={{
+                      inputLabel: { shrink: true }
+                    }}
                   />
                 )}
               </Grid>
 
               {/* Additional details (optional) */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography
                   variant="subtitle2"
                   sx={{
@@ -587,7 +642,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                 </Typography>
                 <Grid container spacing={2}>
                   <EventConditionsFields formData={formData} onInputChange={handleInputChange} />
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <TextField
                       fullWidth
                       variant="filled"
@@ -599,16 +654,17 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
                         handleInputChange('description', e.target.value)
                       }
                       helperText={`${DESCRIPTION_MAX - formData.description.length} characters remaining`}
-                      inputProps={{ maxLength: DESCRIPTION_MAX }}
-                      InputLabelProps={{ shrink: true }}
                       sx={formFieldStyles}
-                    />
+                      slotProps={{
+                        htmlInput: { maxLength: DESCRIPTION_MAX },
+                        inputLabel: { shrink: true }
+                      }} />
                   </Grid>
                 </Grid>
               </Grid>
 
               {/* Attach */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography
                   variant="subtitle2"
                   sx={{ mb: 1, fontWeight: 600, color: 'var(--color-text-primary)' }}
@@ -626,7 +682,7 @@ const AddGameDrawer = ({ open, onClose, onSave, athletes = [], staff = [], editi
               </Grid>
 
               {/* Notifications */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography
                   variant="subtitle2"
                   sx={{ mb: 1, fontWeight: 600, color: 'var(--color-text-primary)' }}

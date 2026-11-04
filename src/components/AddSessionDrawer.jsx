@@ -198,7 +198,9 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
         anchor="right"
         open={open}
         onClose={onClose}
-        PaperProps={{ sx: { width: '480px', maxWidth: '90vw' } }}
+        slotProps={{
+          paper: { sx: { width: '480px', maxWidth: '90vw' } }
+        }}
       >
         <Box
           sx={{
@@ -228,7 +230,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
           <Box sx={{ flex: 1, overflow: 'auto', padding: '24px' }}>
             <Grid container spacing={3}>
               {/* Workload */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography
                   variant="body2"
                   sx={{ color: 'var(--color-text-secondary)', mb: 0.5 }}
@@ -261,7 +263,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
               </Grid>
 
               {/* Session type */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <FormControl fullWidth variant="filled" sx={formFieldStyles}>
                   <InputLabel shrink>Session type</InputLabel>
                   <Select
@@ -284,20 +286,22 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
               </Grid>
 
               {/* Title */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TextField
                   fullWidth
                   variant="filled"
                   label="Title"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  InputLabelProps={{ shrink: true }}
                   sx={formFieldStyles}
+                  slotProps={{
+                    inputLabel: { shrink: true }
+                  }}
                 />
               </Grid>
 
               {/* Date */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <DatePicker
                   label="Date"
                   value={toMoment(formData.date)}
@@ -306,22 +310,30 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                     textField: {
                       fullWidth: true,
                       variant: 'filled',
-                      InputLabelProps: { shrink: true },
-                      InputProps: {
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <CalendarTodayOutlined fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      },
                       sx: formFieldStyles,
+
+                      slotProps: {
+                        inputLabel: { shrink: true },
+
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <CalendarTodayOutlined fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        },
+                      },
                     },
                   }}
                 />
               </Grid>
 
               {/* Start time, Duration, Timezone */}
-              <Grid item xs={12} sm={4}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 4
+                }}>
                 <TimePicker
                   label="Start time"
                   value={toMoment(formData.startTime)}
@@ -330,20 +342,28 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                     textField: {
                       fullWidth: true,
                       variant: 'filled',
-                      InputLabelProps: { shrink: true },
-                      InputProps: {
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <ScheduleOutlined fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      },
                       sx: formFieldStyles,
+
+                      slotProps: {
+                        inputLabel: { shrink: true },
+
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <ScheduleOutlined fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        },
+                      },
                     },
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 4
+                }}>
                 <TextField
                   fullWidth
                   variant="filled"
@@ -353,26 +373,32 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                   onChange={(e) =>
                     handleInputChange('duration', parseInt(e.target.value, 10) || 0)
                   }
-                  InputLabelProps={{ shrink: true }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Typography
-                          component="span"
-                          sx={{
-                            fontSize: 'var(--font-size-xs)',
-                            color: 'var(--color-text-secondary)',
-                          }}
-                        >
-                          mins
-                        </Typography>
-                      </InputAdornment>
-                    ),
-                  }}
                   sx={formFieldStyles}
-                />
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Typography
+                            component="span"
+                            sx={{
+                              fontSize: 'var(--font-size-xs)',
+                              color: 'var(--color-text-secondary)',
+                            }}
+                          >
+                            mins
+                          </Typography>
+                        </InputAdornment>
+                      ),
+                    },
+
+                    inputLabel: { shrink: true }
+                  }} />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 4
+                }}>
                 <FormControl fullWidth variant="filled" sx={formFieldStyles}>
                   <InputLabel shrink>Timezone</InputLabel>
                   <Select
@@ -390,7 +416,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
               </Grid>
 
               {/* Repeats */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <FormControl fullWidth variant="filled" sx={formFieldStyles}>
                   <InputLabel shrink>Repeats</InputLabel>
                   <Select
@@ -408,7 +434,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
               </Grid>
 
               {/* Location */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <LocationPicker
                   value={formData.location}
                   onChange={(value) => handleInputChange('location', value)}
@@ -417,7 +443,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
               </Grid>
 
               {/* Attendance (collapsible) */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Box
                   onClick={() => setAttendanceOpen(!attendanceOpen)}
                   sx={{
@@ -440,7 +466,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                 </Box>
                 <Collapse in={attendanceOpen}>
                   <Grid container spacing={2}>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                       <Autocomplete
                         multiple
                         options={athletes}
@@ -449,9 +475,9 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                         onChange={(_, newValue) =>
                           handleInputChange('selectedAthletes', newValue)
                         }
-                        renderTags={(value, getTagProps) =>
+                        renderValue={(value, getItemProps) =>
                           value.map((option, index) => {
-                            const { key, ...tagProps } = getTagProps({ index });
+                            const { key, ...tagProps } = getItemProps({ index });
                             return (
                               <Chip
                                 key={option.id}
@@ -475,13 +501,16 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                             variant="filled"
                             label="Athletes"
                             placeholder="No athletes selected"
-                            InputLabelProps={{ shrink: true }}
                             sx={formFieldStyles}
+                            slotProps={{
+                              ...params.slotProps,
+                              inputLabel: { shrink: true }
+                            }}
                           />
                         )}
                       />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                       <Autocomplete
                         multiple
                         options={staff}
@@ -490,12 +519,12 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                         onChange={(_, newValue) =>
                           handleInputChange('selectedStaff', newValue)
                         }
-                        renderTags={(value, getTagProps) =>
+                        renderValue={(value, getItemProps) =>
                           value.map((option, index) => (
                             <Chip
                               key={option.id}
                               label={getStaffLabel(option)}
-                              {...getTagProps({ index })}
+                              {...getItemProps({ index })}
                               icon={<PersonOutlined />}
                               sx={{
                                 backgroundColor: 'var(--color-background-selected)',
@@ -513,8 +542,11 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                             variant="filled"
                             label="Staff"
                             placeholder="No staff selected"
-                            InputLabelProps={{ shrink: true }}
                             sx={formFieldStyles}
+                            slotProps={{
+                              ...params.slotProps,
+                              inputLabel: { shrink: true }
+                            }}
                           />
                         )}
                       />
@@ -524,7 +556,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
               </Grid>
 
               {/* Description */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
                   <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)', fontWeight: 600 }}>
                     Description
@@ -545,13 +577,15 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                     handleInputChange('description', e.target.value)
                   }
                   helperText={`${DESCRIPTION_MAX - formData.description.length} characters remaining`}
-                  inputProps={{ maxLength: DESCRIPTION_MAX }}
                   sx={formFieldStyles}
+                  slotProps={{
+                    htmlInput: { maxLength: DESCRIPTION_MAX }
+                  }}
                 />
               </Grid>
 
               {/* Additional details (optional) */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography
                   variant="subtitle2"
                   sx={{
@@ -569,7 +603,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
                   </Box>
                 </Typography>
                 <Grid container spacing={2}>
-                  <Grid item xs={6}>
+                  <Grid size={6}>
                     <FormControl fullWidth variant="filled" sx={formFieldStyles}>
                       <InputLabel shrink>Game day +/-</InputLabel>
                       <Select
@@ -597,7 +631,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
               </Grid>
 
               {/* Attach */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography
                   variant="subtitle2"
                   sx={{ mb: 1, fontWeight: 600, color: 'var(--color-text-primary)' }}
@@ -615,7 +649,7 @@ const AddSessionDrawer = ({ open, onClose, onSave, athletes = [], staff = [], ed
               </Grid>
 
               {/* Notifications */}
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography
                   variant="subtitle2"
                   sx={{ mb: 1, fontWeight: 600, color: 'var(--color-text-primary)' }}

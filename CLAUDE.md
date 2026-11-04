@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 ## Project overview
-Athlete management design system prototype for Kitman Labs. React 18, Vite 7, MUI 5, Emotion, Storybook 10, ESLint 9.
+Athlete management design system prototype for Kitman Labs. React 18, Vite 7, Material UI 9 and MUI X 9, Emotion, Storybook 10, ESLint 9.
 This repo is a **design system reference implementation**: correct use of design tokens and components is the primary quality bar.
 
 ## Common commands
@@ -58,7 +58,15 @@ Always write these props explicitly. The theme sets them at runtime, but explici
 | Autocomplete  | `size="small"`                                             |
 | Chip          | `size="small"`                                             |
 | IconButton    | `size="small"`                                             |
-| LoadingButton | `variant="contained" size="small" disableElevation={true}` |
+
+For a loading state, use Button's `loading` prop (there is no LoadingButton in MUI 9).
+
+## MUI 9 APIs (critical)
+- **slotProps, not the removed props**: `InputProps` → `slotProps.input`, `inputProps` → `slotProps.htmlInput`, `InputLabelProps` → `slotProps.inputLabel`, `SelectProps` → `slotProps.select`, Menu/Popover/Drawer/Dialog `PaperProps` → `slotProps.paper`, `MenuListProps` → `slotProps.list`
+- **Grid**: `<Grid size={{ xs: 12, sm: 6 }}>`; no `item`, no `xs=`/`sm=` props
+- **DataGrid**: `valueGetter`/`valueFormatter` take `(value, row)`; `rowSelectionModel` is `{ type, ids: Set }`; a toolbar slot only shows with `showToolbar`
+- Details and the full list: `DESIGN_SYSTEM.md` → "MUI 9 APIs"
+- Also installed: MUI X Scheduler (beta), Chat (alpha) and Data Grid Premium with the AI Assistant. Usage notes and stories: `DESIGN_SYSTEM.md` → "Scheduler, Chat and the Data Grid AI Assistant". The AI Assistant needs an `onPrompt` resolver; there is no model behind it in this prototype.
 
 ## Design rules (enforced by linting)
 - **Colors**: always `var(--color-primary)` and other tokens, never hardcoded hex/rgb/hsl

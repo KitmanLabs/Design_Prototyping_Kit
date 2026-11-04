@@ -19,16 +19,15 @@ import {
   Drawer,
   Checkbox,
   List,
-  ListItem,
   ListItemIcon,
   ListItemText,
-  Badge
-} from '@mui/material'
+  Badge,
+} from '@mui/material';
 import { Button, DataGrid, GridPagination, GridToolbar } from 'playbook-components'
 import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined, KeyboardArrowDownOutlined, KeyboardArrowRightOutlined, CloseOutlined, NotificationsOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
-import { DateRangePicker, DatePicker } from '@mui/x-date-pickers-pro'
+import { DateRangePicker, DatePicker, MultiInputDateRangeField } from '@mui/x-date-pickers-pro'
 import moment from 'moment'
 import '../../styles/design-tokens.css'
 import { StatusChip, Icon } from '../../components'
@@ -49,6 +48,8 @@ import {
   FileDownloadOutlined,
 } from '@mui/icons-material'
 import { completedRowsData, complianceRowsData, schedulingRowsData } from '../../data/forms'
+
+import ListItemButton from '@mui/material/ListItemButton';
 
 function a11yProps(index) {
   return {
@@ -886,13 +887,15 @@ export default function FormsPage() {
                 value={searchForm}
                 onChange={(e) => setSearchForm(e.target.value)}
                 sx={{ minWidth: 260 }}
-                InputProps={{
-                  sx: typographyStyles,
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />
-                    </InputAdornment>
-                  )
+                slotProps={{
+                  input: {
+                    sx: typographyStyles,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />
+                      </InputAdornment>
+                    )
+                  }
                 }}
               />
               <TextField
@@ -903,7 +906,9 @@ export default function FormsPage() {
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
                 sx={{ minWidth: 220 }}
-                InputProps={{ sx: typographyStyles }}
+                slotProps={{
+                  input: { sx: typographyStyles }
+                }}
               >
                 <MenuItem value="">All</MenuItem>
                 <MenuItem value="Other">Other</MenuItem>
@@ -1091,6 +1096,7 @@ export default function FormsPage() {
                 <MenuItem value="Other">Other</MenuItem>
               </TextField>
               <DateRangePicker
+                slots={{ field: MultiInputDateRangeField }}
                 value={completedDateRange}
                 onChange={(newValue) => setCompletedDateRange(newValue)}
                 slotProps={{
@@ -1098,7 +1104,6 @@ export default function FormsPage() {
                     size: 'small',
                     variant: 'filled',
                     sx: { minWidth: 260 },
-                    inputProps: { placeholder: 'Start – End' }
                   }
                 }}
                 sx={{
@@ -1154,6 +1159,7 @@ export default function FormsPage() {
                 <MenuItem value="">All</MenuItem>
               </TextField>
               <DateRangePicker
+                slots={{ field: MultiInputDateRangeField }}
                 value={complianceDateRange}
                 onChange={(newValue) => setComplianceDateRange(newValue)}
                 slotProps={{
@@ -1161,7 +1167,6 @@ export default function FormsPage() {
                     size: 'small',
                     variant: 'filled',
                     sx: { minWidth: 260 },
-                    inputProps: { placeholder: 'Start – End' }
                   }
                 }}
                 sx={{
@@ -1209,7 +1214,7 @@ export default function FormsPage() {
           }}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-          PaperProps={{
+          slotProps={{ paper: {
             sx: {
               '& .MuiMenuItem-root': { 
                 fontFamily: 'var(--font-family-primary)', 
@@ -1217,7 +1222,7 @@ export default function FormsPage() {
                 gap: 1
               }
             }
-          }}
+          } }}
         >
           <MenuItem
             onClick={() => {
@@ -1292,7 +1297,7 @@ export default function FormsPage() {
           }}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-          PaperProps={{
+          slotProps={{ paper: {
             sx: {
               '& .MuiMenuItem-root': { 
                 fontFamily: 'var(--font-family-primary)', 
@@ -1300,7 +1305,7 @@ export default function FormsPage() {
                 gap: 1
               }
             }
-          }}
+          } }}
         >
           {(() => {
             const currentSchedule = schedulingRowsData.find(r => r.id === schedulingActionRowId)
@@ -1361,13 +1366,15 @@ export default function FormsPage() {
           anchor="right"
           open={assignedPlayersDrawerOpen}
           onClose={handleCloseAssignedPlayersDrawer}
-          PaperProps={{
-            sx: {
-              width: 400,
-              maxWidth: '100vw',
-              height: '100vh',
-              display: 'flex',
-              flexDirection: 'column'
+          slotProps={{
+            paper: {
+              sx: {
+                width: 400,
+                maxWidth: '100vw',
+                height: '100vh',
+                display: 'flex',
+                flexDirection: 'column'
+              }
             }
           }}
         >
@@ -1418,10 +1425,9 @@ export default function FormsPage() {
             {/* Player list with checkboxes */}
             <List sx={{ flex: 1, py: 0 }}>
               {assignedPlayersDrawerData.players.map((playerName) => (
-                <ListItem
+                <ListItemButton
                   key={playerName}
                   dense
-                  button
                   onClick={() => handleToggleAssignedPlayer(playerName)}
                   sx={{
                     px: 3,
@@ -1429,8 +1435,7 @@ export default function FormsPage() {
                     '&:hover': {
                       backgroundColor: 'var(--color-background-hover)'
                     }
-                  }}
-                >
+                  }}>
                   <ListItemIcon sx={{ minWidth: 40 }}>
                     <Checkbox
                       edge="start"
@@ -1447,15 +1452,17 @@ export default function FormsPage() {
                   </ListItemIcon>
                   <ListItemText
                     primary={playerName}
-                    primaryTypographyProps={{
-                      sx: {
-                        fontFamily: 'var(--font-family-primary)',
-                        fontSize: 'var(--font-size-sm)',
-                        color: 'var(--color-text-primary)'
+                    slotProps={{
+                      primary: {
+                        sx: {
+                          fontFamily: 'var(--font-family-primary)',
+                          fontSize: 'var(--font-size-sm)',
+                          color: 'var(--color-text-primary)'
+                        }
                       }
                     }}
                   />
-                </ListItem>
+                </ListItemButton>
               ))}
             </List>
           </Box>
@@ -1546,5 +1553,5 @@ export default function FormsPage() {
         />
       </Box>
     </LocalizationProvider>
-  )
+  );
 }

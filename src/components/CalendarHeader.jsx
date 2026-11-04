@@ -309,7 +309,7 @@ const CalendarHeader = ({
           vertical: 'top',
           horizontal: 'right',
         }}
-        PaperProps={{
+        slotProps={{ paper: {
           sx: {
             mt: 1,
             minWidth: 160,
@@ -326,7 +326,7 @@ const CalendarHeader = ({
               },
             },
           },
-        }}
+        } }}
       >
         <MenuItem onClick={() => handleMenuItemClick('event')}>Event</MenuItem>
         <MenuItem onClick={() => handleMenuItemClick('session')}>Session</MenuItem>
@@ -345,7 +345,7 @@ const CalendarHeader = ({
           vertical: 'top',
           horizontal: 'right',
         }}
-        PaperProps={{
+        slotProps={{ paper: {
           sx: {
             mt: 1,
             minWidth: 160,
@@ -362,7 +362,7 @@ const CalendarHeader = ({
               },
             },
           },
-        }}
+        } }}
       >
         <MenuItem onClick={() => handleViewSelect('dayGridMonth')}>Month</MenuItem>
         <MenuItem onClick={() => handleViewSelect('timeGridDay')}>Day</MenuItem>
@@ -376,7 +376,7 @@ const CalendarHeader = ({
         onClose={handleSettingsClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-        PaperProps={{
+        slotProps={{ paper: {
           sx: {
             mt: 1,
             minWidth: 200,
@@ -391,7 +391,7 @@ const CalendarHeader = ({
               '&:hover': { backgroundColor: 'var(--color-background-secondary)' },
             },
           },
-        }}
+        } }}
       >
         <MenuItem onClick={() => { handleSettingsClose(); handleOpenCopyUrl(); }}>Copy calendar URL</MenuItem>
         <MenuItem onClick={() => { handleSettingsClose(); /* placeholder */ }}>Calendar settings</MenuItem>
@@ -489,7 +489,7 @@ const CalendarHeader = ({
                   },
                 },
               },
-              '& .MuiPickersDay-dayButton': {
+              '& .MuiPickerDay-dayButton': {
                 cursor: 'pointer',
                 color: 'var(--color-primary)',
                 fontFamily: 'var(--font-family-primary)',
@@ -519,13 +519,13 @@ const CalendarHeader = ({
                 textTransform: 'none',
                 borderRadius: '4px',
                 padding: '8px 16px',
-                '&.MuiButton-textPrimary': {
+                "&.MuiButton-text.MuiButton-colorPrimary": {
                   color: 'var(--color-primary)',
                   '&:hover': {
                     backgroundColor: 'var(--color-primary-light)',
                   },
                 },
-                '&.MuiButton-containedPrimary': {
+                "&.MuiButton-contained.MuiButton-colorPrimary": {
                   backgroundColor: 'var(--color-primary)',
                   color: 'var(--color-white)',
                   '&:hover': {
