@@ -1,3 +1,4 @@
+// Floorplan: none. A placeholder for routes that aren't built yet (Analysis, Activity, Help).
 import { Box, Typography } from '@mui/material'
 
 function SimplePage({ pageName }) {

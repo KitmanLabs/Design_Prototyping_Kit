@@ -110,8 +110,19 @@ Follow the MUI 9 APIs and design rules in `docs/reference/design-system.md`.
 
 ## Reference pages
 
-Follow the reference page for your floorplan, listed in the "The eight floorplans" table in the design system reference. The Storybook stories under **Floorplans** show each region on its own.
+Read the reference page for your floorplan before writing yours, and match its structure. They're listed in the "The eight floorplans" table in the design system reference:
+
+- Overview: `src/pages/Overview.jsx`
+- Collection: `src/pages/Athletes.jsx`; queue variant `src/pages/NotificationsPage.jsx`
+- Record: `src/pages/AthleteProfile.jsx`
+- List-detail: `src/pages/Messaging/index.jsx`
+- Analysis: `src/pages/SquadLoad.jsx`
+- Guided flow: `src/pages/Medical/LogInjury.jsx`
+- Settings: `src/pages/Administration.jsx`
+- Workspace: `src/pages/Calendar/index.jsx` (predates `PageFrame`)
+
+The Storybook stories under **Floorplans** show each region on its own.
 
 ## After creating
 
-Run `npm run validate-design-system`, then open the route at http://localhost:3001 to check it renders.
+Run `npm run validate-design-system`, then open the route at http://localhost:3001 to check it renders. The validator warns about routed pages that use no floorplan; your new page must not appear in that list.

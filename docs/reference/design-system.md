@@ -40,7 +40,7 @@ Ask what the user is trying to do, not which data the page shows. Take the first
 7. Finding, filtering or acting on many records, or processing a queue? **Collection**
 8. Arriving with no specific task? **Overview**
 
-If none fits, say why in a comment at the top of the page (`// Floorplan: none. <reason>`), so the exception is deliberate and easy to find.
+If none fits, say why in a comment at the top of the page (`// Floorplan: none. <reason>`), so the exception is deliberate and easy to find. `npm run validate-design-system` lists every routed page that neither imports from `src/floorplans` nor has that comment. It's a warning, not an error: the list is the backlog of pages still to move onto a floorplan (today, Calendar and the Forms pages).
 
 ### The eight floorplans
 
