@@ -1,6 +1,6 @@
-# Design system guide
+# Design system reference
 
-The single source of truth for design rules in this repo. Other docs (CLAUDE.md, PROJECT_STANDARDS.md, the wiki) link here rather than repeating these rules.
+The source of truth for design rules in this repo, for iP: Intelligence Platform prototypes. Other docs ([CLAUDE.md](../../CLAUDE.md), [project structure](project-structure.md) and the [guides](../README.md)) link here rather than repeating these rules.
 
 ## Component priority
 
@@ -92,7 +92,7 @@ Data Grid:
 - `rowSelectionModel` is `{ type: 'include' | 'exclude', ids: Set }`. Pass `disableRowSelectionExcludeModel` when you need the ids to always be the selected rows, and convert with `[...model.ids]`.
 - The toolbar slot only renders with `showToolbar`. Custom toolbars must render toolbar parts (quick filter, buttons) inside `GridToolbarContainer` or the grid's `Toolbar`.
 - Grid-internal buttons are contained secondary, set once in the theme (`MuiDataGrid` default `slotProps.baseButton`).
-- `@mui/x-data-grid-premium` is installed, so Premium features (row grouping, aggregation, Excel export, the AI Assistant) work. Without a Premium licence key they show a watermark and log a licence warning; with a Pro key they log a plan-mismatch error but keep working.
+- `@mui/x-data-grid-premium` is installed, so Premium features (row grouping, aggregation, Excel export, the AI Assistant) work. Without a Premium license key they show a watermark and log a license warning; with a Pro key they log a plan-mismatch error but keep working.
 
 ## Scheduler, Chat and the Data Grid AI Assistant
 

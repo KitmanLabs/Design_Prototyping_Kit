@@ -1,5 +1,5 @@
 // Mock data for layout: current user, squads, page titles
-// All app mock/constants live in src/data (see PROJECT_STANDARDS)
+// All app mock/constants live in src/data (see docs/reference/project-structure.md)
 
 export const currentUser = {
   name: 'Dr. Sarah Mitchell',

@@ -11,84 +11,76 @@ allowed-tools:
 
 # New Page Guide
 
-## File location
+## 1. Create the page
 
-All pages go in `src/pages/`. Use a descriptive directory name:
+Pages go in `src/pages/`, as `MyFeature.jsx` or `MyFeature/index.jsx`.
 
-```
-src/pages/
-└── MyFeature/
-    └── index.jsx    ← or MyFeature.jsx at the top level
-```
-
-## Layout wrapper — always required
-
-Every page must be wrapped in `LayoutWithMainNav` from `src/components/`:
+A page renders **only its own content**. `src/App.jsx` already wraps every route in `LayoutWithMainNav` (the sidebar and header), so don't wrap the page in it again.
 
 ```jsx
-import { LayoutWithMainNav } from '../components/LayoutWithMainNav'
+import { Box, Typography } from '../../playbook-components'
 
 export default function MyFeaturePage() {
   return (
-    <LayoutWithMainNav>
-      {/* page content here */}
-    </LayoutWithMainNav>
-  )
-}
-```
-
-## Data — import from src/data/, never inline
-
-```jsx
-// ✅ Correct
-import athletes from '../data/athletes.json'
-import sessions from '../data/training_sessions.json'
-
-// ❌ Wrong — never hardcode data inline
-const athletes = [{ id: 1, name: 'John Smith' ... }]
-```
-
-Available data files in `src/data/`:
-- `athletes.json` — athlete profiles (firstname, lastname, position, squad, availability_status, etc.)
-- `training_sessions.json` — training session records
-- `games_matches.json` — match/game fixtures
-- `squads_teams.json` — squad/team definitions
-- `assessments.json` — assessment records
-
-## Page structure pattern
-
-```jsx
-import { Box, Typography } from '../playbook-components'
-import { LayoutWithMainNav } from '../components/LayoutWithMainNav'
-
-export default function MyPage() {
-  return (
-    <LayoutWithMainNav>
-      {/* Header area */}
+    <Box sx={{ p: 3 }}>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h6">Page title</Typography>
       </Box>
-
-      {/* Content area */}
-      <Box>
-        {/* main content */}
-      </Box>
-    </LayoutWithMainNav>
+      <Box>{/* main content */}</Box>
+    </Box>
   )
 }
 ```
 
+## 2. Add the route
+
+In `src/App.jsx`, import the page and add a `<Route>` inside the existing `<Routes>`:
+
+```jsx
+import MyFeaturePage from './pages/MyFeature'
+// ...
+<Route path="/my-feature" element={<MyFeaturePage />} />
+```
+
+## 3. Add it to the navigation (if it needs a sidebar item)
+
+- Sidebar item: add an entry to `navigationItems` in `src/components/MainNavigation.jsx` (label in sentence case, an `*Outlined` icon, the route path)
+- Header title: add the path to `pageTitles` in `src/data/layout.js`
+
+## 4. Data: import from src/data/, never inline
+
+```jsx
+// ✅ Correct
+import athletes from '../../data/athletes.json'
+
+// ❌ Wrong: never hardcode mock data inside a component
+const athletes = [{ id: 1, name: 'Jordan Lee' }]
+```
+
+Existing data in `src/data/`:
+- `athletes.json`: athlete profiles (name, position, squad, availability, ...)
+- `squads_teams.json`, `users_staff.json`: squads and staff
+- `calendar_events.json`, `training_sessions.json`, `games_matches.json`: schedule
+- `injuries_medical.json`, `assessments.json`, `questionnaires_wellbeing.json`: medical and wellbeing
+- `forms_templates.json`, `formTemplates/`, `forms.js`: forms
+- `messaging.js`, `layout.js`, `calendarEventOptions.js`: feature mock data and option lists
+
+New mock data for the page goes in a new or existing module in `src/data/`. Run `npm run docs:data` afterwards to refresh `docs/understanding-the-data.md`.
+
 ## Component import priority
 
-1. `src/playbook-components` — DataGrid, TabBar, Toasts, SelectWrapper, etc.
-2. `src/components` — AthleteDataGrid, PlayerAvatar, LogoImage, StatusChip
-3. `@mui/material` — only when 1 and 2 have no equivalent
+1. `src/playbook-components`: Button, DataGrid, TabBar, Drawer, Toasts, SelectWrapper, and the MUI primitives (Box, Typography, ...)
+2. `src/components`: AthleteDataGrid, PlayerAvatar, LogoImage, StatusChip, Card, Icon
+3. `@mui/material`: only when 1 and 2 have no equivalent
+
+Follow the MUI 9 APIs and design rules in `docs/reference/design-system.md`.
 
 ## Reference pages
 
-Look at existing pages for patterns:
-- `src/pages/` — browse for layout and data-loading patterns
+- `src/pages/Athletes.jsx`: a simple page around a data grid
+- `src/pages/Medical/index.jsx`: tabs, filters and a grid
+- `src/pages/Calendar/index.jsx`: a full-page feature with drawers
 
 ## After creating
 
-Run `npm run validate-design-system` to confirm compliance before finishing.
+Run `npm run validate-design-system`, then open the route at http://localhost:3001 to check it renders.

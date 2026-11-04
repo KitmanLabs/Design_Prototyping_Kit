@@ -1,5 +1,5 @@
 // Mock option lists for the calendar event drawers (Add game, Add session). No backend.
-// All mock data lives in src/data (see PROJECT_STANDARDS).
+// All mock data lives in src/data (see docs/reference/project-structure.md).
 
 // Shared by both drawers
 export const MOCK_SURFACE_TYPES = ['Pitch', 'Court', 'Track', 'Gymnasium', 'Pool', 'Field'];

@@ -14,11 +14,11 @@ allowed-tools:
 
 ## Which directory?
 
-**`src/playbook-components/`** — for MUI wrappers and design system primitives
+**`src/playbook-components/`**: for MUI wrappers and design system primitives
 - Use when wrapping or extending an MUI component with project-specific defaults
 - Must be exported from `src/playbook-components/index.js`
 
-**`src/components/`** — for app-level UI components
+**`src/components/`**: for app-level UI components
 - Use for composite components unique to this application (PlayerAvatar, AthleteDataGrid, etc.)
 - May or may not be exported depending on reuse scope
 
@@ -58,17 +58,17 @@ Always write MUI variant and size props explicitly, even though the theme enforc
 <Autocomplete size="small" ... />
 ```
 
-## Colors — always use CSS custom properties
+## Colors: always use CSS custom properties
 
 ```jsx
 // ✅ Correct
 sx={{ color: 'var(--color-primary)', backgroundColor: 'var(--color-secondary)' }}
 
-// ❌ Wrong — ESLint will block commit
+// ❌ Wrong: ESLint will block the commit
 sx={{ color: '#3b4960' }}
 ```
 
-## Icons — Outlined only
+## Icons: Outlined only
 
 ```jsx
 // ✅ Correct
