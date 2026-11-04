@@ -31,7 +31,7 @@ function App() {
         <Route path="/forms/form_answers_sets" element={<FormsPage />} />
         <Route path="/forms/form_answers_sets/forms/:formId" element={<Screen03_FormResponsesForTemplate />} />
         <Route path="/forms/form_answers_sets/:answerSetId" element={<Screen04_FormAnswerSet />} />
-        <Route path="/medical-assessment" element={<MedicalAssessment />} />
+        <Route path="/forms/:formId/assignments" element={<MedicalAssessment />} />
         <Route path="/form-fill/:athleteId" element={<FormFillView />} />
         <Route path="/forms/:formId/build" element={<Screen02_FormBuilder />} />
         <Route path="/calendar" element={<CalendarPage />} />

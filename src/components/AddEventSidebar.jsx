@@ -32,6 +32,7 @@ import { toMoment, withDate } from '../utils/pickerDates';
 import { Button } from '../playbook-components';
 import LocationPicker from './LocationPicker';
 import savedLocationsData from '../data/saved_locations.json';
+import { CALENDAR_EVENT_TYPES } from '../data/calendarEventOptions';
 
 const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], editingEvent = null }) => {
   const [formData, setFormData] = useState({
@@ -59,16 +60,9 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
       const endDate = new Date(editingEvent.end);
       const durationMinutes = Math.round((endDate - startDate) / 60000);
       
-      // Convert event type from UPPER_CASE to Title Case
-      const eventTypeFormatted = editingEvent.extendedProps?.eventType
-        ? editingEvent.extendedProps.eventType
-            .split('_')
-            .map(word => word.charAt(0) + word.slice(1).toLowerCase())
-            .join(' ')
-        : '';
-
       setFormData({
-        eventType: eventTypeFormatted,
+        // The kind of custom event (Meeting, Assessment, ...) chosen when it was created
+        eventType: editingEvent.extendedProps?.customEventType || '',
         title: editingEvent.title || '',
         description: editingEvent.extendedProps?.description || '',
         startDateTime: startDate,
@@ -211,7 +205,8 @@ const AddEventSidebar = ({ open, onClose, onSave, athletes = [], staff = [], edi
       borderColor: getEventTypeColor(formData.eventType),
       textColor: 'var(--color-white)',
       extendedProps: {
-        eventType: formData.eventType.toUpperCase().replace(/ /g, '_'),
+        eventType: CALENDAR_EVENT_TYPES.CUSTOM_EVENT,
+        customEventType: formData.eventType,
         description: formData.description,
         location: formData.location,
         duration: formData.duration,

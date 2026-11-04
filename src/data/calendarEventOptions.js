@@ -1,6 +1,29 @@
 // Mock option lists for the calendar event drawers (Add game, Add session). No backend.
 // All mock data lives in src/data (see docs/reference/project-structure.md).
 
+// Event types, as in iP (kitman-frontend components/src/Calendar/utils/enum-likes.js).
+// Custom events keep their user-chosen kind (Meeting, Assessment, ...) in extendedProps.customEventType.
+export const CALENDAR_EVENT_TYPES = {
+  TRAINING_SESSION: 'TRAINING_SESSION',
+  GAME: 'GAME',
+  CUSTOM_EVENT: 'CUSTOM_EVENT',
+};
+
+export const CALENDAR_EVENT_TYPE_LABELS = {
+  TRAINING_SESSION: 'Training session',
+  GAME: 'Game',
+  CUSTOM_EVENT: 'Event',
+};
+
+// The label shown for an event in the tooltip and details dialog.
+export const getEventTypeLabel = (extendedProps = {}) =>
+  extendedProps.customEventType ||
+  CALENDAR_EVENT_TYPE_LABELS[extendedProps.eventType] ||
+  'Event';
+
+// Placeholder iCal subscription address for the "Copy calendar URL" dialog.
+export const MOCK_CALENDAR_SUBSCRIPTION_URL = 'https://calendar.example.com/ical/team-calendar/basic.ics';
+
 // Shared by both drawers
 export const MOCK_SURFACE_TYPES = ['Pitch', 'Court', 'Track', 'Gymnasium', 'Pool', 'Field'];
 

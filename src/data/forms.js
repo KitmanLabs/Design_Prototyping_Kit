@@ -17,7 +17,7 @@ export const completedRowsData = [
 
 // Used by: pages/forms/FormsPage.jsx
 export const complianceRowsData = [
-  { id: 'c-1', athleteName: 'Ethan Walker', position: 'Inside Centre', dob: '14 Mar 2001', complete: 3, total: 10, lastUpdated: '24 Feb 2026', subRows: [
+  { id: 'c-1', athleteName: 'Ethan Walker', position: 'Inside Centre', squad: 'First team', dob: '14 Mar 2001', complete: 3, total: 10, lastUpdated: '24 Feb 2026', subRows: [
     { id: 'c-1-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '20 Feb 2026' },
     { id: 'c-1-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '18 Feb 2026' },
     { id: 'c-1-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '15 Feb 2026' },
@@ -29,7 +29,7 @@ export const complianceRowsData = [
     { id: 'c-1-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-1-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-2', athleteName: 'Ryan O\'Sullivan', position: 'Loosehead Prop', dob: '22 Sep 1998', complete: 2, total: 10, lastUpdated: '—', subRows: [
+  { id: 'c-2', athleteName: 'Ryan O\'Sullivan', position: 'Loosehead Prop', squad: 'First team', dob: '22 Sep 1998', complete: 2, total: 10, lastUpdated: '—', subRows: [
     { id: 'c-2-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '10 Feb 2026' },
     { id: 'c-2-sub-2', formName: 'Orthopedic Exam', status: 'Draft', lastUpdated: '12 Feb 2026' },
     { id: 'c-2-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '8 Feb 2026' },
@@ -41,7 +41,7 @@ export const complianceRowsData = [
     { id: 'c-2-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-2-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-3', athleteName: 'Connor McCarthy', position: 'Wing', dob: '07 Jun 1996', complete: 5, total: 10, lastUpdated: '18 Jan 2026', subRows: [
+  { id: 'c-3', athleteName: 'Connor McCarthy', position: 'Wing', squad: 'First team', dob: '07 Jun 1996', complete: 5, total: 10, lastUpdated: '18 Jan 2026', subRows: [
     { id: 'c-3-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '15 Jan 2026' },
     { id: 'c-3-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '16 Jan 2026' },
     { id: 'c-3-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '14 Jan 2026' },
@@ -53,7 +53,7 @@ export const complianceRowsData = [
     { id: 'c-3-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-3-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-4', athleteName: 'Finn Henderson', position: 'Fly Half', dob: '28 Nov 2003', complete: 0, total: 10, lastUpdated: '—', subRows: [
+  { id: 'c-4', athleteName: 'Finn Henderson', position: 'Fly Half', squad: 'Academy', dob: '28 Nov 2003', complete: 0, total: 10, lastUpdated: '—', subRows: [
     { id: 'c-4-sub-1', formName: 'Medical Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-4-sub-2', formName: 'Orthopedic Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-4-sub-3', formName: 'Medical History Form', status: 'Not Started', lastUpdated: '—' },
@@ -65,7 +65,7 @@ export const complianceRowsData = [
     { id: 'c-4-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-4-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-5', athleteName: 'Jack Morrison', position: 'Outside Centre', dob: '09 Apr 1999', complete: 4, total: 10, lastUpdated: '10 Feb 2026', subRows: [
+  { id: 'c-5', athleteName: 'Jack Morrison', position: 'Outside Centre', squad: 'First team', dob: '09 Apr 1999', complete: 4, total: 10, lastUpdated: '10 Feb 2026', subRows: [
     { id: 'c-5-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '5 Feb 2026' },
     { id: 'c-5-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '6 Feb 2026' },
     { id: 'c-5-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '4 Feb 2026' },
@@ -77,7 +77,7 @@ export const complianceRowsData = [
     { id: 'c-5-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-5-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-6', athleteName: 'Marcus Thompson', position: 'Number 8', dob: '15 Jan 1997', complete: 8, total: 10, lastUpdated: '22 Feb 2026', subRows: [
+  { id: 'c-6', athleteName: 'Marcus Thompson', position: 'Number 8', squad: 'First team', dob: '15 Jan 1997', complete: 8, total: 10, lastUpdated: '22 Feb 2026', subRows: [
     { id: 'c-6-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '18 Feb 2026' },
     { id: 'c-6-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '19 Feb 2026' },
     { id: 'c-6-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '17 Feb 2026' },
@@ -89,7 +89,7 @@ export const complianceRowsData = [
     { id: 'c-6-sub-9', formName: 'Vision Exam', status: 'Draft', lastUpdated: '22 Feb 2026' },
     { id: 'c-6-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-7', athleteName: 'Sean Brennan', position: 'Scrum Half', dob: '18 Aug 1995', complete: 6, total: 10, lastUpdated: '20 Feb 2026', subRows: [
+  { id: 'c-7', athleteName: 'Sean Brennan', position: 'Scrum Half', squad: 'Academy', dob: '18 Aug 1995', complete: 6, total: 10, lastUpdated: '20 Feb 2026', subRows: [
     { id: 'c-7-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '15 Feb 2026' },
     { id: 'c-7-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '16 Feb 2026' },
     { id: 'c-7-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '14 Feb 2026' },
@@ -101,7 +101,7 @@ export const complianceRowsData = [
     { id: 'c-7-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-7-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-8', athleteName: 'Patrick Doyle', position: 'Hooker', dob: '03 Dec 2000', complete: 1, total: 10, lastUpdated: '15 Feb 2026', subRows: [
+  { id: 'c-8', athleteName: 'Patrick Doyle', position: 'Hooker', squad: 'Academy', dob: '03 Dec 2000', complete: 1, total: 10, lastUpdated: '15 Feb 2026', subRows: [
     { id: 'c-8-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '15 Feb 2026' },
     { id: 'c-8-sub-2', formName: 'Orthopedic Exam', status: 'Draft', lastUpdated: '15 Feb 2026' },
     { id: 'c-8-sub-3', formName: 'Medical History Form', status: 'Not Started', lastUpdated: '—' },
@@ -113,7 +113,7 @@ export const complianceRowsData = [
     { id: 'c-8-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-8-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-9', athleteName: 'Dylan Murphy', position: 'Fullback', dob: '27 Feb 2002', complete: 0, total: 10, lastUpdated: '—', subRows: [
+  { id: 'c-9', athleteName: 'Dylan Murphy', position: 'Fullback', squad: 'Academy', dob: '27 Feb 2002', complete: 0, total: 10, lastUpdated: '—', subRows: [
     { id: 'c-9-sub-1', formName: 'Medical Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-9-sub-2', formName: 'Orthopedic Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-9-sub-3', formName: 'Medical History Form', status: 'Not Started', lastUpdated: '—' },
@@ -125,7 +125,7 @@ export const complianceRowsData = [
     { id: 'c-9-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
     { id: 'c-9-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
   ]},
-  { id: 'c-10', athleteName: 'Liam O\'Brien', position: 'Lock', dob: '11 Jul 1994', complete: 10, total: 10, lastUpdated: '20 Feb 2026', subRows: [
+  { id: 'c-10', athleteName: 'Liam O\'Brien', position: 'Lock', squad: 'First team', dob: '11 Jul 1994', complete: 10, total: 10, lastUpdated: '20 Feb 2026', subRows: [
     { id: 'c-10-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '12 Feb 2026' },
     { id: 'c-10-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '13 Feb 2026' },
     { id: 'c-10-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '11 Feb 2026' },

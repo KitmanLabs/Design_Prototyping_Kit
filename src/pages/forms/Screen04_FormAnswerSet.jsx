@@ -15,13 +15,15 @@ function getTemplateForAnswerSet(answerSetId) {
 
 function buildStubAnswers(template) {
   // Build a stub answers object keyed by question id
+  // Alternates yes and no so the same answer set always shows the same answers
   const answers = {}
+  let index = 0
   for (const section of template.sections || []) {
     for (const item of section.items || []) {
       if (item.type === 'subsection') {
         for (const q of item.items || []) {
-          // Alternate true/false for demo
-          answers[q.id] = Math.random() > 0.5
+          answers[q.id] = index % 2 === 0
+          index += 1
         }
       }
     }
