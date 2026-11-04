@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Box } from '@mui/material';
+import moment from 'moment';
 import FiltersSidebar from '../../components/FiltersSidebar';
 import CalendarHeader from '../../components/CalendarHeader';
-import Calendar from '../../components/Calendar';
+import SchedulerCalendar from '../../components/Calendar/SchedulerCalendar';
+import { VIEW_STEP } from '../../components/Calendar/schedulerModel';
 import EventTooltip from '../../components/EventTooltip';
 import EventDetailsDialog from '../../components/EventDetailsDialog';
 import AddEventSidebar from '../../components/AddEventSidebar';
@@ -25,7 +27,6 @@ const CalendarPage = () => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [detailsEvent, setDetailsEvent] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date('2025-09-01'));
-  const calendarRef = useRef(null);
 
   const [activeFilters, setActiveFilters] = useState({
     squads: 0,
@@ -136,26 +137,19 @@ const CalendarPage = () => {
     return { x, y };
   };
 
-  const handleEventClick = (eventObj) => {
-    eventObj.jsEvent.preventDefault();
-    eventObj.jsEvent.stopPropagation();
-    const event = eventObj.event;
-    const jsEvent = eventObj.jsEvent;
+  // Called by SchedulerCalendar with the original event and an element to position against.
+  const handleEventClick = (event, anchor) => {
     setTooltip({ show: false, event: null, position: { x: 0, y: 0 } });
 
+    // Deferred so the click that opened the tooltip doesn't reach the outside-click listener.
     setTimeout(() => {
-      const eventRect = jsEvent.target.getBoundingClientRect();
       const calendarContainer = document.querySelector('.calendar');
-      if (!calendarContainer) return;
+      if (!anchor || !calendarContainer) return;
+      const eventRect = anchor.getBoundingClientRect();
       const containerRect = calendarContainer.getBoundingClientRect();
       const { x, y } = calculateTooltipPosition(eventRect, containerRect);
-      setTooltip({ show: true, event: event, position: { x, y } });
+      setTooltip({ show: true, event, position: { x, y } });
     }, 0);
-    return false;
-  };
-
-  const handleViewChange = (viewInfo) => {
-    setCurrentView(viewInfo.view.type);
   };
 
   const handleAddEvent = () => setShowAddEventSidebar(true);
@@ -240,21 +234,15 @@ const CalendarPage = () => {
   const handleToggleFilters = () => setShowFilters(!showFilters);
 
   const handleNavigate = (direction) => {
-    if (calendarRef.current) {
-      const calendarApi = calendarRef.current.getApi();
-      if (direction === 'prev') calendarApi.prev();
-      else if (direction === 'next') calendarApi.next();
-      else if (direction === 'today') calendarApi.today();
-      setCurrentDate(calendarApi.getDate());
+    if (direction === 'today') {
+      setCurrentDate(new Date());
+      return;
     }
+    const step = VIEW_STEP[currentView] || 'month';
+    setCurrentDate((date) => moment(date).add(direction === 'next' ? 1 : -1, step).toDate());
   };
 
-  const handleDateChange = (newDate) => {
-    setCurrentDate(newDate);
-    if (calendarRef.current) {
-      calendarRef.current.getApi().gotoDate(newDate);
-    }
-  };
+  const handleDateChange = (newDate) => setCurrentDate(newDate);
 
   const handleCloseTooltip = () => {
     setTooltip({ show: false, event: null, position: { x: 0, y: 0 } });
@@ -330,19 +318,13 @@ const CalendarPage = () => {
 
         <Box sx={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <Box sx={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex', flexDirection: 'column', width: '100%' }}>
-            <Calendar
-              key={`calendar-${showFilters}`}
-              ref={calendarRef}
-              handleEventClick={handleEventClick}
-              onViewChange={handleViewChange}
-              selectedCalendarView={currentView}
-              orgTimeZone="Utc"
-              userLocale="en"
+            <SchedulerCalendar
               events={events}
-              initialDate={currentDate.toISOString().split('T')[0]}
-              onEditEvent={handleEditEvent}
-              onDeleteEvent={handleDeleteEvent}
-              onMoreDetails={handleMoreDetails}
+              view={currentView}
+              date={currentDate}
+              onViewChange={setCurrentView}
+              onDateChange={setCurrentDate}
+              onEventClick={handleEventClick}
             />
           </Box>
         </Box>
