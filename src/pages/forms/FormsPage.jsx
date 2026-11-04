@@ -352,11 +352,28 @@ export default function FormsPage() {
   const complianceFilteredRows = useMemo(() => {
     let rows = complianceRowsData
     if (complianceAthlete) rows = rows.filter((r) => r.athleteName === complianceAthlete)
-    if (complianceFormName) rows = rows.filter((r) => (r.athleteName || '').toLowerCase().includes(String(complianceFormName).toLowerCase()))
-    if (complianceSquad) rows = rows.filter((r) => (r.position || '').toLowerCase().includes(String(complianceSquad).toLowerCase()))
+    if (complianceSquad) rows = rows.filter((r) => r.squad === complianceSquad)
+
+    // Form name and date range apply to each athlete's forms; athletes with no matching forms drop out
+    const formQuery = String(complianceFormName || '').trim().toLowerCase()
     const [start, end] = complianceDateRange || [null, null]
-    if (start || end) {
-      // Filter by date if we had a date field on compliance rows; for now no date filter on compliance
+    const isInDateRange = (dateText) => {
+      const date = moment(dateText, 'D MMM YYYY', true)
+      if (!date.isValid()) return false
+      if (start && date.isBefore(moment(start), 'day')) return false
+      if (end && date.isAfter(moment(end), 'day')) return false
+      return true
+    }
+    if (formQuery || start || end) {
+      rows = rows
+        .map((r) => ({
+          ...r,
+          subRows: (r.subRows || []).filter((sub) =>
+            (!formQuery || (sub.formName || '').toLowerCase().includes(formQuery)) &&
+            (!(start || end) || isInDateRange(sub.lastUpdated))
+          ),
+        }))
+        .filter((r) => r.subRows.length > 0)
     }
     // Flatten rows with expanded sub-rows
     const flattenedRows = []
@@ -906,7 +923,7 @@ export default function FormsPage() {
                 rows={formsRows}
                 columns={formsColumns}
                 disableRowSelectionOnClick
-                onRowClick={() => navigate('/medical-assessment')}
+                onRowClick={(params) => navigate(`/forms/${params.row.id}/assignments`)}
                 pagination
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
@@ -1134,6 +1151,9 @@ export default function FormsPage() {
                 sx={{ minWidth: 160 }}
               >
                 <MenuItem value="">All</MenuItem>
+                {[...new Set(complianceRowsData.map((r) => r.squad).filter(Boolean))].map((squad) => (
+                  <MenuItem key={squad} value={squad}>{squad}</MenuItem>
+                ))}
               </TextField>
               <DateRangePicker
                 slots={{ field: MultiInputDateRangeField }}

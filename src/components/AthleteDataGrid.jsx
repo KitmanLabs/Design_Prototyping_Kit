@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Typography, IconButton, Menu, MenuItem, Tooltip, Chip } from '@mui/material';
+import { DataGrid } from '../playbook-components';
+// Toolbar parts have no Playbook equivalent, so they come from MUI X directly.
 import {
-  DataGrid,
   GridToolbarContainer,
   GridToolbarColumnsButton,
   GridToolbarFilterButton,
@@ -44,7 +45,7 @@ const BulkActionsToolbar = React.forwardRef(({ numSelected, onBulkAction }, ref)
       }}
     >
       <Typography variant="body2" sx={{ color: 'var(--color-text-primary)' }}>
-        {numSelected} items selected
+        {numSelected} selected
       </Typography>
       
       <Box sx={{ display: 'flex', gap: 2 }}>
@@ -143,6 +144,14 @@ const CustomToolbar = React.forwardRef((props, ref) => {
 });
 
 CustomToolbar.displayName = 'CustomToolbar';
+
+const NoAthletesOverlay = () => (
+  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+    <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>
+      There are no athletes
+    </Typography>
+  </Box>
+);
 
 const AthleteDataGrid = ({ 
   data = athletesData, 
@@ -301,11 +310,11 @@ const AthleteDataGrid = ({
         checkboxSelection
         disableRowSelectionOnClick
         density="comfortable"
-        loading={safeData.length === 0}
         disableRowSelectionExcludeModel
         onRowSelectionModelChange={(model) => setSelectedRows([...model.ids])}
         hideFooter
-        slots={{ toolbar: CustomToolbarComponent }}
+        // Passing slots replaces the Playbook wrapper's defaults, so the empty state is set here.
+        slots={{ toolbar: CustomToolbarComponent, noRowsOverlay: NoAthletesOverlay }}
         slotProps={{
           basePopper: {
             sx: {

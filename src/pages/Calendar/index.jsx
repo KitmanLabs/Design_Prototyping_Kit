@@ -5,6 +5,8 @@ import FiltersSidebar from '../../components/FiltersSidebar';
 import CalendarHeader from '../../components/CalendarHeader';
 import SchedulerCalendar from '../../components/Calendar/SchedulerCalendar';
 import { VIEW_STEP } from '../../components/Calendar/schedulerModel';
+import { ConfirmationModal } from '../../playbook-components';
+import { CALENDAR_EVENT_TYPES } from '../../data/calendarEventOptions';
 import EventTooltip from '../../components/EventTooltip';
 import EventDetailsDialog from '../../components/EventDetailsDialog';
 import AddEventSidebar from '../../components/AddEventSidebar';
@@ -27,6 +29,7 @@ const CalendarPage = () => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [detailsEvent, setDetailsEvent] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date('2025-09-01'));
+  const [eventToDelete, setEventToDelete] = useState(null);
 
   const [activeFilters, setActiveFilters] = useState({
     squads: 0,
@@ -198,25 +201,27 @@ const CalendarPage = () => {
     // Set the event being edited
     setEditingEvent(ev);
     
-    // Open appropriate panel based on event type
-    if (eventType === 'TRAINING_SESSION' || eventType === 'TEST_SESSION') {
+    // Open the panel for the event's type; custom events use the event panel
+    if (eventType === CALENDAR_EVENT_TYPES.TRAINING_SESSION) {
       setShowAddSessionDrawer(true);
-    } else if (eventType === "Game" || eventType === "Match") {
+    } else if (eventType === CALENDAR_EVENT_TYPES.GAME) {
       setShowAddGameDrawer(true);
     } else {
-      // Default to event sidebar for other types
       setShowAddEventSidebar(true);
     }
   };
 
+  // Asks for confirmation in a Playbook ConfirmationModal before deleting
   const handleDeleteEvent = (eventData) => {
-    const ev = eventData?.event ?? eventData;
-    const id = ev?.id;
-    const title = ev?.title ?? 'this event';
-    if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
-      setAllEvents(prev => prev.filter(e => e.id !== id));
-      setEvents(prev => prev.filter(e => e.id !== id));
-    }
+    setTooltip({ show: false, event: null, position: { x: 0, y: 0 } });
+    setEventToDelete(eventData?.event ?? eventData);
+  };
+
+  const handleConfirmDelete = () => {
+    const id = eventToDelete?.id;
+    setAllEvents(prev => prev.filter(e => e.id !== id));
+    setEvents(prev => prev.filter(e => e.id !== id));
+    setEventToDelete(null);
   };
 
   const handleMoreDetails = (eventData) => {
@@ -369,6 +374,19 @@ const CalendarPage = () => {
         staff={staffData}
         editingEvent={editingEvent}
       />
+      <ConfirmationModal
+        isModalOpen={Boolean(eventToDelete)}
+        isDeleteAction
+        onClose={() => setEventToDelete(null)}
+        onCancel={() => setEventToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        dialogContent={`"${eventToDelete?.title ?? 'This event'}" will be removed from the calendar.`}
+        translatedText={{
+          title: 'Delete event?',
+          actions: { cancelButton: 'Cancel', ctaButton: 'Delete' },
+        }}
+      />
+
       <EventDetailsDialog
         open={detailsOpen}
         event={detailsEvent}

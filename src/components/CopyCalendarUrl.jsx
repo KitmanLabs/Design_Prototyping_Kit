@@ -12,12 +12,13 @@ import {
   Tooltip
 } from '@mui/material';
 import { Button } from '../playbook-components';
+import { MOCK_CALENDAR_SUBSCRIPTION_URL } from '../data/calendarEventOptions';
 import { RefreshOutlined, ContentCopyOutlined, CheckOutlined } from '@mui/icons-material';
 
 const CopyCalendarUrl = ({ 
   open = false, 
   onClose = () => {}, 
-  calendarUrl: propUrl = 'https://calendar.com/calendar/ical/dcarroll%40kitmanlabs.com/public/' 
+  calendarUrl: propUrl = MOCK_CALENDAR_SUBSCRIPTION_URL 
 }) => {
   const [url, setUrl] = useState(propUrl || '');
   const [copied, setCopied] = useState(false);

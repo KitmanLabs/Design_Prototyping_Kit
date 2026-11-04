@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Paper, Typography, Autocomplete, TextField, MenuItem, IconButton } from '@mui/material';
 import { Button, DataGrid, GridPagination } from 'playbook-components';
 import { ArrowBackOutlined, ArrowDropDownOutlined } from '@mui/icons-material';
@@ -7,6 +7,7 @@ import { StatusChip, Icon } from '../../components';
 import { dataGridStyles } from '../../components/dataGridStyles';
 import '../../styles/design-tokens.css';
 import { medicalAssessmentRows as mockData } from '../../data/forms';
+import formsTemplatesData from '../../data/forms_templates.json';
 
 const typographyStyles = {
   fontFamily: 'var(--font-family-primary)',
@@ -21,8 +22,11 @@ const gridSx = {
   width: '100%'
 };
 
+// The assignments for one form template, as at /forms/:formTemplateId/assignments in iP.
 const MedicalAssessment = () => {
   const navigate = useNavigate();
+  const { formId } = useParams();
+  const formTitle = formsTemplatesData.find((template) => template.id === formId)?.form || 'Medical assessment';
 
   const columns = [
     { field: 'athlete', headerName: 'Athlete', flex: 1, headerClassName: 'grid-cell--pad-left', cellClassName: 'grid-cell--pad-left' },
@@ -68,10 +72,10 @@ const MedicalAssessment = () => {
               style={{ fontWeight: 600, fontSize: 'var(--font-size-xs)', minWidth: 72 }}
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/forms/medical-assessment/fill/${params.row.id}`, {
+                navigate(`/form-fill/${params.row.id}`, {
                   state: {
                     athleteName: params.row.athlete,
-                    formTitle: 'Medical Assessment',
+                    formTitle,
                     isDraft: params.row.status === 'Draft'
                   }
                 });
@@ -100,7 +104,7 @@ const MedicalAssessment = () => {
           <ArrowBackOutlined />
         </IconButton>
         <Typography variant="h5" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-2xl)' }}>
-          Medical Assessment
+          {formTitle}
         </Typography>
       </Box>
 

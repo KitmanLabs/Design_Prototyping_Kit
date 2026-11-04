@@ -39,5 +39,6 @@ export const legacyRedirects = {
   '/athlete': '/athletes',
   '/planning': '/calendar',
   '/messages': '/messaging',
-  '/settings': '/administration'
+  '/settings': '/administration',
+  '/medical-assessment': '/forms/medical-assessment/assignments'
 }

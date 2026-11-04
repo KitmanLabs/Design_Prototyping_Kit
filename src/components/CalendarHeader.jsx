@@ -7,6 +7,7 @@ import { Button, StaticDatePicker } from 'playbook-components';
 import { ArrowDropDownOutlined, ChevronLeftOutlined, ChevronRightOutlined, FilterAltOutlined, SettingsOutlined } from '@mui/icons-material';
 
 import CopyCalendarUrl from './CopyCalendarUrl';
+import { MOCK_CALENDAR_SUBSCRIPTION_URL } from '../data/calendarEventOptions';
 
 const CalendarHeader = ({
   currentView,
@@ -398,7 +399,7 @@ const CalendarHeader = ({
       <CopyCalendarUrl
         open={copyUrlOpen}
         onClose={handleCloseCopyUrl}
-        calendarUrl={'https://calendar.com/calendar/ical/dcarroll%40kitmanlabs.com/public/'}
+        calendarUrl={MOCK_CALENDAR_SUBSCRIPTION_URL}
       />
 
       <Popover

@@ -18,29 +18,16 @@ function Athletes() {
     let message = ''
     let severity = 'info'
     
+    // The actions AthleteDataGrid's selection bar sends
+    const athletes = `${count} athlete${count === 1 ? '' : 's'}`
     switch (action) {
-      case 'view':
-        message = `Viewing ${count} selected athlete${count > 1 ? 's' : ''}`
-        break
-      case 'email':
-        message = `Sending email to ${count} athlete${count > 1 ? 's' : ''}`
-        severity = 'success'
-        break
-      case 'group':
-        message = `Creating group from ${count} athlete${count > 1 ? 's' : ''}`
-        severity = 'success'
-        break
-      case 'export':
-        message = `Exporting ${count} athlete${count > 1 ? 's' : ''} to spreadsheet`
-        severity = 'success'
-        break
-      case 'assessment':
-        message = `Scheduling assessment for ${count} athlete${count > 1 ? 's' : ''}`
-        severity = 'success'
-        break
-      case 'remove':
-        message = `Removing ${count} athlete${count > 1 ? 's' : ''} from system`
+      case 'delete':
+        message = `Deleted ${athletes}`
         severity = 'warning'
+        break
+      case 'archive':
+        message = `Archived ${athletes}`
+        severity = 'success'
         break
       default:
         message = `Unknown action: ${action}`

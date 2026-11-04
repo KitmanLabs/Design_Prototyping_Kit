@@ -2,6 +2,7 @@ import React from 'react';
 import { Dialog, DialogContent, DialogActions, Box, Typography, Divider, Chip, Link } from '@mui/material';
 import { Button } from '../playbook-components';
 import { RefreshOutlined, AttachFileOutlined, PersonOutlined, LocationOnOutlined } from '@mui/icons-material';
+import { getEventTypeLabel } from '../data/calendarEventOptions';
 
 const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff = [] }) => {
   if (!event) return null;
@@ -121,7 +122,7 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
         </Typography>
 
         <Typography variant="body2" sx={{ color: 'var(--color-text-primary)', mb: 1, fontSize: '14px', fontWeight: 500 }}>
-          {extendedProps?.eventType || 'Event'}
+          {getEventTypeLabel(extendedProps)}
         </Typography>
 
         {squadDisplay && (
