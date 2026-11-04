@@ -15,6 +15,7 @@ This prototype has no real server or database. All data lives in local JSON and 
 | `forms_templates.json` | Form templates (medical, wellness, screening) | 15 |
 | `forms.js` | Forms pages and drawers: rows, summaries and option lists | Config |
 | `games_matches.json` | Games and match events | 4 |
+| `gridAiSuggestions.js` | gridAiSuggestions.js | Config |
 | `injuries_medical.json` | Medical records and injuries | 5 |
 | `layout.js` | Layout constants (navigation, page titles) | Config |
 | `messaging.js` | Messaging and chat data | Config |
