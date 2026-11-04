@@ -4,6 +4,7 @@ import { Box, Paper, Typography, Autocomplete, TextField, Link } from '@mui/mate
 import { ArrowDropDownOutlined } from '@mui/icons-material'
 import { Button, DataGrid, GridPagination } from 'playbook-components'
 import '../../styles/design-tokens.css'
+import { dataGridStyles } from '../../components/dataGridStyles'
 import { Icon, StatusChip } from '../../components'
 import { athletesSimple } from '../../data'
 
@@ -143,23 +144,7 @@ function Screen03_FormResponsesForTemplate() {
         </Box>
 
         {/* Grid */}
-        <Box sx={{
-          height: 560,
-          width: '100%',
-          '& .MuiDataGrid-root': { border: 'none' },
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: 'var(--color-background-primary)',
-            '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 600, fontSize: '14px' }
-          },
-          '& .MuiDataGrid-cell': {
-            borderBottom: '1px solid var(--color-border-secondary)',
-            display: 'flex',
-            alignItems: 'center'
-          },
-          '& .grid-cell--pad-left': { pl: 3, paddingLeft: '24px !important' },
-          '& .grid-cell--pad-right': { pr: 3, paddingRight: '24px !important' },
-          '& .MuiDataGrid-footerContainer': { px: 3 },
-        }}>
+        <Box sx={{ ...dataGridStyles, height: 560, width: '100%' }}>
           <DataGrid
             rows={filteredRows}
             columns={columns}

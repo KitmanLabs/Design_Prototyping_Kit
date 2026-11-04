@@ -15,6 +15,7 @@ import {
 import { Button, DataGrid, GridPagination } from 'playbook-components'
 import { SearchOutlined, ExpandMoreOutlined, MoreVertOutlined } from '@mui/icons-material'
 import '../../styles/design-tokens.css'
+import { dataGridStyles } from '../../components/dataGridStyles'
 import TokenizedDrawerAthleteSelector from '../../components/forms/TokenizedDrawerAthleteSelector'
 import CreateFormDrawer from '../../components/forms/CreateFormDrawer'
 import athletesData from '../../data/athletes.json'
@@ -230,27 +231,7 @@ function Screen01_FormsHome() {
           </Button>
         </Box>
         <Divider />
-        <Box sx={{
-          height: 560,
-          width: '100%',
-          '& .MuiDataGrid-root': { border: 'none' },
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: 'var(--color-background-primary)',
-            '& .MuiDataGrid-columnHeaderTitle': {
-              fontWeight: 600,
-              fontSize: '14px'
-            }
-          },
-          '& .MuiDataGrid-cell': {
-            borderBottom: '1px solid var(--color-border-secondary)',
-            display: 'flex',
-            alignItems: 'center'
-          },
-          '& .MuiDataGrid-withBorderColor': {},
-          '& .grid-cell--pad-left': { pl: 3, paddingLeft: '24px !important' },
-          '& .grid-cell--pad-right': { pr: 3, paddingRight: '24px !important' },
-          '& .MuiDataGrid-footerContainer': { px: 3 },
-        }}>
+        <Box sx={{ ...dataGridStyles, height: 560, width: '100%' }}>
           <DataGrid
             rows={rows}
             columns={columns}

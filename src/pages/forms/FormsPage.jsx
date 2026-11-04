@@ -31,6 +31,7 @@ import { DateRangePicker, DatePicker, MultiInputDateRangeField } from '@mui/x-da
 import moment from 'moment'
 import '../../styles/design-tokens.css'
 import { StatusChip, Icon } from '../../components'
+import { dataGridStyles } from '../../components/dataGridStyles'
 import AssignFormDrawer from '../../components/forms/AssignFormDrawer'
 import CreateFormDrawer from '../../components/forms/CreateFormDrawer'
 import EditScheduleDrawer from '../../components/forms/EditScheduleDrawer'
@@ -79,28 +80,10 @@ const typographyStyles = {
 }
 
 const gridSx = {
+  ...dataGridStyles,
   flex: 1,
   minHeight: 0,
-  width: '100%',
-  '& .MuiDataGrid-root': { border: 'none' },
-  '& .MuiDataGrid-columnHeaders': {
-    backgroundColor: 'var(--color-background-primary)',
-    '& .MuiDataGrid-columnHeaderTitle': {
-      fontWeight: 600,
-      fontSize: 'var(--font-size-sm)',
-      fontFamily: 'var(--font-family-primary)'
-    }
-  },
-  '& .MuiDataGrid-cell': {
-    borderBottom: '1px solid var(--color-border-secondary)',
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: 'var(--font-size-sm)',
-    fontFamily: 'var(--font-family-primary)'
-  },
-  '& .grid-cell--pad-left': { pl: 3, paddingLeft: '24px !important' },
-  '& .grid-cell--pad-right': { pr: 3, paddingRight: '24px !important' },
-  '& .MuiDataGrid-footerContainer': { px: 3 }
+  width: '100%'
 }
 
 const initialFormsFromData = (formsTemplatesData || []).map((r) => ({

@@ -67,6 +67,19 @@ Existing data in `src/data/`:
 
 New mock data for the page goes in a new or existing module in `src/data/`. Run `npm run docs:data` afterwards to refresh `docs/understanding-the-data.md`.
 
+## 5. Data grids: use the shared styles
+
+Style the Box that wraps a `DataGrid` with the shared `dataGridStyles` from `src/components/dataGridStyles.js`. Don't copy grid styles into the page; add page-specific rules after the spread.
+
+```jsx
+import { DataGrid } from '../../playbook-components'
+import { dataGridStyles } from '../../components/dataGridStyles'
+
+<Box sx={{ ...dataGridStyles, height: 560, width: '100%' }}>
+  <DataGrid rows={rows} columns={columns} />
+</Box>
+```
+
 ## Component import priority
 
 1. `src/playbook-components`: Button, DataGrid, TabBar, Drawer, Toasts, SelectWrapper, and the MUI primitives (Box, Typography, ...)

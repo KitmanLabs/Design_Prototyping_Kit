@@ -135,6 +135,10 @@ import { toMoment, withDate } from '../utils/pickerDates'
 
 Drawer forms (calendar event drawers, form drawers) style their filled inputs with the shared `formFieldStyles` from `src/components/formFieldStyles.js`. Pass it as `sx`. Don't copy it into a component.
 
+## Data grid styling
+
+Pages style the Box that wraps a `DataGrid` with the shared `dataGridStyles` from `src/components/dataGridStyles.js`, spread next to the container's own sizing: `sx={{ ...dataGridStyles, height: 560, width: '100%' }}`. Don't copy grid styles into a page. Add page-specific rules after the spread.
+
 ## Playbook components and lint
 
 `src/playbook-components` and `src/stories` are excluded from ESLint. The components were ported from the iP monorepo and keep its conventions. For example, the shared icon map uses some filled MUI icons where the filled and outlined versions mean different things (`Star` and `StarBorder`). New code in `src/pages` and `src/components` follows every rule above.
