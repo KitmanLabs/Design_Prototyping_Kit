@@ -29,7 +29,10 @@ function MedinahLayoutWithMainNav({ children }) {
 
   const getPageTitle = () => {
     if (location.pathname.startsWith('/forms')) return 'Forms'
-    return pageTitles[location.pathname] || 'Dashboard'
+    if (pageTitles[location.pathname]) return pageTitles[location.pathname]
+    // A page under a section (an athlete's profile under /athletes) takes the section's title
+    const section = Object.keys(pageTitles).find((path) => location.pathname.startsWith(`${path}/`))
+    return section ? pageTitles[section] : 'Dashboard'
   }
 
   const handleNavToggle = () => {

@@ -10,6 +10,7 @@ This prototype has no real server or database. All data lives in local JSON and 
 |------|-------------------|---------|
 | `assessments.json` | Physical assessments | 6 |
 | `athletes.json` | Athlete profiles (the squad) | 8 |
+| `athleteViews.js` | Quick filters, badge colours, tabs and options for the Athletes pages | Config |
 | `calendar_events.json` | Calendar events | 274 |
 | `calendarEventOptions.js` | Option lists for the Add game and Add session drawers | Config |
 | `forms_templates.json` | Form templates (medical, wellness, screening) | 15 |

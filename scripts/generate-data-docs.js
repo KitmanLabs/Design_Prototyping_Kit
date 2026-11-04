@@ -19,6 +19,7 @@ const FILE_NAMES = {
   'layout.js': 'Layout constants (navigation, page titles)',
   'messaging.js': 'Messaging and chat data',
   'forms.js': 'Forms pages and drawers: rows, summaries and option lists',
+  'athleteViews.js': 'Quick filters, badge colours, tabs and options for the Athletes pages',
   'calendarEventOptions.js': 'Option lists for the Add game and Add session drawers',
 };
 

@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Typography, IconButton, Menu, MenuItem, Tooltip, Chip } from '@mui/material';
+import { Box, Typography, Chip } from '@mui/material';
 import { DataGrid } from '../playbook-components';
 // Toolbar parts have no Playbook equivalent, so they come from MUI X directly.
 import {
@@ -9,88 +9,10 @@ import {
   GridToolbarFilterButton,
   GridToolbarDensitySelector,
   GridToolbarExport,
-  GridToolbarQuickFilter,
 } from '@mui/x-data-grid';
-import { 
-  DeleteOutlined, 
-  AssignmentOutlined,
-  PersonOutlined, 
-  EditOutlined,
-  FitnessCenterOutlined,
-  MedicalServicesOutlined
-} from '@mui/icons-material';
 import athletesData from '../data/athletes.json';
 import '../styles/design-tokens.css';
 import { dataGridStyles } from './dataGridStyles';
-
-const BulkActionsToolbar = React.forwardRef(({ numSelected, onBulkAction }, ref) => {
-  if (numSelected === 0) return null;
-
-  return (
-    <Box
-      ref={ref}
-      sx={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        height: '56px',
-        px: 2,
-        backgroundColor: 'var(--color-background-secondary)',
-        borderBottom: '1px solid var(--color-border-primary)',
-        zIndex: 1,
-      }}
-    >
-      <Typography variant="body2" sx={{ color: 'var(--color-text-primary)' }}>
-        {numSelected} selected
-      </Typography>
-      
-      <Box sx={{ display: 'flex', gap: 2 }}>
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 1, 
-            cursor: 'pointer',
-            '&:hover': {
-              color: 'var(--color-primary)'
-            }
-          }}
-          onClick={() => onBulkAction('delete')}
-        >
-          <DeleteOutlined fontSize="small" />
-          <Typography variant="body2">Delete</Typography>
-        </Box>
-        
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 1, 
-            cursor: 'pointer',
-            '&:hover': {
-              color: 'var(--color-primary)'
-            }
-          }}
-          onClick={() => onBulkAction('archive')}
-        >
-          <AssignmentOutlined fontSize="small" />
-          <Typography variant="body2">Archive</Typography>
-        </Box>
-      </Box>
-    </Box>
-  );
-});
-
-BulkActionsToolbar.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-  onBulkAction: PropTypes.func.isRequired,
-};
-
-BulkActionsToolbar.displayName = 'BulkActionsToolbar';
 
 // MUI X v8+ requires toolbar subcomponents (quick filter, buttons) inside the grid's
 // Toolbar context; GridToolbarContainer provides it, as in the Playbook DataGrid wrapper.
@@ -105,7 +27,6 @@ const CustomToolbar = React.forwardRef((props, ref) => {
         backgroundColor: 'var(--color-background-secondary)',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
       }}
     >
       <Box sx={{ 
@@ -128,17 +49,6 @@ const CustomToolbar = React.forwardRef((props, ref) => {
         <GridToolbarDensitySelector />
         <GridToolbarExport />
       </Box>
-      <GridToolbarQuickFilter 
-        sx={{
-          '& .MuiInputBase-root': {
-            backgroundColor: 'var(--color-background-primary)',
-            borderRadius: '4px',
-            height: '36px',
-            width: '240px',
-          }
-        }}
-        debounceMs={150}
-      />
     </GridToolbarContainer>
   );
 });
@@ -153,12 +63,17 @@ const NoAthletesOverlay = () => (
   </Box>
 );
 
+/**
+ * The athletes grid for the Athletes Collection. The page owns search, quick filters and
+ * the selection bar (PageFrame); the grid keeps its column, filter, density and export tools.
+ * onSelectionChange receives the selected athlete ids; pass onRowClick to open the Record.
+ */
 const AthleteDataGrid = ({ 
   data = athletesData, 
   height = 600,
   showToolbar = true,
-  groupingEnabled = true,
-  onBulkAction,
+  onSelectionChange,
+  rowSelectionIds,
   ...props 
 }) => {
   // Ensure data is always an array and filter out any null/undefined entries
@@ -269,33 +184,6 @@ const AthleteDataGrid = ({
       valueGetter: (value) => value ? new Date(value) : null,
     }
   ], []);
-  // Pagination temporarily disabled to avoid footer runtime issue
-  
-  const [selectedRows, setSelectedRows] = useState([]);
-
-  const CustomToolbarComponent = useMemo(() => {
-    const handleBulkAction = (action) => {
-      if (onBulkAction) {
-        onBulkAction(action, selectedRows);
-      } else {
-        const selectedAthletes = data.filter(athlete => selectedRows.includes(athlete.id));
-        console.log(`Bulk action ${action} on athletes:`, selectedAthletes);
-      }
-    };
-
-    return function CustomToolbarWithSelection(props) {
-      return (
-        <Box sx={{ position: 'relative' }}>
-          <CustomToolbar {...props} />
-          <BulkActionsToolbar
-            numSelected={selectedRows.length}
-            onBulkAction={handleBulkAction}
-          />
-        </Box>
-      );
-    };
-  }, [selectedRows, onBulkAction, data]);
-
   const containerStyles = {
     ...dataGridStyles,
     height,
@@ -311,10 +199,11 @@ const AthleteDataGrid = ({
         disableRowSelectionOnClick
         density="comfortable"
         disableRowSelectionExcludeModel
-        onRowSelectionModelChange={(model) => setSelectedRows([...model.ids])}
+        {...(rowSelectionIds && { rowSelectionModel: { type: 'include', ids: new Set(rowSelectionIds) } })}
+        onRowSelectionModelChange={(model) => onSelectionChange?.([...model.ids])}
         hideFooter
         // Passing slots replaces the Playbook wrapper's defaults, so the empty state is set here.
-        slots={{ toolbar: CustomToolbarComponent, noRowsOverlay: NoAthletesOverlay }}
+        slots={{ toolbar: CustomToolbar, noRowsOverlay: NoAthletesOverlay }}
         slotProps={{
           basePopper: {
             sx: {
@@ -341,8 +230,8 @@ AthleteDataGrid.propTypes = {
   data: PropTypes.array,
   height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   showToolbar: PropTypes.bool,
-  groupingEnabled: PropTypes.bool,
-  onBulkAction: PropTypes.func,
+  onSelectionChange: PropTypes.func,
+  rowSelectionIds: PropTypes.array,
 };
 
 export default AthleteDataGrid;

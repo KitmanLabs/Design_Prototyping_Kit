@@ -47,8 +47,8 @@ If none fits, say why in a comment at the top of the page (`// Floorplan: none. 
 | Floorplan | Job | Reference page |
 |---|---|---|
 | Overview | Where a role starts the day: what needs attention, and where to go next | Planned |
-| Collection | Find, filter and act on many records of one kind. The queue variant swaps the filters for tabs with counts | Planned |
-| Record | Everything about one athlete, injury, session or response, and the actions on it | Planned |
+| Collection | Find, filter and act on many records of one kind. The queue variant swaps the filters for tabs with counts | `/athletes` (`src/pages/Athletes.jsx`) |
+| Record | Everything about one athlete, injury, session or response, and the actions on it | `/athletes/:athleteId` (`src/pages/AthleteProfile.jsx`) |
 | List-detail | Work through items one after another without losing your place | Planned |
 | Analysis | Spot a pattern, drill into its cause, act on the records behind it | Planned |
 | Guided flow | A long, unfamiliar or high-stakes task in 3 to 8 steps | Planned |
@@ -66,6 +66,7 @@ If none fits, say why in a comment at the top of the page (`// Floorplan: none. 
 | Page toolbar | `PageToolbar`, `PageSearch`, `PageQuickFilters` (the Playbook QuickFilters) | Stays in view while the content scrolls. Search and quick filters on the left; the full set of filters lives in a right drawer, with active ones shown as chips. |
 | Selection bar | `PageFrame`'s `selection` prop (the Playbook GenericActionBar) | Replaces the toolbar while rows are selected. Selection actions only. |
 | Content | the floorplan | Pass `fill` when the content scrolls on its own (List-detail, Workspace). |
+| Record content | `RecordLayout`, `RecordSection`, `RecordFields`, `RecordNavigation` | Tabs for the Record's facets, not one long page. Each section has its own Edit, Cancel and Save. A supporting pane (timeline, notes) sits on the right from `lg` and moves under the main column below it. Previous and next sit at the right of the tabs when the Record was opened from a Collection, following the Collection's filtered order. |
 | Footer action bar | `FloorplanFooter` | Only in create and edit, or while there are unsaved changes. Cancel on the left; the primary action on the far right, with `loading` while it runs. |
 | Page states | `PageState` | Empty, no results, no access, error and loading, each with a message and an optional action. |
 | Feedback | `useToasts` (the Playbook Toasts), `ConfirmationModal` | A toast after every completed action. A confirmation before destructive actions and before discarding unsaved changes. |

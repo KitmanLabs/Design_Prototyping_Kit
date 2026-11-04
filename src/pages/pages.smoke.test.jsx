@@ -1,8 +1,9 @@
 import React from 'react'
 import { describe, it, expect } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import App from '../App'
+import '../i18n'
 
 const renderAt = (path) =>
   render(
@@ -16,6 +17,43 @@ describe('pages', () => {
   it('renders the athletes grid', async () => {
     renderAt('/athletes')
     expect(await screen.findByRole('grid')).toBeInTheDocument()
+  })
+
+  it('renders the athletes Collection with its page header', async () => {
+    renderAt('/athletes')
+    expect(await screen.findByRole('button', { name: 'Add athlete' })).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Search athletes' })).toBeInTheDocument()
+  })
+
+  it('shows no results, with a way out, when the search matches nobody', async () => {
+    renderAt('/athletes')
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Search athletes' }), { target: { value: 'zzz' } })
+    expect(screen.getByText('No results')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }))
+    expect(await screen.findByRole('grid')).toBeInTheDocument()
+  })
+
+  it('renders an athlete profile Record with its tabs', async () => {
+    renderAt('/athletes/2')
+    expect(await screen.findByText(/elena rodriguez/i)).toBeInTheDocument()
+    expect(screen.getByText('2 of 8')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('tab', { name: 'Medical' }))
+    expect(await screen.findByText(/knee strain/i)).toBeInTheDocument()
+  })
+
+  it('edits a section of the athlete profile and confirms with a toast', async () => {
+    renderAt('/athletes/1')
+    const profile = await screen.findByRole('region', { name: 'Profile' })
+    fireEvent.click(within(profile).getByRole('button', { name: 'Edit' }))
+    fireEvent.change(within(profile).getByRole('textbox', { name: 'Height' }), { target: { value: '190cm' } })
+    fireEvent.click(within(profile).getByRole('button', { name: 'Save' }))
+    expect(await screen.findByText('Profile updated')).toBeInTheDocument()
+    expect(within(profile).getByText('190cm')).toBeInTheDocument()
+  })
+
+  it('shows a not found state for an unknown athlete', async () => {
+    renderAt('/athletes/999')
+    expect(await screen.findByText("This athlete doesn't exist")).toBeInTheDocument()
   })
 
   it('renders a form template’s assignments with its title', async () => {
