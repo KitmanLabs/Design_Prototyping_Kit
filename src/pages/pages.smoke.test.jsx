@@ -12,25 +12,43 @@ const renderAt = (path) =>
     </MemoryRouter>
   )
 
-// Each page renders through the real router and shell without throwing.
-describe('pages', () => {
-  it('renders the athletes grid', async () => {
+// Each page renders through the real router and shell without throwing. Full data grids
+// render slowly in jsdom, so these tests get a longer time limit.
+describe('pages', { timeout: 30000 }, () => {
+  it('renders the athletes grid with its toolbar and AI Assistant', async () => {
     renderAt('/athletes')
-    expect(await screen.findByRole('grid')).toBeInTheDocument()
+    expect(await screen.findByRole('grid', {}, { timeout: 15000 })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /columns/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /ai assistant/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /charts/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /pivot/i })).toBeInTheDocument()
   })
 
-  it('renders the athletes Collection with its page header', async () => {
+  it('shows the grid toolbar on the Forms page', async () => {
+    renderAt('/forms')
+    expect(await screen.findByRole('button', { name: /filters/i }, { timeout: 15000 })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /ai assistant/i })).toBeInTheDocument()
+  })
+
+  it('shows the grid toolbar on pages without the AI Assistant', async () => {
+    renderAt('/forms/medical-assessment/assignments')
+    expect(await screen.findByRole('button', { name: /columns/i }, { timeout: 15000 })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /ai assistant/i })).not.toBeInTheDocument()
+  })
+
+  it('renders the athletes Collection with its page header and availability filters', async () => {
     renderAt('/athletes')
     expect(await screen.findByRole('button', { name: 'Add athlete' })).toBeInTheDocument()
-    expect(screen.getByRole('textbox', { name: 'Search athletes' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Injured' })).toBeInTheDocument()
   })
 
-  it('shows no results, with a way out, when the search matches nobody', async () => {
+  it('swaps the page toolbar for the page selection bar when athletes are selected', async () => {
     renderAt('/athletes')
-    fireEvent.change(await screen.findByRole('textbox', { name: 'Search athletes' }), { target: { value: 'zzz' } })
-    expect(screen.getByText('No results')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }))
-    expect(await screen.findByRole('grid')).toBeInTheDocument()
+    await screen.findByRole('grid', {}, { timeout: 15000 })
+    fireEvent.click(screen.getAllByRole('checkbox', { name: /select row/i })[0])
+    expect(await screen.findByText(/1 selected/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Assign form' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Injured' })).not.toBeInTheDocument()
   })
 
   it('renders an athlete profile Record with its tabs', async () => {
@@ -118,5 +136,5 @@ describe('pages', () => {
   it('renders the calendar', async () => {
     renderAt('/calendar')
     expect(await screen.findByRole('button', { name: /add/i }, { timeout: 5000 })).toBeInTheDocument()
-  }, 10000)
+  })
 })

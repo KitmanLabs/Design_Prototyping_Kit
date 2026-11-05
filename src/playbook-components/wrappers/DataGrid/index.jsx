@@ -184,6 +184,61 @@ const DataGrid = ({
     pageSize,
     page: pageNumber,
   };
+
+  // Kit: callers' `slots` and `slotProps` add to the wrapper's defaults instead of replacing them,
+  // so passing a pagination slot doesn't drop the toolbar or the empty-state overlay.
+  const { slots: callerSlots, ...otherMuiDataGridProps } = muiDataGridProps;
+  const slots = {
+    toolbar: CustomToolbar,
+    noRowsOverlay: () => (
+      <div css={style.noRowsMessage}>
+        <Box sx={{ mt: 1 }}>{noRowsMessage}</Box>
+      </div>
+    ),
+    ...(asyncPagination ? { pagination: CustomPagination } : {}),
+    ...callerSlots,
+  };
+  const defaultSlotProps = {
+    toolbar: {
+      csvOptions: {
+        disableToolbarButton: !gridToolBar?.includes('enableCSV'),
+      },
+      printOptions: {
+        disableToolbarButton: !gridToolBar?.includes('enablePrint'),
+      },
+      showQuickFilter: gridToolBar?.includes('showQuickFilter'),
+    },
+
+    // DeleteIcon in the filter has the 'width: 100%'
+    // which in kitman system takes up the whole filter form
+    // we overwrite the width to auto so the width is calculated.
+    // @author @RHarfordKitmanLabs & @ioconnor90
+    filterPanel: {
+      filterFormProps: {
+        deleteIconProps: {
+          sx: {
+            width: 'auto',
+          },
+        },
+      },
+    },
+
+    // rows per page overrides
+    pagination: {
+      labelRowsPerPage: i18n.t('Rows:'),
+      ...(asyncPagination &&
+        rowsPerPageEnabled && {
+          rowsPerPage,
+          onRowsPerPageChange: (event) =>
+            onRowsPerPageChange(event.target.value),
+        }),
+    },
+  };
+  const mergedSlotProps = Object.keys({ ...defaultSlotProps, ...slotProps }).reduce(
+    (acc, key) => ({ ...acc, [key]: { ...defaultSlotProps[key], ...slotProps?.[key] } }),
+    {}
+  );
+
   return (
     <DataGridPro
       apiRef={apiRef}
@@ -204,15 +259,7 @@ const DataGrid = ({
           : columns
       }
       checkboxSelection={checkboxSelection}
-      slots={{
-        toolbar: CustomToolbar,
-        noRowsOverlay: () => (
-          <div css={style.noRowsMessage}>
-            <Box sx={{ mt: 1 }}>{noRowsMessage}</Box>
-          </div>
-        ),
-        ...(asyncPagination ? { pagination: CustomPagination } : {}),
-      }}
+      slots={slots}
       loading={loading}
       paginationMode={
         paginationMode ??
@@ -220,44 +267,7 @@ const DataGrid = ({
           ? PaginationModes.Server
           : PaginationModes.Client)
       }
-      slotProps={
-        slotProps ?? {
-          toolbar: {
-            csvOptions: {
-              disableToolbarButton: !gridToolBar?.includes('enableCSV'),
-            },
-            printOptions: {
-              disableToolbarButton: !gridToolBar?.includes('enablePrint'),
-            },
-            showQuickFilter: gridToolBar?.includes('showQuickFilter'),
-          },
-
-          // DeleteIcon in the filter has the 'width: 100%'
-          // which in kitman system takes up the whole filter form
-          // we overwrite the width to auto so the width is calculated.
-          // @author @RHarfordKitmanLabs & @ioconnor90
-          filterPanel: {
-            filterFormProps: {
-              deleteIconProps: {
-                sx: {
-                  width: 'auto',
-                },
-              },
-            },
-          },
-
-          // rows per page overrides
-          pagination: {
-            labelRowsPerPage: i18n.t('Rows:'),
-            ...(asyncPagination &&
-              rowsPerPageEnabled && {
-                rowsPerPage,
-                onRowsPerPageChange: (event) =>
-                  onRowsPerPageChange(event.target.value),
-              }),
-          },
-        }
-      }
+      slotProps={mergedSlotProps}
       disableColumnFilter={disableColumnFilter}
       disableColumnSelector={disableColumnSelector}
       // disableColumnSorting={disableColumnSorting} // TODO: available in v7
@@ -302,13 +312,12 @@ const DataGrid = ({
         (asyncPagination ? defaultPaginationModel : undefined)
       }
       pageSizeOptions={paginationEnabled ? pageSizeOptions : [rows.length]}
-      // MUI X v8+ only renders the toolbar slot when showToolbar is set. Keep the v6
-      // behaviour: show it when the effective slots include a toolbar (callers' `slots`
-      // replace the defaults above). Callers can still pass showToolbar themselves.
-      showToolbar={muiDataGridProps.slots ? Boolean(muiDataGridProps.slots.toolbar) : true}
-      {...muiDataGridProps}
+      // MUI X v8+ only renders the toolbar slot when showToolbar is set. Kit: show it unless a
+      // caller removes the toolbar slot (toolbar: null) or passes showToolbar={false}.
+      showToolbar={Boolean(slots.toolbar)}
+      {...otherMuiDataGridProps}
       sx={{
-        ...muiDataGridProps.sx,
+        ...otherMuiDataGridProps.sx,
         ...style.default,
         ...(paginationEnabled && style.pagination),
         ...(rowSelection && style.rowSelection),

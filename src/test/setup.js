@@ -10,15 +10,17 @@ afterEach(() => {
   cleanup()
 })
 
+// jsdom has no matchMedia. Provide both the legacy and the current listener APIs,
+// as MUI X date pickers use addEventListener.
 if (typeof window !== 'undefined' && !window.matchMedia) {
-  // Matches nothing, so responsive components render their smallest (xs) layout.
-  // MUI 9's useMediaQuery subscribes with addEventListener.
   window.matchMedia = (query) => ({
     matches: false,
     media: query,
+    onchange: null,
     addListener: () => {},
     removeListener: () => {},
     addEventListener: () => {},
-    removeEventListener: () => {}
+    removeEventListener: () => {},
+    dispatchEvent: () => false
   })
 }

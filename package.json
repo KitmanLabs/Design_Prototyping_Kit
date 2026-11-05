@@ -27,6 +27,7 @@
     "@mui/material": "^9.5.0",
     "@mui/system": "^9.5.0",
     "@mui/x-charts": "^9.17.0",
+    "@mui/x-charts-premium": "^9.17.0",
     "@mui/x-chat": "9.0.0-alpha.21",
     "@mui/x-data-grid": "^9.17.0",
     "@mui/x-data-grid-premium": "^9.17.0",
@@ -58,6 +59,7 @@
     "remirror": "^3.0.3"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^1.4.0",
     "@figma/code-connect": "^2.1.0",
     "@storybook/addon-links": "^10.6.5",
     "@storybook/react-vite": "^10.6.5",

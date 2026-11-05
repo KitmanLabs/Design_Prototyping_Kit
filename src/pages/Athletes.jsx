@@ -6,7 +6,6 @@ import {
   PageFrame,
   PageHeader,
   PageToolbar,
-  PageSearch,
   PageQuickFilters,
   PageState,
   useToasts,
@@ -15,31 +14,21 @@ import athletesData from '../data/athletes.json'
 import { availabilityFilters } from '../data/athleteViews'
 
 // Floorplan: Collection. Find, filter and act on the squad's athletes; a row opens the
-// athlete's profile (a Record).
+// athlete's profile (a Record). Search sits in the grid toolbar, next to the AI Assistant,
+// rather than in the page toolbar.
 
-const fullName = (athlete) => `${athlete.firstname} ${athlete.lastname}`
 const plural = (count) => `${count} athlete${count === 1 ? '' : 's'}`
 
 function Athletes() {
   const navigate = useNavigate()
   const { showToast, toasts } = useToasts()
-  const [search, setSearch] = useState('')
   const [availability, setAvailability] = useState(null)
   const [selectedIds, setSelectedIds] = useState([])
 
-  const rows = useMemo(() => {
-    const query = search.trim().toLowerCase()
-    return athletesData.filter(
-      (athlete) =>
-        (!availability || athlete.availability_status === availability) &&
-        (!query || fullName(athlete).toLowerCase().includes(query))
-    )
-  }, [search, availability])
-
-  const clearFilters = () => {
-    setSearch('')
-    setAvailability(null)
-  }
+  const rows = useMemo(
+    () => athletesData.filter((athlete) => !availability || athlete.availability_status === availability),
+    [availability]
+  )
 
   const completeBulkAction = (verb) => {
     showToast({ title: `${verb} ${plural(selectedIds.length)}` })
@@ -60,7 +49,6 @@ function Athletes() {
       }
       toolbar={
         <PageToolbar>
-          <PageSearch value={search} onChange={setSearch} placeholder="Search athletes" label="Search athletes" />
           <PageQuickFilters filters={availabilityFilters} value={availability} onChange={setAvailability} />
         </PageToolbar>
       }
@@ -73,7 +61,7 @@ function Athletes() {
       }}
     >
       {rows.length === 0 ? (
-        <PageState kind="noResults" action={{ label: 'Clear filters', onClick: clearFilters }} />
+        <PageState kind="noResults" action={{ label: 'Clear filter', onClick: () => setAvailability(null) }} />
       ) : (
         <Paper
           elevation={0}

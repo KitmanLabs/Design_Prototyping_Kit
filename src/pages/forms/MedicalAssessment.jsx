@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Paper, Typography, Autocomplete, TextField, MenuItem, IconButton } from '@mui/material';
-import { Button, DataGrid, GridPagination } from 'playbook-components';
+import { Button, DataGridPremium, GridPagination } from 'playbook-components';
 import { ArrowBackOutlined, ArrowDropDownOutlined } from '@mui/icons-material';
 import { StatusChip, Icon } from '../../components';
 import { dataGridStyles } from '../../components/dataGridStyles';
@@ -135,7 +135,7 @@ const MedicalAssessment = () => {
           </TextField>
         </Box>
         <Box sx={gridSx}>
-          <DataGrid
+          <DataGridPremium
             rows={mockData}
             columns={columns}
             disableRowSelectionOnClick

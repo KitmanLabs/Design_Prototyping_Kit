@@ -23,7 +23,9 @@ import {
   ListItemText,
   Badge,
 } from '@mui/material';
-import { Button, DataGrid, GridPagination, GridToolbar } from 'playbook-components'
+import { Button, DataGridPremium, GridPagination } from 'playbook-components'
+import { resolveGridPrompt } from '../../utils/gridAiAssistant'
+import { FORMS_AI_SUGGESTIONS, COMPLETED_FORMS_AI_SUGGESTIONS } from '../../data/gridAiSuggestions'
 import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined, KeyboardArrowDownOutlined, KeyboardArrowRightOutlined, CloseOutlined, NotificationsOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
@@ -919,10 +921,15 @@ export default function FormsPage() {
                 }
               }
             }}>
-              <DataGrid
+              <DataGridPremium
                 rows={formsRows}
                 columns={formsColumns}
                 disableRowSelectionOnClick
+                aiAssistant
+                chartsIntegration
+                onPrompt={resolveGridPrompt}
+                aiAssistantSuggestions={FORMS_AI_SUGGESTIONS}
+                allowAiAssistantDataSampling
                 onRowClick={(params) => navigate(`/forms/${params.row.id}/assignments`)}
                 pagination
                 paginationModel={paginationModel}
@@ -1034,7 +1041,7 @@ export default function FormsPage() {
                 '&:hover': { backgroundColor: 'var(--color-background-hover)' }
               }
             }}>
-              <DataGrid
+              <DataGridPremium
                 rows={schedulingFilteredRows}
                 columns={schedulingColumns}
                 disableRowSelectionOnClick
@@ -1107,10 +1114,15 @@ export default function FormsPage() {
               />
             </Box>
             <Box sx={gridSx}>
-              <DataGrid
+              <DataGridPremium
                 rows={completedFilteredRows}
                 columns={completedColumns}
                 disableRowSelectionOnClick
+                aiAssistant
+                chartsIntegration
+                onPrompt={resolveGridPrompt}
+                aiAssistantSuggestions={COMPLETED_FORMS_AI_SUGGESTIONS}
+                allowAiAssistantDataSampling
                 pagination
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
@@ -1179,7 +1191,7 @@ export default function FormsPage() {
                 '&:hover': { backgroundColor: 'var(--color-background-hover)' }
               }
             }}>
-              <DataGrid
+              <DataGridPremium
                 rows={complianceFilteredRows}
                 columns={complianceColumns}
                 disableRowSelectionOnClick
@@ -1187,7 +1199,7 @@ export default function FormsPage() {
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
                 pageSizeOptions={[25, 50, 100]}
-                slots={{ pagination: GridPagination, toolbar: GridToolbar }}
+                slots={{ pagination: GridPagination }}
                 slotProps={{ pagination: { showFirstButton: true, showLastButton: true } }}
                 getRowClassName={(params) => params.row.isSubRow ? 'compliance-sub-row' : ''}
               />
