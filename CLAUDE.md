@@ -23,6 +23,7 @@ src/
 ├── App.jsx                # routes; App wraps every route in LayoutWithMainNav
 ├── components/            # App components (Icon, Card, PlayerAvatar, MainNavigation, drawers)
 ├── data/                  # All mock data, option lists, fixtures, form templates
+├── floorplans/            # Page types: PageFrame and its regions; every page starts here
 ├── pages/                 # Page-level views (Calendar, Medical, Messaging, forms)
 ├── playbook-components/   # Playbook Components (MUI wrappers ported from the iP monorepo); edit here
 ├── stories/               # Storybook stories for the Playbook Components
@@ -31,6 +32,8 @@ src/
 ```
 
 ## Component priority (critical)
+Every page starts from a floorplan (`src/floorplans`): pick one with the decision list in `docs/reference/design-system.md` → "Floorplans", compose `PageFrame` with `PageHeader`, `PageToolbar`, `FloorplanFooter` and `PageState`, then fill it:
+
 1. **Playbook Components first**: import from `src/playbook-components` (Button, DataGrid, DataGridPremium, DatePicker, Drawer, Toasts, ConfirmationModal, TabBar, SelectWrapper, Autocomplete, and MUI primitives re-exported by the barrel)
 2. **App components**: import from `src/components` (Icon, Card, PlayerAvatar, LogoImage, StatusChip, AthleteDataGrid, LayoutWithMainNav)
 3. **MUI fallback**: `@mui/material` only when 1 and 2 have no equivalent
@@ -68,7 +71,7 @@ The kit runs MUI 9 ahead of iP on purpose: iP is moving to MUI 9 and MUI X 9.
 - **Grid**: `<Grid size={{ xs: 12, sm: 6 }}>`; no `item`, no `xs=`/`sm=` props
 - **DataGrid**: `valueGetter`/`valueFormatter` take `(value, row)`; `rowSelectionModel` is `{ type, ids: Set }`; a toolbar slot only shows with `showToolbar`
 - Details and the full list: `docs/reference/design-system.md` → "MUI 9 APIs"
-- Also installed: MUI X Scheduler (beta), Chat (alpha) and Data Grid Premium with the AI Assistant. Usage notes and stories: `docs/reference/design-system.md` → "Scheduler, Chat and the Data Grid AI Assistant". The AI Assistant is on the Athletes, Medical roster and Forms grids; under `npm run dev` it asks Claude through `/api/grid-prompt` (`server/gridPrompt.js`), reading the key from 1Password via `ANTHROPIC_API_KEY_REF` (an `op://` reference) in `.env`.
+- Also installed: MUI X Charts (and Charts Premium for grid charts), Scheduler (beta), Chat (alpha) and Data Grid Premium with the AI Assistant. Usage notes and stories: `docs/reference/design-system.md` → "Charts, Scheduler, Chat and the Data Grid AI Assistant". The AI Assistant is on the Athletes, Medical roster and Forms grids; under `npm run dev` it asks Claude through `/api/grid-prompt` (`server/gridPrompt.js`), reading the key from 1Password via `ANTHROPIC_API_KEY_REF` (an `op://` reference) in `.env`.
 
 ## Design rules (enforced by linting)
 - **Colors**: always `var(--color-primary)` and other tokens, never hardcoded hex/rgb/hsl

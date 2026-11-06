@@ -22,7 +22,7 @@ npm run validate-design-system
 
 ## The design system checks
 
-**What they check:** colors, button styles, icons and text casing.
+**What they check:** colors, button styles, icons, text casing, and whether each page starts from a floorplan.
 
 **Why they fail:**
 - A color is hardcoded (a hex code, "blue", `rgb()`) instead of using a design token
@@ -30,6 +30,7 @@ npm run validate-design-system
 - An icon isn't the `*Outlined` variant (`Dashboard` instead of `DashboardOutlined`)
 - A Button is imported from Material UI instead of from the Playbook Components
 - A label isn't in sentence case ("ADD ATHLETE" instead of "Add athlete"); this one is a warning, not a failure
+- A page doesn't start from a floorplan; also a warning, not a failure. Ask Claude to "move this page onto the right floorplan", or, if none fits, to note why at the top of the page
 
 **Example:**
 

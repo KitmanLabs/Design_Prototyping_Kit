@@ -28,6 +28,7 @@ import {
   DialogActions
 } from '@mui/material'
 import { Button } from '../../playbook-components'
+import { PageFrame, PageHeader, ListDetailLayout, PageState } from '../../floorplans'
 import {
   EditOutlined as EditIcon,
   CreateOutlined as ComposeIcon,
@@ -385,10 +386,10 @@ export default function Messaging() {
 
   const removeAttachment = (id) => setAttachments(prev => prev.filter(a => a.id !== id))
 
-  return (
-    <Box sx={{ display: 'flex', height: '100%', overflow: 'hidden', bgcolor: 'var(--color-background-primary)' }}>
-      {/* Left sidebar */}
-      <Box sx={{ width: SIDEBAR_WIDTH, borderRight: '1px solid var(--color-border-primary)', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+  // Floorplan: List-detail. Conversations on the left, the selected conversation on the right;
+  // below the md breakpoint one pane shows at a time.
+  const conversationList = (
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border-primary)' }}>
           <Typography variant="subtitle1" sx={{
             fontWeight: 600
@@ -518,9 +519,10 @@ export default function Messaging() {
           )}
         </Box>
       </Box>
+  )
 
-      {/* Center: chat */}
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+  const conversationDetail = (
+      <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {selected ? (
           <>
             <Box sx={{ p: 1.5, borderBottom: '1px solid var(--color-border-primary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -716,12 +718,26 @@ export default function Messaging() {
             </Box>
           </>
         ) : (
-          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'text.secondary' }}>
-            <Typography variant="body2">Select a conversation</Typography>
-          </Box>
+          <PageState kind="empty" title="No conversation selected" description="Choose a conversation from the list." />
         )}
       </Box>
+  )
 
+  return (
+    <PageFrame
+      fill
+      contentPadding={0}
+      header={<PageHeader title="Messaging" primaryAction={{ id: 'new', label: 'New message', onClick: handleAddDM }} />}
+    >
+      <ListDetailLayout
+        list={conversationList}
+        detail={conversationDetail}
+        hasSelection={Boolean(selected)}
+        onBack={() => setSelectedId(null)}
+        listWidth={SIDEBAR_WIDTH}
+        minListWidth={SIDEBAR_WIDTH}
+        emptyDetail={conversationDetail}
+      />
       {/* Right panel: New DM / New channel / Channel settings */}
       <Drawer
         anchor="right"
@@ -1126,6 +1142,6 @@ export default function Messaging() {
           )}
         </Box>
       </Modal>
-    </Box>
+    </PageFrame>
   );
 }

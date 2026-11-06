@@ -155,6 +155,36 @@ function checkDisallowedButtonsAndIcons() {
   return true;
 }
 
+function checkFloorplans() {
+  // Warning only: every routed page should start from a floorplan (src/floorplans), or say
+  // why not with a "// Floorplan: none. <reason>" comment. Pages still listed here are the
+  // migration backlog; see docs/reference/design-system.md, "Floorplans".
+  console.log('🗺️  Checking that pages start from a floorplan...');
+  const app = fs.readFileSync('src/App.jsx', 'utf8');
+  const pagePaths = [...app.matchAll(/from '\.\/(pages\/[^']+)'/g)].map((m) => m[1]);
+  const resolve = (rel) =>
+    [`src/${rel}.jsx`, `src/${rel}.js`, `src/${rel}/index.jsx`, `src/${rel}/index.js`].find((f) => fs.existsSync(f));
+
+  const missing = [];
+  for (const rel of pagePaths) {
+    const file = resolve(rel);
+    if (!file) continue;
+    const content = fs.readFileSync(file, 'utf8');
+    const usesFloorplan = /from ['"][./]*floorplans['"]/.test(content);
+    const explainsException = /Floorplan: none\./.test(content);
+    if (!usesFloorplan && !explainsException) missing.push(file);
+  }
+
+  if (missing.length) {
+    console.log(`⚠️  ${missing.length} routed page(s) don't use a floorplan yet (warning only):`);
+    missing.forEach((file) => console.log(`   ${file}`));
+    console.log('');
+    return false;
+  }
+  console.log('✅ Every routed page starts from a floorplan\n');
+  return true;
+}
+
 // Run all checks
 console.log('Starting comprehensive design system validation...\n');
 
@@ -181,6 +211,9 @@ checkHardcodedColors();
 
 // Component usage validation
 checkDisallowedButtonsAndIcons();
+
+// Page structure (warning only)
+checkFloorplans();
 
 // Code style validation
 runCommand('npm run lint', 'ESLint validation');

@@ -10,6 +10,7 @@ This prototype has no real server or database. All data lives in local JSON and 
 |------|-------------------|---------|
 | `assessments.json` | Physical assessments | 6 |
 | `athletes.json` | Athlete profiles (the squad) | 8 |
+| `athleteViews.js` | Quick filters, badge colours, tabs and options for the Athletes pages | Config |
 | `calendar_events.json` | Calendar events | 274 |
 | `calendarEventOptions.js` | Option lists for the Add game and Add session drawers | Config |
 | `forms_templates.json` | Form templates (medical, wellness, screening) | 15 |
@@ -17,13 +18,17 @@ This prototype has no real server or database. All data lives in local JSON and 
 | `games_matches.json` | Games and match events | 4 |
 | `gridAiSuggestions.js` | gridAiSuggestions.js | Config |
 | `injuries_medical.json` | Medical records and injuries | 5 |
+| `injuryOptions.js` | Steps and option lists for the Log injury flow | Config |
 | `layout.js` | Layout constants (navigation, page titles) | Config |
 | `messaging.js` | Messaging and chat data | Config |
+| `notifications.js` | Notifications and category filters for the Notifications queue | Config |
 | `questionnaires_wellbeing.json` | Wellbeing questionnaires | 6 |
 | `saved_locations.json` | Saved venues and locations | 4 |
+| `settings.js` | Sections, defaults and option lists for Administration | Config |
 | `squads_teams.json` | Squads and team definitions | 4 |
 | `training_sessions.json` | Training sessions and workouts | 6 |
 | `users_staff.json` | Staff and user accounts | 10 |
+| `workloads.js` | Generated daily training load and availability trend for Squad load and the Overview | Config |
 
 ## How to change the data
 

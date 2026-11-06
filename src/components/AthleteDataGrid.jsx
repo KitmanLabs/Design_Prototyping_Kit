@@ -105,12 +105,18 @@ const columns = [
 ];
 
 // Athletes in a Playbook DataGridPremium: the standard toolbar (columns, filters, density,
-// export, search), the AI Assistant, and bulk actions that replace the toolbar while rows
-// are selected.
+// export, search) and the AI Assistant. Search stays in the grid toolbar, next to the AI
+// Assistant.
+//
+// Selection: on a floorplan page, pass onSelectionChange (and rowSelectionIds to control it)
+// and let PageFrame's selection bar hold the bulk actions, as on every Collection. Without
+// it, onBulkAction gives the grid its own bulk actions bar instead.
 const AthleteDataGrid = ({
   data = athletesData,
   height = 600,
   onBulkAction,
+  onSelectionChange,
+  rowSelectionIds,
   ...props
 }) => {
   // Ensure data is always an array and filter out any null/undefined entries
@@ -119,7 +125,7 @@ const AthleteDataGrid = ({
     return data.filter(row => row && typeof row === 'object' && row.id);
   }, [data]);
 
-  const bulkActions = useMemo(() => [
+  const bulkActions = useMemo(() => onSelectionChange ? undefined : [
     {
       key: 'archive',
       label: 'Archive',
@@ -132,7 +138,7 @@ const AthleteDataGrid = ({
       icon: <DeleteOutlined fontSize="small" />,
       onAction: (selectedIds) => onBulkAction?.('delete', selectedIds),
     },
-  ], [onBulkAction]);
+  ], [onBulkAction, onSelectionChange]);
 
   return (
     <Box sx={{ ...dataGridStyles, height, width: '100%' }}>
@@ -140,7 +146,10 @@ const AthleteDataGrid = ({
         rows={safeData}
         columns={columns}
         density="comfortable"
+        checkboxSelection
         bulkActions={bulkActions}
+        {...(rowSelectionIds && { rowSelectionModel: rowSelectionIds })}
+        {...(onSelectionChange && { onRowSelectionModelChange: (model) => onSelectionChange([...model.ids]) })}
         slots={{ noRowsOverlay: NoAthletesOverlay }}
         aiAssistant
         chartsIntegration
@@ -159,6 +168,8 @@ AthleteDataGrid.propTypes = {
   data: PropTypes.array,
   height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   onBulkAction: PropTypes.func,
+  onSelectionChange: PropTypes.func,
+  rowSelectionIds: PropTypes.array,
 };
 
 export default AthleteDataGrid;

@@ -22,6 +22,7 @@ It also checks its own work as it goes: each file it edits is linted straight aw
 ### Good prompts
 
 - "Add a page that shows injury history for the selected athlete"
+- "Add a Collection page for sessions, opening each one as a Record": naming the [floorplan](reference/design-system.md#floorplans) gets the layout right first time
 - "Change the calendar to open in week view"
 - "Add a filter on the Athletes page for position"
 - "Create a form for logging a new training session"
@@ -64,7 +65,7 @@ Type `/` in the Claude Code panel to see what's available. The useful ones here:
 |---|---|
 | `/help` | Help with Claude Code itself |
 | `/clear` | Start a fresh conversation (handy between unrelated tasks) |
-| `/new-page` | This project's guide for adding a page: route, navigation item, data, layout |
+| `/new-page` | This project's guide for adding a page: it picks a floorplan first, then the route, navigation item and data |
 | `/new-component` | This project's guide for adding a component, with its story |
 
 For everything else, including commits, ask in plain language: "commit these changes", "open a pull request", "what changed on this branch?"

@@ -26,6 +26,7 @@
     "@mui/icons-material": "^9.5.0",
     "@mui/material": "^9.5.0",
     "@mui/system": "^9.5.0",
+    "@mui/x-charts": "^9.17.0",
     "@mui/x-charts-premium": "^9.17.0",
     "@mui/x-chat": "9.0.0-alpha.21",
     "@mui/x-data-grid": "^9.17.0",

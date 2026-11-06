@@ -14,6 +14,10 @@ allowed-tools:
 
 ## Which directory?
 
+**`src/floorplans/`**: for page regions (page header, toolbar, selection bar, footer action bar, page states, pane layouts)
+- Don't build a page-specific header, toolbar or footer: extend the floorplan region instead, so every page keeps the same anatomy
+- Export from `src/floorplans/index.js`, add a story in `src/stories/Floorplans/`, and describe the rule in `docs/reference/design-system.md` → "Floorplans"
+
 **`src/playbook-components/`**: for MUI wrappers and design system primitives
 - Use when wrapping or extending an MUI component with project-specific defaults
 - Must be exported from `src/playbook-components/index.js`

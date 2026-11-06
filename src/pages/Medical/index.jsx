@@ -2,15 +2,15 @@ import React, { useState, useMemo } from 'react';
 import {
   Box,
   Typography,
-  Tabs,
-  Tab,
   TextField,
   MenuItem,
   InputAdornment,
   IconButton,
   Chip,
 } from '@mui/material';
-import { Button, DataGridPremium } from 'playbook-components';
+import { useNavigate } from 'react-router-dom';
+import { Button, DataGridPremium, TabBar } from 'playbook-components';
+import { PageFrame, PageHeader, useToasts, useNavigationToast } from '../../floorplans';
 import { resolveGridPrompt } from '../../utils/gridAiAssistant';
 import { MEDICAL_ROSTER_AI_SUGGESTIONS } from '../../data/gridAiSuggestions';
 import {
@@ -38,13 +38,6 @@ const gridSx = {
   width: '100%'
 };
 
-// Accessibility helper for tabs
-function a11yProps(index) {
-  return {
-    id: `medical-tab-${index}`,
-    'aria-controls': `medical-tabpanel-${index}`
-  };
-}
 
 // Tab panel component matching FormsPage pattern
 function TabPanel({ children, value, index }) {
@@ -52,8 +45,8 @@ function TabPanel({ children, value, index }) {
   return (
     <Box
       role="tabpanel"
-      id={`medical-tabpanel-${index}`}
-      aria-labelledby={`medical-tab-${index}`}
+      id={`tabpanel-medical-${index}`}
+      aria-labelledby={`tab-medical-${index}`}
       sx={{ pt: 0, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
     >
       {children}
@@ -92,6 +85,9 @@ const generateMedicalRosterData = () => {
 };
 
 function MedicalPage() {
+  const navigate = useNavigate();
+  const { showToast, toasts } = useToasts();
+  useNavigationToast(showToast);
   const [activeTab, setActiveTab] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeRosterFilter, setActiveRosterFilter] = useState('');
@@ -352,56 +348,21 @@ function MedicalPage() {
     },
   ];
 
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-  };
+  // Floorplan: Collection. The rosters tab is the reference; the other tabs are placeholders.
+  const tabBarTabs = tabs.map((title, index) => ({ tabKey: `medical-${index}`, tabHash: index, title }));
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Page Header */}
-      <Box sx={{ px: 3, pt: 3, pb: 2 }}>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 'var(--font-weight-semibold)',
-            color: 'var(--color-text-primary)',
-            fontFamily: 'var(--font-family-primary)',
-          }}
-        >
-          Medical
-        </Typography>
-      </Box>
-
-      {/* Tab Navigation */}
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3 }}>
-        <Tabs
-          value={activeTab}
-          onChange={handleTabChange}
-          aria-label="medical tabs"
-          variant="scrollable"
-          scrollButtons="auto"
-          sx={{
-            '& .MuiTab-root': {
-              textTransform: 'none',
-              fontWeight: 'var(--font-weight-medium)',
-              fontSize: 'var(--font-size-sm)',
-              color: 'var(--color-text-secondary)',
-              minHeight: 48,
-              '&.Mui-selected': {
-                color: 'var(--color-primary)',
-              },
-            },
-            '& .MuiTabs-indicator': {
-              backgroundColor: 'var(--color-primary)',
-            },
-          }}
-        >
-          {tabs.map((tab, index) => (
-            <Tab key={tab} label={tab} {...a11yProps(index)} />
-          ))}
-        </Tabs>
-      </Box>
-
+    <PageFrame
+      fill
+      contentPadding={0}
+      header={
+        <PageHeader
+          title="Medical"
+          primaryAction={{ id: 'log-injury', label: 'Log injury', onClick: () => navigate('/medical/log-injury') }}
+        />
+      }
+      tabs={<TabBar tabs={tabBarTabs} value={activeTab} onChange={setActiveTab} variant="scrollable" />}
+    >
       {/* Tab Panels */}
       <TabPanel value={activeTab} index={0}>
         {/* Section Header Row */}
@@ -568,7 +529,8 @@ function MedicalPage() {
           </Box>
         </TabPanel>
       ))}
-    </Box>
+      {toasts}
+    </PageFrame>
   );
 }
 

@@ -11,28 +11,47 @@ allowed-tools:
 
 # New Page Guide
 
-## 1. Create the page
+## 1. Choose a floorplan
+
+Every page starts from one of the eight floorplans. Work out what the user is trying to do on the page, then take the first match in the decision list in `docs/reference/design-system.md` → "Floorplans" → "Choosing a floorplan". Read that section; don't work from memory.
+
+If the request doesn't make the job clear, ask which floorplan fits, offering the one or two the decision list points to. Say which floorplan you chose and why when you report back.
+
+If none fits, build the page anyway and put the reason in a comment at the top: `// Floorplan: none. <reason>`.
+
+## 2. Create the page
 
 Pages go in `src/pages/`, as `MyFeature.jsx` or `MyFeature/index.jsx`.
 
-A page renders **only its own content**. `src/App.jsx` already wraps every route in `LayoutWithMainNav` (the sidebar and header), so don't wrap the page in it again.
+A page renders **only its own content**. `src/App.jsx` already wraps every route in `LayoutWithMainNav` (the sidebar and app bar), so don't wrap the page in it again.
+
+Compose the page from `src/floorplans`. Use only the regions the floorplan needs, and never build a page-specific header, toolbar or footer:
 
 ```jsx
-import { Box, Typography } from '../../playbook-components'
+import { useState } from 'react'
+import { PageFrame, PageHeader, PageToolbar, PageSearch, PageState, useToasts } from '../floorplans'
 
 export default function MyFeaturePage() {
+  const [search, setSearch] = useState('')
+  const { showToast, toasts } = useToasts()
+
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h6">Page title</Typography>
-      </Box>
-      <Box>{/* main content */}</Box>
-    </Box>
+    <PageFrame
+      header={<PageHeader title="Page title" primaryAction={{ id: 'add', label: 'Add item', onClick: () => showToast({ title: 'Item added' }) }} />}
+      toolbar={<PageToolbar><PageSearch value={search} onChange={setSearch} /></PageToolbar>}
+    >
+      {/* the floorplan's content; PageState covers empty, no results, no access, error and loading */}
+      {toasts}
+    </PageFrame>
   )
 }
 ```
 
-## 2. Add the route
+`PageFrame` slots: `header`, `tabs` (a `TabBar`), `toolbar`, `selection` (`{ count, actions }`, which swaps the toolbar for the selection bar), `footer` (a `FloorplanFooter`, only for create and edit) and `fill` (for content that scrolls on its own). The rules for each region are in the "Page anatomy" table in the design system reference.
+
+Because the page has its own header, add its path to `pagesWithOwnHeader` in `src/data/layout.js`.
+
+## 3. Add the route
 
 In `src/App.jsx`, import the page and add a `<Route>` inside the existing `<Routes>`:
 
@@ -42,12 +61,12 @@ import MyFeaturePage from './pages/MyFeature'
 <Route path="/my-feature" element={<MyFeaturePage />} />
 ```
 
-## 3. Add it to the navigation (if it needs a sidebar item)
+## 4. Add it to the navigation (if it needs a sidebar item)
 
 - Sidebar item: add an entry to `navigationItems` in `src/components/MainNavigation.jsx` (label in sentence case, an `*Outlined` icon, the route path)
-- Header title: add the path to `pageTitles` in `src/data/layout.js`
+- App bar title: add the path to `pageTitles` in `src/data/layout.js`
 
-## 4. Data: import from src/data/, never inline
+## 5. Data: import from src/data/, never inline
 
 ```jsx
 // ✅ Correct
@@ -67,7 +86,7 @@ Existing data in `src/data/`:
 
 New mock data for the page goes in a new or existing module in `src/data/`. Run `npm run docs:data` afterwards to refresh `docs/understanding-the-data.md`.
 
-## 5. Data grids: use the shared styles
+## 6. Data grids: use the shared styles
 
 Style the Box that wraps a `DataGrid` with the shared `dataGridStyles` from `src/components/dataGridStyles.js`. Don't copy grid styles into the page; add page-specific rules after the spread.
 
@@ -82,6 +101,7 @@ import { dataGridStyles } from '../../components/dataGridStyles'
 
 ## Component import priority
 
+0. `src/floorplans`: the page frame and its regions
 1. `src/playbook-components`: Button, DataGrid, TabBar, Drawer, Toasts, SelectWrapper, and the MUI primitives (Box, Typography, ...)
 2. `src/components`: AthleteDataGrid, PlayerAvatar, LogoImage, StatusChip, Card, Icon
 3. `@mui/material`: only when 1 and 2 have no equivalent
@@ -90,10 +110,19 @@ Follow the MUI 9 APIs and design rules in `docs/reference/design-system.md`.
 
 ## Reference pages
 
-- `src/pages/Athletes.jsx`: a simple page around a data grid
-- `src/pages/Medical/index.jsx`: tabs, filters and a grid
-- `src/pages/Calendar/index.jsx`: a full-page feature with drawers
+Read the reference page for your floorplan before writing yours, and match its structure. They're listed in the "The eight floorplans" table in the design system reference:
+
+- Overview: `src/pages/Overview.jsx`
+- Collection: `src/pages/Athletes.jsx`; queue variant `src/pages/NotificationsPage.jsx`
+- Record: `src/pages/AthleteProfile.jsx`
+- List-detail: `src/pages/Messaging/index.jsx`
+- Analysis: `src/pages/SquadLoad.jsx`
+- Guided flow: `src/pages/Medical/LogInjury.jsx`
+- Settings: `src/pages/Administration.jsx`
+- Workspace: `src/pages/Calendar/index.jsx` (predates `PageFrame`)
+
+The Storybook stories under **Floorplans** show each region on its own.
 
 ## After creating
 
-Run `npm run validate-design-system`, then open the route at http://localhost:3001 to check it renders.
+Run `npm run validate-design-system`, then open the route at http://localhost:3001 to check it renders. The validator warns about routed pages that use no floorplan; your new page must not appear in that list.
