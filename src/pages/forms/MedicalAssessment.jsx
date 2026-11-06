@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box, Paper, Typography, Autocomplete, TextField, MenuItem, IconButton } from '@mui/material';
+import { Box, Paper, Autocomplete, TextField, MenuItem, IconButton } from '@mui/material';
 import { Button, DataGridPremium, GridPagination } from 'playbook-components';
-import { ArrowBackOutlined, ArrowDropDownOutlined } from '@mui/icons-material';
+import { PageHeader } from '../../floorplans'
+import { ArrowDropDownOutlined } from '@mui/icons-material';
 import { StatusChip, Icon } from '../../components';
 import { dataGridStyles } from '../../components/dataGridStyles';
 import '../../styles/design-tokens.css';
@@ -99,16 +100,9 @@ const MedicalAssessment = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0, bgcolor: 'var(--color-background-primary)', height: '100%', fontFamily: 'var(--font-family-primary)' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', px: 3, pt: 2, pb: 1 }}>
-        <IconButton onClick={() => navigate(-1)} sx={{ mr: 1, color: 'var(--color-text-primary)' }}>
-          <ArrowBackOutlined />
-        </IconButton>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-2xl)' }}>
-          {formTitle}
-        </Typography>
-      </Box>
+      <PageHeader title={formTitle} backLabel="Forms" onBackClick={() => navigate('/forms')} />
 
-      <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, margin: '0 24px 24px' }}>
+      <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, margin: '16px 24px 24px' }}>
         <Box sx={{ px: 3, py: 1.5, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flexShrink: 0, borderBottom: '1px solid var(--color-border-primary)' }}>
           <Autocomplete
             size="small"

@@ -15,6 +15,7 @@ import AddGameDrawer from '../../components/AddGameDrawer';
 import calendarEventsData from '../../data/calendar_events.json';
 import athletesData from '../../data/athletes.json';
 import staffData from '../../data/users_staff.json';
+import { PageHeader } from '../../floorplans';
 
 const CalendarPage = () => {
   const [allEvents, setAllEvents] = useState([]);
@@ -293,6 +294,8 @@ const CalendarPage = () => {
         position: 'relative',
       }}
     >
+      {/* Workspace: the title only; the calendar's own toolbar below holds the tools and Add */}
+      <PageHeader title="Calendar" />
       <CalendarHeader
         currentView={currentView}
         onViewChange={setCurrentView}

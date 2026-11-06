@@ -74,6 +74,7 @@ type HeaderNewProps = {
 
   // Back button
   onBackClick?: () => void,
+  backLabel?: string, // Kit addition: names where Back goes ("Athletes"); defaults to t('Back')
   showBackButton?: boolean,
 
   // Avatar

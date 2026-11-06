@@ -13,7 +13,7 @@ export function TitleSection(props) {
   } = props;
 
   const titleTypography = (
-    <Typography variant={isMobile ? 'h6' : 'h5'} noWrap>
+    <Typography variant={isMobile ? 'h6' : 'h5'} component="h1" noWrap>
       {titleDisplay}
     </Typography>
   );

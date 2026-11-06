@@ -27,6 +27,7 @@ function ResponsivePageHeader(props) {
   const {
     title,
     onBackClick,
+    backLabel,
     showBackButton,
     showAvatar,
     avatarSrc,
@@ -144,7 +145,7 @@ function ResponsivePageHeader(props) {
                 variant="text"
                 startIcon={<ArrowBackIosNewIcon fontSize="small" />}
               >
-                {props.t('Back')}
+                {backLabel ?? props.t('Back')}
               </Button>
             )}
 

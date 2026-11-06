@@ -21,12 +21,12 @@ import {
   List,
   ListItemIcon,
   ListItemText,
-  Badge,
 } from '@mui/material';
 import { Button, DataGridPremium, GridPagination } from 'playbook-components'
+import { PageHeader } from '../../floorplans'
 import { resolveGridPrompt } from '../../utils/gridAiAssistant'
 import { FORMS_AI_SUGGESTIONS, COMPLETED_FORMS_AI_SUGGESTIONS } from '../../data/gridAiSuggestions'
-import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined, KeyboardArrowDownOutlined, KeyboardArrowRightOutlined, CloseOutlined, NotificationsOutlined } from '@mui/icons-material'
+import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined, KeyboardArrowDownOutlined, KeyboardArrowRightOutlined, CloseOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import { DateRangePicker, DatePicker, MultiInputDateRangeField } from '@mui/x-date-pickers-pro'
@@ -807,42 +807,11 @@ export default function FormsPage() {
   return (
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0, bgcolor: 'var(--color-background-primary)', height: '100%', fontFamily: 'var(--font-family-primary)' }}>
-        {/* Page title (big) + Create form button */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3, pt: 2, pb: 1 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-2xl)' }}>
-            Forms
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <IconButton
-              onClick={() => setIsNotificationDrawerOpen(true)}
-              aria-label="Notifications"
-              sx={{ color: 'var(--color-text-secondary)' }}
-            >
-              <Badge 
-                badgeContent={3} 
-                color="error"
-                sx={{
-                  '& .MuiBadge-badge': {
-                    fontSize: 'var(--font-size-xs)',
-                    minWidth: 18,
-                    height: 18
-                  }
-                }}
-              >
-                <NotificationsOutlined />
-              </Badge>
-            </IconButton>
-            <Button
-              disableElevation={true}
-              variant="contained" color="primary"
-              size="medium"
-              onClick={() => setIsCreateOpen(true)}
-              style={{ fontWeight: 700, fontSize: 'var(--font-size-sm)' }}
-            >
-              Create form
-            </Button>
-          </Box>
-        </Box>
+        <PageHeader
+          title="Forms"
+          primaryAction={{ id: 'create', label: 'Create form', onClick: () => setIsCreateOpen(true) }}
+          moreActions={[{ id: 'notifications', label: 'Form notifications', onClick: () => setIsNotificationDrawerOpen(true) }]}
+        />
 
         <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <Tabs
@@ -866,14 +835,14 @@ export default function FormsPage() {
               '& .MuiTabs-indicator': { backgroundColor: 'var(--color-primary)' }
             }}
           >
-            <Tab label="Forms" {...a11yProps(0)} />
+            <Tab label="Templates" {...a11yProps(0)} />
             <Tab label="Scheduling Overview" {...a11yProps(1)} />
             <Tab label="Completed" {...a11yProps(2)} />
             <Tab label="Compliance" {...a11yProps(3)} />
             <Tab label="Tryouts" {...a11yProps(4)} />
           </Tabs>
 
-          {/* Forms tab */}
+          {/* Templates tab */}
           <TabPanel value={tabValue} index={0}>
             <Box sx={{ px: 3, py: 1.5, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flexShrink: 0 }}>
               <TextField

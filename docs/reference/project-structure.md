@@ -41,7 +41,7 @@ src/
 
 - Start from a floorplan: compose `PageFrame` from `src/floorplans` (see [Floorplans](design-system.md#floorplans)).
 - Add the page under `src/pages/` and its route in `src/App.jsx`. `App` already wraps every route in `LayoutWithMainNav`, so a page renders only its own content.
-- Add a sidebar item in `navigationItems` in `src/components/MainNavigation.jsx`, and a header title in `pageTitles` in `src/data/layout.js` if the page needs one.
+- Add a sidebar item in `navigationItems` in `src/components/MainNavigation.jsx`. The app bar shows no page title; the page shows its own in its `PageHeader` (see [Page titles](design-system.md#page-titles)).
 - The `/new-page` skill walks Claude through these steps.
 
 ## Data

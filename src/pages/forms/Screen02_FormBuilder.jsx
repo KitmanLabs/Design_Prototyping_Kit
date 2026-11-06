@@ -19,9 +19,9 @@ import {
   Checkbox,
   Chip
 } from '@mui/material'
-import { ArrowBackOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { Button, DatePicker } from 'playbook-components'
+import { PageHeader } from '../../floorplans'
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import moment from 'moment'
 import '../../styles/design-tokens.css'
@@ -542,52 +542,12 @@ export default function Screen02_FormBuilder() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {/* Back link-style button above the title */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, px: 3 }}>
-        <Box
-          component="button"
-          type="button"
-          onClick={() => navigate('/forms')}
-          aria-label="Back to forms overview"
-          sx={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--color-text-secondary)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 1,
-            cursor: 'pointer',
-            px: 0,
-            '&:hover': { color: 'var(--color-text-primary)', textDecoration: 'underline' }
-          }}
-        >
-          <ArrowBackOutlined fontSize="small" />
-          <span>Forms overview</span>
-        </Box>
-      </Box>
-
-      {/* Title row with Save aligned to far right */}
-      <Box sx={{ display: 'flex', alignItems: 'center', px: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
-          {form.title}
-        </Typography>
-        <Box sx={{ ml: 'auto' }}>
-          <Button
-            variant="contained"
-            size="medium"
-            disableElevation
-            disabled={!isDirty}
-            sx={{
-              backgroundColor: 'var(--button-primary-bg)',
-              color: 'var(--button-primary-color)',
-              textTransform: 'none',
-              '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' }
-            }}
-          >
-            Save
-          </Button>
-        </Box>
-      </Box>
+      <PageHeader
+        title={form.title}
+        backLabel="Forms"
+        onBackClick={() => navigate('/forms')}
+        primaryAction={{ id: 'save', label: 'Save', onClick: () => {}, disabled: !isDirty }}
+      />
 
       <Box sx={{ px: 3 }}>
         <FormBuilderHeader

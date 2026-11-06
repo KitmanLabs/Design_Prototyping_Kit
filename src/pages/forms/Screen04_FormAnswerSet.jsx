@@ -1,10 +1,10 @@
 import React from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { Box, Paper, Typography, Divider, Switch, Checkbox, FormControlLabel, IconButton } from '@mui/material'
-import { ArrowBackOutlined } from '@mui/icons-material'
+import { Box, Paper, Typography, Divider, Switch, Checkbox, FormControlLabel } from '@mui/material'
 import '../../styles/design-tokens.css'
 import { Button } from '../../playbook-components'
-import { Icon, StatusChip } from '../../components'
+import { PageHeader } from '../../floorplans'
+import { StatusChip } from '../../components'
 import testToggleTemplate from '../../data/formTemplates/test-toggle-switch.json'
 import MenuTree from '../../components/forms/builder/MenuTree'
 
@@ -84,30 +84,17 @@ export default function Screen04_FormAnswerSet() {
   }
 
   return (
-    <Box sx={{ py: 2, bgcolor: 'var(--color-background-primary)', height: '100%' }}>
-      <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-        <Box sx={{ px: 3, height: 72, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton aria-label="Back" onClick={() => navigate('/forms', { state: { initialTab: 'completed' } })} sx={{ color: 'var(--color-text-secondary)' }}>
-            <ArrowBackOutlined fontSize="small" />
-          </IconButton>
-          <Typography variant="h5" sx={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
-            {location.state?.athleteName || 'Athlete'}
-          </Typography>
-          <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Button
-              variant="contained"
-              disableElevation
-              onClick={() => setIsEditMode(v => !v)}
-              sx={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-color)', textTransform: 'none', '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' } }}
-            >
-              {isEditMode ? 'Done' : 'Edit'}
-            </Button>
-          </Box>
-        </Box>
-
+    <Box sx={{ bgcolor: 'var(--color-background-primary)', height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <PageHeader
+        title={location.state?.athleteName || 'Athlete'}
+        backLabel="Forms"
+        onBackClick={() => navigate('/forms', { state: { initialTab: 'completed' } })}
+        primaryAction={{ id: 'edit', label: isEditMode ? 'Done' : 'Edit', onClick: () => setIsEditMode((v) => !v) }}
+      />
+      <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
         <Divider />
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 0, height: 'calc(100vh - var(--layout-header-height) - 72px)' }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 0, flex: 1, minHeight: 0 }}>
           <MenuTree
             form={template}
             selectedQuestionId={selectedQuestionId}
