@@ -61,7 +61,7 @@ If none fits, say why in a comment at the top of the page (`// Floorplan: none. 
 
 | Region | Build it from | Rules |
 |---|---|---|
-| Page header | `PageHeader` (the Playbook's HeaderNew) | One primary action, one secondary, the rest in the overflow menu. At most four key facts. Page-level actions only, never Save. |
+| Page header | `PageHeader` (the Playbook's HeaderNew) | The page's title (see [Page titles](#page-titles)), with Back and a `backLabel` below a section. One primary action, one secondary, the rest in the overflow menu. At most four key facts. Page-level actions only, never Save. |
 | Tabs | Playbook `TabBar` | For views of a Collection or facets of a Record. Tabs show counts when they act as queues. |
 | Page toolbar | `PageToolbar`, `PageSearch`, `PageQuickFilters` (the Playbook QuickFilters) | Stays in view while the content scrolls. Search and quick filters on the left; the full set of filters lives in a right drawer, with active ones shown as chips. When the grid has the AI Assistant, search stays in the grid toolbar beside it, and the page toolbar keeps only the quick filters (see `/athletes`). |
 | Selection bar | `PageFrame`'s `selection` prop (the Playbook GenericActionBar) | Replaces the toolbar while rows are selected. Selection actions only. Use it instead of the grid's own `bulkActions` bar, so selection works the same on every Collection. |
@@ -75,7 +75,15 @@ If none fits, say why in a comment at the top of the page (`// Floorplan: none. 
 | Page states | `PageState` | Empty, no results, no access, error and loading, each with a message and an optional action. |
 | Feedback | `useToasts` (the Playbook Toasts), `DiscardChangesDialog` (the Playbook ConfirmationModal) | A toast after every completed action. When an action finishes on another page, pass the message in navigation state (`navigate(path, { state: { toast } })`) and call `useNavigationToast` on the page that receives it. Discarding unsaved changes always goes through `DiscardChangesDialog`. |
 
-When a page has its own header, add its path to `pagesWithOwnHeader` in `src/data/layout.js`, so the app bar shows its title as a quieter section label.
+### Page titles
+
+Every page owns its title, and says it once.
+
+- The title is in the page's `PageHeader`, the page's only level-one heading. The app bar shows no title: it holds global context only (squad, notifications, the user menu).
+- Pages below a section (an athlete's profile, a form's assignments, Log injury) show a Back link that names where it goes, with `backLabel`: "‹ Athletes", "‹ Forms". That is the breadcrumb; don't add another.
+- Name a page after what it is: the section for a landing page ("Athletes"), the record for a Record ("Elena Rodriguez"), the task for a Guided flow ("Log injury for Elena Rodriguez").
+- Tabs never repeat the page title (the Forms page's first tab is "Templates", not "Forms"), and a tab's content doesn't open with a heading that repeats the tab's label.
+- Pages not yet on `PageFrame` (Calendar, the Forms pages) still use `PageHeader` for their title, so every title looks the same.
 
 ### Create and edit surfaces
 

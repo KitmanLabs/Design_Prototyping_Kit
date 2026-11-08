@@ -365,36 +365,6 @@ function MedicalPage() {
     >
       {/* Tab Panels */}
       <TabPanel value={activeTab} index={0}>
-        {/* Section Header Row */}
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            px: 3,
-            py: 2,
-          }}
-        >
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 'var(--font-weight-semibold)',
-              color: 'var(--color-text-primary)',
-              fontFamily: 'var(--font-family-primary)',
-            }}
-          >
-            Team
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button disableElevation={true} variant="contained" color="primary">
-              Add
-            </Button>
-            <Button disableElevation={true} variant="contained" color="secondary">
-              Download
-            </Button>
-          </Box>
-        </Box>
-
         {/* Filter Row */}
         <Box sx={{ px: 3, py: 1.5, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flexShrink: 0 }}>
           <TextField
@@ -468,6 +438,14 @@ function MedicalPage() {
             <MenuItem value="Yes">Yes</MenuItem>
             <MenuItem value="No">No</MenuItem>
           </TextField>
+          <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
+            <Button disableElevation={true} variant="contained" color="primary">
+              Add
+            </Button>
+            <Button disableElevation={true} variant="contained" color="secondary">
+              Download
+            </Button>
+          </Box>
         </Box>
 
         {/* Data Grid */}

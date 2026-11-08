@@ -74,6 +74,8 @@ function LogInjury() {
 
   const set = (field) => (value) => setInjury((current) => ({ ...current, [field]: value }))
   const returnTo = presetAthleteId ? `/athletes/${presetAthleteId}` : '/medical/rosters'
+  const presetAthlete = athletesData.find((a) => a.id === presetAthleteId)
+  const returnLabel = presetAthlete ? fullName(presetAthlete) : 'Medical'
 
   const goToStep = (index) => {
     setActiveStep(index)
@@ -204,7 +206,7 @@ function LogInjury() {
     <LocalizationProvider>
       <PageFrame
         maxContentWidth={1040}
-        header={<PageHeader title={athlete ? `Log injury for ${fullName(athlete)}` : 'Log injury'} onBackClick={cancel} />}
+        header={<PageHeader title={athlete ? `Log injury for ${fullName(athlete)}` : 'Log injury'} backLabel={returnLabel} onBackClick={cancel} />}
         footer={
           <FloorplanFooter
             onCancel={cancel}

@@ -94,7 +94,7 @@ function AthleteProfile() {
 
   if (!athlete) {
     return (
-      <PageFrame header={<PageHeader title="Athlete not found" onBackClick={() => navigate('/athletes')} />}>
+      <PageFrame header={<PageHeader title="Athlete not found" backLabel="Athletes" onBackClick={() => navigate('/athletes')} />}>
         <PageState
           kind="noResults"
           title="This athlete doesn't exist"
@@ -219,6 +219,7 @@ function AthleteProfile() {
       header={
         <PageHeader
           title={fullName(athlete)}
+          backLabel="Athletes"
           onBackClick={() => navigate('/athletes')}
           listItems={[
             { id: 'position', label: 'Position', value: athlete.position },

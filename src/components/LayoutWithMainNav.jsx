@@ -1,10 +1,8 @@
 import React, { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
 import { 
   Box, 
   AppBar, 
   Toolbar, 
-  Typography, 
   IconButton,
   Avatar,
   Menu,
@@ -17,23 +15,13 @@ import {
   NotificationsOutlined
 } from '@mui/icons-material'
 import MainNavigation from './MainNavigation'
-import { currentUser, availableSquads, pageTitles, pagesWithOwnHeader } from '../data/layout'
+import { currentUser, availableSquads } from '../data/layout'
 import '../styles/design-tokens.css'
 
 function MedinahLayoutWithMainNav({ children }) {
-  const location = useLocation()
-  const navigate = useNavigate()
   const [isNavOpen, setIsNavOpen] = useState(false)
   const [currentSquad, setCurrentSquad] = useState(availableSquads[0])
   const [userMenuAnchor, setUserMenuAnchor] = useState(null)
-
-  const getPageTitle = () => {
-    if (location.pathname.startsWith('/forms')) return 'Forms'
-    if (pageTitles[location.pathname]) return pageTitles[location.pathname]
-    // A page under a section (an athlete's profile under /athletes) takes the section's title
-    const section = Object.keys(pageTitles).find((path) => location.pathname.startsWith(`${path}/`))
-    return section ? pageTitles[section] : 'Dashboard'
-  }
 
   const handleNavToggle = () => {
     setIsNavOpen(!isNavOpen)
@@ -51,11 +39,6 @@ function MedinahLayoutWithMainNav({ children }) {
     const squad = availableSquads.find(s => s.id === event.target.value)
     setCurrentSquad(squad)
   }
-
-  // Pages with their own page header show the app bar title as a quieter section label
-  const hasPageHeader = pagesWithOwnHeader.some(
-    (path) => location.pathname === path || location.pathname.startsWith(`${path}/`)
-  )
 
   return (
     <>
@@ -89,21 +72,8 @@ function MedinahLayoutWithMainNav({ children }) {
             boxShadow: 'var(--shadow-sm)'
           }}
         >
-          <Toolbar sx={{ justifyContent: 'space-between' }}>
-            {/* Page Title */}
-            <Typography 
-              variant="h6" 
-              component="h1"
-              sx={{ 
-                fontWeight: hasPageHeader ? 500 : 600,
-                fontSize: hasPageHeader ? '14px' : undefined,
-                color: hasPageHeader ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
-                fontFamily: 'var(--font-family-primary)',
-                textTransform: 'none'
-              }}
-            >
-              {getPageTitle()}
-            </Typography>
+          {/* Each page shows its own title in its page header, so the app bar holds only global context */}
+          <Toolbar sx={{ justifyContent: 'flex-end' }}>
 
             {/* Right Side Actions */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

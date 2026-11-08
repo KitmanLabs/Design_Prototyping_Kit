@@ -170,7 +170,8 @@ function checkFloorplans() {
     const file = resolve(rel);
     if (!file) continue;
     const content = fs.readFileSync(file, 'utf8');
-    const usesFloorplan = /from ['"][./]*floorplans['"]/.test(content);
+    // PageFrame, not just a PageHeader: a page with only the shared header is still on the backlog
+    const usesFloorplan = /<PageFrame\b/.test(content);
     const explainsException = /Floorplan: none\./.test(content);
     if (!usesFloorplan && !explainsException) missing.push(file);
   }

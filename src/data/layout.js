@@ -15,31 +15,7 @@ export const availableSquads = [
   { id: 4, name: 'Academy U18', short: 'U18' }
 ]
 
-// Paths and titles follow iP's side nav (kitman-frontend MainNav/resources/menuItems.js)
-export const pageTitles = {
-  '/dashboard': 'Dashboard',
-  '/medical/rosters': 'Medical',
-  '/medical': 'Medical',
-  '/analysis': 'Analysis',
-  '/athletes': 'Athletes',
-  '/workloads': 'Workloads',
-  '/questionnaires': 'Forms',
-  '/forms': 'Forms',
-  '/forms/form_templates': 'Forms',
-  '/forms/form_answers_sets': 'Forms',
-  '/calendar': 'Calendar',
-  '/messaging': 'Messaging',
-  '/notifications': 'Notifications',
-  '/activity': 'Activity',
-  '/administration': 'Administration',
-  '/help': 'Help'
-}
-
-// Paths (and everything under them) whose pages render their own page header, usually a
-// floorplan's PageHeader. The app bar shows their title as a quieter section label.
-export const pagesWithOwnHeader = ['/', '/dashboard', '/workloads', '/calendar', '/forms', '/athletes', '/medical', '/messaging', '/notifications', '/administration']
-
-// Earlier kit paths, redirected to the iP paths above
+// Earlier kit paths, redirected to the iP paths (kitman-frontend MainNav/resources/menuItems.js)
 export const legacyRedirects = {
   '/medical': '/medical/rosters',
   '/athlete': '/athletes',

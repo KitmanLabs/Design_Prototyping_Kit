@@ -49,7 +49,7 @@ export default function MyFeaturePage() {
 
 `PageFrame` slots: `header`, `tabs` (a `TabBar`), `toolbar`, `selection` (`{ count, actions }`, which swaps the toolbar for the selection bar), `footer` (a `FloorplanFooter`, only for create and edit) and `fill` (for content that scrolls on its own). The rules for each region are in the "Page anatomy" table in the design system reference.
 
-Because the page has its own header, add its path to `pagesWithOwnHeader` in `src/data/layout.js`.
+The page's title lives only in its `PageHeader`; the app bar shows none. Follow "Page titles" in the design system reference: name the page once, give pages below a section a `backLabel` naming where Back goes ("Athletes"), and don't repeat the title in a tab label or a heading.
 
 ## 3. Add the route
 
@@ -64,7 +64,6 @@ import MyFeaturePage from './pages/MyFeature'
 ## 4. Add it to the navigation (if it needs a sidebar item)
 
 - Sidebar item: add an entry to `navigationItems` in `src/components/MainNavigation.jsx` (label in sentence case, an `*Outlined` icon, the route path)
-- App bar title: add the path to `pageTitles` in `src/data/layout.js`
 
 ## 5. Data: import from src/data/, never inline
 

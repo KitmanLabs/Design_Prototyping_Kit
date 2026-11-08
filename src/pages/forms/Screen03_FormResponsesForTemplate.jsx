@@ -3,9 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Box, Paper, Typography, Autocomplete, TextField, Link } from '@mui/material'
 import { ArrowDropDownOutlined } from '@mui/icons-material'
 import { Button, DataGridPremium, GridPagination } from 'playbook-components'
+import { PageHeader } from '../../floorplans'
 import '../../styles/design-tokens.css'
 import { dataGridStyles } from '../../components/dataGridStyles'
-import { Icon, StatusChip } from '../../components'
+import { StatusChip } from '../../components'
 import { athletesSimple } from '../../data'
 
 // Map of known form ids to names for display only
@@ -105,16 +106,9 @@ function Screen03_FormResponsesForTemplate() {
   ]), [navigate])
 
   return (
-    <Box sx={{ py: 2, bgcolor: 'var(--color-background-primary)', height: '100%' }}>
-      <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-        <Box sx={{ px: 3, pt: 2, pb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Button disableElevation={true} variant="contained" color="secondary" aria-label="Back" onClick={() => navigate('/forms')}>
-            <Icon icon="arrow_back" />
-          </Button>
-          <Typography variant="h5" sx={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
-            {formTitle}
-          </Typography>
-        </Box>
+    <Box sx={{ bgcolor: 'var(--color-background-primary)', height: '100%' }}>
+      <PageHeader title={formTitle} backLabel="Forms" onBackClick={() => navigate('/forms')} />
+      <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', pt: 2 }}>
 
         {/* Filters */}
         <Box sx={{ px: 3, pb: 1, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>

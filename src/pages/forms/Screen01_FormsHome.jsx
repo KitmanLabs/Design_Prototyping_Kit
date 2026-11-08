@@ -13,6 +13,7 @@ import {
   Link
 } from '@mui/material'
 import { Button, DataGridPremium, GridPagination } from 'playbook-components'
+import { PageHeader } from '../../floorplans'
 import { SearchOutlined, ExpandMoreOutlined, MoreVertOutlined } from '@mui/icons-material'
 import '../../styles/design-tokens.css'
 import { dataGridStyles } from '../../components/dataGridStyles'
@@ -132,7 +133,7 @@ function Screen01_FormsHome() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, bgcolor: 'var(--color-background-primary)' }}>
-      {/* Header / Toolbar */}
+      <PageHeader title="Questionnaires" />
       {/* Filters + Table combined in a single Paper (no gaps) */}
       <Paper
         elevation={0}
