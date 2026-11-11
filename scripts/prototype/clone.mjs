@@ -276,6 +276,7 @@ function packageJson(kitPkg, packages, name) {
         preview: 'vite preview',
         lint: 'eslint src',
         'lint:css': "stylelint 'src/**/*.css' --allow-empty-input",
+        'build-prototype': 'node scripts/build-prototype.mjs',
       },
       dependencies: runtime.out,
       devDependencies: dev.out,
@@ -407,7 +408,9 @@ export function newVersion({ target, from, version, title, intent, install = tru
 
   const defaultTitle = (v) => [previous.intent, v].filter(Boolean).join(' ')
   const nextTitle = title || (previous.title === defaultTitle(previous.version) ? defaultTitle(version) : previous.title)
-  const meta = { ...previous, version, title: nextTitle, created: today(), from: previous.version }
+  // A new version hasn't been built yet, whatever the previous one says.
+  const { built: _built, ...carried } = previous
+  const meta = { ...carried, version, title: nextTitle, created: today(), from: previous.version }
   fs.writeFileSync(path.join(target, 'prototype.json'), JSON.stringify(meta, null, 2) + '\n')
 
   const pkgPath = path.join(target, 'package.json')

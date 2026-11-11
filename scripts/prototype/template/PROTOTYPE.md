@@ -31,6 +31,8 @@ npm install          once, after cloning
 npm run dev          the prototype at localhost:3001
 npm run build        a static build in dist/
 npm run lint         the design system rules (also run on every edit)
+npm run build-prototype   the build for the record: dist/ with today pinned and no licence key, then
+                     ../manifest.json and ../README.md for an intent's prototype
 ```
 
 The MUI X licence key comes from the environment when running locally (`VITE_MUI_X_LICENSE_KEY`). Never write it, or any other key, into a file in this folder.
@@ -71,4 +73,5 @@ The MUI X licence key comes from the environment when running locally (`VITE_MUI
 
 - Never add an npm dependency unless the person asks for it.
 - A version that has been published never changes. A later change goes in a new version.
+- What the prototype doesn't do (saving, a server, permissions) is listed in the manifest. To change the list, set `doesNotDo` in `prototype.json`.
 - Run `npm run lint` after changes, and fix every error.
