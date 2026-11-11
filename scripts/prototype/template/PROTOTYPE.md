@@ -48,7 +48,7 @@ The MUI X licence key comes from the environment when running locally (`VITE_MUI
 ## Routes
 
 - Add every route to `src/prototype/routes.js`, never to `src/App.jsx`.
-- Paths are literal, with no parameters. Each state a scenario needs is a path of its own, for example `/session/planning/save-fails`, never a query string.
+- Paths are literal, with no parameters, and written as single-quoted strings (`path: '/...'`): Accelerate's checks read `routes.js` as text. Each state a scenario needs is a path of its own, for example `/session/planning/save-fails`, never a query string.
 - Routes sit under the version in `prototype.json`, so in v2 `/session/planning` is served at `#/v2/session/planning`. Link with paths that start from `/`, and the router adds the version.
 - Once a specification exists, list the `scenario_id`s each route shows in its `scenarios`.
 
