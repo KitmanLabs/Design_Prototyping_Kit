@@ -22,6 +22,7 @@ The rules and conventions. Claude reads these through `CLAUDE.md`.
 |---|---|
 | [Design system](reference/design-system.md) | The source of truth for design rules: floorplans, component priority, colors, buttons, icons, casing, the theme, dates, MUI 9 APIs, Charts, Scheduler, Chat and the Data Grid AI Assistant |
 | [Project structure](reference/project-structure.md) | Where code, data and stories live, and how the iP monorepo aliases work |
+| [Prototype clones](reference/prototype-clones.md) | Cloning the primitives into a self-contained prototype version: what goes in, what never does, and the rules inside a clone |
 
 ## Component docs
 
