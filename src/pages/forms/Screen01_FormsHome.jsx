@@ -19,7 +19,7 @@ import '../../styles/design-tokens.css'
 import { dataGridStyles } from '../../components/dataGridStyles'
 import TokenizedDrawerAthleteSelector from '../../components/forms/TokenizedDrawerAthleteSelector'
 import CreateFormDrawer from '../../components/forms/CreateFormDrawer'
-import athletesData from '../../data/athletes.json'
+import athletesData from '../../data/athletes'
 import { formsHomeRows } from '../../data/forms'
 
 function Screen01_FormsHome() {

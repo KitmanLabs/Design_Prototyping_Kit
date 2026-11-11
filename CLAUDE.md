@@ -87,6 +87,7 @@ The kit runs MUI 9 ahead of iP on purpose: iP is moving to MUI 9 and MUI X 9.
 ## Data conventions
 - All mock data, constants, option lists and fixtures go in `src/data/`, never inline in components
 - Form templates go in `src/data/formTemplates/`
+- The club's people and records (athletes, staff, squads, injuries, games, training, assessments, questionnaires) are generated: `src/data/club.js` describes the club, `fakerFor()` in `src/data/fake.js` seeds each dataset, and `src/data/clock.js` sets "today". Never hand-write a person or a fixed date; generate it, dated with `clock.js`, not `moment()`.
 
 ## Boundaries
 🚫 NEVER hardcode colors (linting blocks the commit)

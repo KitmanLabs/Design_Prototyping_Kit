@@ -18,6 +18,7 @@ import { StatusChip } from '../components'
 import { dataGridStyles } from '../components/dataGridStyles'
 import { PageFrame, PageHeader, PageToolbar, KpiTile, PageState } from '../floorplans'
 import { buildDailyLoad, loadRangeOptions, acwrFlagThreshold, axisDateFormat } from '../data/workloads'
+import { TODAY } from '../data/clock'
 
 // Floorplan: Analysis. Spot a pattern in the squad's load, drill into the athletes behind
 // it, then open their profiles. The KPI tiles and the bar chart both filter the table.
@@ -51,7 +52,7 @@ function SquadLoad() {
 
   // Per-athlete totals for the selected range, plus the acute:chronic ratio (7 days : 28 days)
   const athleteRows = useMemo(() => {
-    const today = moment().startOf('day')
+    const today = TODAY
     const inRange = (row, span) => moment(row.date).isAfter(moment(today).subtract(span, 'days'))
     const byAthlete = new Map()
     dailyLoad.forEach((row) => {
@@ -76,7 +77,7 @@ function SquadLoad() {
   }, [dailyLoad, days])
 
   const squadDaily = useMemo(() => {
-    const today = moment().startOf('day')
+    const today = TODAY
     const dates = Array.from({ length: days }, (_, i) => moment(today).subtract(days - 1 - i, 'days').format('YYYY-MM-DD'))
     const squadLoadOn = (date) => Math.round(average(dailyLoad.filter((r) => r.date === date).map((r) => r.load)))
     return dates.map((date) => {

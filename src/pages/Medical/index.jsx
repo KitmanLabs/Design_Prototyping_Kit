@@ -20,8 +20,9 @@ import {
 } from '@mui/icons-material';
 import { PlayerAvatar, StatusChip } from '../../components';
 import { dataGridStyles } from '../../components/dataGridStyles';
-import athletesData from '../../data/athletes.json';
-import injuriesData from '../../data/injuries_medical.json';
+import athletesData from '../../data/athletes';
+import injuriesData from '../../data/injuries_medical';
+import { isoDate } from '../../data/clock';
 import '../../styles/design-tokens.css';
 
 // Typography styles matching FormsPage pattern
@@ -57,11 +58,10 @@ function TabPanel({ children, value, index }) {
 // Generate mock medical roster data
 const generateMedicalRosterData = () => {
   return athletesData.slice(0, 15).map((athlete, index) => {
-    // Find injury for this athlete
-    const injury = injuriesData.find((inj) => inj.athlete_id === athlete.id);
+    // The athlete's open injury, if any: the same records that make them unavailable elsewhere
+    const injury = injuriesData.find((inj) => inj.athlete_id === athlete.id && inj.status !== 'Returned');
 
     // Generate mock data for other fields
-    const statuses = ['Out', 'Preliminary', 'Full'];
     const cardiacStatuses = ['Outstanding', 'Complete', 'Pending'];
     const allergies = ['None', 'Penicillin', 'NSAIDs', 'None known', 'Latex'];
     const rosterTypes = ['Active', 'IR', 'PUP', 'NFI'];
@@ -73,8 +73,8 @@ const generateMedicalRosterData = () => {
       position: athlete.position,
       injuryDate: injury ? injury.occurrence_date : null,
       injuryName: injury ? injury.injury_type : null,
-      injuryStatus: injury ? statuses[index % 3] : null,
-      noteDate: '2024-01-15',
+      injuryStatus: injury ? 'Out' : null,
+      noteDate: isoDate(-(index % 3)),
       noteTitle: 'Morning wellness check',
       notePreview: `Notes for ${athlete.firstname} - all vitals normal`,
       cardiacScreening: cardiacStatuses[index % 3],

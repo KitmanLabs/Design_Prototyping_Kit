@@ -4,6 +4,14 @@ import { MemoryRouter } from 'react-router-dom'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import App from '../App'
 import '../i18n'
+import athletes from '../data/athletes'
+import { currentInjuries } from '../data/injuries_medical'
+
+// Names come from the generated data, so the tests follow it whatever the seed gives.
+const injury = currentInjuries[0]
+const injured = athletes.find((a) => a.id === injury.athlete_id)
+const fullName = (a) => `${a.firstname} ${a.lastname}`
+const escape = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 const renderAt = (path) =>
   render(
@@ -52,11 +60,11 @@ describe('pages', { timeout: 30000 }, () => {
   })
 
   it('renders an athlete profile Record with its tabs', async () => {
-    renderAt('/athletes/2')
-    expect(await screen.findByText(/elena rodriguez/i)).toBeInTheDocument()
-    expect(screen.getByText('2 of 8')).toBeInTheDocument()
+    renderAt(`/athletes/${injured.id}`)
+    expect((await screen.findAllByText(new RegExp(escape(fullName(injured)), 'i'))).length).toBeGreaterThan(0)
+    expect(screen.getByText(`${athletes.indexOf(injured) + 1} of ${athletes.length}`)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('tab', { name: 'Medical' }))
-    expect(await screen.findByText(/knee strain/i)).toBeInTheDocument()
+    expect((await screen.findAllByText(new RegExp(escape(injury.injury_type), 'i'))).length).toBeGreaterThan(0)
   })
 
   it('edits a section of the athlete profile and confirms with a toast', async () => {
@@ -75,15 +83,15 @@ describe('pages', { timeout: 30000 }, () => {
   })
 
   it('starts Log injury from the athlete, with Next disabled until the step is complete', async () => {
-    renderAt('/medical/log-injury?athleteId=2')
-    expect(await screen.findByText(/log injury for elena rodriguez/i)).toBeInTheDocument()
+    renderAt(`/medical/log-injury?athleteId=${injured.id}`)
+    expect(await screen.findByText(new RegExp(`log injury for ${escape(fullName(injured))}`, 'i'))).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
   })
 
   it('asks before discarding a Log injury that has changes', async () => {
     renderAt('/medical/log-injury')
     fireEvent.mouseDown(await screen.findByRole('combobox', { name: 'Athlete' }))
-    fireEvent.click(await screen.findByRole('option', { name: /marcus johnson/i }))
+    fireEvent.click(await screen.findByRole('option', { name: new RegExp(escape(fullName(athletes[0])), 'i') }))
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
     expect(await screen.findByText('Discard unsaved changes?')).toBeInTheDocument()
   })

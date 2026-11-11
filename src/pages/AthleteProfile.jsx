@@ -23,9 +23,9 @@ import {
   useToasts,
   useNavigationToast,
 } from '../floorplans'
-import athletesData from '../data/athletes.json'
-import injuriesData from '../data/injuries_medical.json'
-import wellbeingData from '../data/questionnaires_wellbeing.json'
+import athletesData from '../data/athletes'
+import injuriesData from '../data/injuries_medical'
+import wellbeingData from '../data/questionnaires_wellbeing'
 import { availableSquads } from '../data/layout'
 import { athleteProfileTabs, availabilityBadgeColors, positionOptions } from '../data/athleteViews'
 

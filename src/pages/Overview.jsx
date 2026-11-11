@@ -12,8 +12,9 @@ import {
 } from '../playbook-components'
 import { StatusChip } from '../components'
 import { PageFrame, PageHeader, OverviewCard } from '../floorplans'
-import athletesData from '../data/athletes.json'
-import injuriesData from '../data/injuries_medical.json'
+import allAthletes from '../data/athletes'
+import { TODAY } from '../data/clock'
+import injuriesData from '../data/injuries_medical'
 import calendarEvents from '../data/calendar_events.json'
 import { notificationsData } from '../data/notifications'
 import { currentUser } from '../data/layout'
@@ -49,14 +50,18 @@ function Overview() {
   const now = moment()
   const firstName = currentUser.name.replace(/^Dr\.\s*/, '').split(' ')[0]
 
+  // The First Team, as on Squad load: the squad a practitioner starts the day with
+  const athletesData = allAthletes.filter((a) => a.squad_id === 1)
   const unavailable = athletesData.filter((a) => a.availability_status !== 'Available')
   const available = athletesData.length - unavailable.length
-  const openInjuries = injuriesData.filter((i) => i.status !== 'Returned')
+  const squadIds = new Set(athletesData.map((a) => a.id))
+  const squadInjuries = injuriesData.filter((i) => squadIds.has(i.athlete_id))
+  const openInjuries = squadInjuries.filter((i) => i.status !== 'Returned')
   const deadlines = notificationsData.filter((n) => n.category === 'Deadline' && n.status === 'Unread')
   const trend = useMemo(() => buildAvailabilityTrend(14), [])
 
   const upcoming = useMemo(() => {
-    const today = moment().startOf('day')
+    const today = TODAY
     return calendarEvents
       .filter((event) => moment(event.start).isSameOrAfter(today))
       .sort((a, b) => a.start.localeCompare(b.start))
@@ -150,7 +155,7 @@ function Overview() {
             title="Open injuries"
             action={{ label: 'View medical', onClick: () => navigate('/medical/rosters') }}
           >
-            <Stat value={openInjuries.length} label={`${injuriesData.length - openInjuries.length} returned this season`} />
+            <Stat value={openInjuries.length} label={`${squadInjuries.length - openInjuries.length} returned this season`} />
           </OverviewCard>
         </Grid>
 

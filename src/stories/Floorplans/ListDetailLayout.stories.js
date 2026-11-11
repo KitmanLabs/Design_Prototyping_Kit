@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, List, ListItemButton, ListItemText, Typography } from '../../playbook-components';
 import { ListDetailLayout } from '../../floorplans';
-import athletes from '../../data/athletes.json';
+import athletes from '../../data/athletes';
 
 const Demo = ({ startWithSelection }) => {
   const [selectedId, setSelectedId] = useState(startWithSelection ? athletes[0].id : null);
