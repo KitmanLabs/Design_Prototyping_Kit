@@ -10,7 +10,7 @@ import {
   PageState,
 } from '../../floorplans';
 import { dataGridStyles } from '../../components/dataGridStyles';
-import athletes from '../../data/athletes.json';
+import athletes from '../../data/athletes';
 
 const availabilityFilters = [
   { key: 'Available', label: 'Available' },

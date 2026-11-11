@@ -10,7 +10,7 @@ import {
   PageState,
   useToasts,
 } from '../floorplans'
-import athletesData from '../data/athletes.json'
+import athletesData from '../data/athletes'
 import { availabilityFilters } from '../data/athleteViews'
 
 // Floorplan: Collection. Find, filter and act on the squad's athletes; a row opens the

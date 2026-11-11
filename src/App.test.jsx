@@ -4,6 +4,9 @@ import { MemoryRouter } from 'react-router-dom'
 import { render, screen } from '@testing-library/react'
 import App from './App'
 import './i18n'
+import athletes from './data/athletes'
+
+const second = athletes[1]
 
 // Each page owns its title: one level-one heading, in its page header. The app bar shows no
 // title, so nothing repeats it.
@@ -13,7 +16,7 @@ describe('App', { timeout: 30000 }, () => {
     ['/medical/rosters', /^medical$/i],
     ['/questionnaires', /^questionnaires$/i],
     ['/analysis', /^analysis$/i],
-    ['/athletes/2', /elena rodriguez/i],
+    [`/athletes/${second.id}`, `${second.firstname} ${second.lastname}`],
   ])('gives %s exactly one page title', async (path, title) => {
     render(
       <MemoryRouter initialEntries={[path]}>

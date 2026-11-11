@@ -13,8 +13,8 @@ import AddEventSidebar from '../../components/AddEventSidebar';
 import AddSessionDrawer from '../../components/AddSessionDrawer';
 import AddGameDrawer from '../../components/AddGameDrawer';
 import calendarEventsData from '../../data/calendar_events.json';
-import athletesData from '../../data/athletes.json';
-import staffData from '../../data/users_staff.json';
+import athletesData from '../../data/athletes';
+import staffData from '../../data/users_staff';
 import { PageHeader } from '../../floorplans';
 
 const CalendarPage = () => {

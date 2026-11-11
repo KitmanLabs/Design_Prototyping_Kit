@@ -2,7 +2,12 @@
 // Generated from a fixed seed relative to today, so the prototype shows the same pattern
 // on every load and always covers the last 28 days.
 import moment from 'moment'
-import athletes from './athletes.json'
+import allAthletes from './athletes'
+import injuries from './injuries_medical'
+import { TODAY } from './clock'
+
+// The First Team: the squad the Squad load and Overview pages show.
+const athletes = allAthletes.filter((athlete) => athlete.squad_id === 1)
 
 export const loadRangeOptions = [
   { value: 7, label: 'Last 7 days' },
@@ -26,15 +31,18 @@ function seededRandom(seed) {
   }
 }
 
-// Athletes whose load spikes in the last week, so the flags have something to show
-const spikingAthleteIds = [3, 6]
+// Two available athletes whose load spikes in the last week, so the flags have something to show
+const spikingAthleteIds = athletes
+  .filter((athlete) => athlete.availability_status === 'Available' && athlete.position !== 'Goalkeeper')
+  .slice(0, 2)
+  .map((athlete) => athlete.id)
 
 /**
  * One row per athlete per day for the last 56 days, newest last:
  * { id, date: 'YYYY-MM-DD', athleteId, athleteName, load } where load is in arbitrary units.
  * Rest days (Wednesday and Sunday) have a load of 0. Injured athletes do light rehab only.
  */
-export function buildDailyLoad(today = moment()) {
+export function buildDailyLoad(today = TODAY) {
   const rows = []
   athletes.forEach((athlete) => {
     const random = seededRandom(athlete.id * 7919)
@@ -58,15 +66,21 @@ export function buildDailyLoad(today = moment()) {
 }
 
 /** Percentage of the squad available on each of the last `days` days, oldest first. */
-export function buildAvailabilityTrend(days = 14, today = moment()) {
-  const random = seededRandom(4243)
+export function buildAvailabilityTrend(days = 14, today = TODAY) {
+  const squadIds = new Set(athletes.map((athlete) => athlete.id))
   const squadSize = athletes.length
   return Array.from({ length: days }, (_, i) => {
     const offset = days - 1 - i
-    // Today matches athletes.json (one athlete unavailable); earlier days vary between one and three
-    const unavailable = offset === 0 ? 1 : 1 + Math.floor(random() * 3)
+    const day = moment(today).startOf('day').subtract(offset, 'days')
+    // Unavailable means injured on that day, from the injury records
+    const unavailable = new Set(
+      injuries
+        .filter((record) => squadIds.has(record.athlete_id))
+        .filter((record) => day.isSameOrAfter(record.occurrence_date, 'day') && day.isBefore(record.rtp_date, 'day'))
+        .map((record) => record.athlete_id)
+    ).size
     return {
-      date: moment(today).startOf('day').subtract(offset, 'days').format('YYYY-MM-DD'),
+      date: day.format('YYYY-MM-DD'),
       percentAvailable: Math.round(((squadSize - unavailable) / squadSize) * 100),
     }
   })

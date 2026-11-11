@@ -39,7 +39,7 @@ import CreateFormDrawer from '../../components/forms/CreateFormDrawer'
 import EditScheduleDrawer from '../../components/forms/EditScheduleDrawer'
 import ExportFormDrawer from '../../components/forms/ExportFormDrawer'
 import NotificationDrawer from '../../components/forms/NotificationDrawer'
-import athletesData from '../../data/athletes.json'
+import athletesData from '../../data/athletes'
 import formsTemplatesData from '../../data/forms_templates.json'
 import { currentUser } from '../../data/layout'
 import {

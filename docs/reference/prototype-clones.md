@@ -32,6 +32,7 @@ The next version starts as a copy of the previous one, not a fresh clone, so the
 - **The rest of `src/`, by import:** only the files the app components' barrel (`src/components/index.js`), the shared data module (`src/data.js`) and the template reach. The shell (`LayoutWithMainNav`, `MainNavigation`) comes; the drawers the reference pages use stay in the kit.
 - **The template** in `scripts/prototype/template`: `PROTOTYPE.md` (the kit's rules), `brief.md`, `index.html`, a `vite.config.js` with relative paths, a hash-routed `src/main.jsx` and `src/App.jsx`, and `src/prototype/` (routes, pages, notes, placeholders, data).
 - **The lint rules** (`eslint.config.js`, `.stylelintrc.json` and both design system plugins), `public/`, `vite.aliases.mjs` and the kit's `package-lock.json`.
+- **The shared data**, which is generated (`src/data/club.js`, `fake.js`, `clock.js` and the datasets built on them), so a clone's people and records are invented and dated around its own "today". `@faker-js/faker` comes with it.
 - **`package.json`:** the packages the copied files import, plus their peer dependencies the kit declares, at the kit's versions. Kit-only tooling (Storybook, Vitest, Figma Code Connect) stays out.
 - **`prototype.json`:** intent, version, title, the date the primitives were cloned and the date this version was made, the version it came from (`from`, `null` for a first version), and the kit commit.
 

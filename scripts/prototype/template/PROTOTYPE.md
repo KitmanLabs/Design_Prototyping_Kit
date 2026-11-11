@@ -60,7 +60,7 @@ The MUI X licence key comes from the environment when running locally (`VITE_MUI
 ## Data
 
 - Every name, squad, date and figure is invented or generated. Never paste anything from a customer, an export, a real person or a production system, even to "make it realistic".
-- Shared data comes from `src/data`; data only this prototype needs goes in `src/prototype/data`.
+- Shared data comes from `src/data`, where the club's people and records are generated. Data only this prototype needs goes in `src/prototype/data`, generated the same way: `fakerFor('<dataset>')` from `src/data/fake.js` for values, `namesFor()` for names, and `src/data/clock.js` for dates, never `moment()` or a fixed date. A build for the record pins "today", so every date must come from `clock.js`.
 - No credentials or keys anywhere in this folder. `.env` files stay out of Git.
 
 ## The brief

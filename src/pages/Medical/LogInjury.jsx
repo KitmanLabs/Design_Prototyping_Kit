@@ -20,7 +20,7 @@ import {
   DiscardChangesDialog,
   useToasts,
 } from '../../floorplans'
-import athletesData from '../../data/athletes.json'
+import athletesData from '../../data/athletes'
 import {
   logInjurySteps,
   bodyAreaOptions,

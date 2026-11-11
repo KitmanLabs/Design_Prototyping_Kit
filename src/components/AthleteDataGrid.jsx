@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Box, Typography, Chip } from '@mui/material';
 import { DeleteOutlined, ArchiveOutlined } from '@mui/icons-material';
 import { DataGridPremium } from '../playbook-components';
-import athletesData from '../data/athletes.json';
+import athletesData from '../data/athletes';
 import { ATHLETES_AI_SUGGESTIONS } from '../data/gridAiSuggestions';
 import { resolveGridPrompt } from '../utils/gridAiAssistant';
 import '../styles/design-tokens.css';
