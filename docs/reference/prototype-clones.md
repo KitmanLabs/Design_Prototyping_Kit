@@ -18,6 +18,14 @@ npm run prototype:clone -- <target> --intent IN0015 --title "Session planning"
 
 The script needs nothing installed in the kit, so the `/prototype` skill can run it from a plain checkout of the kit at a pinned commit.
 
+## Making the next version
+
+```
+npm run prototype:clone -- <new folder> --from <previous version folder>
+```
+
+The next version starts as a copy of the previous one, not a fresh clone, so the only change between versions is the one asked for. The script copies everything except `node_modules`, `dist/` and `.env` files, then rewrites the files that carry the version: `prototype.json` (the new `version`, and `from` naming the previous one), the name in `package.json`, the Version and Previous version lines in `brief.md`, and the title in `index.html`. `prototype.json` keeps the previous version's kit commit and clone date, because the primitives are the same snapshot. Add the change asked for to the new `brief.md`.
+
 ## What goes in
 
 - **Whole folders:** `src/playbook-components`, `src/floorplans`, `src/styles`, `src/utils`.
@@ -25,7 +33,7 @@ The script needs nothing installed in the kit, so the `/prototype` skill can run
 - **The template** in `scripts/prototype/template`: `PROTOTYPE.md` (the kit's rules), `brief.md`, `index.html`, a `vite.config.js` with relative paths, a hash-routed `src/main.jsx` and `src/App.jsx`, and `src/prototype/` (routes, pages, notes, placeholders, data).
 - **The lint rules** (`eslint.config.js`, `.stylelintrc.json` and both design system plugins), `public/`, `vite.aliases.mjs` and the kit's `package-lock.json`.
 - **`package.json`:** the packages the copied files import, plus their peer dependencies the kit declares, at the kit's versions. Kit-only tooling (Storybook, Vitest, Figma Code Connect) stays out.
-- **`prototype.json`:** intent, version, title, the date, and the kit commit it was cloned from.
+- **`prototype.json`:** intent, version, title, the date the primitives were cloned and the date this version was made, the version it came from (`from`, `null` for a first version), and the kit commit.
 
 ## What never goes in
 

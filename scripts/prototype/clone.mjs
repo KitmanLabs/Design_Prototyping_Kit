@@ -3,6 +3,9 @@
 // without the kit. Nothing is ever built in the kit itself.
 //
 //   node scripts/prototype/clone.mjs <target> [--intent IN0015] [--version v1] [--title "..."] [--no-install]
+//   node scripts/prototype/clone.mjs <target> --from <previous version folder> [--title "..."] [--no-install]
+//
+// With --from, it makes the next version instead: a copy of the previous one (see newVersion).
 //
 // <target> must not exist or must be empty. In an intent it's design/prototype/v1/; anywhere
 // else it's throwaway work. The version defaults to the target's folder name when that is v1,
@@ -195,6 +198,7 @@ function parseArgs(argv) {
     else if (arg === '--version') args.version = argv[++i]
     else if (arg === '--title') args.title = argv[++i]
     else if (arg === '--no-install') args.install = false
+    else if (arg === '--from') args.from = argv[++i]
     else if (arg.startsWith('--')) throw new Error(`Unknown option ${arg}`)
     else rest.push(arg)
   }
@@ -212,6 +216,8 @@ function kitCommit() {
     return { commit: null, dirty: null }
   }
 }
+
+const today = () => new Date().toISOString().slice(0, 10)
 
 function fill(text, values) {
   return text.replace(/\{\{(\w+)\}\}/g, (whole, key) => (key in values ? values[key] : whole))
@@ -344,7 +350,9 @@ export function clone({ target, intent = null, version, title, install = true, l
     intent,
     version,
     title,
-    cloned: new Date().toISOString().slice(0, 10),
+    cloned: today(),
+    created: today(),
+    from: null,
     kit: { repo: KIT_REPO, ...kit },
   }
   fs.writeFileSync(path.join(target, 'prototype.json'), JSON.stringify(meta, null, 2) + '\n')
@@ -370,6 +378,61 @@ export function clone({ target, intent = null, version, title, install = true, l
   log(`Cloned ${files.size} primitive files into ${target} (${version}${intent ? `, ${intent}` : ''}).`)
   log(install ? 'Run it with: npm run dev' : 'Run npm install, then npm run dev.')
   return { files: files.size, packages: Object.keys(pkg.dependencies), meta }
+}
+
+// Make the next version: a copy of the previous version, with the files that carry the version
+// rewritten (prototype.json, package.json's name, brief.md's Version and Previous version lines,
+// index.html's title). The primitives stay the previous version's snapshot, and prototype.json
+// keeps its kit commit and clone date, so the only change between versions is the one asked for.
+// node_modules, dist/ and .env files aren't copied: the new version installs and builds its own.
+export function newVersion({ target, from, version, title, intent, install = true, log = console.log }) {
+  const source = path.resolve(from)
+  const metaPath = path.join(source, 'prototype.json')
+  if (!fs.existsSync(metaPath)) throw new Error(`${source} has no prototype.json, so it isn't a prototype version.`)
+  if (fs.existsSync(target) && fs.readdirSync(target).length > 0) {
+    throw new Error(`${target} isn't empty. Make the new version in a new folder.`)
+  }
+  const previous = JSON.parse(fs.readFileSync(metaPath, 'utf8'))
+  version = version || (/^v\d+$/.test(path.basename(target)) ? path.basename(target) : null)
+  if (!version || !/^v\d+$/.test(version)) {
+    throw new Error('Give the new version as v2, v3 and so on, with --version or as the folder name.')
+  }
+  if (version === previous.version) throw new Error(`${source} is already ${version}.`)
+  if (intent && intent !== previous.intent) throw new Error(`${source} belongs to ${previous.intent}, not ${intent}.`)
+
+  for (const file of walk(source)) {
+    const rel = path.relative(source, file)
+    if (!isExcluded(rel)) copyFile(file, path.join(target, rel))
+  }
+
+  const defaultTitle = (v) => [previous.intent, v].filter(Boolean).join(' ')
+  const nextTitle = title || (previous.title === defaultTitle(previous.version) ? defaultTitle(version) : previous.title)
+  const meta = { ...previous, version, title: nextTitle, created: today(), from: previous.version }
+  fs.writeFileSync(path.join(target, 'prototype.json'), JSON.stringify(meta, null, 2) + '\n')
+
+  const pkgPath = path.join(target, 'package.json')
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'))
+  pkg.name = ['prototype', previous.intent, version].filter(Boolean).join('-').toLowerCase()
+  fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n')
+
+  const rewrite = (rel, change) => {
+    const file = path.join(target, rel)
+    if (fs.existsSync(file)) fs.writeFileSync(file, change(fs.readFileSync(file, 'utf8')))
+  }
+  rewrite('brief.md', (text) => text
+    .replace(/^# Brief: .*$/m, `# Brief: ${nextTitle}`)
+    .replace(/^\*\*Version:\*\* .*$/m, `**Version:** ${version}`)
+    .replace(/^\*\*Previous version:\*\* .*$/m, `**Previous version:** ${previous.version}`))
+  rewrite('index.html', (text) => text.replace(/<title>.*<\/title>/, `<title>${nextTitle}</title>`))
+
+  const check = checkClone(target)
+  if (check.length) throw new Error(`The new version in ${target} doesn't resolve:\n  ${check.join('\n  ')}`)
+  if (install) {
+    log('Installing dependencies (npm install)...')
+    execFileSync('npm', ['install', '--no-audit', '--no-fund'], { cwd: target, stdio: 'inherit' })
+  }
+  log(`Made ${version} in ${target} from ${previous.version}. Add the change asked for to brief.md.`)
+  return { meta }
 }
 
 // Every import in the clone's src/ resolves inside the clone, and nothing excluded is there.
@@ -399,7 +462,9 @@ export function checkClone(root) {
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
-    clone(parseArgs(process.argv.slice(2)))
+    const args = parseArgs(process.argv.slice(2))
+    if (args.from) newVersion(args)
+    else clone(args)
   } catch (error) {
     console.error(error.message)
     process.exit(1)

@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { clone, checkClone, importsOf, isExcluded } from './clone.mjs'
+import { clone, newVersion, checkClone, importsOf, isExcluded } from './clone.mjs'
 
 const KIT = path.resolve(__dirname, '../..')
 
@@ -92,6 +92,58 @@ describe('clone', () => {
   it('needs a version, from the folder name or the option', () => {
     const unnamed = path.join(parent, 'prototype')
     expect(() => clone({ target: unnamed, install: false, log: () => {} })).toThrow(/version/)
+  })
+})
+
+describe('newVersion', () => {
+  let parent
+  let v1
+  let v2
+
+  beforeAll(() => {
+    parent = fs.mkdtempSync(path.join(os.tmpdir(), 'kit-version-'))
+    v1 = path.join(parent, 'v1')
+    v2 = path.join(parent, 'v2')
+    clone({ target: v1, intent: 'IN0012', install: false, log: () => {} })
+    // What a worked-on version holds: its own page, an install and a build.
+    fs.writeFileSync(path.join(v1, 'src/prototype/pages/Extra.jsx'), 'export default function Extra() { return null }\n')
+    fs.mkdirSync(path.join(v1, 'node_modules/some-package'), { recursive: true })
+    fs.mkdirSync(path.join(v1, 'dist'))
+    fs.writeFileSync(path.join(v1, 'dist/index.html'), '<html></html>\n')
+    newVersion({ target: v2, from: v1, install: false, log: () => {} })
+  })
+
+  afterAll(() => {
+    fs.rmSync(parent, { recursive: true, force: true })
+  })
+
+  it('records the version it came from, and keeps the primitives snapshot it was cloned with', () => {
+    const before = JSON.parse(fs.readFileSync(path.join(v1, 'prototype.json'), 'utf8'))
+    const after = JSON.parse(fs.readFileSync(path.join(v2, 'prototype.json'), 'utf8'))
+    expect(before.from).toBeNull()
+    expect(after).toMatchObject({ version: 'v2', from: 'v1', title: 'IN0012 v2', intent: 'IN0012' })
+    expect(after.kit).toEqual(before.kit)
+    expect(after.cloned).toBe(before.cloned)
+  })
+
+  it('rewrites every file that carries the version', () => {
+    expect(JSON.parse(fs.readFileSync(path.join(v2, 'package.json'), 'utf8')).name).toBe('prototype-in0012-v2')
+    const brief = fs.readFileSync(path.join(v2, 'brief.md'), 'utf8')
+    expect(brief).toContain('**Version:** v2')
+    expect(brief).toContain('**Previous version:** v1')
+    expect(fs.readFileSync(path.join(v2, 'index.html'), 'utf8')).toContain('<title>IN0012 v2</title>')
+  })
+
+  it("copies the prototype's own code, but not the install or the build", () => {
+    expect(fs.existsSync(path.join(v2, 'src/prototype/pages/Extra.jsx'))).toBe(true)
+    expect(fs.existsSync(path.join(v2, 'node_modules'))).toBe(false)
+    expect(fs.existsSync(path.join(v2, 'dist'))).toBe(false)
+    expect(checkClone(v2)).toEqual([])
+  })
+
+  it('refuses a folder that is not a prototype version, or the same version again', () => {
+    expect(() => newVersion({ target: path.join(parent, 'v3'), from: parent, install: false, log: () => {} })).toThrow(/prototype.json/)
+    expect(() => newVersion({ target: path.join(parent, 'other'), from: v1, version: 'v1', install: false, log: () => {} })).toThrow(/already v1/)
   })
 })
 
