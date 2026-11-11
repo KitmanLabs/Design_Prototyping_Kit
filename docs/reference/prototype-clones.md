@@ -44,6 +44,29 @@ Two Playbook modules ported from iP are left out because they call iP's services
 
 After copying, the script checks that every import in the clone resolves inside the clone and that every package it imports is declared, and fails if not.
 
+## Building for the record
+
+```
+npm run build-prototype      (inside the version folder)
+```
+
+1. Builds `dist/` in place with "today" pinned to the build date (`VITE_PROTOTYPE_TODAY`), so the generated data renders the same dates whenever the version is opened, and with the MUI X licence key forced empty, even if `.env` or `.env.local` holds one. If the key's value still turns up in `dist/`, it removes `dist/` and fails.
+2. Records the build date as `built` in `prototype.json`.
+3. For an intent's prototype (a clone with an intent, in a folder named `prototype`), writes `manifest.json` and `README.md` beside the version folders, describing every version.
+
+It refuses to run if any file in `src/` is over 2 MB, because the personal data guard skips such files without checking them. It's a plain Node script with no Claude in it: the `/prototype` skill runs it, then publishes.
+
+### The manifest
+
+`manifest.json` (schema `kitman-prototype/1`) is generated, never hand-written. It holds the intent, the kit commit and stack, how the data was made, what the prototype doesn't do (`doesNotDo` in `prototype.json`, or a default), and:
+
+- `versions`: id, title, `built`, `builtFrom` (`specification` or `brief`, read from `brief.md`), `supersedes` (from `prototype.json`'s `from`) and the kit commit.
+- `routes`: each `routes.js` entry as `#/<version><path>`, with its title, floorplan, baseline and `scenarios`.
+- `notes` and `placeholders`, with their routes prefixed by version.
+- `components`: the floorplans and Playbook components `src/prototype/` imports, and `notInIp`, the packages it imports that iP doesn't ship (`NOT_IN_IP` in the build script).
+
+Accelerate reads `schema`, `routes[].route`, `routes[].scenarios` and `components.notInIp[].name`; change those only with Accelerate.
+
 ## Inside a clone
 
 `PROTOTYPE.md` in the clone is the guide. In short:
