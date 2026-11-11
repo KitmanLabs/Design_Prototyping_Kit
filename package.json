@@ -18,6 +18,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "docs:data": "node scripts/generate-data-docs.js",
+    "prototype:clone": "node scripts/prototype/clone.mjs",
     "figma:publish": "figma connect publish"
   },
   "dependencies": {

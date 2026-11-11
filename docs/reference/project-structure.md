@@ -10,7 +10,8 @@ CLAUDE.md              instructions Claude Code reads every session
 docs/                  guides for designers, plus reference/ for the rules
 src/                   the prototype (below)
 public/assets/         images and team logos (see public/assets/README.md)
-scripts/               design system validation, data docs generator
+scripts/               design system validation, data docs generator, prototype/ (the clone script and its template; see prototype-clones.md)
+vite.aliases.mjs       the iP monorepo aliases, shared by vite.config.js and every prototype clone
 eslint-plugin-design-system/, stylelint-plugin-design-system/   the custom lint rules
 .storybook/            Storybook config
 .claude/               Claude Code hooks and project skills (/new-page, /new-component)
@@ -56,7 +57,7 @@ src/
 - Page regions (header, toolbar, selection bar, footer, page states) belong in `src/floorplans`. Extend those rather than building a page-specific header or footer.
 - Check `src/playbook-components` first, then `src/components`. Add new app components under `src/components` (or a feature subfolder), never at the repo root.
 - When two components share a block of UI, extract it once (see `src/components/Calendar/EventDrawerFields.jsx`) rather than copying it.
-- Playbook source is plain JavaScript. It still imports through the monorepo package names (`@kitman/playbook/...`, `@kitman/common/...`, `@kitman/modules/...`, `@kitman/components`). `vite.config.js` aliases these onto `src/playbook-components`. Anything under `common/`, `modules/` and `kitman-components-stub/` is a small stand-in for the monorepo code, kept only while something imports it.
+- Playbook source is plain JavaScript. It still imports through the monorepo package names (`@kitman/playbook/...`, `@kitman/common/...`, `@kitman/modules/...`, `@kitman/components`). `vite.aliases.mjs` maps these onto `src/playbook-components`, for the kit and every prototype clone. Anything under `common/`, `modules/` and `kitman-components-stub/` is a small stand-in for the monorepo code, kept only while something imports it.
 - A few Playbook Components have detailed docs next to their code; the [docs index](../README.md#component-docs) lists them.
 
 ## Stories

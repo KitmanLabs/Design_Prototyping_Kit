@@ -13,7 +13,7 @@ import {
 } from '@kitman/common/src/utils/mediaHelper';
 import { colors } from '@kitman/common/src/variables';
 import { withTranslation } from 'react-i18next';
-import { KITMAN_ICON_NAMES, KitmanIcon } from '../../icons';
+import { KITMAN_ICON_NAMES, KitmanIcon } from '../icons';
 
 const isImage = (type) => type.startsWith('image/');
 

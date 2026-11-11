@@ -15,6 +15,7 @@ npm run lint                    # ESLint (JS/JSX), config in eslint.config.js
 npm run lint:css                # Stylelint (CSS)
 npm run validate-design-system  # Full design system check (runs pre-commit and in CI)
 npm run figma:publish           # Publish Code Connect templates to Figma (needs FIGMA_ACCESS_TOKEN)
+npm run prototype:clone -- <dir> --intent IN0015   # Clone the primitives into a new prototype version
 ```
 
 ## Architecture
@@ -93,6 +94,9 @@ The kit runs MUI 9 ahead of iP on purpose: iP is moving to MUI 9 and MUI X 9.
 🚫 NEVER add npm dependencies without explicit instruction
 ⚠️  Always run `npm run validate-design-system` after changes
 ✅ Edit `src/playbook-components/` to change Playbook component behavior; it is plain JavaScript (no Flow, no build step)
+
+## Prototype clones
+Prototypes are never built in the kit: `npm run prototype:clone` copies the primitives (Playbook, floorplans, shell, styles, utils, shared data, lint rules) into a self-contained folder with `PROTOTYPE.md` as its rules. What a clone gets, and what it never gets, is in `docs/reference/prototype-clones.md`; change the template in `scripts/prototype/template`.
 
 ## Docs
 - All docs live in `docs/`: guides for designers at the top level, rules and conventions in `docs/reference/`. Index: `docs/README.md`.
