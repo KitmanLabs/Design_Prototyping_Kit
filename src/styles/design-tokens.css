@@ -62,7 +62,24 @@
   --color-chart-8: #f89938;
   --color-chart-9: #f36653;
   --color-chart-10: #ec008b;
-  
+
+  /* iP palette, by iP's own names (packages/common/src/variables/colors.js), for the Playbook
+     components that read @kitman/common colors (src/playbook-components/common/src/variables/colors.js).
+     Only the names no token above already holds. Pages use the tokens above, not these. */
+  --color-ip-grey-100-50: #afb7c4;
+  --color-ip-grey-300: #1f2d44;
+  --color-ip-neutral-light: #091e42;
+  --color-ip-neutral-200: #f1f2f3;
+  --color-ip-neutral-300: #e8eaed;
+  --color-ip-neutral-400: #cfd4db;
+  --color-ip-red-50: #fbeff0;
+  --color-ip-red-100: #c31d2b;
+  --color-ip-yellow-100: #ffab00;
+  --color-ip-orange-100: #ea7b5d;
+  --color-ip-blue-100: #2a6ebb;
+  --color-ip-teal-100: #20a49a;
+  --color-ip-light-transparent-background: rgba(0, 0, 0, 0.06);
+
   /* Typography */
   --font-family-primary: 'Open Sans', sans-serif;
   --font-family-secondary: 'Open Sans', sans-serif;

@@ -67,18 +67,20 @@ function CustomDateRangePicker({
       return '';
     }
 
-    const startDate = dateRange[0];
-    const endDate = dateRange[1];
+    // As kitman-playbook does it: either end may be empty while the range is being picked,
+    // and the separator is a hyphen.
+    const [startMoment, endMoment] = dateRange;
+    const show = (date, dateFormat) => (date ? date.format(dateFormat) : '');
 
     if (variant === 'muiFilled') {
       const dateFormat = 'MMM DD, YYYY';
-      return `${startDate.format(dateFormat)} - ${endDate.format(dateFormat)}`;
+      return `${show(startMoment, dateFormat)} - ${show(endMoment, dateFormat)}`;
     }
 
     const dateFormat =
       organisationLocale === 'en-US' ? 'MM/DD/YYYY' : 'DD/MM/YYYY';
 
-    return `${startDate.format(dateFormat)} — ${endDate.format(dateFormat)}`;
+    return `${show(startMoment, dateFormat)} - ${show(endMoment, dateFormat)}`;
   };
 
   const hasSelectedDates = dateRange[0] || dateRange[1];
@@ -290,8 +292,8 @@ function CustomDateRangePicker({
         id="outlined-basic"
         placeholder={
           organisationLocale === 'en-US'
-            ? 'MM/DD/YYYY — MM/DD/YYYY'
-            : 'DD/MM/YYYY — DD/MM/YYYY'
+            ? 'MM/DD/YYYY - MM/DD/YYYY'
+            : 'DD/MM/YYYY - DD/MM/YYYY'
         }
         variant="outlined"
         onClick={handleInputClick}

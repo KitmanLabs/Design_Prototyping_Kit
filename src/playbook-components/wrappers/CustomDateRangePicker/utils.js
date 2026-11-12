@@ -77,7 +77,7 @@ export const formatDateInput = (
 
     if (startDate.isValid() && endDate.isValid()) {
       return {
-        formatted: `${startDate.format(displayFormat)} — ${endDate.format(
+        formatted: `${startDate.format(displayFormat)} - ${endDate.format(
           displayFormat
         )}`,
         dateRange: [startDate, endDate],
@@ -93,7 +93,7 @@ export const formatDateInput = (
     if (firstDate.isValid()) {
       let formatted = firstDate.format(displayFormat);
       if (secondPart.length > 0) {
-        formatted += ' — ';
+        formatted += ' - ';
         // eslint-disable-next-line max-depth
         for (let i = 0; i < secondPart.length; i += 2) {
           formatted += secondPart.slice(i, i + 2);
