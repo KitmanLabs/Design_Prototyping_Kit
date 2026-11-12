@@ -45,6 +45,9 @@ const EXCLUDED = [
   /\.figma\.[cm]?[jt]sx?$/,
   /^src\/(pages|stories|test)(\/|$)/,
   /^server(\/|$)/,
+  // Component docs stay in the kit: a clone carries code. Their prose also draws warnings from the
+  // personal data guard. The HeaderNew readme stays, because PageHeader points to it for its props.
+  /^src\/playbook-components\/(?!HeaderNew\/readme\.md$).*\.md$/i,
   // Ported from iP but unused in the kit: both call iP's services (@kitman/services), which the
   // kit doesn't have, so they can't build.
   /^src\/playbook-components\/OpenIssues(\/|$)/,

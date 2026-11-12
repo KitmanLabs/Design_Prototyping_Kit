@@ -63,6 +63,9 @@ describe('clone', () => {
     for (const dir of ['src/pages', 'src/stories', 'src/test', 'server', '.claude', 'docs', '.storybook']) {
       expect(fs.existsSync(path.join(target, dir)), dir).toBe(false)
     }
+    // Component docs stay in the kit, except the HeaderNew readme PageHeader points to.
+    const docs = files.filter((rel) => rel.startsWith('src/playbook-components') && /\.md$/i.test(rel))
+    expect(docs).toEqual(['src/playbook-components/HeaderNew/readme.md'])
     // App components the reference pages use, but the shell doesn't, stay in the kit.
     expect(fs.existsSync(path.join(target, 'src/components/AddGameDrawer.jsx'))).toBe(false)
     expect(fs.existsSync(path.join(target, 'src/components/LayoutWithMainNav.jsx'))).toBe(true)
