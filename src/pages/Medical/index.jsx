@@ -73,7 +73,7 @@ const generateMedicalRosterData = () => {
       position: athlete.position,
       injuryDate: injury ? injury.occurrence_date : null,
       injuryName: injury ? injury.injury_type : null,
-      injuryStatus: injury ? 'Out' : null,
+      injuryStatus: injury ? (injury.availability === 'Modified' ? 'Modified' : 'Out') : null,
       noteDate: isoDate(-(index % 3)),
       noteTitle: 'Morning wellness check',
       notePreview: `Notes for ${athlete.firstname} - all vitals normal`,

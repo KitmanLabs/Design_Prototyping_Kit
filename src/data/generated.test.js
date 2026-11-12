@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import moment from 'moment'
 import athletes from './athletes'
-import injuries, { currentInjuries } from './injuries_medical'
+import injuries, { currentInjuries, playingThrough, RETURNING_DAYS } from './injuries_medical'
 import staff from './users_staff'
 import squads from './squads_teams'
 import games from './games_matches'
@@ -44,6 +44,27 @@ describe('generated mock data', () => {
       expect(squad.squad_size).toBe(members.length)
       expect(squad.injured_players).toBe(members.filter((a) => injured.has(a.id)).length)
       expect(squad.players.map((p) => p.athlete_id)).toEqual(members.map((a) => a.id))
+    }
+  })
+
+  it("shows iP's four availability statuses, agreeing with the injury records", () => {
+    const statusesOf = (squad) => new Set(athletes.filter((a) => a.squad_id === squad.id).map((a) => a.availability))
+    expect([...statusesOf(squads.find((s) => s.name === 'First Team'))].sort()).toEqual(['available', 'injured', 'returning', 'unavailable'])
+    for (const squad of squads) {
+      expect(statusesOf(squad).has('injured') && statusesOf(squad).has('returning'), squad.name).toBe(true)
+    }
+    const out = new Map(currentInjuries.map((i) => [i.athlete_id, i]))
+    const playing = new Set(playingThrough.map((i) => i.athlete_id))
+    for (const athlete of athletes) {
+      const backRecently = injuries.some((i) => i.athlete_id === athlete.id && i.status === 'Returned' && TODAY.diff(moment(i.rtp_date), 'days') <= RETURNING_DAYS)
+      const expected = out.has(athlete.id) ? 'unavailable' : playing.has(athlete.id) ? 'injured' : backRecently ? 'returning' : 'available'
+      expect(athlete.availability, name(athlete)).toBe(expected)
+      expect(athlete.unavailable_since).toBe(out.get(athlete.id)?.occurrence_date ?? null)
+      expect(athlete.availability_status).toBe(athlete.availability === 'unavailable' ? 'Injured' : 'Available')
+    }
+    for (const record of playingThrough) {
+      expect(record.days_lost).toBe(0)
+      expect(record.rtp_date).toBe(record.occurrence_date)
     }
   })
 
