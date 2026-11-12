@@ -1,21 +1,32 @@
 import { withTranslation } from 'react-i18next';
 import i18n from '@kitman/common/src/utils/i18n';
 import { rootTheme } from '@kitman/playbook/themes';
-import { Box, Typography } from '@kitman/playbook/components';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
-
-
-const getStatusTextAndColour = (
-  availability
-) => {
+// Ported from kitman-playbook components/AvailabilityLabel/index.tsx (main, 3 Sep 2026), types
+// removed. status.availability is one of available, unavailable, injured, returning, absent or
+// ill. availabilityStatusEnabled is iP's dsr-availability-status flag, which selects the newer
+// wording ("Unavailable (Injured/Ill)", "Unavailable (Absent)"); without it, absent shows as
+// Available and ill falls back to Available too, as in iP.
+const getStatusTextAndColour = (availability, availabilityStatusEnabled) => {
   const availableStatus = {
     label: i18n.t('Available'),
     colour: rootTheme.palette.success.main,
   };
   switch (availability) {
+    case 'absent':
+      return availabilityStatusEnabled
+        ? {
+            label: i18n.t('Unavailable (Absent)'),
+            colour: rootTheme.palette.error.light,
+          }
+        : availableStatus;
     case 'unavailable':
       return {
-        label: i18n.t('Unavailable'),
+        label: availabilityStatusEnabled
+          ? i18n.t('Unavailable (Injured/Ill)')
+          : i18n.t('Unavailable'),
         colour: rootTheme.palette.error.light,
       };
     case 'injured':
@@ -35,46 +46,48 @@ const getStatusTextAndColour = (
   }
 };
 
-const StatusIndicator = ({ colour }) => (
-  <Box
-    sx={{
-      width: '0.544rem',
-      height: '0.544rem',
-      borderRadius: '50%',
-      alignSelf: 'center',
-      background: colour,
-    }}
-  />
-);
-
-const AvailabilityLabel = ({ status }) => {
-  const { availability, unavailable_since: unavailableSince } = status;
-  const availabilityInfo = getStatusTextAndColour(availability);
-
-  const labelStyle = {
-    fontSize: '0.9525rem',
-    textTransform: 'capitalize',
-    letterSpacing: '0.0116rem',
-  };
-  const unavailableSinceStyle = {
+const styles = {
+  wrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    maxWidth: '100%',
+  },
+  label: {
+    color: 'var(--color-white)',
+    borderRadius: 9999,
+    fontSize: '0.78rem',
+    paddingInline: '0.375rem',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  unavailableSince: {
     fontSize: '0.8163rem',
     letterSpacing: '0.0272rem',
-  };
+  },
+};
+
+const AvailabilityLabel = ({ status, availabilityStatusEnabled = false }) => {
+  const { availability, unavailable_since: unavailableSince } = status;
+
+  const availabilityInfo = getStatusTextAndColour(availability, availabilityStatusEnabled);
 
   return (
-    <Box
-      sx={{ display: 'flex', flexDirection: 'row' }}
-      data-testid="Storybook|AvailabilityLabel"
-    >
-      {availabilityInfo.colour && (
-        <StatusIndicator colour={availabilityInfo.colour} />
-      )}
-      <Box sx={{ marginLeft: '0.75rem' }}>
-        <Typography sx={labelStyle}>{availabilityInfo.label}</Typography>
-        {availabilityInfo.label !== 'available' && unavailableSince && (
-          <Typography sx={unavailableSinceStyle}>{unavailableSince}</Typography>
-        )}
+    <Box sx={styles.wrapper} data-testid="Storybook|AvailabilityLabel">
+      <Box
+        component="span"
+        sx={{
+          backgroundColor: availabilityInfo.colour,
+          ...styles.label,
+        }}
+      >
+        {availabilityInfo.label}
       </Box>
+
+      {availabilityInfo.label !== i18n.t('Available') && unavailableSince && (
+        <Typography sx={styles.unavailableSince}>{unavailableSince}</Typography>
+      )}
     </Box>
   );
 };
