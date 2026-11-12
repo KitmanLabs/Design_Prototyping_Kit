@@ -65,7 +65,7 @@ The MUI X licence key comes from the environment when running locally (`VITE_MUI
 
 - Every name, squad, date and figure is invented or generated. Never paste anything from a customer, an export, a real person or a production system, even to "make it realistic".
 - Shared data comes from `src/data`, where the club's people and records are generated. Data only this prototype needs goes in `src/prototype/data`, generated the same way: `fakerFor('<dataset>')` from `src/data/fake.js` for values, `namesFor()` for names, and `src/data/clock.js` for dates, never `moment()` or a fixed date. A build for the record pins "today", so every date must come from `clock.js`.
-- For an athlete's availability, read `availability`. It holds iP's four statuses (`available`, `injured`, `returning`, `unavailable`) and agrees with the injury records. The Playbook's `AvailabilityLabel` reads it, along with `unavailable_since`. The older `availability_status` uses `Injured` to mean out, which is iP's `unavailable`, not iP's `injured` (Available (Injured/Ill)).
+- For an athlete's availability, read `availability`, not the older `availability_status`. `availability` holds iP's four statuses, the values the Playbook's `AvailabilityLabel` takes, and `availabilityOf()` in `src/data/athletes.js` sets it so it agrees with the rest of the generated data. `AvailabilityLabel` also reads `unavailable_since`. `availability_status` has only two values, and its second means out, which is iP's `unavailable`.
 - No credentials or keys anywhere in this folder. `.env` files stay out of Git.
 
 ## The brief

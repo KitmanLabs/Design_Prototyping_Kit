@@ -87,6 +87,19 @@ describe('build-prototype manifest', () => {
     expect(readme).toContain('`#/v2/notes/search`')
   })
 
+  // Prose under design/prototype/ gets every rule in product-intents' guard (scripts/guard.py), so
+  // a word the kit writes into PROTOTYPE.md or the README warns on every prototype commit. This is
+  // the guard's ATHLETE_HEALTH pattern; it reads inline code too. This fixture's own text is clean.
+  it("leaves nothing in the prose it records that product-intents' guard warns on", () => {
+    const athleteHealth = /\b(injur\w*|rehab\w*|diagnos(?:is|es|ed|ing)|treatment|concussion|hamstring|calf|acl|mcl|physio\w*|clinician|medical|return\s+to\s+play|rtp|symptom\w*|soreness|strain|sprain)\b/i
+    const prose = fs.readdirSync(prototypeDir, { recursive: true }).filter((rel) => /\.(md|markdown|txt)$/i.test(rel))
+    expect(prose).toContain('v1/PROTOTYPE.md')
+    const hits = prose.flatMap((rel) => fs.readFileSync(path.join(prototypeDir, rel), 'utf8').split('\n')
+      .map((line, i) => [`${rel}:${i + 1}`, line.match(athleteHealth)?.[0]])
+      .filter(([, word]) => word))
+    expect(hits).toEqual([])
+  })
+
   it('carries the fields Accelerate reads, in the shape it reads them', () => {
     expect(manifest.schema).toBe(MANIFEST_SCHEMA)
     expect(manifest.intent).toBe('IN0012')
