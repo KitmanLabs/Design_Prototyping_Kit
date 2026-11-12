@@ -196,6 +196,22 @@ const rules = {
         return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
       }
 
+      // A date format ('D MMM YYYY') is code, not copy: an argument to .format(), or the value of
+      // anything named for a format (DATE_FORMAT, { format: ... }, <DatePicker format="..." />).
+      function isFormatString(node) {
+        const parent = node.parent;
+        if (!parent) return false;
+        const named = (name) => typeof name === 'string' && /format/i.test(name);
+        if (parent.type === 'CallExpression' && parent.arguments.includes(node)) {
+          const callee = parent.callee;
+          return named(callee.type === 'MemberExpression' ? callee.property.name : callee.name);
+        }
+        if (parent.type === 'VariableDeclarator') return named(parent.id.name);
+        if (parent.type === 'Property') return named(parent.key.name || parent.key.value);
+        if (parent.type === 'JSXAttribute') return named(parent.name.name);
+        return false;
+      }
+
       function check(node, text, replace) {
         if (!isTitleCase(text) && !isUpperCase(text)) return;
         const fixed = toSentenceCase(text);
@@ -217,6 +233,7 @@ const rules = {
         Literal(node) {
           if (typeof node.value !== 'string' || node.value.length < 2) return;
           if (node.parent && node.parent.type === 'ImportDeclaration') return;
+          if (isFormatString(node)) return;
           const quote = node.raw.charAt(0);
           check(node, node.value.trim(), (fixer, fixed) =>
             fixer.replaceText(node, `${quote}${fixed}${quote}`)

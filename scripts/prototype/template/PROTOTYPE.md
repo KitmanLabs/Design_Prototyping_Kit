@@ -35,6 +35,8 @@ npm run build-prototype   the build for the record: dist/ with today pinned and 
                      ../manifest.json and ../README.md for an intent's prototype
 ```
 
+`build-prototype` checks this version first and lists everything it would record wrongly: a route that isn't a literal path in single quotes, or whose page `pages/index.js` doesn't export, a note or placeholder naming a route that isn't in `routes.js`, an unknown note type, and template placeholders left in `brief.md`. Fix each one and run it again.
+
 The MUI X licence key comes from the environment when running locally (`VITE_MUI_X_LICENSE_KEY`). Never write it, or any other key, into a file in this folder.
 
 ## Pages
@@ -67,7 +69,7 @@ The MUI X licence key comes from the environment when running locally (`VITE_MUI
 
 ## The brief
 
-`brief.md` says what this version was built from. Name people by role, never by name, and give the date of the session each line was heard in. For a new version, keep the previous brief and add the change asked for.
+`brief.md` says what this version was built from. Its "Built from" line counts as the specification only when it names the commit ("the specification at commit 3f2c1a9"); any other wording is read as a summary. Name people by role, never by name, and give the date of the session each line was heard in. For a new version, keep the previous brief and add the change asked for.
 
 ## Boundaries
 

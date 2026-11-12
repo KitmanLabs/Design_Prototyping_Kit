@@ -31,7 +31,7 @@ The next version starts as a copy of the previous one, not a fresh clone, so the
 - **Whole folders:** `src/playbook-components`, `src/floorplans`, `src/styles`, `src/utils`.
 - **The rest of `src/`, by import:** only the files the app components' barrel (`src/components/index.js`), the shared data module (`src/data.js`) and the template reach. The shell (`LayoutWithMainNav`, `MainNavigation`) comes; the drawers the reference pages use stay in the kit.
 - **The template** in `scripts/prototype/template`: `PROTOTYPE.md` (the kit's rules), `brief.md`, `index.html`, a `vite.config.js` with relative paths, a hash-routed `src/main.jsx` and `src/App.jsx`, and `src/prototype/` (routes, pages, notes, placeholders, data).
-- **The lint rules** (`eslint.config.js`, `.stylelintrc.json` and both design system plugins), `public/`, `vite.aliases.mjs` and the kit's `package-lock.json`.
+- **The lint rules** (`eslint.config.js`, `.stylelintrc.json`, `.stylelintignore` and both design system plugins), `public/`, `vite.aliases.mjs` and the kit's `package-lock.json`.
 - **The shared data**, which is generated (`src/data/club.js`, `fake.js`, `clock.js` and the datasets built on them), so a clone's people and records are invented and dated around its own "today". `@faker-js/faker` comes with it.
 - **`package.json`:** the packages the copied files import, plus their peer dependencies the kit declares, at the kit's versions. Kit-only tooling (Storybook, Vitest, Figma Code Connect) stays out.
 - **`prototype.json`:** intent, version, title, the date the primitives were cloned and the date this version was made, the version it came from (`from`, `null` for a first version), and the kit commit.
@@ -39,6 +39,8 @@ The next version starts as a copy of the previous one, not a fresh clone, so the
 ## What never goes in
 
 Pages (`src/pages`), stories, tests, Figma Code Connect files, the AI Assistant dev server (`server/`), `.env` files, `.claude/` and `CLAUDE.md`. The kit's rules travel as `PROTOTYPE.md` instead, so sessions that read a prototype as evidence don't take them as their own instructions.
+
+The Playbook component docs (`README.md` files and `docs/` folders under `src/playbook-components`) stay in the kit too, except the HeaderNew readme that `PageHeader` points to for its props. A clone carries code, and the docs' prose drew warnings from the personal data guard.
 
 Two Playbook modules ported from iP are left out because they call iP's services, which the kit doesn't have: `OpenIssues` and the `AthleteSelector` data sources.
 
@@ -54,16 +56,25 @@ npm run build-prototype      (inside the version folder)
 2. Records the build date as `built` in `prototype.json`.
 3. For an intent's prototype (a clone with an intent, in a folder named `prototype`), writes `manifest.json` and `README.md` beside the version folders, describing every version.
 
-It refuses to run if any file in `src/` is over 2 MB, because the personal data guard skips such files without checking them. It's a plain Node script with no Claude in it: the `/prototype` skill runs it, then publishes.
+Before building, it checks the version it's building and stops with a list of every problem it finds:
+
+- **Routes**: each `path` is a literal string in single quotes that starts with `/`, with no parameter, wildcard, query string or `#`. No path is listed twice, every route has a title, and every route shows a page that `pages/index.js` exports.
+- **Notes**: ids are unique, the type is `assumption`, `question` or `deferral`, there's some text, and any route the note names is in `routes.js`.
+- **Placeholders**: names are unique, each has a value, and the routes it names are in `routes.js`.
+- **The brief**: it has a "Built from" line, and none of the template's `<placeholders>` are left.
+
+`routes.js`, `notes.js` and `placeholders.js` must be plain data, with no imports. The build reads them without a bundler.
+
+It also refuses to run if any file in `src/` is over 2 MB, because the personal data guard skips such files without checking them. Versions already recorded aren't checked again, since they never change. It's a plain Node script with no Claude in it: the `/prototype` skill runs it, then publishes.
 
 ### The manifest
 
 `manifest.json` (schema `kitman-prototype/1`) is generated, never hand-written. It holds the intent, the kit commit and stack, how the data was made, what the prototype doesn't do (`doesNotDo` in `prototype.json`, or a default), and:
 
-- `versions`: id, title, `built`, `builtFrom` (`specification` or `brief`, read from `brief.md`), `supersedes` (from `prototype.json`'s `from`) and the kit commit.
+- `versions`: id, title, `built`, `builtFrom` (`specification` when `brief.md`'s "Built from" line names a commit, as in "the specification at commit 3f2c1a9", otherwise `brief`), `supersedes` (from `prototype.json`'s `from`) and the kit commit.
 - `routes`: each `routes.js` entry as `#/<version><path>`, with its title, floorplan, baseline and `scenarios`.
 - `notes` and `placeholders`, with their routes prefixed by version.
-- `components`: the floorplans and Playbook components `src/prototype/` imports, and `notInIp`, the packages it imports that iP doesn't ship (`NOT_IN_IP` in the build script).
+- `components`: the floorplans and Playbook components imported by code in `src/prototype/` that the app reaches from `pages/index.js`. A page nothing imports, or an import in a comment, doesn't count. It also lists `notInIp`, the packages it imports that iP doesn't ship (`NOT_IN_IP` in the build script).
 
 Accelerate reads `schema`, `routes[].route`, `routes[].scenarios` and `components.notInIp[].name`; change those only with Accelerate.
 
