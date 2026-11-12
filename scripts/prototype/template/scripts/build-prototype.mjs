@@ -42,6 +42,13 @@ const RESOLVE = ['', '.js', '.jsx', '.mjs', '/index.js', '/index.jsx']
 
 const FLOORPLANS = /(^|\/)floorplans$/
 const PLAYBOOK = /(^|\/)playbook-components$|^@kitman\/playbook\/components$/
+// A component imported by its own path rather than through the barrel, such as
+// '../../playbook-components/AvailabilityLabel', '@kitman/playbook/components/wrappers/DataGridPremium'
+// or '../../floorplans/PageState'.
+const PLAYBOOK_PATH = /(?:^|\/)playbook-components\/(.+)$|^@kitman\/playbook\/components\/(.+)$/
+const FLOORPLAN_PATH = /(?:^|\/)floorplans\/([^/]+)$/
+// Folders in src/playbook-components that hold shared code, not a component.
+const NOT_COMPONENTS = new Set(['common', 'modules', 'kitman-components-stub', 'utils', 'mixins', 'icons', 'hooks', 'providers', 'themes'])
 
 const read = (file) => fs.readFileSync(file, 'utf8')
 const readJson = (file) => JSON.parse(read(file))
@@ -91,17 +98,35 @@ function walk(dir, skip = new Set(['node_modules', 'dist', '.git'])) {
   })
 }
 
-// Named imports from the floorplans and Playbook barrels, and packages iP doesn't ship.
+// The Playbook component a path inside src/playbook-components names, or null for shared code:
+// 'AvailabilityLabel', 'AvailabilityLabel/index.jsx' and 'wrappers/DataGridPremium' name components.
+function playbookComponentAt(versionDir, rest) {
+  const parts = rest.replace(/\.(m?jsx?)$/, '').split('/').filter((p) => p && p !== 'index')
+  const name = parts[0] === 'wrappers' ? parts[1] : parts[0]
+  if (!name || NOT_COMPONENTS.has(name)) return null
+  const dir = path.join(versionDir, 'src/playbook-components', parts[0] === 'wrappers' ? 'wrappers' : '', name)
+  return fs.existsSync(dir) && fs.statSync(dir).isDirectory() ? name : null
+}
+
+// Floorplans and Playbook components the prototype imports, by name, whether through the barrels
+// or by their own paths, and packages iP doesn't ship.
 export function componentsUsed(versionDir) {
   const floorplans = new Set()
   const playbook = new Set()
   const notInIp = new Map()
   for (const file of reachableFiles(path.join(versionDir, 'src/prototype'))) {
     const code = stripComments(read(file))
-    for (const match of code.matchAll(/import\s*(?:[\w$]+\s*,\s*)?\{([^}]*)\}\s*from\s*['"]([^'"]+)['"]/g)) {
-      const names = match[1].split(',').map((n) => n.trim().split(/\s+as\s+/)[0]).filter(Boolean)
-      if (FLOORPLANS.test(match[2])) names.forEach((n) => floorplans.add(n))
-      if (PLAYBOOK.test(match[2])) names.forEach((n) => playbook.add(n))
+    for (const match of code.matchAll(/import\s+([^'";]+?)\s+from\s*['"]([^'"]+)['"]/g)) {
+      const source = match[2].replace(/\/index(\.m?jsx?)?$/, '')
+      const named = /\{([^}]*)\}/.exec(match[1])?.[1].split(',').map((n) => n.trim().split(/\s+as\s+/)[0]).filter(Boolean) ?? []
+      if (FLOORPLANS.test(source)) named.forEach((n) => floorplans.add(n))
+      else if (PLAYBOOK.test(source)) named.forEach((n) => playbook.add(n))
+      else if (FLOORPLAN_PATH.test(source)) floorplans.add(FLOORPLAN_PATH.exec(source)[1].replace(/\.(m?jsx?)$/, ''))
+      else if (PLAYBOOK_PATH.test(source)) {
+        const [, local, alias] = PLAYBOOK_PATH.exec(source)
+        const name = playbookComponentAt(versionDir, local ?? alias)
+        if (name) playbook.add(name)
+      }
     }
     for (const match of code.matchAll(/from\s*['"](@[^/'"]+\/[^/'"]+|[^./'"][^/'"]*)/g)) {
       if (NOT_IN_IP[match[1]]) notInIp.set(match[1], { name: match[1], why: NOT_IN_IP[match[1]] })

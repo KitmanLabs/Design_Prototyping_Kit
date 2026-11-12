@@ -49,6 +49,11 @@ describe('build-prototype manifest', () => {
       "import { DataGridPremium } from '../../playbook-components'",
       "import { placeholder } from '../placeholders'",
       "// import { DataGrid } from '../../playbook-components'",
+      // Components imported by their own paths count too; shared code doesn't.
+      "import AvailabilityLabel from '../../playbook-components/AvailabilityLabel'",
+      "import CustomDateRangePicker from '@kitman/playbook/components/wrappers/CustomDateRangePicker/index.jsx'",
+      "import PageState from '../../floorplans/PageState'",
+      "import colors from '../../playbook-components/common/src/variables/colors'",
       'export default function Search() { return placeholder("MAX_RESULTS") && PageFrame && PageHeader && RecordLayout && DataGridPremium }',
       '',
     ].join('\n'))
@@ -138,6 +143,12 @@ describe('build-prototype manifest', () => {
   it('lists the floorplans and Playbook components the prototype imports', () => {
     expect(manifest.components.floorplans).toEqual(expect.arrayContaining(['PageFrame', 'PageHeader', 'RecordLayout']))
     expect(manifest.components.playbook).toContain('DataGridPremium')
+  })
+
+  it('counts components imported by their own paths, not only through the barrels', () => {
+    expect(manifest.components.playbook).toEqual(expect.arrayContaining(['AvailabilityLabel', 'CustomDateRangePicker']))
+    expect(manifest.components.floorplans).toContain('PageState')
+    expect(manifest.components.playbook).not.toContain('common')
   })
 
   it('leaves out components named only in comments or in files nothing imports', () => {
