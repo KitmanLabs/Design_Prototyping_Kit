@@ -124,7 +124,7 @@ function Screen01_FormsHome() {
       ageGroup: (a.squad_name && /U\d+/.test(a.squad_name))
         ? (a.squad_name.match(/U\d+/)?.[0] || 'U21')
         : 'U21',
-      status: a.availability_status === 'Injured' ? 'injured' : (a.availability_status === 'Available' ? 'available' : 'available'),
+      status: a.availability,
       avatar: undefined
     }))
   ), [])

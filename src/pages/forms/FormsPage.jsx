@@ -229,7 +229,7 @@ export default function FormsPage() {
         name: `${a.firstname} ${a.lastname}`.trim(),
         position: a.position || a.position_group || '—',
         ageGroup: (a.squad_name && /U\d+/.test(a.squad_name)) ? (a.squad_name.match(/U\d+/)?.[0] || 'U21') : 'U21',
-        status: a.availability_status === 'Injured' ? 'injured' : 'available',
+        status: a.availability,
         avatar: undefined,
         team: a.squad_name || 'Unassigned'
       })),
