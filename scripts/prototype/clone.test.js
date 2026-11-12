@@ -42,6 +42,7 @@ describe('clone', () => {
       'PROTOTYPE.md',
       'brief.md',
       '.gitignore',
+      '.stylelintignore',
       'src/main.jsx',
       'src/App.jsx',
       'src/prototype/routes.js',

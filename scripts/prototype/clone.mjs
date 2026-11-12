@@ -33,7 +33,7 @@ const WHOLE_DIRS = ['src/playbook-components', 'src/floorplans', 'src/styles', '
 const ROOTS = ['src/components/index.js', 'src/data.js', 'src/i18n.js', 'src/babelHelpersPolyfill.js']
 // Copied as they are.
 const EXTRA_DIRS = ['eslint-plugin-design-system', 'stylelint-plugin-design-system', 'public']
-const EXTRA_FILES = ['vite.aliases.mjs', 'package-lock.json']
+const EXTRA_FILES = ['vite.aliases.mjs', 'package-lock.json', '.stylelintignore']
 
 // Never copied, wherever they are, and an error if an import reaches them.
 const EXCLUDED = [
