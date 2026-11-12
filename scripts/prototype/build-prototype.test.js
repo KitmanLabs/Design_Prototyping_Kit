@@ -52,10 +52,9 @@ describe('build-prototype manifest', () => {
       'export default function Search() { return placeholder("MAX_RESULTS") && PageFrame && PageHeader && RecordLayout && DataGridPremium }',
       '',
     ].join('\n'))
-    fs.writeFileSync(path.join(v1, 'src/prototype/pages/index.js'), "import Start from './Start'\nimport Search from './Search'\n\nexport default { Start, Search }\n")
+    fs.writeFileSync(path.join(v1, 'src/prototype/pages/index.js'), "import Search from './Search'\n\nexport default { Search }\n")
     fs.writeFileSync(path.join(v1, 'src/prototype/routes.js'), [
       'export const routes = [',
-      "  { path: '/', page: 'Start', title: 'Start', floorplan: null, baseline: null, scenarios: [] },",
       "  { path: '/notes/search', page: 'Search', title: 'Session notes: search', floorplan: 'Collection', baseline: 'session-notes', scenarios: ['search_session_notes'] },",
       "  { path: '/notes/search/no-results', page: 'Search', title: 'Session notes: no results', floorplan: 'Collection', baseline: null, scenarios: ['search_finds_nothing'] },",
       ']',
@@ -108,10 +107,10 @@ describe('build-prototype manifest', () => {
       expect(Array.isArray(route.scenarios)).toBe(true)
     }
     expect(manifest.routes.map((r) => r.route)).toEqual([
-      '#/v1/', '#/v1/notes/search', '#/v1/notes/search/no-results',
-      '#/v2/', '#/v2/notes/search', '#/v2/notes/search/no-results',
+      '#/v1/notes/search', '#/v1/notes/search/no-results',
+      '#/v2/notes/search', '#/v2/notes/search/no-results',
     ])
-    expect(manifest.routes[1].scenarios).toEqual(['search_session_notes'])
+    expect(manifest.routes[0].scenarios).toEqual(['search_session_notes'])
     expect(Array.isArray(manifest.components.notInIp)).toBe(true)
   })
 
@@ -174,14 +173,19 @@ describe('build-prototype checks before recording a version', () => {
     fs.rmSync(root, { recursive: true, force: true })
   })
 
-  it("stops a fresh clone until its brief is filled in", async () => {
-    expect(await checkVersion(v1)).toEqual([expect.stringMatching(/^brief\.md still holds the template's placeholders: <sha>, <role>, <date>, /)])
+  it('stops a fresh clone until it has a route and its brief is filled in', async () => {
+    expect(await checkVersion(v1)).toEqual([
+      'routes.js lists no routes yet. Add a route for each page (PROTOTYPE.md, "Routes").',
+      expect.stringMatching(/^brief\.md still holds the template's placeholders: <sha>, <role>, <date>, /),
+    ])
     await expect(buildPrototype(v1, { build: false, log: quiet })).rejects.toThrow(/can't be recorded yet/)
     expect(fs.existsSync(path.join(v1, '../manifest.json'))).toBe(false)
   })
 
   it('lists every route, note and placeholder the manifest would record wrongly', async () => {
     writeBrief(v1, 'a summary from the product manager on 12 November 2026')
+    write('src/prototype/pages/Start.jsx', 'export default function Start() { return null }\n')
+    write('src/prototype/pages/index.js', "import Start from './Start'\n\nexport default { Start }\n")
     write('src/prototype/routes.js', [
       'export const routes = [',
       "  { path: '/', page: 'Start', title: 'Start', scenarios: [] },",
