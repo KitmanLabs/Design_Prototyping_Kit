@@ -64,7 +64,7 @@ export function stripComments(code) {
 }
 
 // The files in src/prototype that the app reaches, following relative imports from the entry
-// points, so a page nothing imports any more (such as the template's Start.jsx) isn't counted.
+// points, so a page nothing imports any more isn't counted.
 function reachableFiles(prototypeSrc) {
   const seen = new Set()
   const queue = ENTRY_POINTS.map((f) => path.join(prototypeSrc, f)).filter((f) => fs.existsSync(f))
@@ -144,7 +144,7 @@ export async function checkVersion(versionDir) {
   const pages = pageExports(prototypeSrc)
 
   const paths = new Set()
-  if (!routes.length) problems.push('routes.js lists no routes.')
+  if (!routes.length) problems.push('routes.js lists no routes yet. Add a route for each page (PROTOTYPE.md, "Routes").')
   for (const route of routes) {
     const where = typeof route.path === 'string' ? route.path : JSON.stringify(route.path)
     if (typeof route.path !== 'string' || !route.path.startsWith('/')) {
