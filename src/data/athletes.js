@@ -26,6 +26,17 @@ function availabilityOf(athleteId) {
   return 'available'
 }
 
+// How long the athlete has been in that status, worded as iP sends it in unavailable_since:
+// "1 day", "12 days", and "0 days" for an available athlete. AvailabilityLabel shows it under
+// any status but Available.
+const dayCount = (days) => `${days} ${days === 1 ? 'day' : 'days'}`
+function statusSince(athleteId) {
+  const open = injuryFor.get(athleteId) ?? playingThroughFor.get(athleteId)
+  if (open) return dayCount(TODAY.diff(moment(open.occurrence_date), 'days'))
+  if (availabilityOf(athleteId) === 'returning') return dayCount(TODAY.diff(moment(returnedOn.get(athleteId)), 'days'))
+  return dayCount(0)
+}
+
 const athletes = roster.map((athlete) => {
   const injury = injuryFor.get(athlete.id)
   const playing = playingThroughFor.get(athlete.id)
@@ -51,7 +62,7 @@ const athletes = roster.map((athlete) => {
     is_active: athlete.is_active,
     is_removed: athlete.is_removed,
     availability: availabilityOf(athlete.id),
-    unavailable_since: injury ? injury.occurrence_date : null,
+    unavailable_since: statusSince(athlete.id),
     // The kit's older two-value status, kept for its pages: 'Injured' means out, which is iP's
     // unavailable, not iP's injured. New work reads availability.
     availability_status: injury ? 'Injured' : 'Available',

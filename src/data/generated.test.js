@@ -59,7 +59,12 @@ describe('generated mock data', () => {
       const backRecently = injuries.some((i) => i.athlete_id === athlete.id && i.status === 'Returned' && TODAY.diff(moment(i.rtp_date), 'days') <= RETURNING_DAYS)
       const expected = out.has(athlete.id) ? 'unavailable' : playing.has(athlete.id) ? 'injured' : backRecently ? 'returning' : 'available'
       expect(athlete.availability, name(athlete)).toBe(expected)
-      expect(athlete.unavailable_since).toBe(out.get(athlete.id)?.occurrence_date ?? null)
+      // As iP sends it: days in the current status, "0 days" when available.
+      const since = { unavailable: out.get(athlete.id)?.occurrence_date, injured: playingThrough.find((i) => i.athlete_id === athlete.id)?.occurrence_date }[expected]
+      const days = since ? TODAY.diff(moment(since), 'days') : expected === 'returning'
+        ? Math.min(...injuries.filter((i) => i.athlete_id === athlete.id && i.status === 'Returned').map((i) => TODAY.diff(moment(i.rtp_date), 'days')))
+        : 0
+      expect(athlete.unavailable_since, name(athlete)).toBe(`${days} ${days === 1 ? 'day' : 'days'}`)
       expect(athlete.availability_status).toBe(athlete.availability === 'unavailable' ? 'Injured' : 'Available')
     }
     for (const record of playingThrough) {
