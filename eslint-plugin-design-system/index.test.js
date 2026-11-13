@@ -123,13 +123,22 @@ ruleTester.run('text-casing-compliance', rules['text-casing-compliance'], {
     "const s = 'Add athlete'",
     "const codes = ['IR', 'PUP', 'NFI', 'UTC']",
     "import Foo from 'Some Module'",
-    '<Typography>Save as draft</Typography>'
+    '<Typography>Save as draft</Typography>',
+    "moment(value).format('D MMM YYYY')",
+    "const DATE_FORMAT = 'DD MMM YYYY'",
+    "const column = { format: 'D MMM YYYY' }",
+    '<DatePicker format="DD MMM YYYY" />'
   ],
   invalid: [
     {
       code: "const s = 'Add Athlete'",
       output: null,
       errors: [{ message: 'Text "Add Athlete" should use sentence case. Consider: "Add athlete"', suggestions: [{ desc: 'Change to "Add athlete"', output: "const s = 'Add athlete'" }] }]
+    },
+    {
+      code: "showToast('Save As Draft')",
+      output: null,
+      errors: [{ message: 'Text "Save As Draft" should use sentence case. Consider: "Save as draft"', suggestions: [{ desc: 'Change to "Save as draft"', output: "showToast('Save as draft')" }] }]
     },
     {
       code: "const s = 'ADD ATHLETE'",

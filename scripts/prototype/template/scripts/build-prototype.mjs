@@ -9,7 +9,9 @@
 // 3. For an intent's prototype, writes ../manifest.json (schema kitman-prototype/1) and ../README.md
 //    from every version folder beside this one. Accelerate reads the manifest; nobody edits it.
 //
-// It refuses to finish if the licence key, or any file over 2 MB in src/, would reach the record.
+// It refuses to start if this version's routes, notes, placeholders or brief would be recorded
+// wrongly, and refuses to finish if the licence key, or any file over 2 MB in src/, would reach
+// the record.
 
 import fs from 'node:fs'
 import path from 'node:path'
@@ -31,8 +33,22 @@ const NOT_IN_IP = {
   '@mui/x-chat': 'MUI X Chat (alpha): not used in iP',
 }
 
+const NOTE_TYPES = ['assumption', 'question', 'deferral']
+// What the template's brief.md holds until someone fills it in.
+const BRIEF_PLACEHOLDERS = /<(?:sha|role|date|What someone|The solution this version|For a new version only)\b[^>\n]*>/g
+// Where the prototype's own code starts: App.jsx reads routes.js and pages/index.js.
+const ENTRY_POINTS = ['pages/index.js', 'routes.js', 'notes.js', 'placeholders.js']
+const RESOLVE = ['', '.js', '.jsx', '.mjs', '/index.js', '/index.jsx']
+
 const FLOORPLANS = /(^|\/)floorplans$/
 const PLAYBOOK = /(^|\/)playbook-components$|^@kitman\/playbook\/components$/
+// A component imported by its own path rather than through the barrel, such as
+// '../../playbook-components/AvailabilityLabel', '@kitman/playbook/components/wrappers/DataGridPremium'
+// or '../../floorplans/PageState'.
+const PLAYBOOK_PATH = /(?:^|\/)playbook-components\/(.+)$|^@kitman\/playbook\/components\/(.+)$/
+const FLOORPLAN_PATH = /(?:^|\/)floorplans\/([^/]+)$/
+// Folders in src/playbook-components that hold shared code, not a component.
+const NOT_COMPONENTS = new Set(['common', 'modules', 'kitman-components-stub', 'utils', 'mixins', 'icons', 'hooks', 'providers', 'themes'])
 
 const read = (file) => fs.readFileSync(file, 'utf8')
 const readJson = (file) => JSON.parse(read(file))
@@ -41,8 +57,36 @@ const readJson = (file) => JSON.parse(read(file))
 async function loadData(file, name, fallback) {
   if (!fs.existsSync(file)) return fallback
   const source = read(file)
-  const mod = await import(`data:text/javascript;charset=utf-8,${encodeURIComponent(source)}`)
-  return mod[name] ?? fallback
+  try {
+    const mod = await import(`data:text/javascript;charset=utf-8,${encodeURIComponent(source)}`)
+    return mod[name] ?? fallback
+  } catch (error) {
+    throw new Error(`${path.basename(file)} couldn't be read as plain data. Keep it free of imports and JSX. (${error.message})`)
+  }
+}
+
+// The code without its comments, so commented-out imports and examples don't count. Strings stay.
+export function stripComments(code) {
+  return code.replace(/("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`)|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, (match, string) => string ?? '')
+}
+
+// The files in src/prototype that the app reaches, following relative imports from the entry
+// points, so a page nothing imports any more isn't counted.
+function reachableFiles(prototypeSrc) {
+  const seen = new Set()
+  const queue = ENTRY_POINTS.map((f) => path.join(prototypeSrc, f)).filter((f) => fs.existsSync(f))
+  while (queue.length) {
+    const file = queue.shift()
+    if (seen.has(file)) continue
+    seen.add(file)
+    for (const match of stripComments(read(file)).matchAll(/(?:\bfrom|\bimport)\s*\(?\s*['"](\.{1,2}\/[^'"]+)['"]/g)) {
+      const base = path.resolve(path.dirname(file), match[1])
+      if (!base.startsWith(prototypeSrc + path.sep)) continue
+      const found = RESOLVE.map((ext) => base + ext).find((f) => fs.existsSync(f) && fs.statSync(f).isFile())
+      if (found && /\.(m?js|jsx)$/.test(found)) queue.push(found)
+    }
+  }
+  return [...seen]
 }
 
 function walk(dir, skip = new Set(['node_modules', 'dist', '.git'])) {
@@ -54,18 +98,35 @@ function walk(dir, skip = new Set(['node_modules', 'dist', '.git'])) {
   })
 }
 
-// Named imports from the floorplans and Playbook barrels, and packages iP doesn't ship.
+// The Playbook component a path inside src/playbook-components names, or null for shared code:
+// 'AvailabilityLabel', 'AvailabilityLabel/index.jsx' and 'wrappers/DataGridPremium' name components.
+function playbookComponentAt(versionDir, rest) {
+  const parts = rest.replace(/\.(m?jsx?)$/, '').split('/').filter((p) => p && p !== 'index')
+  const name = parts[0] === 'wrappers' ? parts[1] : parts[0]
+  if (!name || NOT_COMPONENTS.has(name)) return null
+  const dir = path.join(versionDir, 'src/playbook-components', parts[0] === 'wrappers' ? 'wrappers' : '', name)
+  return fs.existsSync(dir) && fs.statSync(dir).isDirectory() ? name : null
+}
+
+// Floorplans and Playbook components the prototype imports, by name, whether through the barrels
+// or by their own paths, and packages iP doesn't ship.
 export function componentsUsed(versionDir) {
   const floorplans = new Set()
   const playbook = new Set()
   const notInIp = new Map()
-  const files = walk(path.join(versionDir, 'src/prototype')).filter((f) => /\.(m?js|jsx)$/.test(f))
-  for (const file of files) {
-    const code = read(file)
-    for (const match of code.matchAll(/import\s*(?:[\w$]+\s*,\s*)?\{([^}]*)\}\s*from\s*['"]([^'"]+)['"]/g)) {
-      const names = match[1].split(',').map((n) => n.trim().split(/\s+as\s+/)[0]).filter(Boolean)
-      if (FLOORPLANS.test(match[2])) names.forEach((n) => floorplans.add(n))
-      if (PLAYBOOK.test(match[2])) names.forEach((n) => playbook.add(n))
+  for (const file of reachableFiles(path.join(versionDir, 'src/prototype'))) {
+    const code = stripComments(read(file))
+    for (const match of code.matchAll(/import\s+([^'";]+?)\s+from\s*['"]([^'"]+)['"]/g)) {
+      const source = match[2].replace(/\/index(\.m?jsx?)?$/, '')
+      const named = /\{([^}]*)\}/.exec(match[1])?.[1].split(',').map((n) => n.trim().split(/\s+as\s+/)[0]).filter(Boolean) ?? []
+      if (FLOORPLANS.test(source)) named.forEach((n) => floorplans.add(n))
+      else if (PLAYBOOK.test(source)) named.forEach((n) => playbook.add(n))
+      else if (FLOORPLAN_PATH.test(source)) floorplans.add(FLOORPLAN_PATH.exec(source)[1].replace(/\.(m?jsx?)$/, ''))
+      else if (PLAYBOOK_PATH.test(source)) {
+        const [, local, alias] = PLAYBOOK_PATH.exec(source)
+        const name = playbookComponentAt(versionDir, local ?? alias)
+        if (name) playbook.add(name)
+      }
     }
     for (const match of code.matchAll(/from\s*['"](@[^/'"]+\/[^/'"]+|[^./'"][^/'"]*)/g)) {
       if (NOT_IN_IP[match[1]]) notInIp.set(match[1], { name: match[1], why: NOT_IN_IP[match[1]] })
@@ -74,13 +135,93 @@ export function componentsUsed(versionDir) {
   return { floorplans: [...floorplans].sort(), playbook: [...playbook].sort(), notInIp: [...notInIp.values()] }
 }
 
-// What the version was built from, read from brief.md's "Built from" line.
+// What the version was built from, read from brief.md's "Built from" line. Only a line naming the
+// specification's commit counts as built from it: "IN0012 has no specification" is a summary.
 function builtFrom(versionDir, version) {
   const briefFile = path.join(versionDir, 'brief.md')
   const line = fs.existsSync(briefFile) ? (read(briefFile).match(/^\*\*Built from:\*\* (.*)$/m) || [])[1] : null
-  const kind = line && /specification/i.test(line) && !/<sha>/.test(line) ? 'specification' : 'brief'
+  const kind = line && /\bcommit\s+[0-9a-f]{7,40}\b/i.test(line) ? 'specification' : 'brief'
   // A line still holding the template's <placeholders> hasn't been filled in, so it isn't a reference.
   return { kind, ref: line && !/[<>]/.test(line) ? line : null, brief: `${version}/brief.md` }
+}
+
+// The page names pages/index.js exports as its default object, or null when it isn't written that way.
+function pageExports(prototypeSrc) {
+  const file = path.join(prototypeSrc, 'pages/index.js')
+  if (!fs.existsSync(file)) return null
+  const match = stripComments(read(file)).match(/export\s+default\s*\{([^}]*)\}/)
+  if (!match) return null
+  return new Set(match[1].split(',').map((entry) => entry.split(':')[0].trim()).filter(Boolean))
+}
+
+const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+// Everything in this version that the manifest would record wrongly, or that Accelerate couldn't
+// read, as one list of problems. Only this version: versions already recorded never change.
+export async function checkVersion(versionDir) {
+  const problems = []
+  const prototypeSrc = path.join(versionDir, 'src/prototype')
+  const routesFile = path.join(prototypeSrc, 'routes.js')
+  const routesSource = fs.existsSync(routesFile) ? stripComments(read(routesFile)) : ''
+  const routes = await loadData(routesFile, 'routes', [])
+  const notes = await loadData(path.join(prototypeSrc, 'notes.js'), 'notes', [])
+  const placeholders = await loadData(path.join(prototypeSrc, 'placeholders.js'), 'placeholders', [])
+  const pages = pageExports(prototypeSrc)
+
+  const paths = new Set()
+  if (!routes.length) problems.push('routes.js lists no routes yet. Add a route for each page (PROTOTYPE.md, "Routes").')
+  for (const route of routes) {
+    const where = typeof route.path === 'string' ? route.path : JSON.stringify(route.path)
+    if (typeof route.path !== 'string' || !route.path.startsWith('/')) {
+      problems.push(`routes.js: the path ${where} should be a string starting with /.`)
+      continue
+    }
+    if (/[:*?#]/.test(route.path)) problems.push(`routes.js: ${where} should be a literal path, with no parameter, wildcard, query string or #.`)
+    if (paths.has(route.path)) problems.push(`routes.js: ${where} is listed twice.`)
+    paths.add(route.path)
+    if (!new RegExp(`\\bpath\\s*:\\s*'${escapeRegExp(route.path)}'`).test(routesSource)) {
+      problems.push(`routes.js: write ${where} as path: '${route.path}', in single quotes, because Accelerate reads the file as text.`)
+    }
+    if (!route.title) problems.push(`routes.js: ${where} has no title.`)
+    if (route.scenarios !== undefined && !Array.isArray(route.scenarios)) problems.push(`routes.js: ${where} has scenarios that aren't a list.`)
+    if (pages && !pages.has(route.page)) problems.push(`routes.js: ${where} shows the page ${route.page}, which pages/index.js doesn't export.`)
+  }
+
+  const ids = new Set()
+  for (const note of notes) {
+    const id = note.id || '(a note with no id)'
+    if (!note.id) problems.push('notes.js: a note has no id.')
+    else if (ids.has(note.id)) problems.push(`notes.js: the id ${note.id} is used twice.`)
+    ids.add(note.id)
+    if (!NOTE_TYPES.includes(note.type)) problems.push(`notes.js: ${id} has the type ${JSON.stringify(note.type)}; use assumption, question or deferral.`)
+    if (note.route && !paths.has(note.route)) problems.push(`notes.js: ${id} is about ${note.route}, which routes.js doesn't list.`)
+    if (!note.text || !String(note.text).trim()) problems.push(`notes.js: ${id} has no text.`)
+  }
+
+  const names = new Set()
+  for (const placeholder of placeholders) {
+    const name = placeholder.name || '(a placeholder with no name)'
+    if (!placeholder.name) problems.push('placeholders.js: a placeholder has no name.')
+    else if (names.has(placeholder.name)) problems.push(`placeholders.js: ${placeholder.name} is listed twice.`)
+    names.add(placeholder.name)
+    if (placeholder.value === undefined) problems.push(`placeholders.js: ${name} has no value.`)
+    for (const r of placeholder.routes || []) {
+      if (!paths.has(r)) problems.push(`placeholders.js: ${name} names ${r}, which routes.js doesn't list.`)
+    }
+  }
+
+  const briefFile = path.join(versionDir, 'brief.md')
+  if (!fs.existsSync(briefFile)) {
+    problems.push('brief.md is missing.')
+  } else {
+    const brief = read(briefFile)
+    if (!/^\*\*Built from:\*\* \S/m.test(brief)) {
+      problems.push('brief.md needs its "**Built from:**" line: "the specification at commit <sha>", or the summary it was built from.')
+    }
+    const left = [...new Set(brief.match(BRIEF_PLACEHOLDERS) || [])]
+    if (left.length) problems.push(`brief.md still holds the template's placeholders: ${left.join(', ')}. Fill them in or delete those lines.`)
+  }
+  return problems
 }
 
 const routeString = (version, routePath) => `#/${version}${routePath === '/' ? '/' : routePath}`
@@ -220,6 +361,11 @@ function licenceKeys(versionDir) {
 export async function buildPrototype(versionDir, { today = new Date().toISOString().slice(0, 10), log = console.log, build = true } = {}) {
   const metaFile = path.join(versionDir, 'prototype.json')
   if (!fs.existsSync(metaFile)) throw new Error(`${versionDir} has no prototype.json. Run this inside a prototype version.`)
+
+  const problems = await checkVersion(versionDir)
+  if (problems.length) {
+    throw new Error(`This version can't be recorded yet:\n  - ${problems.join('\n  - ')}`)
+  }
 
   const tooBig = walk(path.join(versionDir, 'src')).filter((f) => fs.statSync(f).size > MAX_SOURCE_BYTES)
   if (tooBig.length) {

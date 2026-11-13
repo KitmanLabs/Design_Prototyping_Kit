@@ -43,6 +43,7 @@ src/
 - Start from a floorplan: compose `PageFrame` from `src/floorplans` (see [Floorplans](design-system.md#floorplans)).
 - Add the page under `src/pages/` and its route in `src/App.jsx`. `App` already wraps every route in `LayoutWithMainNav`, so a page renders only its own content.
 - Add a sidebar item in `navigationItems` in `src/components/MainNavigation.jsx`. The app bar shows no page title; the page shows its own in its `PageHeader` (see [Page titles](design-system.md#page-titles)).
+- The app bar's squad selector scopes lists to one squad, as in iP. A page reads the chosen squad with `useCurrentSquad()` from `src/components` (`{ id, name, short }`) and keeps the athletes whose `squad_id` matches its `id`.
 - The `/new-page` skill walks Claude through these steps.
 
 ## Data

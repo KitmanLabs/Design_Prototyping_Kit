@@ -18,4 +18,16 @@ export default defineConfig({
   server: {
     port: 3001,
   },
+  build: {
+    // Keep the build's output to what someone can act on. A prototype is served from a folder,
+    // never fetched over a slow link, so a large bundle is expected.
+    chunkSizeWarningLimit: 4096,
+    rollupOptions: {
+      onwarn(warning, warn) {
+        // The Data Grid's Excel export ships a minified library that calls eval: nothing to fix here.
+        if (warning.code === 'EVAL' && /exceljs/.test(warning.id || '')) return
+        warn(warning)
+      },
+    },
+  },
 })

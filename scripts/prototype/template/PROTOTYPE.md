@@ -35,6 +35,8 @@ npm run build-prototype   the build for the record: dist/ with today pinned and 
                      ../manifest.json and ../README.md for an intent's prototype
 ```
 
+`build-prototype` checks this version first and lists everything it would record wrongly: a route that isn't a literal path in single quotes, or whose page `pages/index.js` doesn't export, a note or placeholder naming a route that isn't in `routes.js`, an unknown note type, and template placeholders left in `brief.md`. Fix each one and run it again.
+
 The MUI X licence key comes from the environment when running locally (`VITE_MUI_X_LICENSE_KEY`). Never write it, or any other key, into a file in this folder.
 
 ## Pages
@@ -49,7 +51,9 @@ The MUI X licence key comes from the environment when running locally (`VITE_MUI
 
 ## Routes
 
-- Add every route to `src/prototype/routes.js`, never to `src/App.jsx`.
+- Add every route to `src/prototype/routes.js`, never to `src/App.jsx`. A fresh clone has no routes and no pages: write each page as a new file in `src/prototype/pages/`, list it in `pages/index.js`, and add its route. There's no placeholder page to replace or delete.
+- A page that stands in for an item in the main navigation takes that item's path, or a path under it: `/athletes` or `/athletes/no-results` for Athletes. The paths are in `src/components/MainNavigation.jsx`. The navigation then reaches the page and highlights it.
+- The version opens on the first route in `routes.js`, unless one has the path `/`.
 - Paths are literal, with no parameters, and written as single-quoted strings (`path: '/...'`): Accelerate's checks read `routes.js` as text. Each state a scenario needs is a path of its own, for example `/session/planning/save-fails`, never a query string.
 - Routes sit under the version in `prototype.json`, so in v2 `/session/planning` is served at `#/v2/session/planning`. Link with paths that start from `/`, and the router adds the version.
 - Once a specification exists, list the `scenario_id`s each route shows in its `scenarios`.
@@ -63,11 +67,13 @@ The MUI X licence key comes from the environment when running locally (`VITE_MUI
 
 - Every name, squad, date and figure is invented or generated. Never paste anything from a customer, an export, a real person or a production system, even to "make it realistic".
 - Shared data comes from `src/data`, where the club's people and records are generated. Data only this prototype needs goes in `src/prototype/data`, generated the same way: `fakerFor('<dataset>')` from `src/data/fake.js` for values, `namesFor()` for names, and `src/data/clock.js` for dates, never `moment()` or a fixed date. A build for the record pins "today", so every date must come from `clock.js`.
+- For an athlete's availability, read `availability`, not the older `availability_status`. `availability` holds iP's four statuses, the values the Playbook's `AvailabilityLabel` takes, and `availabilityOf()` in `src/data/athletes.js` sets it so it agrees with the rest of the generated data. `AvailabilityLabel` also reads `unavailable_since`, the days the athlete has been in that status, worded as iP sends it ("12 days"). `availability_status` has only two values, and its second means out, which is iP's `unavailable`.
+- Lists scoped to a squad, as iP's are, follow the squad chosen in the top bar: read it with `useCurrentSquad()` from `src/components` (`{ id, name, short }`) and keep the athletes whose `squad_id` matches its `id`. Don't change the shell to get it.
 - No credentials or keys anywhere in this folder. `.env` files stay out of Git.
 
 ## The brief
 
-`brief.md` says what this version was built from. Name people by role, never by name, and give the date of the session each line was heard in. For a new version, keep the previous brief and add the change asked for.
+`brief.md` says what this version was built from. Its "Built from" line counts as the specification only when it names the commit ("the specification at commit 3f2c1a9"); any other wording is read as a summary. Name people by role, never by name, and give the date of the session each line was heard in. For a new version, keep the previous brief and add the change asked for.
 
 ## Boundaries
 

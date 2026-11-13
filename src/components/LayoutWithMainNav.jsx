@@ -15,6 +15,7 @@ import {
   NotificationsOutlined
 } from '@mui/icons-material'
 import MainNavigation from './MainNavigation'
+import { CurrentSquadContext } from './currentSquad'
 import { currentUser, availableSquads } from '../data/layout'
 import '../styles/design-tokens.css'
 
@@ -162,7 +163,9 @@ function MedinahLayoutWithMainNav({ children }) {
             bgcolor: 'var(--color-background-primary)'
           }}
         >
-          {children}
+          <CurrentSquadContext.Provider value={currentSquad}>
+            {children}
+          </CurrentSquadContext.Provider>
         </Box>
       </Box>
     </Box>

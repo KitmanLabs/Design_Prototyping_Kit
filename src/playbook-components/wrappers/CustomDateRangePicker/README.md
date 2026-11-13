@@ -328,7 +328,7 @@ export const formatDateInput = (input) => {
 
     if (startDate.isValid() && endDate.isValid()) {
       return {
-        formatted: `${startDate.format('DD/MM/YYYY')} — ${endDate.format('DD/MM/YYYY')}`,
+        formatted: `${startDate.format('DD/MM/YYYY')} - ${endDate.format('DD/MM/YYYY')}`,
         dateRange: [startDate, endDate]
       };
     }
@@ -337,7 +337,7 @@ export const formatDateInput = (input) => {
 
 // Partial input: format as user types
 // 12345678 -> 12/34/5678
-// 1234567890123456 -> 12/34/5678 — 90/12/3456
+// 1234567890123456 -> 12/34/5678 - 90/12/3456
 };
 ```
 
