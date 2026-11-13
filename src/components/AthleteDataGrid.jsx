@@ -1,337 +1,163 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Typography, IconButton, Menu, MenuItem, Tooltip, Chip } from '@mui/material';
-import {
-  DataGrid,
-  GridToolbarColumnsButton,
-  GridToolbarFilterButton,
-  GridToolbarDensitySelector,
-  GridToolbarExport,
-  GridToolbarQuickFilter,
-} from '@mui/x-data-grid';
-import { 
-  DeleteOutlined, 
-  AssignmentOutlined,
-  PersonOutlined, 
-  EditOutlined,
-  FitnessCenterOutlined,
-  MedicalServicesOutlined
-} from '@mui/icons-material';
-import athletesData from '../data/athletes.json';
+import { Box, Typography, Chip } from '@mui/material';
+import { DeleteOutlined, ArchiveOutlined } from '@mui/icons-material';
+import { DataGridPremium } from '../playbook-components';
+import athletesData from '../data/athletes';
+import { ATHLETES_AI_SUGGESTIONS } from '../data/gridAiSuggestions';
+import { resolveGridPrompt } from '../utils/gridAiAssistant';
 import '../styles/design-tokens.css';
+import { dataGridStyles } from './dataGridStyles';
 
-const BulkActionsToolbar = React.forwardRef(({ numSelected, onBulkAction }, ref) => {
-  if (numSelected === 0) return null;
+const NoAthletesOverlay = () => (
+  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+    <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>
+      There are no athletes
+    </Typography>
+  </Box>
+);
 
-  return (
-    <Box
-      ref={ref}
-      sx={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        height: '56px',
-        px: 2,
-        backgroundColor: 'var(--color-background-secondary)',
-        borderBottom: '1px solid var(--color-border-primary)',
-        zIndex: 1,
-      }}
-    >
-      <Typography variant="body2" sx={{ color: 'var(--color-text-primary)' }}>
-        {numSelected} items selected
-      </Typography>
-      
-      <Box sx={{ display: 'flex', gap: 2 }}>
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 1, 
-            cursor: 'pointer',
-            '&:hover': {
-              color: 'var(--color-primary)'
-            }
-          }}
-          onClick={() => onBulkAction('delete')}
-        >
-          <DeleteOutlined fontSize="small" />
-          <Typography variant="body2">Delete</Typography>
-        </Box>
-        
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 1, 
-            cursor: 'pointer',
-            '&:hover': {
-              color: 'var(--color-primary)'
-            }
-          }}
-          onClick={() => onBulkAction('archive')}
-        >
-          <AssignmentOutlined fontSize="small" />
-          <Typography variant="body2">Archive</Typography>
-        </Box>
-      </Box>
-    </Box>
-  );
-});
-
-BulkActionsToolbar.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-  onBulkAction: PropTypes.func.isRequired,
-};
-
-BulkActionsToolbar.displayName = 'BulkActionsToolbar';
-
-const CustomToolbar = React.forwardRef((props, ref) => {
-  return (
-    <Box
-      ref={ref}
-      sx={{
-        height: '56px',
-        px: 2,
-        borderBottom: '1px solid var(--color-border-primary)',
-        backgroundColor: 'var(--color-background-secondary)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}
-    >
-      <Box sx={{ 
-        display: 'flex', 
-        gap: 2,
-        '& .MuiButtonBase-root': {
-          textTransform: 'none',
-          fontSize: '0.875rem',
-          fontWeight: 500,
-          color: 'var(--color-text-primary)',
-          minWidth: 'auto',
-          padding: '4px',
-          '&:hover': {
-            backgroundColor: 'var(--color-background-tertiary)'
-          }
+const columns = [
+  {
+    field: 'id',
+    headerName: 'Id',
+    width: 70,
+    type: 'number',
+  },
+  {
+    field: 'name',
+    headerName: 'Name',
+    width: 180,
+    valueGetter: (_value, row) => {
+      if (!row || !row.firstname || !row.lastname) return '';
+      return `${row.firstname} ${row.lastname}`;
+    },
+  },
+  {
+    field: 'position',
+    headerName: 'Position',
+    width: 120,
+  },
+  {
+    field: 'position_group',
+    headerName: 'Position group',
+    width: 130,
+  },
+  {
+    field: 'squad_name',
+    headerName: 'Squad',
+    width: 130,
+  },
+  {
+    field: 'availability_status',
+    headerName: 'Status',
+    width: 120,
+    renderCell: (params) => (
+      <Chip
+        label={params.value}
+        color={
+          params.value === 'Available' ? 'success' :
+          params.value === 'Injured' ? 'error' :
+          'default'
         }
-      }}>
-        <GridToolbarColumnsButton />
-        <GridToolbarFilterButton />
-        <GridToolbarDensitySelector />
-        <GridToolbarExport />
-      </Box>
-      <GridToolbarQuickFilter 
-        sx={{
-          '& .MuiInputBase-root': {
-            backgroundColor: 'var(--color-background-primary)',
-            borderRadius: '4px',
-            height: '36px',
-            width: '240px',
-          }
-        }}
-        debounceMs={150}
+        variant={params.value === 'Available' ? 'filled' : 'outlined'}
       />
-    </Box>
-  );
-});
+    ),
+  },
+  {
+    field: 'performance_score',
+    headerName: 'Performance',
+    type: 'number',
+    width: 110,
+    valueFormatter: (value) => `${value}%`,
+  },
+  {
+    field: 'fitness_level',
+    headerName: 'Fitness',
+    width: 120,
+  },
+  {
+    field: 'injury_status',
+    headerName: 'Injury status',
+    width: 150,
+  },
+  {
+    field: 'training_load',
+    headerName: 'Training load',
+    type: 'number',
+    width: 130,
+    valueFormatter: (value) => value ? value.toFixed(1) : '-',
+  },
+  {
+    field: 'wellbeing_score',
+    headerName: 'Wellbeing',
+    type: 'number',
+    width: 110,
+    valueFormatter: (value) => value ? value.toFixed(1) : '-',
+  },
+  {
+    field: 'last_assessment',
+    headerName: 'Last assessment',
+    type: 'date',
+    width: 140,
+    valueGetter: (value) => value ? new Date(value) : null,
+  },
+];
 
-CustomToolbar.displayName = 'CustomToolbar';
-
-const AthleteDataGrid = ({ 
-  data = athletesData, 
+// Athletes in a Playbook DataGridPremium: the standard toolbar (columns, filters, density,
+// export, search) and the AI Assistant. Search stays in the grid toolbar, next to the AI
+// Assistant.
+//
+// Selection: on a floorplan page, pass onSelectionChange (and rowSelectionIds to control it)
+// and let PageFrame's selection bar hold the bulk actions, as on every Collection. Without
+// it, onBulkAction gives the grid its own bulk actions bar instead.
+const AthleteDataGrid = ({
+  data = athletesData,
   height = 600,
-  showToolbar = true,
-  groupingEnabled = true,
   onBulkAction,
-  ...props 
+  onSelectionChange,
+  rowSelectionIds,
+  ...props
 }) => {
   // Ensure data is always an array and filter out any null/undefined entries
   const safeData = useMemo(() => {
     if (!Array.isArray(data)) return [];
     return data.filter(row => row && typeof row === 'object' && row.id);
   }, [data]);
-  const columns = useMemo(() => [
-    {
-      field: 'id',
-      headerName: "Id",
-      width: 70,
-      type: 'number',
-    },
-    {
-      field: 'name',
-      headerName: 'Name',
-      width: 180,
-      valueGetter: (_value, row) => {
-        if (!row || !row.firstname || !row.lastname) return '';
-        return `${row.firstname} ${row.lastname}`;
-      },
-      filterable: true,
-      groupable: false,
-    },
-    {
-      field: 'position',
-      headerName: 'Position',
-      width: 120,
-      filterable: true,
-      groupable: true,
-    },
-    {
-      field: 'position_group',
-      headerName: "Position group",
-      width: 130,
-      filterable: true,
-      groupable: true,
-    },
-    {
-      field: 'squad_name',
-      headerName: 'Squad',
-      width: 130,
-      filterable: true,
-      groupable: true,
-    },
-    {
-      field: 'availability_status',
-      headerName: 'Status',
-      width: 120,
-      filterable: true,
-      groupable: true,
-      renderCell: (params) => (
-        <Chip
-          label={params.value}
-          size="small"
-          color={
-            params.value === 'Available' ? 'success' :
-            params.value === 'Injured' ? 'error' :
-            'default'
-          }
-          variant={params.value === 'Available' ? 'filled' : 'outlined'}
-        />
-      ),
-    },
-    {
-      field: 'performance_score',
-      headerName: 'Performance',
-      type: 'number',
-      width: 110,
-      filterable: true,
-      valueFormatter: (params) => `${params.value}%`,
-    },
-    {
-      field: 'fitness_level',
-      headerName: 'Fitness',
-      width: 120,
-      filterable: true,
-      groupable: true,
-    },
-    {
-      field: 'injury_status',
-      headerName: "Injury status",
-      width: 150,
-      filterable: true,
-      groupable: true,
-    },
-    {
-      field: 'training_load',
-      headerName: "Training load",
-      type: 'number',
-      width: 130,
-      filterable: true,
-      valueFormatter: (params) => params.value ? params.value.toFixed(1) : '-',
-    },
-    {
-      field: 'wellbeing_score',
-      headerName: 'Wellbeing',
-      type: 'number',
-      width: 110,
-      filterable: true,
-      valueFormatter: (params) => params.value ? params.value.toFixed(1) : '-',
-    },
-    {
-      field: 'last_assessment',
-      headerName: "Last assessment",
-      type: 'date',
-      width: 140,
-      valueGetter: (value) => value ? new Date(value) : null,
-    }
-  ], []);
-  // Pagination temporarily disabled to avoid footer runtime issue
-  
-  const [selectedRows, setSelectedRows] = useState([]);
 
-  const CustomToolbarComponent = useMemo(() => {
-    const handleBulkAction = (action) => {
-      if (onBulkAction) {
-        onBulkAction(action, selectedRows);
-      } else {
-        const selectedAthletes = data.filter(athlete => selectedRows.includes(athlete.id));
-        console.log(`Bulk action ${action} on athletes:`, selectedAthletes);
-      }
-    };
-
-    return function CustomToolbarWithSelection(props) {
-      return (
-        <Box sx={{ position: 'relative' }}>
-          <CustomToolbar {...props} />
-          <BulkActionsToolbar
-            numSelected={selectedRows.length}
-            onBulkAction={handleBulkAction}
-          />
-        </Box>
-      );
-    };
-  }, [selectedRows, onBulkAction, data]);
-
-  // Basic styling for the grid container
-  const containerStyles = {
-    height,
-    width: '100%',
-    '& .MuiDataGrid-root': {
-      border: 'none',
+  const bulkActions = useMemo(() => onSelectionChange ? undefined : [
+    {
+      key: 'archive',
+      label: 'Archive',
+      icon: <ArchiveOutlined fontSize="small" />,
+      onAction: (selectedIds) => onBulkAction?.('archive', selectedIds),
     },
-    '& .MuiDataGrid-cell': {
-      borderBottom: '1px solid var(--color-border-secondary)',
+    {
+      key: 'delete',
+      label: 'Delete',
+      icon: <DeleteOutlined fontSize="small" />,
+      onAction: (selectedIds) => onBulkAction?.('delete', selectedIds),
     },
-    '& .MuiDataGrid-columnHeaders': {
-      borderBottom: '1px solid var(--color-border-primary)',
-      backgroundColor: 'var(--color-background-secondary)',
-    },
-    '& .MuiDataGrid-footerContainer': {
-      borderTop: '1px solid var(--color-border-primary)',
-      justifyContent: 'flex-start',
-    },
-  };
+  ], [onBulkAction, onSelectionChange]);
 
   return (
-    <Box sx={containerStyles}>
-      <DataGrid
+    <Box sx={{ ...dataGridStyles, height, width: '100%' }}>
+      <DataGridPremium
         rows={safeData}
         columns={columns}
-        checkboxSelection
-        disableRowSelectionOnClick
         density="comfortable"
-        loading={safeData.length === 0}
-        onRowSelectionModelChange={setSelectedRows}
-        hideFooter
-        slots={{ toolbar: CustomToolbarComponent }}
-        slotProps={{
-          basePopper: {
-            sx: {
-              '& .MuiPaper-root': {
-                boxShadow: 'var(--shadow-lg)',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--color-border-primary)'
-              }
-            }
-          },
-        }}
-        initialState={{
-          columns: {
-            columnVisibilityModel: {},
-          },
-        }}
+        checkboxSelection
+        bulkActions={bulkActions}
+        {...(rowSelectionIds && { rowSelectionModel: rowSelectionIds })}
+        {...(onSelectionChange && { onRowSelectionModelChange: (model) => onSelectionChange([...model.ids]) })}
+        slots={{ noRowsOverlay: NoAthletesOverlay }}
+        aiAssistant
+        chartsIntegration
+        onPrompt={resolveGridPrompt}
+        aiAssistantSuggestions={ATHLETES_AI_SUGGESTIONS}
+        // Sends a few sample values per column with each prompt, so Claude can match words like
+        // "injured" to the data. Fine for mock data; in iP this would send real athlete data.
+        allowAiAssistantDataSampling
         {...props}
       />
     </Box>
@@ -341,9 +167,9 @@ const AthleteDataGrid = ({
 AthleteDataGrid.propTypes = {
   data: PropTypes.array,
   height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  showToolbar: PropTypes.bool,
-  groupingEnabled: PropTypes.bool,
   onBulkAction: PropTypes.func,
+  onSelectionChange: PropTypes.func,
+  rowSelectionIds: PropTypes.array,
 };
 
 export default AthleteDataGrid;

@@ -1,17 +1,21 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Box } from '@mui/material';
+import moment from 'moment';
 import FiltersSidebar from '../../components/FiltersSidebar';
 import CalendarHeader from '../../components/CalendarHeader';
-import Calendar from '../../components/Calendar';
+import SchedulerCalendar from '../../components/Calendar/SchedulerCalendar';
+import { VIEW_STEP } from '../../components/Calendar/schedulerModel';
+import { ConfirmationModal } from '../../playbook-components';
+import { CALENDAR_EVENT_TYPES } from '../../data/calendarEventOptions';
 import EventTooltip from '../../components/EventTooltip';
 import EventDetailsDialog from '../../components/EventDetailsDialog';
 import AddEventSidebar from '../../components/AddEventSidebar';
 import AddSessionDrawer from '../../components/AddSessionDrawer';
 import AddGameDrawer from '../../components/AddGameDrawer';
 import calendarEventsData from '../../data/calendar_events.json';
-import athletesData from '../../data/athletes.json';
-import staffData from '../../data/users_staff.json';
-import '../../styles/calendar.css';
+import athletesData from '../../data/athletes';
+import staffData from '../../data/users_staff';
+import { PageHeader } from '../../floorplans';
 
 const CalendarPage = () => {
   const [allEvents, setAllEvents] = useState([]);
@@ -26,7 +30,7 @@ const CalendarPage = () => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [detailsEvent, setDetailsEvent] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date('2025-09-01'));
-  const calendarRef = useRef(null);
+  const [eventToDelete, setEventToDelete] = useState(null);
 
   const [activeFilters, setActiveFilters] = useState({
     squads: 0,
@@ -137,26 +141,19 @@ const CalendarPage = () => {
     return { x, y };
   };
 
-  const handleEventClick = (eventObj) => {
-    eventObj.jsEvent.preventDefault();
-    eventObj.jsEvent.stopPropagation();
-    const event = eventObj.event;
-    const jsEvent = eventObj.jsEvent;
+  // Called by SchedulerCalendar with the original event and an element to position against.
+  const handleEventClick = (event, anchor) => {
     setTooltip({ show: false, event: null, position: { x: 0, y: 0 } });
 
+    // Deferred so the click that opened the tooltip doesn't reach the outside-click listener.
     setTimeout(() => {
-      const eventRect = jsEvent.target.getBoundingClientRect();
       const calendarContainer = document.querySelector('.calendar');
-      if (!calendarContainer) return;
+      if (!anchor || !calendarContainer) return;
+      const eventRect = anchor.getBoundingClientRect();
       const containerRect = calendarContainer.getBoundingClientRect();
       const { x, y } = calculateTooltipPosition(eventRect, containerRect);
-      setTooltip({ show: true, event: event, position: { x, y } });
+      setTooltip({ show: true, event, position: { x, y } });
     }, 0);
-    return false;
-  };
-
-  const handleViewChange = (viewInfo) => {
-    setCurrentView(viewInfo.view.type);
   };
 
   const handleAddEvent = () => setShowAddEventSidebar(true);
@@ -205,25 +202,27 @@ const CalendarPage = () => {
     // Set the event being edited
     setEditingEvent(ev);
     
-    // Open appropriate panel based on event type
-    if (eventType === 'TRAINING_SESSION' || eventType === 'TEST_SESSION') {
+    // Open the panel for the event's type; custom events use the event panel
+    if (eventType === CALENDAR_EVENT_TYPES.TRAINING_SESSION) {
       setShowAddSessionDrawer(true);
-    } else if (eventType === "Game" || eventType === "Match") {
+    } else if (eventType === CALENDAR_EVENT_TYPES.GAME) {
       setShowAddGameDrawer(true);
     } else {
-      // Default to event sidebar for other types
       setShowAddEventSidebar(true);
     }
   };
 
+  // Asks for confirmation in a Playbook ConfirmationModal before deleting
   const handleDeleteEvent = (eventData) => {
-    const ev = eventData?.event ?? eventData;
-    const id = ev?.id;
-    const title = ev?.title ?? 'this event';
-    if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
-      setAllEvents(prev => prev.filter(e => e.id !== id));
-      setEvents(prev => prev.filter(e => e.id !== id));
-    }
+    setTooltip({ show: false, event: null, position: { x: 0, y: 0 } });
+    setEventToDelete(eventData?.event ?? eventData);
+  };
+
+  const handleConfirmDelete = () => {
+    const id = eventToDelete?.id;
+    setAllEvents(prev => prev.filter(e => e.id !== id));
+    setEvents(prev => prev.filter(e => e.id !== id));
+    setEventToDelete(null);
   };
 
   const handleMoreDetails = (eventData) => {
@@ -241,21 +240,15 @@ const CalendarPage = () => {
   const handleToggleFilters = () => setShowFilters(!showFilters);
 
   const handleNavigate = (direction) => {
-    if (calendarRef.current) {
-      const calendarApi = calendarRef.current.getApi();
-      if (direction === 'prev') calendarApi.prev();
-      else if (direction === 'next') calendarApi.next();
-      else if (direction === 'today') calendarApi.today();
-      setCurrentDate(calendarApi.getDate());
+    if (direction === 'today') {
+      setCurrentDate(new Date());
+      return;
     }
+    const step = VIEW_STEP[currentView] || 'month';
+    setCurrentDate((date) => moment(date).add(direction === 'next' ? 1 : -1, step).toDate());
   };
 
-  const handleDateChange = (newDate) => {
-    setCurrentDate(newDate);
-    if (calendarRef.current) {
-      calendarRef.current.getApi().gotoDate(newDate);
-    }
-  };
+  const handleDateChange = (newDate) => setCurrentDate(newDate);
 
   const handleCloseTooltip = () => {
     setTooltip({ show: false, event: null, position: { x: 0, y: 0 } });
@@ -301,6 +294,8 @@ const CalendarPage = () => {
         position: 'relative',
       }}
     >
+      {/* Workspace: the title only; the calendar's own toolbar below holds the tools and Add */}
+      <PageHeader title="Calendar" />
       <CalendarHeader
         currentView={currentView}
         onViewChange={setCurrentView}
@@ -331,19 +326,13 @@ const CalendarPage = () => {
 
         <Box sx={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <Box sx={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex', flexDirection: 'column', width: '100%' }}>
-            <Calendar
-              key={`calendar-${showFilters}`}
-              ref={calendarRef}
-              handleEventClick={handleEventClick}
-              onViewChange={handleViewChange}
-              selectedCalendarView={currentView}
-              orgTimeZone="Utc"
-              userLocale="en"
+            <SchedulerCalendar
               events={events}
-              initialDate={currentDate.toISOString().split('T')[0]}
-              onEditEvent={handleEditEvent}
-              onDeleteEvent={handleDeleteEvent}
-              onMoreDetails={handleMoreDetails}
+              view={currentView}
+              date={currentDate}
+              onViewChange={setCurrentView}
+              onDateChange={setCurrentDate}
+              onEventClick={handleEventClick}
             />
           </Box>
         </Box>
@@ -388,6 +377,19 @@ const CalendarPage = () => {
         staff={staffData}
         editingEvent={editingEvent}
       />
+      <ConfirmationModal
+        isModalOpen={Boolean(eventToDelete)}
+        isDeleteAction
+        onClose={() => setEventToDelete(null)}
+        onCancel={() => setEventToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        dialogContent={`"${eventToDelete?.title ?? 'This event'}" will be removed from the calendar.`}
+        translatedText={{
+          title: 'Delete event?',
+          actions: { cancelButton: 'Cancel', ctaButton: 'Delete' },
+        }}
+      />
+
       <EventDetailsDialog
         open={detailsOpen}
         event={detailsEvent}

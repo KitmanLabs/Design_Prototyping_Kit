@@ -1,14 +1,10 @@
-// @flow
-
-// $FlowIssue[cannot-resolve-module] - flow can't find the types, similar to https://github.com/facebook/draft-js/issues/1974
 import { Transaction, EditorState } from '@remirror/pm/state';
-// $FlowIssue[cannot-resolve-module] - flow can't find the types, similar to https://github.com/facebook/draft-js/issues/1974
 import { CountExtension } from '@remirror/extension-count';
 
 export const filterTransaction = (
-  transaction: Transaction,
-  state: EditorState,
-  limit: number
+  transaction,
+  state,
+  limit
 ) => {
   const count = new CountExtension();
 

@@ -1,8 +1,5 @@
-// @flow
-import type { Theme } from '@mui/material';
 import { css } from '@emotion/react';
 import { colors } from '@kitman/common/src/variables';
-import type { Size } from '../types';
 import sizeStyles from '../utils';
 
 const getStyles = ({
@@ -13,14 +10,6 @@ const getStyles = ({
   size = 'small',
   label = '',
   optionalText = '',
-}: {
-  theme: Theme,
-  focused?: boolean,
-  disabled?: boolean,
-  error?: boolean,
-  size?: Size,
-  label?: string,
-  optionalText?: string,
 }) => {
   const palette = theme.palette;
   const typography = theme.typography;

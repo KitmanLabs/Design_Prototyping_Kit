@@ -14,7 +14,7 @@ import {
 } from '@mui/material'
 import { CloseOutlined } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
-import { Button } from '../../components'
+import { Button } from '../../playbook-components'
 import '../../styles/design-tokens.css'
 
 // Sample notification data
@@ -71,13 +71,15 @@ function NotificationDrawer({ open, onClose, notifications = sampleNotifications
       open={open}
       onClose={handleClose}
       ModalProps={{ keepMounted: true }}
-      PaperProps={{
-        sx: {
-          width: isMobile ? '100vw' : 400,
-          maxWidth: '100vw',
-          height: isMobile ? '90vh' : '100vh',
-          boxShadow: theme.shadows[16],
-          display: 'flex'
+      slotProps={{
+        paper: {
+          sx: {
+            width: isMobile ? '100vw' : 400,
+            maxWidth: '100vw',
+            height: isMobile ? '90vh' : '100vh',
+            boxShadow: theme.shadows[16],
+            display: 'flex'
+          }
         }
       }}
     >
@@ -95,7 +97,7 @@ function NotificationDrawer({ open, onClose, notifications = sampleNotifications
           >
             Notifications
           </Typography>
-          <IconButton onClick={handleClose} size="small" aria-label="Close">
+          <IconButton onClick={handleClose} aria-label="Close">
             <CloseOutlined />
           </IconButton>
         </Box>
@@ -117,8 +119,6 @@ function NotificationDrawer({ open, onClose, notifications = sampleNotifications
                   }}
                 >
                   <ListItemText
-                    primaryTypographyProps={{ component: 'div' }}
-                    secondaryTypographyProps={{ component: 'div' }}
                     primary={
                       <Typography
                         variant="body2"
@@ -159,7 +159,10 @@ function NotificationDrawer({ open, onClose, notifications = sampleNotifications
                         </Typography>
                       </Box>
                     }
-                  />
+                    slotProps={{
+                      primary: { component: 'div' },
+                      secondary: { component: 'div' }
+                    }} />
                 </ListItem>
                 {index < notifications.length - 1 && (
                   <Divider sx={{ borderColor: 'var(--color-border-secondary)' }} />
@@ -173,7 +176,8 @@ function NotificationDrawer({ open, onClose, notifications = sampleNotifications
         <Divider />
         <Box sx={{ px: 3, py: 2, position: 'sticky', bottom: 0, bgcolor: 'var(--color-background-primary)' }}>
           <Button
-            variant="secondary"
+            disableElevation={true}
+            variant="contained" color="secondary"
             size="medium"
             onClick={handleViewAll}
             style={{ 
@@ -187,7 +191,7 @@ function NotificationDrawer({ open, onClose, notifications = sampleNotifications
         </Box>
       </Box>
     </Drawer>
-  )
+  );
 }
 
 NotificationDrawer.propTypes = {

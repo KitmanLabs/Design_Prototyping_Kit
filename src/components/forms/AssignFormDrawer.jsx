@@ -7,7 +7,6 @@ import {
   IconButton,
   Divider,
   TextField,
-  Button,
   FormControl,
   FormControlLabel,
   RadioGroup,
@@ -26,79 +25,24 @@ import {
   InputAdornment,
   Checkbox
 } from '@mui/material'
-import { ClickAwayListener } from '@mui/base'
+import { Button } from '../../playbook-components'
+import { ClickAwayListener } from '@mui/material'
 import { CloseOutlined, DeleteOutlined, AddOutlined, CheckOutlined, KeyboardArrowDownOutlined, ChevronLeftOutlined, ChevronRightOutlined, SyncOutlined } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { toMoment, withDate } from '../../utils/pickerDates'
 import '../../styles/design-tokens.css'
-
-const TIMEZONES = [
-  'Europe/Dublin',
-  'UTC',
-  'Europe/London',
-  'America/New_York',
-  'Europe/Paris',
-  'Australia/Sydney',
-]
-
-const RESPONSES_PER_PLAYER_OPTIONS = [
-  { value: 1, label: '1 response per player' },
-  { value: 2, label: '2 responses per player' },
-  { value: 3, label: '3 responses per player' },
-  { value: 5, label: '5 responses per player' },
-  { value: 10, label: '10 responses per player' },
-  { value: -1, label: 'Unlimited responses' },
-]
+import { TIMEZONES, RESPONSES_PER_PLAYER_OPTIONS, MOCK_TEAMS } from '../../data/forms'
+import { formFieldStyles } from '../formFieldStyles'
 
 const NOTIFICATION_TIMING_OPTIONS = [
   { value: 'start-date', label: 'Start date' },
   { value: 'end-date', label: 'End date' },
   { value: 'custom-date', label: 'Custom date' },
 ]
-
-// Mock teams for athlete grouping
-const MOCK_TEAMS = [
-  { id: 1, name: 'First Team', status: 'active' },
-  { id: 2, name: 'Reserve Team', status: 'active' },
-  { id: 3, name: 'Academy U21', status: 'active' },
-  { id: 4, name: 'Academy U18', status: 'active' },
-  { id: 5, name: 'Munster NTS', status: 'active' },
-  { id: 6, name: 'Club Ops', status: 'inactive' },
-]
-
-const formFieldStyles = {
-  '& .MuiInputBase-root': {
-    backgroundColor: 'var(--color-background-secondary)',
-    borderRadius: 'var(--radius-sm)',
-    '&:hover': { backgroundColor: 'var(--color-background-tertiary)' },
-    '&.Mui-focused': { backgroundColor: 'var(--color-background-primary)' },
-  },
-  '& .MuiInputLabel-root': {
-    color: 'var(--color-text-secondary)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 'var(--placeholder-font-weight)',
-    fontFamily: 'var(--font-family-primary)',
-    '&.Mui-focused': { color: 'var(--color-border-focus)' },
-  },
-  '& .MuiFilledInput-root': {
-    backgroundColor: 'var(--color-background-secondary)',
-    borderRadius: 'var(--radius-sm)',
-    '&:hover': { backgroundColor: 'var(--color-background-tertiary)' },
-    '&.Mui-focused': { backgroundColor: 'var(--color-background-primary)' },
-    '&:before': { borderBottom: '1px solid var(--color-border-primary)' },
-    '&:hover:not(.Mui-disabled):before': { borderBottom: '1px solid var(--color-border-focus)' },
-    '&.Mui-focused:after': { borderBottom: '2px solid var(--color-border-focus)' },
-  },
-  '& .MuiInputBase-input': {
-    color: 'var(--color-text-primary)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 'var(--font-weight-medium)',
-    fontFamily: 'var(--font-family-primary)',
-  },
-}
 
 function AssignFormDrawer({
   open,
@@ -355,8 +299,9 @@ function AssignFormDrawer({
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Button
-            size="small"
-            variant="text"
+            variant="contained"
+            color="secondary"
+            disableElevation
             onClick={(e) => {
               e.stopPropagation()
               handleSelectAllTeam(team)
@@ -441,13 +386,14 @@ function AssignFormDrawer({
       <Box>
         {/* Header */}
         <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          px={2}
-          pt={2}
-          pb={1}
-        >
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            px: 2,
+            pt: 2,
+            pb: 1
+          }}>
           <Typography
             variant="h6"
             sx={{
@@ -459,7 +405,7 @@ function AssignFormDrawer({
           >
             Select Athletes
           </Typography>
-          <IconButton size="small" onClick={handleCloseSelector}>
+          <IconButton onClick={handleCloseSelector}>
             <CloseOutlined fontSize="small" />
           </IconButton>
         </Box>
@@ -480,7 +426,6 @@ function AssignFormDrawer({
               <Button
                 startIcon={<ChevronLeftOutlined fontSize="small" />}
                 onClick={handleBack}
-                size="small"
                 sx={{
                   textTransform: 'none',
                   fontFamily: 'var(--font-family-primary)',
@@ -525,7 +470,6 @@ function AssignFormDrawer({
               }}
             >
               <Chip
-                size="small"
                 variant="filled"
                 disabled={selectedIds.size === 0}
                 color="primary"
@@ -555,9 +499,12 @@ function AssignFormDrawer({
             </Box>
           </>
         ) : (
-          <Box px={2} pb={1}>
+          <Box
+            sx={{
+              px: 2,
+              pb: 1
+            }}>
             <Chip
-              size="small"
               variant="filled"
               disabled={selectedIds.size === 0}
               color="primary"
@@ -608,7 +555,6 @@ function AssignFormDrawer({
         <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
           <Button
             variant="contained"
-            size="small"
             onClick={handleDone}
             disabled={selectedIds.size === 0}
             sx={{
@@ -627,23 +573,25 @@ function AssignFormDrawer({
           </Button>
         </Box>
       </Box>
-    )
+    );
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <LocalizationProvider dateAdapter={AdapterMoment}>
       <Drawer
         anchor={isMobile ? 'bottom' : 'right'}
         open={open}
         onClose={handleClose}
         ModalProps={{ keepMounted: true }}
-        PaperProps={{
-          sx: {
-            width: isMobile ? '100vw' : 480,
-            maxWidth: '100vw',
-            height: isMobile ? '90vh' : '100vh',
-            boxShadow: theme.shadows[16],
-            display: 'flex'
+        slotProps={{
+          paper: {
+            sx: {
+              width: isMobile ? '100vw' : 480,
+              maxWidth: '100vw',
+              height: isMobile ? '90vh' : '100vh',
+              boxShadow: theme.shadows[16],
+              display: 'flex'
+            }
           }
         }}
       >
@@ -670,7 +618,7 @@ function AssignFormDrawer({
           >
             Form Assignment
           </Typography>
-          <IconButton onClick={handleClose} size="small" aria-label="Close">
+          <IconButton onClick={handleClose} aria-label="Close">
             <CloseOutlined />
           </IconButton>
         </Box>
@@ -685,10 +633,12 @@ function AssignFormDrawer({
               variant="filled"
               label="Form"
               value={formName}
-              InputProps={{
-                readOnly: true,
-              }}
               sx={formFieldStyles}
+              slotProps={{
+                input: {
+                  readOnly: true,
+                }
+              }}
             />
 
             {/* Players Selector Trigger (same as Export drawer) */}
@@ -701,23 +651,25 @@ function AssignFormDrawer({
                 value={triggerDisplayText}
                 placeholder="Select players"
                 onClick={handleOpenSelector}
-                InputProps={{
-                  readOnly: true,
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <KeyboardArrowDownOutlined
-                        fontSize="small"
-                        sx={{ color: 'var(--color-text-secondary)' }}
-                      />
-                    </InputAdornment>
-                  )
-                }}
                 sx={{
                   ...formFieldStyles,
                   cursor: 'pointer',
                   '& .MuiInputBase-input': {
                     ...formFieldStyles['& .MuiInputBase-input'],
                     cursor: 'pointer'
+                  }
+                }}
+                slotProps={{
+                  input: {
+                    readOnly: true,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <KeyboardArrowDownOutlined
+                          fontSize="small"
+                          sx={{ color: 'var(--color-text-secondary)' }}
+                        />
+                      </InputAdornment>
+                    )
                   }
                 }}
               />
@@ -880,7 +832,6 @@ function AssignFormDrawer({
                       Schedule
                     </Typography>
                     <IconButton
-                      size="small"
                       onClick={() => {
                         setScheduleTitle('')
                         setStartDate(new Date())
@@ -913,8 +864,8 @@ function AssignFormDrawer({
                     <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
                       <DatePicker
                         label="Start Date"
-                        value={startDate}
-                        onChange={(newValue) => setStartDate(newValue)}
+                        value={toMoment(startDate)}
+                        onChange={withDate((newValue) => setStartDate(newValue))}
                         slotProps={{
                           textField: {
                             size: 'small',
@@ -925,8 +876,8 @@ function AssignFormDrawer({
                       />
                       <DatePicker
                         label="End Date"
-                        value={endDate}
-                        onChange={(newValue) => setEndDate(newValue)}
+                        value={toMoment(endDate)}
+                        onChange={withDate((newValue) => setEndDate(newValue))}
                         slotProps={{
                           textField: {
                             size: 'small',
@@ -941,8 +892,8 @@ function AssignFormDrawer({
                     {/* Start Time Picker */}
                     <TimePicker
                       label="Start Time"
-                      value={startTime}
-                      onChange={(newValue) => setStartTime(newValue)}
+                      value={toMoment(startTime)}
+                      onChange={withDate((newValue) => setStartTime(newValue))}
                       slotProps={{
                         textField: {
                           size: 'small',
@@ -953,7 +904,7 @@ function AssignFormDrawer({
                     />
 
                     {/* Timezone Selector */}
-                    <FormControl size="small" variant="filled" sx={formFieldStyles}>
+                    <FormControl variant="filled" sx={formFieldStyles}>
                       <InputLabel>Time Zone</InputLabel>
                       <Select
                         value={timezone}
@@ -969,7 +920,7 @@ function AssignFormDrawer({
                     </FormControl>
 
                     {/* Responses per Player Selector */}
-                    <FormControl size="small" variant="filled" sx={formFieldStyles}>
+                    <FormControl variant="filled" sx={formFieldStyles}>
                       <InputLabel>Responses per Player</InputLabel>
                       <Select
                         value={responsesPerPlayer}
@@ -1005,7 +956,6 @@ function AssignFormDrawer({
                 </Typography>
                 {notifications.length > 0 && (
                   <IconButton
-                    size="small"
                     onClick={() => setNotifications([])}
                     aria-label="Remove notifications"
                     sx={{ color: 'var(--color-text-secondary)', '&:hover': { color: 'var(--color-error)' } }}
@@ -1018,7 +968,7 @@ function AssignFormDrawer({
               {/* Show added notifications */}
               {notifications.map((notification, index) => (
                 <Box key={index} sx={{ mb: 2 }}>
-                  <FormControl size="small" variant="filled" sx={{ ...formFieldStyles, mb: 2, width: 200 }}>
+                  <FormControl variant="filled" sx={{ ...formFieldStyles, mb: 2, width: 200 }}>
                     <InputLabel>When to notify</InputLabel>
                     <Select
                       value={notification.timing}
@@ -1042,12 +992,12 @@ function AssignFormDrawer({
                     <Box sx={{ display: 'flex', gap: 1.5, mb: 2 }}>
                       <DatePicker
                         label="Date"
-                        value={notification.customDate || null}
-                        onChange={(newValue) => {
+                        value={toMoment(notification.customDate || null)}
+                        onChange={withDate((newValue) => {
                           setNotifications(prev => prev.map((n, i) => 
                             i === index ? { ...n, customDate: newValue } : n
                           ))
-                        }}
+                        })}
                         slotProps={{
                           textField: {
                             size: 'small',
@@ -1058,12 +1008,12 @@ function AssignFormDrawer({
                       />
                       <TimePicker
                         label="Time"
-                        value={notification.customTime || null}
-                        onChange={(newValue) => {
+                        value={toMoment(notification.customTime || null)}
+                        onChange={withDate((newValue) => {
                           setNotifications(prev => prev.map((n, i) => 
                             i === index ? { ...n, customTime: newValue } : n
                           ))
-                        }}
+                        })}
                         slotProps={{
                           textField: {
                             size: 'small',
@@ -1187,7 +1137,6 @@ function AssignFormDrawer({
               {/* Add Notification Button */}
               <Button
                 variant="contained"
-                size="small"
                 disableElevation
                 startIcon={<AddOutlined fontSize="small" />}
                 onClick={() => {
@@ -1229,10 +1178,11 @@ function AssignFormDrawer({
             bgcolor: 'var(--color-background-primary)'
           }}
         >
-          <Stack direction="row" justifyContent="flex-end" spacing={1.5}>
+          <Stack direction="row" spacing={1.5} sx={{
+            justifyContent: "flex-end"
+          }}>
             <Button
               variant="contained"
-              size="small"
               disableElevation
               sx={{
                 backgroundColor: 'var(--button-secondary-bg)',
@@ -1247,7 +1197,6 @@ function AssignFormDrawer({
             </Button>
             <Button
               variant="contained"
-              size="small"
               disableElevation
               sx={{
                 backgroundColor: 'var(--color-primary)',
@@ -1265,7 +1214,7 @@ function AssignFormDrawer({
       </Box>
     </Drawer>
     </LocalizationProvider>
-  )
+  );
 }
 
 AssignFormDrawer.propTypes = {

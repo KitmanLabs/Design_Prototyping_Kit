@@ -4,7 +4,6 @@ import {
   Box,
   Paper,
   Typography,
-  Button as MuiButton,
   Divider,
   Tabs,
   Tab,
@@ -20,11 +19,11 @@ import {
   Checkbox,
   Chip
 } from '@mui/material'
-import { ArrowBackOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { DatePicker } from 'playbook-components'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import dayjs from 'dayjs'
+import { Button, DatePicker } from 'playbook-components'
+import { PageHeader } from '../../floorplans'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import moment from 'moment'
 import '../../styles/design-tokens.css'
 import FormBuilderHeader from '../../components/forms/builder/FormBuilderHeader'
 import MenuTree from '../../components/forms/builder/MenuTree'
@@ -180,7 +179,7 @@ function evaluateDependency(question, values) {
 
 export default function Screen02_FormBuilder() {
   const navigate = useNavigate()
-  // eslint-disable-next-line no-unused-vars
+   
   const { formId } = useParams()
 
   const [form, setForm] = React.useState(() => getTemplateForFormId(formId))
@@ -322,9 +321,11 @@ export default function Screen02_FormBuilder() {
             onChange={(event) => handlePreviewValueChange(question.id, event.target.value)}
             multiline={Boolean(question.meta?.multiline)}
             minRows={question.meta?.multiline ? 3 : undefined}
-            InputLabelProps={{ shrink: false }}
+            slotProps={{
+              inputLabel: { shrink: false }
+            }}
           />
-        )
+        );
       }
 
       if (question.type === 'select') {
@@ -336,7 +337,9 @@ export default function Screen02_FormBuilder() {
             select
             value={previewValues[question.id] || ''}
             onChange={(event) => handlePreviewValueChange(question.id, event.target.value)}
-            SelectProps={{ displayEmpty: true }}
+            slotProps={{
+              select: { displayEmpty: true }
+            }}
           >
             <MenuItem value="">
               <em>Select</em>
@@ -345,7 +348,7 @@ export default function Screen02_FormBuilder() {
               <MenuItem key={option} value={option}>{option}</MenuItem>
             ))}
           </TextField>
-        )
+        );
       }
 
       if (question.type === 'radio' || question.type === 'checkbox') {
@@ -362,16 +365,18 @@ export default function Screen02_FormBuilder() {
                 size="small"
                 fullWidth
                 select
-                SelectProps={{
-                  multiple: true,
-                  displayEmpty: true,
-                  renderValue: (selected) => {
-                    if (!selected || selected.length === 0) return <em>Select multiple</em>
-                    return selected.join(', ')
-                  }
-                }}
                 value={Array.isArray(previewValues[question.id]) ? previewValues[question.id] : []}
                 onChange={(event) => handlePreviewValueChange(question.id, event.target.value)}
+                slotProps={{
+                  select: {
+                    multiple: true,
+                    displayEmpty: true,
+                    renderValue: (selected) => {
+                      if (!selected || selected.length === 0) return <em>Select multiple</em>
+                      return selected.join(', ')
+                    }
+                  }
+                }}
               >
                 {(question.options || []).map((option) => (
                   <MenuItem key={option} value={option}>
@@ -380,7 +385,7 @@ export default function Screen02_FormBuilder() {
                   </MenuItem>
                 ))}
               </TextField>
-            )
+            );
           }
           // Radio with >3 options
           return (
@@ -391,14 +396,16 @@ export default function Screen02_FormBuilder() {
               select
               value={previewValues[question.id] || ''}
               onChange={(event) => handlePreviewValueChange(question.id, event.target.value)}
-              SelectProps={{ displayEmpty: true }}
+              slotProps={{
+                select: { displayEmpty: true }
+              }}
             >
               <MenuItem value=""><em>Select</em></MenuItem>
               {(question.options || []).map((option) => (
                 <MenuItem key={option} value={option}>{option}</MenuItem>
               ))}
             </TextField>
-          )
+          );
         }
 
         if (question.type === 'radio') {
@@ -444,7 +451,7 @@ export default function Screen02_FormBuilder() {
       if (question.type === 'date') {
         return (
           <DatePicker
-            value={previewValues[question.id] ? dayjs(previewValues[question.id]) : null}
+            value={previewValues[question.id] ? moment(previewValues[question.id]) : null}
             onChange={(newValue) => handlePreviewValueChange(question.id, newValue ? newValue.toISOString() : '')}
             slotProps={{
               textField: {
@@ -464,15 +471,14 @@ export default function Screen02_FormBuilder() {
         return (
           <Box sx={{ border: '1px dashed var(--color-border-primary)', borderRadius: 'var(--radius-md)', p: 2 }}>
             <input id={inputId} type="file" hidden onChange={handleFileUpload(question.id)} />
-            <MuiButton
+            <Button
               component="label"
               htmlFor={inputId}
               variant="contained"
-              size="small"
               sx={{ textTransform: 'none', backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-secondary-color)', '&:hover': { backgroundColor: 'var(--button-secondary-hover-bg)' } }}
             >
               Upload file
-            </MuiButton>
+            </Button>
             {fileValue && (
               <Chip
                 label={fileValue.name || 'Uploaded file'}
@@ -536,52 +542,12 @@ export default function Screen02_FormBuilder() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {/* Back link-style button above the title */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, px: 3 }}>
-        <Box
-          component="button"
-          type="button"
-          onClick={() => navigate('/forms')}
-          aria-label="Back to forms overview"
-          sx={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--color-text-secondary)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 1,
-            cursor: 'pointer',
-            px: 0,
-            '&:hover': { color: 'var(--color-text-primary)', textDecoration: 'underline' }
-          }}
-        >
-          <ArrowBackOutlined fontSize="small" />
-          <span>Forms overview</span>
-        </Box>
-      </Box>
-
-      {/* Title row with Save aligned to far right */}
-      <Box sx={{ display: 'flex', alignItems: 'center', px: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
-          {form.title}
-        </Typography>
-        <Box sx={{ ml: 'auto' }}>
-          <MuiButton
-            variant="contained"
-            size="medium"
-            disableElevation
-            disabled={!isDirty}
-            sx={{
-              backgroundColor: 'var(--button-primary-bg)',
-              color: 'var(--button-primary-color)',
-              textTransform: 'none',
-              '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' }
-            }}
-          >
-            Save
-          </MuiButton>
-        </Box>
-      </Box>
+      <PageHeader
+        title={form.title}
+        backLabel="Forms"
+        onBackClick={() => navigate('/forms')}
+        primaryAction={{ id: 'save', label: 'Save', onClick: () => {}, disabled: !isDirty }}
+      />
 
       <Box sx={{ px: 3 }}>
         <FormBuilderHeader
@@ -659,7 +625,7 @@ export default function Screen02_FormBuilder() {
               mode="preview"
             />
 
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <LocalizationProvider dateAdapter={AdapterMoment}>
               {/* eslint-disable-next-line design-system/no-hardcoded-colors */}
               <Box sx={{ p: 3, overflowY: 'auto', backgroundColor: '#fafafa' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -693,7 +659,11 @@ export default function Screen02_FormBuilder() {
           <Box sx={{ p: 2 }}>
             <Grid container spacing={2}>
               {/* Actions card */}
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <Paper elevation={1} sx={{ borderRadius: 'var(--radius-md)' }}>
                   <Box sx={{ p: 2 }}>
                     <Typography variant="h6" sx={{ color: 'var(--color-text-primary)', mb: 1 }}>
@@ -738,7 +708,11 @@ export default function Screen02_FormBuilder() {
               </Grid>
 
               {/* Input method card */}
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <Paper elevation={1} sx={{ borderRadius: 'var(--radius-md)' }}>
                   <Box sx={{ p: 2 }}>
                     <Typography variant="h6" sx={{ color: 'var(--color-text-primary)', mb: 1 }}>
@@ -786,5 +760,5 @@ export default function Screen02_FormBuilder() {
         </TabPanel>
       </Paper>
     </Box>
-  )
+  );
 }

@@ -1,48 +1,43 @@
 # Design Prototyping Kit
 
-**A template for rapidly building KitmanLabs product prototypes.**
+**A template for rapidly building prototypes of iP: Intelligence Platform, the Kitman Labs product.**
+
+It runs entirely on mock data, uses the same components and design tokens as iP, and is set up for building with Claude Code, which follows the design system rules for you.
 
 ---
 
-## Quick Start
+## Quick start
 
-1. **[Use this template](https://github.com/KitmanLabs/Design_Prototyping_Kit/generate)** — Get your own copy
-2. **Clone to your machine** — Use [GitHub Desktop](https://desktop.github.com/) (friendlier than the terminal)
-3. **Run locally** — `npm install` then `npm run dev`, open `http://localhost:3001`
+1. **[Use this template](https://github.com/KitmanLabs/Design_Prototyping_Kit/generate)** to get your own copy
+2. **Clone it** with [GitHub Desktop](https://desktop.github.com/) or `git clone`
+3. **Install and run:** `npm ci`, then `npm run dev`, and open http://localhost:3001
 
----
-
-## Where to Go Next
-
-| I want to... | Link |
-|--------------|------|
-| Set up for the first time | [Getting Started](../../wiki/Getting-Started) |
-| Understand the data in this prototype | [Understanding the Data](../../wiki/Understanding-the-Data) |
-| See what components are available | [Design System](../../wiki/Design-System) (run `npm run storybook` locally) |
-| Learn how to build with Claude Code | [Using Claude Code](../../wiki/Using-Claude-Code) |
-| Understand why my work was rejected | [Why Was My Work Rejected](../../wiki/Why-Was-My-Work-Rejected) |
+Full setup, including Node and Claude Code: [Getting started](docs/getting-started.md).
 
 ---
 
-## How It Works
+## Documentation
 
-This repo uses **Claude Code** as your AI co-pilot. It reads the design system rules automatically on every session, so it:
+All docs live in [`docs/`](docs/README.md) and travel with the code, including into copies made from this template.
 
-- Only uses components that match the real product
-- Applies colors and styles correctly
-- Knows the file structure and data layout
-- Catches common mistakes before you commit
+| I want to... | Read |
+|---|---|
+| Set up for the first time | [Getting started](docs/getting-started.md) |
+| Build with Claude Code | [Using Claude Code](docs/using-claude-code.md) |
+| See which components are available | [Components and Storybook](docs/components-and-storybook.md) |
+| Understand the mock data | [Understanding the data](docs/understanding-the-data.md) |
+| Fix a failed check or blocked commit | [Why was my work rejected?](docs/why-was-my-work-rejected.md) |
+| Look up a design rule | [Design system reference](docs/reference/design-system.md) |
+| Find where something lives in the code | [Project structure](docs/reference/project-structure.md) |
 
-Just ask it to build what you need — "Add a new page showing athlete injuries" or "Change the calendar to week view".
+Claude Code reads [`CLAUDE.md`](CLAUDE.md) at the start of every session.
 
 ---
 
 ## Tech
 
-- **React 18** — The UI framework
-- **Material-UI (MUI)** — Component library matching the KitmanLabs design system
-- **Storybook** — Interactive component catalogue (run `npm run storybook` locally)
-- **Design tokens** — Automated color, typography, and spacing
-- **Mock data** — JSON files that simulate a real database
-
-No backend, no API — this is purely for prototyping.
+- **React 18** and **Vite 7**
+- **Material UI 9** and **MUI X 9** (Data Grid, Date Pickers, Scheduler, Chat), wrapped as Playbook Components that match iP
+- **Storybook 10**: the interactive component catalogue (`npm run storybook`)
+- **Design tokens** in `src/styles/design-tokens.css`, enforced by ESLint and Stylelint rules
+- **Mock data** in `src/data`: no backend and no API

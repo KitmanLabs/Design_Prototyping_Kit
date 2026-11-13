@@ -20,15 +20,18 @@ const noHardcodedColorsRule = (primaryOption, secondaryOptions) => {
 
     if (!validOptions) return;
 
+    // Keys are uppercase because colors are upper-cased before the lookup below.
+    /* eslint-disable design-system/no-hardcoded-colors -- the brand colors this rule maps to tokens */
     const brandColors = {
       '#3B4960': 'var(--color-primary)',
-      '#F1F2F3': 'var(--color-secondary)', 
-      '#28a745': 'var(--color-success)',
-      '#dc3545': 'var(--color-error)',
-      '#ffc107': 'var(--color-warning)',
-      '#ffffff': 'var(--color-white)',
+      '#F1F2F3': 'var(--color-secondary)',
+      '#28A745': 'var(--color-success)',
+      '#DC3545': 'var(--color-error)',
+      '#FFC107': 'var(--color-warning)',
+      '#FFFFFF': 'var(--color-white)',
       '#000000': 'var(--color-black)'
     };
+    /* eslint-enable design-system/no-hardcoded-colors */
 
     root.walkDecls(decl => {
       // Skip if already using CSS custom properties
@@ -123,6 +126,7 @@ const fontUsageRule = (primaryOption) => {
 
     root.walkDecls('font-family', decl => {
       const hasDesignToken = decl.value.includes('var(--font-family');
+      // eslint-disable-next-line design-system/text-casing-compliance -- font name, not UI copy
       const hasOpenSans = decl.value.includes('Open Sans');
       
       if (!hasDesignToken && !hasOpenSans) {

@@ -6,7 +6,6 @@ import {
   Typography,
   IconButton,
   TextField,
-  Button,
   Autocomplete,
   Stack,
   Chip,
@@ -21,70 +20,17 @@ import {
   DialogContentText,
   DialogActions
 } from '@mui/material'
+import { Button } from '../../playbook-components'
 import { CloseOutlined } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import dayjs from 'dayjs'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import moment from 'moment'
 import '../../styles/design-tokens.css'
-
-const RESPONSES_PER_PLAYER_OPTIONS = [
-  { value: 1, label: '1 response per player' },
-  { value: 2, label: '2 responses per player' },
-  { value: 3, label: '3 responses per player' },
-  { value: 5, label: '5 responses per player' },
-  { value: 10, label: '10 responses per player' },
-  { value: -1, label: 'Unlimited responses' },
-]
-
-const formFieldStyles = {
-  '& .MuiInputBase-root': {
-    backgroundColor: 'var(--color-background-secondary)',
-    borderRadius: 'var(--radius-sm)',
-    '&:hover': { backgroundColor: 'var(--color-background-tertiary)' },
-    '&.Mui-focused': { backgroundColor: 'var(--color-background-primary)' },
-  },
-  '& .MuiInputLabel-root': {
-    color: 'var(--color-text-secondary)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 'var(--placeholder-font-weight)',
-    fontFamily: 'var(--font-family-primary)',
-    '&.Mui-focused': { color: 'var(--color-border-focus)' },
-  },
-  '& .MuiFilledInput-root': {
-    backgroundColor: 'var(--color-background-secondary)',
-    borderRadius: 'var(--radius-sm)',
-    '&:hover': { backgroundColor: 'var(--color-background-tertiary)' },
-    '&.Mui-focused': { backgroundColor: 'var(--color-background-primary)' },
-    '&:before': { borderBottom: '1px solid var(--color-border-primary)' },
-    '&:hover:not(.Mui-disabled):before': { borderBottom: '1px solid var(--color-border-focus)' },
-    '&.Mui-focused:after': { borderBottom: '2px solid var(--color-border-focus)' },
-  },
-  '& .MuiInputBase-input': {
-    color: 'var(--color-text-primary)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 'var(--font-weight-medium)',
-    fontFamily: 'var(--font-family-primary)',
-  },
-}
-
-// All available forms for selection
-const ALL_FORMS_OPTIONS = [
-  { id: 'f-1', formName: 'Medical Exam' },
-  { id: 'f-2', formName: 'Orthopedic Exam' },
-  { id: 'f-3', formName: 'Medical History Form' },
-  { id: 'f-4', formName: 'Daily Wellness Check' },
-  { id: 'f-5', formName: 'Training Load Monitoring' },
-  { id: 'f-6', formName: 'Post-Game RPE' },
-  { id: 'f-7', formName: 'Performance Assessment' },
-  { id: 'f-8', formName: 'Concussion Protocol' },
-  { id: 'f-9', formName: 'Return to Play Assessment' },
-  { id: 'f-10', formName: 'End of Season Survey' },
-  { id: 'f-11', formName: 'Season Feedback Form' },
-  { id: 'f-12', formName: 'Mental Health Assessment' },
-]
+import { RESPONSES_PER_PLAYER_OPTIONS, ALL_FORMS_OPTIONS } from '../../data/forms'
+import { formFieldStyles } from '../formFieldStyles'
 
 function EditScheduleDrawer({
   open,
@@ -124,9 +70,9 @@ function EditScheduleDrawer({
       setSelectedPlayers(playerObjects)
       
       setScheduleTitle(schedule.scheduleName || '')
-      setStartDate(schedule.startDate ? dayjs(schedule.startDate) : null)
-      setEndDate(schedule.endDate ? dayjs(schedule.endDate) : null)
-      setStartTime(schedule.startDate ? dayjs(schedule.startDate) : null)
+      setStartDate(schedule.startDate ? moment(schedule.startDate) : null)
+      setEndDate(schedule.endDate ? moment(schedule.endDate) : null)
+      setStartTime(schedule.startDate ? moment(schedule.startDate) : null)
       setResponsesPerPlayer(1) // Default since not stored in mock data
     }
   }, [open, schedule])
@@ -163,19 +109,21 @@ function EditScheduleDrawer({
   }, [allPlayers])
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterMoment}>
       <Drawer
         anchor={isMobile ? 'bottom' : 'right'}
         open={open}
         onClose={handleClose}
         ModalProps={{ keepMounted: true }}
-        PaperProps={{
-          sx: {
-            width: isMobile ? '100vw' : 480,
-            maxWidth: '100vw',
-            height: isMobile ? '90vh' : '100vh',
-            boxShadow: theme.shadows[16],
-            display: 'flex'
+        slotProps={{
+          paper: {
+            sx: {
+              width: isMobile ? '100vw' : 480,
+              maxWidth: '100vw',
+              height: isMobile ? '90vh' : '100vh',
+              boxShadow: theme.shadows[16],
+              display: 'flex'
+            }
           }
         }}
       >
@@ -202,7 +150,7 @@ function EditScheduleDrawer({
             >
               Form Assignment
             </Typography>
-            <IconButton onClick={handleClose} size="small" aria-label="Close">
+            <IconButton onClick={handleClose} aria-label="Close">
               <CloseOutlined />
             </IconButton>
           </Box>
@@ -228,7 +176,7 @@ function EditScheduleDrawer({
                     sx={formFieldStyles}
                   />
                 )}
-                renderTags={(value, getTagProps) => {
+                renderValue={(value, getItemProps) => {
                   const maxVisible = 3
                   const visibleTags = value.slice(0, maxVisible)
                   const moreCount = value.length - maxVisible
@@ -239,8 +187,7 @@ function EditScheduleDrawer({
                         <Chip
                           key={option.id}
                           label={option.formName}
-                          size="small"
-                          {...getTagProps({ index })}
+                          {...getItemProps({ index })}
                           sx={{
                             backgroundColor: 'var(--color-primary-light)',
                             color: 'var(--color-text-primary)',
@@ -256,7 +203,6 @@ function EditScheduleDrawer({
                       {moreCount > 0 && (
                         <Chip
                           label={`+${moreCount} more`}
-                          size="small"
                           sx={{
                             backgroundColor: 'var(--color-background-tertiary)',
                             color: 'var(--color-text-secondary)',
@@ -266,7 +212,7 @@ function EditScheduleDrawer({
                         />
                       )}
                     </>
-                  )
+                  );
                 }}
                 renderOption={(props, option) => (
                   <Box
@@ -300,7 +246,7 @@ function EditScheduleDrawer({
                     sx={formFieldStyles}
                   />
                 )}
-                renderTags={(value, getTagProps) => {
+                renderValue={(value, getItemProps) => {
                   const maxVisible = 3
                   const visibleTags = value.slice(0, maxVisible)
                   const moreCount = value.length - maxVisible
@@ -311,8 +257,7 @@ function EditScheduleDrawer({
                         <Chip
                           key={option.id}
                           label={option.name}
-                          size="small"
-                          {...getTagProps({ index })}
+                          {...getItemProps({ index })}
                           sx={{
                             backgroundColor: 'var(--color-primary-light)',
                             color: 'var(--color-text-primary)',
@@ -328,7 +273,6 @@ function EditScheduleDrawer({
                       {moreCount > 0 && (
                         <Chip
                           label={`+${moreCount} more`}
-                          size="small"
                           sx={{
                             backgroundColor: 'var(--color-background-tertiary)',
                             color: 'var(--color-text-secondary)',
@@ -338,7 +282,7 @@ function EditScheduleDrawer({
                         />
                       )}
                     </>
-                  )
+                  );
                 }}
                 renderOption={(props, option) => (
                   <Box
@@ -427,7 +371,7 @@ function EditScheduleDrawer({
                   />
 
                   {/* Responses per Player */}
-                  <FormControl fullWidth size="small" variant="filled">
+                  <FormControl fullWidth variant="filled">
                     <InputLabel 
                       sx={{
                         color: 'var(--color-text-secondary)',
@@ -526,10 +470,12 @@ function EditScheduleDrawer({
           onClose={() => setConfirmModalOpen(false)}
           aria-labelledby="confirm-save-dialog-title"
           aria-describedby="confirm-save-dialog-description"
-          PaperProps={{
-            sx: {
-              borderRadius: 'var(--radius-md)',
-              padding: 1
+          slotProps={{
+            paper: {
+              sx: {
+                borderRadius: 'var(--radius-md)',
+                padding: 1
+              }
             }
           }}
         >
@@ -596,7 +542,7 @@ function EditScheduleDrawer({
           </DialogActions>
         </Dialog>      </Drawer>
     </LocalizationProvider>
-  )
+  );
 }
 
 EditScheduleDrawer.propTypes = {

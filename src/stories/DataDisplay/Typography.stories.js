@@ -49,13 +49,19 @@ export default {
         consectetur, neque doloribus, cupiditate numquam dignissimos laborum
         fugiat deleniti? Eum quasi quidem quibusdam.
       </Typography>
-      <Typography {...args} variant="button" display="block">
+      <Typography {...args} variant="button" sx={[{
+        display: "block"
+      }, ...(Array.isArray(args.sx) ? args.sx : [args.sx])]}>
         button text
       </Typography>
-      <Typography {...args} variant="caption" display="block">
+      <Typography {...args} variant="caption" sx={[{
+        display: "block"
+      }, ...(Array.isArray(args.sx) ? args.sx : [args.sx])]}>
         caption text
       </Typography>
-      <Typography {...args} variant="overline" display="block">
+      <Typography {...args} variant="overline" sx={[{
+        display: "block"
+      }, ...(Array.isArray(args.sx) ? args.sx : [args.sx])]}>
         overline text
       </Typography>
     </Box>

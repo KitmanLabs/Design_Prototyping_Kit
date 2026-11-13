@@ -1,17 +1,11 @@
-import {
-  Box,
-  Chip,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-} from '../../playbook-components';
+import { Box, Chip, Divider, List, ListItemButton, ListItemText } from '../../playbook-components';
 import { styled } from '@mui/material/styles';
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
+
 
 const docs = {
   muiLink: 'https://mui.com/material-ui/react-divider/',
@@ -31,21 +25,21 @@ export default {
       component="nav"
       aria-label="mailbox folders"
     >
-      <ListItem button>
+      <ListItemButton>
         <ListItemText primary="Inbox" />
-      </ListItem>
+      </ListItemButton>
       <Divider {...args} />
-      <ListItem button>
+      <ListItemButton>
         <ListItemText primary="Drafts" />
-      </ListItem>
+      </ListItemButton>
       <Divider {...args} />
-      <ListItem button>
+      <ListItemButton>
         <ListItemText primary="Trash" />
-      </ListItem>
+      </ListItemButton>
       <Divider {...args} />
-      <ListItem button>
+      <ListItemButton>
         <ListItemText primary="Spam" />
-      </ListItem>
+      </ListItemButton>
     </List>
   ),
   parameters: {

@@ -1,45 +1,17 @@
-// NOTE: Original file imports from two unresolvable paths:
-//   - '@kitman/common/src/redux/global/services/globalApi' (external monorepo package)
-//   - '../../../components/wrappers/CustomDateRangePicker' (internal monorepo component)
-// These cannot be resolved in Design_Prototyping_Kit. The component and Redux store
-// setup below are stubs. To use this story, CustomDateRangePicker must be added to
-// playbook-components and globalApi must be available or mocked.
+// The organisation settings this component reads come from a stubbed globalApi
+// (src/playbook-components/common/src/redux/global/services/globalApi.js), so no
+// Redux store is needed here.
 import moment from 'moment';
-import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
-
-// STUB: Replace with actual imports once available in this repo
-// import { globalApi } from '@kitman/common/src/redux/global/services/globalApi';
-// import CustomDateRangePicker from '../../playbook-components/wrappers/CustomDateRangePicker';
-
-// Minimal placeholder to prevent build errors
-const globalApi = { reducerPath: 'globalApi', reducer: (s = {}) => s, middleware: () => (next) => next };
-const CustomDateRangePicker = () => <div>CustomDateRangePicker (stub)</div>;
-
-// Create a minimal Redux store for Storybook
-const store = configureStore({
-  reducer: {
-    [globalApi.reducerPath]: globalApi.reducer,
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(globalApi.middleware),
-});
-
-const docs = {
-  // No MUI link since this is a custom component
-  // Figma link will be added later
-};
+import CustomDateRangePicker from '../../playbook-components/wrappers/CustomDateRangePicker';
 
 export default {
   title: 'Date & Time Pickers/CustomDateRangePicker',
   component: CustomDateRangePicker,
   decorators: [
     (Story) => (
-      <Provider store={store}>
-        <div style={{ minHeight: '50vh' }}>
-          <Story />
-        </div>
-      </Provider>
+      <div style={{ minHeight: '50vh' }}>
+        <Story />
+      </div>
     ),
   ],
   render: ({ ...args }) => <CustomDateRangePicker {...args} />,
@@ -167,7 +139,7 @@ export const WithCustomFilters = {
     customFilters: [
       {
         key: 'last7days',
-        label: 'Last 7 Days',
+        label: 'Last 7 days',
         getDateRange: () => [
           moment().subtract(7, 'days').startOf('day'),
           moment().endOf('day'),
@@ -175,7 +147,7 @@ export const WithCustomFilters = {
       },
       {
         key: 'last30days',
-        label: 'Last 30 Days',
+        label: 'Last 30 days',
         getDateRange: () => [
           moment().subtract(30, 'days').startOf('day'),
           moment().endOf('day'),
@@ -183,7 +155,7 @@ export const WithCustomFilters = {
       },
       {
         key: 'thisQuarter',
-        label: 'This Quarter',
+        label: 'This quarter',
         getDateRange: () => [
           moment().startOf('quarter'),
           moment().endOf('quarter'),
@@ -215,7 +187,7 @@ export const FullyConfigured = {
       },
       {
         key: 'lastWeek',
-        label: 'Last Week',
+        label: 'Last week',
         getDateRange: () => [
           moment().subtract(1, 'week').startOf('week'),
           moment().subtract(1, 'week').endOf('week'),

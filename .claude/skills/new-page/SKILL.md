@@ -11,84 +11,117 @@ allowed-tools:
 
 # New Page Guide
 
-## File location
+## 1. Choose a floorplan
 
-All pages go in `src/pages/`. Use a descriptive directory name:
+Every page starts from one of the eight floorplans. Work out what the user is trying to do on the page, then take the first match in the decision list in `docs/reference/design-system.md` → "Floorplans" → "Choosing a floorplan". Read that section; don't work from memory.
 
-```
-src/pages/
-└── MyFeature/
-    └── index.jsx    ← or MyFeature.jsx at the top level
-```
+If the request doesn't make the job clear, ask which floorplan fits, offering the one or two the decision list points to. Say which floorplan you chose and why when you report back.
 
-## Layout wrapper — always required
+If none fits, build the page anyway and put the reason in a comment at the top: `// Floorplan: none. <reason>`.
 
-Every page must be wrapped in `LayoutWithMainNav` from `src/components/`:
+## 2. Create the page
+
+Pages go in `src/pages/`, as `MyFeature.jsx` or `MyFeature/index.jsx`.
+
+A page renders **only its own content**. `src/App.jsx` already wraps every route in `LayoutWithMainNav` (the sidebar and app bar), so don't wrap the page in it again.
+
+Compose the page from `src/floorplans`. Use only the regions the floorplan needs, and never build a page-specific header, toolbar or footer:
 
 ```jsx
-import { LayoutWithMainNav } from '../components/LayoutWithMainNav'
+import { useState } from 'react'
+import { PageFrame, PageHeader, PageToolbar, PageSearch, PageState, useToasts } from '../floorplans'
 
 export default function MyFeaturePage() {
+  const [search, setSearch] = useState('')
+  const { showToast, toasts } = useToasts()
+
   return (
-    <LayoutWithMainNav>
-      {/* page content here */}
-    </LayoutWithMainNav>
+    <PageFrame
+      header={<PageHeader title="Page title" primaryAction={{ id: 'add', label: 'Add item', onClick: () => showToast({ title: 'Item added' }) }} />}
+      toolbar={<PageToolbar><PageSearch value={search} onChange={setSearch} /></PageToolbar>}
+    >
+      {/* the floorplan's content; PageState covers empty, no results, no access, error and loading */}
+      {toasts}
+    </PageFrame>
   )
 }
 ```
 
-## Data — import from src/data/, never inline
+`PageFrame` slots: `header`, `tabs` (a `TabBar`), `toolbar`, `selection` (`{ count, actions }`, which swaps the toolbar for the selection bar), `footer` (a `FloorplanFooter`, only for create and edit) and `fill` (for content that scrolls on its own). The rules for each region are in the "Page anatomy" table in the design system reference.
+
+The page's title lives only in its `PageHeader`; the app bar shows none. Follow "Page titles" in the design system reference: name the page once, give pages below a section a `backLabel` naming where Back goes ("Athletes"), and don't repeat the title in a tab label or a heading.
+
+## 3. Add the route
+
+In `src/App.jsx`, import the page and add a `<Route>` inside the existing `<Routes>`:
+
+```jsx
+import MyFeaturePage from './pages/MyFeature'
+// ...
+<Route path="/my-feature" element={<MyFeaturePage />} />
+```
+
+## 4. Add it to the navigation (if it needs a sidebar item)
+
+- Sidebar item: add an entry to `navigationItems` in `src/components/MainNavigation.jsx` (label in sentence case, an `*Outlined` icon, the route path)
+
+## 5. Data: import from src/data/, never inline
 
 ```jsx
 // ✅ Correct
-import athletes from '../data/athletes.json'
-import sessions from '../data/training_sessions.json'
+import athletes from '../../data/athletes.json'
 
-// ❌ Wrong — never hardcode data inline
-const athletes = [{ id: 1, name: 'John Smith' ... }]
+// ❌ Wrong: never hardcode mock data inside a component
+const athletes = [{ id: 1, name: 'Jordan Lee' }]
 ```
 
-Available data files in `src/data/`:
-- `athletes.json` — athlete profiles (firstname, lastname, position, squad, availability_status, etc.)
-- `training_sessions.json` — training session records
-- `games_matches.json` — match/game fixtures
-- `squads_teams.json` — squad/team definitions
-- `assessments.json` — assessment records
+Existing data in `src/data/`:
+- `athletes.json`: athlete profiles (name, position, squad, availability, ...)
+- `squads_teams.json`, `users_staff.json`: squads and staff
+- `calendar_events.json`, `training_sessions.json`, `games_matches.json`: schedule
+- `injuries_medical.json`, `assessments.json`, `questionnaires_wellbeing.json`: medical and wellbeing
+- `forms_templates.json`, `formTemplates/`, `forms.js`: forms
+- `messaging.js`, `layout.js`, `calendarEventOptions.js`: feature mock data and option lists
 
-## Page structure pattern
+New mock data for the page goes in a new or existing module in `src/data/`. Run `npm run docs:data` afterwards to refresh `docs/understanding-the-data.md`.
+
+## 6. Data grids: use the shared styles
+
+Style the Box that wraps a `DataGrid` with the shared `dataGridStyles` from `src/components/dataGridStyles.js`. Don't copy grid styles into the page; add page-specific rules after the spread.
 
 ```jsx
-import { Box, Typography } from '../playbook-components'
-import { LayoutWithMainNav } from '../components/LayoutWithMainNav'
+import { DataGrid } from '../../playbook-components'
+import { dataGridStyles } from '../../components/dataGridStyles'
 
-export default function MyPage() {
-  return (
-    <LayoutWithMainNav>
-      {/* Header area */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h6">Page title</Typography>
-      </Box>
-
-      {/* Content area */}
-      <Box>
-        {/* main content */}
-      </Box>
-    </LayoutWithMainNav>
-  )
-}
+<Box sx={{ ...dataGridStyles, height: 560, width: '100%' }}>
+  <DataGrid rows={rows} columns={columns} />
+</Box>
 ```
 
 ## Component import priority
 
-1. `src/playbook-components` — DataGrid, TabBar, Toasts, SelectWrapper, etc.
-2. `src/components` — AthleteDataGrid, PlayerAvatar, LogoImage, StatusChip
-3. `@mui/material` — only when 1 and 2 have no equivalent
+0. `src/floorplans`: the page frame and its regions
+1. `src/playbook-components`: Button, DataGrid, TabBar, Drawer, Toasts, SelectWrapper, and the MUI primitives (Box, Typography, ...)
+2. `src/components`: AthleteDataGrid, PlayerAvatar, LogoImage, StatusChip, Card, Icon
+3. `@mui/material`: only when 1 and 2 have no equivalent
+
+Follow the MUI 9 APIs and design rules in `docs/reference/design-system.md`.
 
 ## Reference pages
 
-Look at existing pages for patterns:
-- `src/pages/` — browse for layout and data-loading patterns
+Read the reference page for your floorplan before writing yours, and match its structure. They're listed in the "The eight floorplans" table in the design system reference:
+
+- Overview: `src/pages/Overview.jsx`
+- Collection: `src/pages/Athletes.jsx`; queue variant `src/pages/NotificationsPage.jsx`
+- Record: `src/pages/AthleteProfile.jsx`
+- List-detail: `src/pages/Messaging/index.jsx`
+- Analysis: `src/pages/SquadLoad.jsx`
+- Guided flow: `src/pages/Medical/LogInjury.jsx`
+- Settings: `src/pages/Administration.jsx`
+- Workspace: `src/pages/Calendar/index.jsx` (predates `PageFrame`)
+
+The Storybook stories under **Floorplans** show each region on its own.
 
 ## After creating
 
-Run `npm run validate-design-system` to confirm compliance before finishing.
+Run `npm run validate-design-system`, then open the route at http://localhost:3001 to check it renders. The validator warns about routed pages that use no floorplan; your new page must not appear in that list.

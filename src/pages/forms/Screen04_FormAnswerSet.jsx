@@ -1,9 +1,10 @@
 import React from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { Box, Paper, Typography, Divider, Switch, Checkbox, FormControlLabel, Button as MuiButton, IconButton } from '@mui/material'
-import { ArrowBackOutlined } from '@mui/icons-material'
+import { Box, Paper, Typography, Divider, Switch, Checkbox, FormControlLabel } from '@mui/material'
 import '../../styles/design-tokens.css'
-import { Button, Icon, StatusChip } from '../../components'
+import { Button } from '../../playbook-components'
+import { PageHeader } from '../../floorplans'
+import { StatusChip } from '../../components'
 import testToggleTemplate from '../../data/formTemplates/test-toggle-switch.json'
 import MenuTree from '../../components/forms/builder/MenuTree'
 
@@ -14,13 +15,15 @@ function getTemplateForAnswerSet(answerSetId) {
 
 function buildStubAnswers(template) {
   // Build a stub answers object keyed by question id
+  // Alternates yes and no so the same answer set always shows the same answers
   const answers = {}
+  let index = 0
   for (const section of template.sections || []) {
     for (const item of section.items || []) {
       if (item.type === 'subsection') {
         for (const q of item.items || []) {
-          // Alternate true/false for demo
-          answers[q.id] = Math.random() > 0.5
+          answers[q.id] = index % 2 === 0
+          index += 1
         }
       }
     }
@@ -81,31 +84,17 @@ export default function Screen04_FormAnswerSet() {
   }
 
   return (
-    <Box sx={{ py: 2, bgcolor: 'var(--color-background-primary)', height: '100%' }}>
-      <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-        <Box sx={{ px: 3, height: 72, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton aria-label="Back" size="small" onClick={() => navigate('/forms', { state: { initialTab: 'completed' } })} sx={{ color: 'var(--color-text-secondary)' }}>
-            <ArrowBackOutlined fontSize="small" />
-          </IconButton>
-          <Typography variant="h5" sx={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
-            {location.state?.athleteName || 'Athlete'}
-          </Typography>
-          <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 2 }}>
-            <MuiButton
-              variant="contained"
-              size="small"
-              disableElevation
-              onClick={() => setIsEditMode(v => !v)}
-              sx={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-color)', textTransform: 'none', '&:hover': { backgroundColor: 'var(--button-primary-hover-bg)' } }}
-            >
-              {isEditMode ? 'Done' : 'Edit'}
-            </MuiButton>
-          </Box>
-        </Box>
-
+    <Box sx={{ bgcolor: 'var(--color-background-primary)', height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <PageHeader
+        title={location.state?.athleteName || 'Athlete'}
+        backLabel="Forms"
+        onBackClick={() => navigate('/forms', { state: { initialTab: 'completed' } })}
+        primaryAction={{ id: 'edit', label: isEditMode ? 'Done' : 'Edit', onClick: () => setIsEditMode((v) => !v) }}
+      />
+      <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
         <Divider />
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 0, height: 'calc(100vh - var(--layout-header-height) - 72px)' }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 0, flex: 1, minHeight: 0 }}>
           <MenuTree
             form={template}
             selectedQuestionId={selectedQuestionId}
@@ -151,7 +140,7 @@ export default function Screen04_FormAnswerSet() {
                                 <FormControlLabel control={<Switch color="default" checked={answer} onChange={handleToggleAnswer(q.id)} />} label={answer ? 'Yes' : 'No'} />
                               )}
                               {q.ui?.style === 'toggle' && (
-                                <Button size="small" variant={answer ? 'primary' : 'secondary'} onClick={handleToggleAnswer(q.id)}>
+                                <Button disableElevation={true} variant="contained" color={answer ? 'primary' : 'secondary'} onClick={handleToggleAnswer(q.id)}>
                                   {answer ? 'Yes' : 'No'}
                                 </Button>
                               )}
@@ -170,8 +159,8 @@ export default function Screen04_FormAnswerSet() {
             <Box sx={{ borderTop: '1px solid var(--color-border-primary)', backgroundColor: 'var(--color-background-primary)', px: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1.5 }}>
                 <Button
-                  size="small"
-                  variant="secondary"
+                  disableElevation={true}
+                  variant="contained" color="secondary"
                   disabled={!selectedQuestionId || allQuestions.findIndex(q => q.id === selectedQuestionId) <= 0}
                   onClick={() => {
                     const idx = allQuestions.findIndex(q => q.id === selectedQuestionId)
@@ -181,8 +170,8 @@ export default function Screen04_FormAnswerSet() {
                   Previous
                 </Button>
                 <Button
-                  size="small"
-                  variant="primary"
+                  disableElevation={true}
+                  variant="contained" color="primary"
                   disabled={!selectedQuestionId || allQuestions.findIndex(q => q.id === selectedQuestionId) >= allQuestions.length - 1}
                   onClick={() => {
                     const idx = allQuestions.findIndex(q => q.id === selectedQuestionId)
@@ -199,5 +188,4 @@ export default function Screen04_FormAnswerSet() {
     </Box>
   )
 }
-
 

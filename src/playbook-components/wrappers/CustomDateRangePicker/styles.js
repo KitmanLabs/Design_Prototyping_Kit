@@ -1,9 +1,7 @@
-// @flow
-
 import { colors } from '@kitman/common/src/variables';
 
 export const globalStyles = {
-  '.MuiPickersDay-root:active': {
+  '.MuiPickerDay-root:active': {
     backgroundColor: `${colors.neutral_light} !important`,
     color: 'white !important',
     borderRadius: '50% !important',
@@ -14,7 +12,7 @@ export const globalStyles = {
 };
 
 export const getTextFieldStyles = (
-  variant: 'default' | 'menuFilters' | 'muiFilled'
+  variant
 ) => ({
   cursor: 'pointer',
   backgroundColor: variant === 'menuFilters' ? colors.neutral_200 : '',
@@ -48,7 +46,7 @@ export const getTextFieldStyles = (
 });
 
 export const getCalendarContainerStyles = (
-  variant: 'default' | 'menuFilters' | 'muiFilled'
+  variant
 ) => ({
   mt: variant === 'menuFilters' ? 0 : 2,
   position: 'absolute',

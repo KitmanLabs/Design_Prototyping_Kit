@@ -1,10 +1,10 @@
 /**
  * Stub for @kitman/common/src/utils/dateFormatter
  */
-import dayjs from 'dayjs';
+import moment from 'moment';
 
 export function formatShort(date) {
   if (!date) return '';
-  const d = dayjs(date);
+  const d = moment(date);
   return d.isValid() ? d.format('DD/MM/YYYY') : String(date);
 }

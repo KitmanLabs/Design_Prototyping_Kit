@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useState } from 'react';
-import { useArgs } from '@storybook/client-api';
+import { useArgs } from 'storybook/preview-api';
 import { styled, alpha } from '@mui/material/styles';
 import {
   Button,
@@ -214,9 +214,9 @@ export const WithCustomization = () => {
       </Button>
       <StyledMenu
         id="demo-customized-menu"
-        MenuListProps={{
+        slotProps={{ list: {
           'aria-labelledby': 'demo-customized-button',
-        }}
+        } }}
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}

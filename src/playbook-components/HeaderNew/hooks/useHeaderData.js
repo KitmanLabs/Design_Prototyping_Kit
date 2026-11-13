@@ -1,6 +1,4 @@
-// @flow
 import { useMemo } from 'react';
-import type { Badge, HeaderAction } from '../types';
 import { getTruncatedText } from '../utils';
 import {
   MAX_TITLE_CHARS_MOBILE,
@@ -8,35 +6,11 @@ import {
   MAX_VISIBLE_BADGES_MOBILE,
 } from '../constants';
 
-type UseHeaderDataParams = {|
-  isMobile: boolean,
-  title: string,
-  badges?: Array<Badge>,
-  primaryAction?: HeaderAction<>,
-  secondaryAction?: HeaderAction<>,
-  tertiaryAction?: HeaderAction<>,
-  moreActions?: Array<HeaderAction<>>,
-  exportActions?: Array<HeaderAction<>>,
-  isAvailableToExport?: boolean,
-|};
 
-type UseHeaderDataReturn = {|
-  titleDisplay: string,
-  isTitleTruncated: boolean,
-  visibleBadges: Array<Badge>,
-  overflowBadges: Array<Badge>,
-  mainAction: ?HeaderAction<>,
-  desktopSecondaryVisible: boolean,
-  desktopPrimaryVisible: boolean,
-  desktopTertiaryVisible: boolean,
-  generalMenuActions: $ReadOnlyArray<HeaderAction<>>,
-  exportMenuActions: $ReadOnlyArray<HeaderAction<>>,
-  hasAnyMenuItems: boolean,
-|};
 
 export const useHeaderData = (
-  params: UseHeaderDataParams
-): UseHeaderDataReturn => {
+  params
+) => {
   const { display: titleDisplay, isTruncated: isTitleTruncated } =
     params.isMobile
       ? getTruncatedText(params.title, MAX_TITLE_CHARS_MOBILE)
@@ -49,7 +23,7 @@ export const useHeaderData = (
   const visibleBadges = allBadges.slice(0, maxVisibleBadges);
   const overflowBadges = allBadges.slice(maxVisibleBadges);
 
-  const mainAction: ?HeaderAction<> = params.isMobile
+  const mainAction = params.isMobile
     ? params.primaryAction || params.secondaryAction
     : null;
 
@@ -57,9 +31,9 @@ export const useHeaderData = (
   const desktopPrimaryVisible = !params.isMobile && !!params.primaryAction;
   const desktopTertiaryVisible = !params.isMobile && !!params.tertiaryAction;
 
-  const generalMenuActions: $ReadOnlyArray<HeaderAction<>> = useMemo(() => {
+  const generalMenuActions = useMemo(() => {
     if (params.isMobile) {
-      const extra: Array<HeaderAction<>> = [];
+      const extra = [];
       if (params.primaryAction && params.secondaryAction) {
         extra.push(params.secondaryAction);
       }
@@ -80,7 +54,7 @@ export const useHeaderData = (
     params.tertiaryAction,
   ]);
 
-  const exportMenuActions: $ReadOnlyArray<HeaderAction<>> =
+  const exportMenuActions =
     params.isAvailableToExport && params.exportActions
       ? params.exportActions
       : [];

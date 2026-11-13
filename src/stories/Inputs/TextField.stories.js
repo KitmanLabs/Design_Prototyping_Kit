@@ -109,14 +109,16 @@ export const WithInputAdornment = () => {
   return (
     <TextField
       label="Start Adornment Example"
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <AccountCircle />
-          </InputAdornment>
-        ),
-      }}
       sx={{ width: 250 }}
+      slotProps={{
+        input: {
+          startAdornment: (
+            <InputAdornment position="start">
+              <AccountCircle />
+            </InputAdornment>
+          ),
+        }
+      }}
     />
   );
 };

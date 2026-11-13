@@ -8,16 +8,17 @@ import {
   TextField,
   IconButton,
   Box,
-  Button,
   Typography,
-  Tooltip,
+  Tooltip
 } from '@mui/material';
+import { Button } from '../playbook-components';
+import { MOCK_CALENDAR_SUBSCRIPTION_URL } from '../data/calendarEventOptions';
 import { RefreshOutlined, ContentCopyOutlined, CheckOutlined } from '@mui/icons-material';
 
 const CopyCalendarUrl = ({ 
   open = false, 
   onClose = () => {}, 
-  calendarUrl: propUrl = 'https://calendar.com/calendar/ical/dcarroll%40kitmanlabs.com/public/' 
+  calendarUrl: propUrl = MOCK_CALENDAR_SUBSCRIPTION_URL 
 }) => {
   const [url, setUrl] = useState(propUrl || '');
   const [copied, setCopied] = useState(false);
@@ -67,17 +68,19 @@ const CopyCalendarUrl = ({
             onChange={(e) => setUrl(e.target.value)}
             fullWidth
             size="small"
-            InputProps={{ readOnly: false }}
             sx={{
               '& .MuiInputBase-root': {
                 backgroundColor: 'transparent',
               },
             }}
+            slotProps={{
+              input: { readOnly: false }
+            }}
           />
 
           <Tooltip title={refreshing ? 'Refreshing...' : 'Refresh'}>
             <span>
-              <IconButton onClick={handleRefresh} size="small" disabled={refreshing}>
+              <IconButton onClick={handleRefresh} disabled={refreshing}>
                 <RefreshOutlined />
               </IconButton>
             </span>
@@ -85,7 +88,7 @@ const CopyCalendarUrl = ({
 
           <Tooltip title={copied ? 'Copied' : 'Copy'}>
             <span>
-              <IconButton onClick={handleCopy} size="small">
+              <IconButton onClick={handleCopy}>
                 {copied ? <CheckOutlined sx={{ color: 'var(--color-success)' }} /> : <ContentCopyOutlined />}
               </IconButton>
             </span>

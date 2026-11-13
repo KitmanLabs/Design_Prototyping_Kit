@@ -14,11 +14,15 @@ allowed-tools:
 
 ## Which directory?
 
-**`src/playbook-components/`** — for MUI wrappers and design system primitives
+**`src/floorplans/`**: for page regions (page header, toolbar, selection bar, footer action bar, page states, pane layouts)
+- Don't build a page-specific header, toolbar or footer: extend the floorplan region instead, so every page keeps the same anatomy
+- Export from `src/floorplans/index.js`, add a story in `src/stories/Floorplans/`, and describe the rule in `docs/reference/design-system.md` → "Floorplans"
+
+**`src/playbook-components/`**: for MUI wrappers and design system primitives
 - Use when wrapping or extending an MUI component with project-specific defaults
 - Must be exported from `src/playbook-components/index.js`
 
-**`src/components/`** — for app-level UI components
+**`src/components/`**: for app-level UI components
 - Use for composite components unique to this application (PlayerAvatar, AthleteDataGrid, etc.)
 - May or may not be exported depending on reuse scope
 
@@ -37,38 +41,39 @@ src/playbook-components/ComponentName.jsx
 
 ## Required prop patterns
 
-Always write MUI variant and size props explicitly, even though the theme enforces them as defaults:
+Always write MUI variant props explicitly. Leave size to the theme, which uses iP's Playbook defaults (TextField and Select small; Button, Chip, IconButton and FormControl medium), unless a design calls for a different size:
 
 ```jsx
 // TextFields
-<TextField variant="filled" size="small" label="Search" />
+<TextField variant="filled" label="Search" />
 
-// Buttons
-<Button variant="contained" size="small" disableElevation>
+// Buttons: import from playbook-components; secondary actions use color="secondary"
+<Button variant="contained" color="primary" disableElevation={true}>
   Save
 </Button>
 
-// Selects
-<Select variant="filled" size="small" />
-<FormControl variant="filled" size="small">...</FormControl>
+// Selects: FormControl is full width by default, as in iP
+<FormControl variant="filled">
+  <Select variant="filled" />
+</FormControl>
+<FormControl variant="filled" fullWidth={false}>...</FormControl> // inline in a toolbar
 
-// Chips, IconButtons, Autocomplete
-<Chip size="small" label="Tag" />
-<IconButton size="small"><CloseOutlined /></IconButton>
-<Autocomplete size="small" ... />
+// Chips and IconButtons
+<Chip label="Tag" />
+<IconButton><CloseOutlined /></IconButton>
 ```
 
-## Colors — always use CSS custom properties
+## Colors: always use CSS custom properties
 
 ```jsx
 // ✅ Correct
 sx={{ color: 'var(--color-primary)', backgroundColor: 'var(--color-secondary)' }}
 
-// ❌ Wrong — ESLint will block commit
+// ❌ Wrong: ESLint will block the commit
 sx={{ color: '#3b4960' }}
 ```
 
-## Icons — Outlined only
+## Icons: Outlined only
 
 ```jsx
 // ✅ Correct
@@ -80,18 +85,26 @@ import { Add, Close, Search } from '@mui/icons-material'
 
 ## Export to barrel
 
-After creating a new component in `src/playbook-components/`, add it to the barrel:
+After creating a new component in `src/playbook-components/`, add it to the barrel. `src/playbook-components/index.js` imports each component at the top and lists it in the single `export { ... }` block at the bottom:
 
 ```js
-// src/playbook-components/index.js — add your export
-export { default as MyComponent } from './MyComponent'
+import MyComponent from './MyComponent';
+// ...
+export {
+  // ...
+  MyComponent,
+};
 ```
+
+Then add a story in `src/stories/<Group>/MyComponent.stories.js`. CI builds Storybook, so the story must build.
 
 ## Pattern reference
 
 - MUI wrapper pattern: `src/playbook-components/TabBar/index.jsx`
-- App component pattern: `src/components/Button.jsx`, `src/components/PlayerAvatar.jsx`
+- App component pattern: `src/components/PlayerAvatar.jsx`, `src/components/StatusChip.jsx`
+- Story pattern: `src/stories/Navigation/TabBar.stories.js`
+- Mock data or option lists go in `src/data/`, never inline in the component
 
 ## After creating
 
-Run `npm run lint` to confirm no design system violations before finishing.
+Run `npm run validate-design-system` to confirm no design system violations before finishing.

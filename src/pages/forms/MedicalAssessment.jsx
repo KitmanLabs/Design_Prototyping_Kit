@@ -1,25 +1,14 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Box, Paper, Typography, Autocomplete, TextField, MenuItem, IconButton } from '@mui/material';
-import { DataGrid, GridPagination } from 'playbook-components';
-import { ArrowBackOutlined, ArrowDropDownOutlined } from '@mui/icons-material';
-import { Button, StatusChip, Icon } from '../../components';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Box, Paper, Autocomplete, TextField, MenuItem, IconButton } from '@mui/material';
+import { Button, DataGridPremium, GridPagination } from 'playbook-components';
+import { PageHeader } from '../../floorplans'
+import { ArrowDropDownOutlined } from '@mui/icons-material';
+import { StatusChip, Icon } from '../../components';
+import { dataGridStyles } from '../../components/dataGridStyles';
 import '../../styles/design-tokens.css';
-
-const mockData = [
-  { id: 1, athlete: 'Jordan Smith', lastUpdated: '2026-02-24', status: 'Complete' },
-  { id: 2, athlete: 'Alex Martinez', lastUpdated: '2026-02-23', status: 'Draft' },
-  { id: 3, athlete: 'Liam Johnson', lastUpdated: '2026-02-22', status: 'Not Started' },
-  { id: 4, athlete: 'Olivia Brown', lastUpdated: '2026-02-21', status: 'Complete' },
-  { id: 5, athlete: 'Noah Jones', lastUpdated: '2026-02-20', status: 'Draft' },
-  { id: 6, athlete: 'Emma Garcia', lastUpdated: '2026-02-19', status: 'Not Started' },
-  { id: 7, athlete: 'William Davis', lastUpdated: '2026-02-18', status: 'Complete' },
-  { id: 8, athlete: 'Sophia Rodriguez', lastUpdated: '2026-02-17', status: 'Draft' },
-  { id: 9, athlete: 'James Wilson', lastUpdated: '2026-02-16', status: 'Not Started' },
-  { id: 10, athlete: 'Isabella Moore', lastUpdated: '2026-02-15', status: 'Complete' },
-  { id: 11, athlete: 'Benjamin Taylor', lastUpdated: '2026-02-14', status: 'Draft' },
-  { id: 12, athlete: 'Mia Anderson', lastUpdated: '2026-02-13', status: 'Not Started' },
-];
+import { medicalAssessmentRows as mockData } from '../../data/forms';
+import formsTemplatesData from '../../data/forms_templates.json';
 
 const typographyStyles = {
   fontFamily: 'var(--font-family-primary)',
@@ -28,37 +17,21 @@ const typographyStyles = {
 };
 
 const gridSx = {
+  ...dataGridStyles,
   flex: 1,
   minHeight: 0,
-  width: '100%',
-  '& .MuiDataGrid-root': { border: 'none' },
-  '& .MuiDataGrid-columnHeaders': {
-    backgroundColor: 'var(--color-background-primary)',
-    '& .MuiDataGrid-columnHeaderTitle': {
-      fontWeight: 600,
-      fontSize: 'var(--font-size-sm)',
-      fontFamily: 'var(--font-family-primary)'
-    }
-  },
-  '& .MuiDataGrid-cell': {
-    borderBottom: '1px solid var(--color-border-secondary)',
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: 'var(--font-size-sm)',
-    fontFamily: 'var(--font-family-primary)'
-  },
-  '& .grid-cell--pad-left': { pl: 3, paddingLeft: '24px !important' },
-  '& .grid-cell--pad-right': { pr: 3, paddingRight: '24px !important' },
-  '& .MuiDataGrid-footerContainer': { px: 3 }
+  width: '100%'
 };
 
-
+// The assignments for one form template, as at /forms/:formTemplateId/assignments in iP.
 const MedicalAssessment = () => {
   const navigate = useNavigate();
+  const { formId } = useParams();
+  const formTitle = formsTemplatesData.find((template) => template.id === formId)?.form || 'Medical assessment';
 
   const columns = [
     { field: 'athlete', headerName: 'Athlete', flex: 1, headerClassName: 'grid-cell--pad-left', cellClassName: 'grid-cell--pad-left' },
-    { field: 'lastUpdated', headerName: 'Last Updated', flex: 1, valueFormatter: (params) => new Date(params.value).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) },
+    { field: 'lastUpdated', headerName: 'Last Updated', flex: 1, valueFormatter: (value) => new Date(value).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) },
     {
       field: 'status',
       headerName: 'Status',
@@ -95,15 +68,15 @@ const MedicalAssessment = () => {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-end', width: '100%' }}>
             <Button
-              variant={'secondary'}
-              size="small"
+              disableElevation={true}
+              variant="contained" color="secondary"
               style={{ fontWeight: 600, fontSize: 'var(--font-size-xs)', minWidth: 72 }}
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/forms/medical-assessment/fill/${params.row.id}`, {
+                navigate(`/form-fill/${params.row.id}`, {
                   state: {
                     athleteName: params.row.athlete,
-                    formTitle: 'Medical Assessment',
+                    formTitle,
                     isDraft: params.row.status === 'Draft'
                   }
                 });
@@ -112,7 +85,6 @@ const MedicalAssessment = () => {
               {isStarted ? 'Continue' : 'Start'}
             </Button>
             <IconButton 
-              size="small" 
               sx={{ 
                 color: 'var(--color-text-secondary)',
                 visibility: isStarted ? 'visible' : 'hidden'
@@ -128,16 +100,9 @@ const MedicalAssessment = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0, bgcolor: 'var(--color-background-primary)', height: '100%', fontFamily: 'var(--font-family-primary)' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', px: 3, pt: 2, pb: 1 }}>
-        <IconButton onClick={() => navigate(-1)} sx={{ mr: 1, color: 'var(--color-text-primary)' }}>
-          <ArrowBackOutlined />
-        </IconButton>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-2xl)' }}>
-          Medical Assessment
-        </Typography>
-      </Box>
+      <PageHeader title={formTitle} backLabel="Forms" onBackClick={() => navigate('/forms')} />
 
-      <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, margin: '0 24px 24px' }}>
+      <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, margin: '16px 24px 24px' }}>
         <Box sx={{ px: 3, py: 1.5, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flexShrink: 0, borderBottom: '1px solid var(--color-border-primary)' }}>
           <Autocomplete
             size="small"
@@ -153,7 +118,9 @@ const MedicalAssessment = () => {
             label="Status"
             defaultValue=""
             sx={{ minWidth: 220 }}
-            InputProps={{ sx: typographyStyles }}
+            slotProps={{
+              input: { sx: typographyStyles }
+            }}
           >
             <MenuItem value="">All</MenuItem>
             <MenuItem value="Complete">Complete</MenuItem>
@@ -162,7 +129,7 @@ const MedicalAssessment = () => {
           </TextField>
         </Box>
         <Box sx={gridSx}>
-          <DataGrid
+          <DataGridPremium
             rows={mockData}
             columns={columns}
             disableRowSelectionOnClick

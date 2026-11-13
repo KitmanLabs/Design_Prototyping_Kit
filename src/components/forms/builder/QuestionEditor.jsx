@@ -6,7 +6,6 @@ import {
   Select,
   MenuItem,
   TextField,
-  Button,
   Switch,
   FormControlLabel,
   IconButton,
@@ -14,6 +13,7 @@ import {
   InputLabel,
   Paper
 } from '@mui/material'
+import { Button } from '../../../playbook-components'
 import { EditOutlined, DeleteOutlined } from '@mui/icons-material'
 
 export default function QuestionEditor({ question, index, onChange }) {
@@ -58,9 +58,9 @@ export default function QuestionEditor({ question, index, onChange }) {
       </Box>
 
       <Grid container spacing={3}>
-        <Grid item>
+        <Grid>
           <Box sx={{ minWidth: 240 }}>
-            <FormControl fullWidth size="small" variant="filled">
+            <FormControl fullWidth variant="filled">
               <InputLabel id="qs-label">Question style</InputLabel>
               <Select
                 labelId="qs-label"
@@ -72,7 +72,7 @@ export default function QuestionEditor({ question, index, onChange }) {
             </FormControl>
           </Box>
         </Grid>
-        <Grid item>
+        <Grid>
           <Box sx={{ minWidth: 320 }}>
             <TextField
               size="small"
@@ -87,7 +87,7 @@ export default function QuestionEditor({ question, index, onChange }) {
       </Grid>
 
       <Grid container spacing={3} direction="column" sx={{ mt: 0.5 }}>
-        <Grid item>
+        <Grid>
           <TextField
             size="small"
             variant="filled"
@@ -97,9 +97,9 @@ export default function QuestionEditor({ question, index, onChange }) {
             onChange={(e) => handleUpdate({ description: e.target.value })}
           />
         </Grid>
-        <Grid item>
+        <Grid>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-            <FormControl fullWidth sx={{ maxWidth: 220 }} size="small" variant="filled">
+            <FormControl fullWidth sx={{ maxWidth: 220 }} variant="filled">
               <InputLabel id="style-label">Style</InputLabel>
               <Select
                 labelId="style-label"
@@ -132,7 +132,7 @@ export default function QuestionEditor({ question, index, onChange }) {
         </Grid>
       </Grid>
     </Paper>
-  )
+  );
 }
 
 

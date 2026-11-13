@@ -1,10 +1,7 @@
-// @flow
 import { useState, useEffect } from 'react';
 import { Box, DataGridPremium, Typography } from '../../playbook-components';
 import {
-  type GridRowsProp,
-  type GridRowSelectionModel,
-  GridLinkOperator,
+  GridLogicOperator,
 } from '@mui/x-data-grid-premium';
 import { KitmanIcon, KITMAN_ICON_NAMES } from '../../playbook-components/icons';
 
@@ -167,7 +164,10 @@ const ServerSidePaginationTemplate = (args, { updateArgs }) => {
   const [pageNumber, setPageNumber] = useState(args.pageNumber || 0);
   const [pageSize, setPageSize] = useState(args.pageSize || 10);
   const [loading, setLoading] = useState(true);
-  const [rowSelectionModel, setRowSelectionModel] = useState([]);
+  const [rowSelectionModel, setRowSelectionModel] = useState({
+    type: 'include',
+    ids: new Set([]),
+  });
 
   const fetchData = async (currentPage, currentPageSize) => {
     setLoading(true);
@@ -228,7 +228,10 @@ const ServerSidePaginationTemplate = (args, { updateArgs }) => {
 };
 
 const Template = (args, { updateArgs }) => {
-  const [rowSelectionModel, setRowSelectionModel] = useState([]);
+  const [rowSelectionModel, setRowSelectionModel] = useState({
+    type: 'include',
+    ids: new Set([]),
+  });
   const [currentRows, setCurrentRows] = useState(args.rows || sampleRows);
   const initialRowGroupingModel = args.rowGroupingModel || (args.initialState && args.initialState.rowGrouping && args.initialState.rowGrouping.model);
   const [rowGroupingModelState, setRowGroupingModelState] = useState(initialRowGroupingModel);

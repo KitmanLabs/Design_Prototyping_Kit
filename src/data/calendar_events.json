@@ -53,7 +53,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/5155482",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "squad": "International Squad",
       "location": "Testing Facility",
       "coach": "Test Team",
@@ -75,7 +75,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/5160787",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "squad": "International Squad",
       "location": "Home",
       "coach": "Regular Coach",
@@ -136,7 +136,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/5163988",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "squad": "International Squad",
       "location": "Home",
       "coach": "Test Team",
@@ -158,7 +158,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/5174051",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "squad": "International Squad",
       "location": "Testing Facility",
       "coach": "Test Team",
@@ -179,7 +179,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/5162923",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "squad": "International Squad",
       "location": "Main Facility",
       "coach": "Regular Coach",
@@ -202,7 +202,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/5179374",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "squad": "International Squad",
       "location": "Home",
       "coach": "Series Coach",
@@ -264,7 +264,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/5173344",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "squad": "International Squad",
       "location": "Home",
       "coach": "Test Team",
@@ -287,7 +287,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/5178991",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "squad": "International Squad",
       "location": "Main Facility",
       "coach": "Regular Coach",
@@ -347,7 +347,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/5183310",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "squad": "International Squad",
       "location": "Testing Facility",
       "coach": "Test Team",
@@ -374,7 +374,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/5185297",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "squad": "International Squad",
       "location": "Main Facility",
       "coach": "Regular Coach",
@@ -434,7 +434,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/4864755",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "squad": "International Squad",
       "location": "Testing Facility",
       "coach": "Test Team",
@@ -457,7 +457,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/5159804",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "squad": "International Squad",
       "location": "Home",
       "coach": "Regular Coach",
@@ -517,7 +517,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/5174078",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "squad": "International Squad",
       "location": "Home",
       "coach": "Test Team",
@@ -540,7 +540,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/5174081",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "squad": "International Squad",
       "location": "Main Facility",
       "coach": "Regular Coach",
@@ -560,7 +560,7 @@
     "borderColor": "#2A6EBB",
     "textColor": "#ffffff",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Home",
@@ -587,7 +587,7 @@
     "borderColor": "#2A6EBB",
     "textColor": "#ffffff",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "Academy Squad",
       "location": "Away",
@@ -612,7 +612,7 @@
     "borderColor": "#C0392B",
     "textColor": "#ffffff",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Neutral",
@@ -714,7 +714,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000001",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Away",
@@ -756,7 +756,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000003",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Home",
@@ -783,7 +783,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000004",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Neutral",
@@ -852,7 +852,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000007",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Main Facility",
@@ -874,7 +874,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000008",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Home",
@@ -923,7 +923,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000010",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Home",
@@ -940,7 +940,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000011",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Main Facility",
@@ -962,7 +962,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000012",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Home",
@@ -988,7 +988,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000013",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Training Field",
@@ -1006,7 +1006,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000014",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Away",
@@ -1047,7 +1047,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000016",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Home",
@@ -1068,7 +1068,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000017",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -1095,7 +1095,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000018",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Home",
@@ -1157,7 +1157,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000021",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Testing Facility",
@@ -1180,7 +1180,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000022",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -1230,7 +1230,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000024",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Home",
@@ -1276,7 +1276,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000026",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Neutral",
@@ -1302,7 +1302,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000027",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -1329,7 +1329,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000028",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Neutral",
@@ -1350,7 +1350,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000029",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Home",
@@ -1417,7 +1417,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000032",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Home",
@@ -1434,7 +1434,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000033",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -1457,7 +1457,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000034",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Training Field",
@@ -1484,7 +1484,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000035",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Home",
@@ -1505,7 +1505,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000036",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Main Facility",
@@ -1527,7 +1527,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000037",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Home",
@@ -1573,7 +1573,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000039",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Home",
@@ -1597,7 +1597,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000040",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "Academy Squad",
       "location": "Away",
@@ -1647,7 +1647,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000042",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Home",
@@ -1666,7 +1666,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000043",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Neutral",
@@ -1683,7 +1683,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000044",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Neutral",
@@ -1700,7 +1700,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000045",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Home",
@@ -1721,7 +1721,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000046",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Home",
@@ -1738,7 +1738,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000047",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Home",
@@ -1779,7 +1779,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000049",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -1801,7 +1801,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000050",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Training Field",
@@ -1819,7 +1819,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000051",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Training Field",
@@ -1846,7 +1846,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000052",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Main Facility",
@@ -1863,7 +1863,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000053",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Neutral",
@@ -1880,7 +1880,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000054",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -1907,7 +1907,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000055",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Home",
@@ -1930,7 +1930,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000056",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "Academy Squad",
       "location": "Home",
@@ -1949,7 +1949,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000057",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Home",
@@ -1973,7 +1973,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000058",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Testing Facility",
@@ -1991,7 +1991,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000059",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Neutral",
@@ -2019,7 +2019,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000060",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Neutral",
@@ -2042,7 +2042,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000061",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Away",
@@ -2066,7 +2066,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000062",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Away",
@@ -2089,7 +2089,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000063",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -2111,7 +2111,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000064",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Testing Facility",
@@ -2133,7 +2133,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000065",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Training Field",
@@ -2156,7 +2156,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000066",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Away",
@@ -2179,7 +2179,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000067",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Home",
@@ -2218,7 +2218,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000069",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Home",
@@ -2236,7 +2236,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000070",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Neutral",
@@ -2259,7 +2259,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000071",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Training Field",
@@ -2277,7 +2277,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000072",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Training Field",
@@ -2304,7 +2304,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000073",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "Academy Squad",
       "location": "Neutral",
@@ -2328,7 +2328,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000074",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Home",
@@ -2356,7 +2356,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000075",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Home",
@@ -2375,7 +2375,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000076",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Away",
@@ -2417,7 +2417,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000078",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -2440,7 +2440,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000079",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Neutral",
@@ -2466,7 +2466,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000080",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Neutral",
@@ -2483,7 +2483,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000081",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Home",
@@ -2505,7 +2505,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000082",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Testing Facility",
@@ -2527,7 +2527,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000083",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Home",
@@ -2548,7 +2548,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000084",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Home",
@@ -2572,7 +2572,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000085",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Main Facility",
@@ -2594,7 +2594,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000086",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Home",
@@ -2702,7 +2702,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000091",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Neutral",
@@ -2775,7 +2775,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000094",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Neutral",
@@ -2837,7 +2837,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000097",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -2860,7 +2860,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000098",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Neutral",
@@ -2882,7 +2882,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000099",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -2900,7 +2900,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000100",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Home",
@@ -2919,7 +2919,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000101",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -2969,7 +2969,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000103",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Training Field",
@@ -2996,7 +2996,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000104",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -3018,7 +3018,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000105",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Main Facility",
@@ -3040,7 +3040,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000106",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Training Field",
@@ -3112,7 +3112,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000109",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Home",
@@ -3139,7 +3139,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000110",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Main Facility",
@@ -3156,7 +3156,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000111",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Neutral",
@@ -3179,7 +3179,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000112",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Main Facility",
@@ -3219,7 +3219,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000114",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Away",
@@ -3265,7 +3265,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000116",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Training Field",
@@ -3292,7 +3292,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000117",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Away",
@@ -3316,7 +3316,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000118",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Home",
@@ -3356,7 +3356,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000120",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "Academy Squad",
       "location": "Home",
@@ -3402,7 +3402,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000122",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Home",
@@ -3419,7 +3419,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000123",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Neutral",
@@ -3461,7 +3461,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000125",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Home",
@@ -3506,7 +3506,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000127",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Away",
@@ -3553,7 +3553,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000129",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "Academy Squad",
       "location": "Away",
@@ -3576,7 +3576,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000130",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Main Facility",
@@ -3598,7 +3598,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000131",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -3620,7 +3620,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000132",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Neutral",
@@ -3683,7 +3683,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000135",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Away",
@@ -3738,7 +3738,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000137",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Main Facility",
@@ -3764,7 +3764,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000138",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Neutral",
@@ -3786,7 +3786,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000139",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Home",
@@ -3807,7 +3807,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000140",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Training Field",
@@ -3829,7 +3829,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000141",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "Academy Squad",
       "location": "Home",
@@ -3848,7 +3848,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000142",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Training Field",
@@ -3875,7 +3875,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000143",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Main Facility",
@@ -3897,7 +3897,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000144",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Home",
@@ -3924,7 +3924,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000145",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Training Field",
@@ -3946,7 +3946,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000146",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Neutral",
@@ -3968,7 +3968,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000147",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Testing Facility",
@@ -3990,7 +3990,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000148",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Neutral",
@@ -4012,7 +4012,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000149",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Training Field",
@@ -4035,7 +4035,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000150",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Away",
@@ -4105,7 +4105,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000153",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Away",
@@ -4133,7 +4133,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000154",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Home",
@@ -4176,7 +4176,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000156",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Home",
@@ -4199,7 +4199,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000157",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Away",
@@ -4218,7 +4218,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000158",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "Academy Squad",
       "location": "Home",
@@ -4246,7 +4246,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000159",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Away",
@@ -4265,7 +4265,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000160",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Neutral",
@@ -4307,7 +4307,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000162",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Home",
@@ -4329,7 +4329,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000163",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Home",
@@ -4366,7 +4366,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000165",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Training Field",
@@ -4415,7 +4415,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000167",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Neutral",
@@ -4436,7 +4436,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000168",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Testing Facility",
@@ -4454,7 +4454,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000169",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Neutral",
@@ -4499,7 +4499,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000171",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Main Facility",
@@ -4525,7 +4525,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000172",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -4552,7 +4552,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000173",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Neutral",
@@ -4580,7 +4580,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000174",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Training Field",
@@ -4630,7 +4630,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000176",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Training Field",
@@ -4675,7 +4675,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000178",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Home",
@@ -4697,7 +4697,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000179",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Home",
@@ -4764,7 +4764,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000182",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Home",
@@ -4787,7 +4787,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000183",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Home",
@@ -4809,7 +4809,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000184",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Neutral",
@@ -4835,7 +4835,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000185",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Main Facility",
@@ -4852,7 +4852,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000186",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Home",
@@ -4871,7 +4871,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000187",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Home",
@@ -4893,7 +4893,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000188",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Main Facility",
@@ -4910,7 +4910,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000189",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Neutral",
@@ -4933,7 +4933,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000190",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Training Field",
@@ -4979,7 +4979,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000192",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Home",
@@ -5023,7 +5023,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000194",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Home",
@@ -5063,7 +5063,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000196",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Away",
@@ -5114,7 +5114,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000198",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Main Facility",
@@ -5136,7 +5136,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000199",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Home",
@@ -5211,7 +5211,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000202",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -5302,7 +5302,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000206",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Main Facility",
@@ -5328,7 +5328,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000207",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Home",
@@ -5346,7 +5346,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000208",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Home",
@@ -5368,7 +5368,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000209",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Neutral",
@@ -5385,7 +5385,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000210",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Main Facility",
@@ -5406,7 +5406,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000211",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Home",
@@ -5423,7 +5423,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000212",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Home",
@@ -5466,7 +5466,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000214",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Main Facility",
@@ -5483,7 +5483,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000215",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Home",
@@ -5507,7 +5507,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000216",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Home",
@@ -5552,7 +5552,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000218",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Neutral",
@@ -5580,7 +5580,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000219",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Home",
@@ -5634,7 +5634,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000222",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Training Field",
@@ -5657,7 +5657,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000223",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Neutral",
@@ -5674,7 +5674,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000224",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Main Facility",
@@ -5691,7 +5691,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000225",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Testing Facility",
@@ -5718,7 +5718,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000226",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Neutral",
@@ -5762,7 +5762,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000228",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -5780,7 +5780,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000229",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Main Facility",
@@ -5797,7 +5797,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000230",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Home",
@@ -5823,7 +5823,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000231",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Training Field",
@@ -5841,7 +5841,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000232",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Testing Facility",
@@ -5891,7 +5891,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000234",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Main Facility",
@@ -5908,7 +5908,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000235",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "International Squad",
       "location": "Neutral",
@@ -5977,7 +5977,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000238",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "Academy Squad",
       "location": "Testing Facility",
@@ -6000,7 +6000,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000239",
     "extendedProps": {
-      "eventType": "SERIES_EVENT",
+      "eventType": "GAME",
       "typeCategory": "Games",
       "squad": "1st team",
       "location": "Away",
@@ -6028,7 +6028,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000240",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "1st team",
       "location": "Main Facility",
@@ -6045,7 +6045,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000241",
     "extendedProps": {
-      "eventType": "RECURRING_EVENT",
+      "eventType": "CUSTOM_EVENT",
       "typeCategory": "Events",
       "squad": "International Squad",
       "location": "Neutral",
@@ -6067,7 +6067,7 @@
     "textColor": "#ffffff",
     "url": "/planning_hub/events/9000242",
     "extendedProps": {
-      "eventType": "TEST_SESSION",
+      "eventType": "TRAINING_SESSION",
       "typeCategory": "Individual Sessions",
       "squad": "International Squad",
       "location": "Training Field",

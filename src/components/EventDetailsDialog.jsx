@@ -1,6 +1,8 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogActions, Box, Typography, Button, Divider, Chip, Link } from '@mui/material';
+import { Dialog, DialogContent, DialogActions, Box, Typography, Divider, Chip, Link } from '@mui/material';
+import { Button } from '../playbook-components';
 import { RefreshOutlined, AttachFileOutlined, PersonOutlined, LocationOnOutlined } from '@mui/icons-material';
+import { getEventTypeLabel } from '../data/calendarEventOptions';
 
 const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff = [] }) => {
   if (!event) return null;
@@ -85,10 +87,12 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
       onClose={onClose} 
       fullWidth 
       maxWidth="sm"
-      PaperProps={{
-        sx: {
-          borderRadius: '8px',
-          boxShadow: 'var(--shadow-dialog)',
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: '8px',
+            boxShadow: 'var(--shadow-dialog)',
+          }
         }
       }}
     >
@@ -118,7 +122,7 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
         </Typography>
 
         <Typography variant="body2" sx={{ color: 'var(--color-text-primary)', mb: 1, fontSize: '14px', fontWeight: 500 }}>
-          {extendedProps?.eventType || 'Event'}
+          {getEventTypeLabel(extendedProps)}
         </Typography>
 
         {squadDisplay && (
@@ -184,7 +188,7 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
             <Typography variant="subtitle2" sx={{ color: 'var(--color-text-secondary)', mb: 1 }}>Attendees</Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {resolveAthletes().map((name, i) => (
-                <Chip key={`a-${i}`} icon={<PersonOutlined />} label={name} size="small" />
+                <Chip key={`a-${i}`} icon={<PersonOutlined />} label={name} />
               ))}
             </Box>
           </Box>
@@ -196,7 +200,7 @@ const EventDetailsDialog = ({ open, event, onClose, onEdit, athletes = [], staff
             <Typography variant="subtitle2" sx={{ color: 'var(--color-text-secondary)', mb: 1 }}>Staff</Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {resolveStaff().map((name, i) => (
-                <Chip key={`s-${i}`} icon={<PersonOutlined />} label={name} size="small" />
+                <Chip key={`s-${i}`} icon={<PersonOutlined />} label={name} />
               ))}
             </Box>
           </Box>

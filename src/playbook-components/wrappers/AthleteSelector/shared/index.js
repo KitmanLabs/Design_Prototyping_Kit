@@ -1,5 +1,3 @@
-// @flow
-
 import AthleteListItem from './AthleteListItem';
 import SearchBar from './SearchBar';
 import BodySkeleton from './BodySkeleton';

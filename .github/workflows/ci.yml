@@ -16,7 +16,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
@@ -29,7 +29,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "docs: auto-generate data documentation"
-          file_pattern: "wiki/Understanding-the-Data.md"
+          file_pattern: "docs/understanding-the-data.md"
           skip_fetch: true
           skip_checkout: true
 
@@ -42,8 +42,13 @@ jobs:
       - name: Design system validation
         run: npm run validate-design-system
 
+      - name: Tests
+        run: npm test -- --run
+
       - name: Build
         env:
-          VITE_PUBLIC_BUILDER_KEY: ${{ secrets.VITE_PUBLIC_BUILDER_KEY }}
           VITE_MUI_X_LICENSE_KEY: ${{ secrets.VITE_MUI_X_LICENSE_KEY }}
         run: npm run build
+
+      - name: Build Storybook
+        run: npm run build-storybook -- --quiet

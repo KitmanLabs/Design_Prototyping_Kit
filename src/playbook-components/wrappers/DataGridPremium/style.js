@@ -1,4 +1,3 @@
-// @flow
 import { STANDARD_TOOLBAR_HEIGHT } from './constants';
 
 const style = {

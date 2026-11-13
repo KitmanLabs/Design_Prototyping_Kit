@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useArgs } from '@storybook/client-api';
+import { useArgs } from 'storybook/preview-api';
 import {
   Drawer,
   Stack,
@@ -24,17 +24,20 @@ export default {
       <Drawer
         {...args}
         onClose={onClose}
-        PaperProps={{
-          sx: { width: '500px' },
+        slotProps={{
+          paper: {
+            sx: { width: '500px' },
+          }
         }}
       >
         <Stack
           direction="row"
-          justifyContent="space-between"
-          alignItems="center"
           spacing={1}
-          p={1}
-        >
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "center",
+            p: 1
+          }}>
           <Typography variant="h6" component="p" sx={{ color: 'text.primary' }}>
             Title
           </Typography>

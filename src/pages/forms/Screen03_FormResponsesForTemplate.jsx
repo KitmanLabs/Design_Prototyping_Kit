@@ -2,9 +2,11 @@ import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Box, Paper, Typography, Autocomplete, TextField, Link } from '@mui/material'
 import { ArrowDropDownOutlined } from '@mui/icons-material'
-import { DataGrid, GridPagination } from 'playbook-components'
+import { Button, DataGridPremium, GridPagination } from 'playbook-components'
+import { PageHeader } from '../../floorplans'
 import '../../styles/design-tokens.css'
-import { Button, Icon, StatusChip } from '../../components'
+import { dataGridStyles } from '../../components/dataGridStyles'
+import { StatusChip } from '../../components'
 import { athletesSimple } from '../../data'
 
 // Map of known form ids to names for display only
@@ -98,22 +100,15 @@ function Screen03_FormResponsesForTemplate() {
       headerClassName: 'grid-cell--pad-right',
       cellClassName: 'grid-cell--pad-right',
       renderCell: () => (
-        <Button size="small" variant="secondary">Start</Button>
+        <Button disableElevation={true} variant="contained" color="secondary">Start</Button>
       )
     }
   ]), [navigate])
 
   return (
-    <Box sx={{ py: 2, bgcolor: 'var(--color-background-primary)', height: '100%' }}>
-      <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-        <Box sx={{ px: 3, pt: 2, pb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Button variant="secondary" size="small" aria-label="Back" onClick={() => navigate('/forms')}>
-            <Icon icon="arrow_back" />
-          </Button>
-          <Typography variant="h5" sx={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
-            {formTitle}
-          </Typography>
-        </Box>
+    <Box sx={{ bgcolor: 'var(--color-background-primary)', height: '100%' }}>
+      <PageHeader title={formTitle} backLabel="Forms" onBackClick={() => navigate('/forms')} />
+      <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', pt: 2 }}>
 
         {/* Filters */}
         <Box sx={{ px: 3, pb: 1, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
@@ -143,24 +138,8 @@ function Screen03_FormResponsesForTemplate() {
         </Box>
 
         {/* Grid */}
-        <Box sx={{
-          height: 560,
-          width: '100%',
-          '& .MuiDataGrid-root': { border: 'none' },
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: 'var(--color-background-primary)',
-            '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 600, fontSize: '14px' }
-          },
-          '& .MuiDataGrid-cell': {
-            borderBottom: '1px solid var(--color-border-secondary)',
-            display: 'flex',
-            alignItems: 'center'
-          },
-          '& .grid-cell--pad-left': { pl: 3, paddingLeft: '24px !important' },
-          '& .grid-cell--pad-right': { pr: 3, paddingRight: '24px !important' },
-          '& .MuiDataGrid-footerContainer': { px: 3 },
-        }}>
-          <DataGrid
+        <Box sx={{ ...dataGridStyles, height: 560, width: '100%' }}>
+          <DataGridPremium
             rows={filteredRows}
             columns={columns}
             disableRowSelectionOnClick
@@ -177,5 +156,4 @@ function Screen03_FormResponsesForTemplate() {
 }
 
 export default Screen03_FormResponsesForTemplate
-
 

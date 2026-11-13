@@ -31,10 +31,12 @@ function DrawerAthleteSelector({ open, onClose, title = 'Assign athletes', athle
   }
 
   return (
-    <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{ sx: { width: 420 } }}>
+    <Drawer anchor="right" open={open} onClose={onClose} slotProps={{
+      paper: { sx: { width: 420 } }
+    }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1.5 }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{title}</Typography>
-        <IconButton onClick={onClose} size="small">
+        <IconButton onClick={onClose}>
           <CloseOutlined />
         </IconButton>
       </Box>
@@ -47,12 +49,14 @@ function DrawerAthleteSelector({ open, onClose, title = 'Assign athletes', athle
           placeholder="Search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <SearchOutlined fontSize="small" />
-              </InputAdornment>
-            )
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <SearchOutlined fontSize="small" />
+                </InputAdornment>
+              )
+            }
           }}
         />
       </Box>
@@ -70,7 +74,7 @@ function DrawerAthleteSelector({ open, onClose, title = 'Assign athletes', athle
         ))}
       </List>
     </Drawer>
-  )
+  );
 }
 
 DrawerAthleteSelector.propTypes = {

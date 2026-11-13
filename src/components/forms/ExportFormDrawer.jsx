@@ -11,7 +11,6 @@ import {
   TextField,
   FormControlLabel,
   Checkbox,
-  Button,
   Switch,
   Avatar,
   Paper,
@@ -22,7 +21,8 @@ import {
   Snackbar,
   Slide
 } from '@mui/material'
-import { ClickAwayListener } from '@mui/base'
+import { Button } from '../../playbook-components'
+import { ClickAwayListener } from '@mui/material'
 import {
   CloseOutlined,
   KeyboardArrowDownOutlined,
@@ -33,49 +33,11 @@ import {
 import { useTheme } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { toMoment, withDate } from '../../utils/pickerDates'
 import '../../styles/design-tokens.css'
-
-const formFieldStyles = {
-  '& .MuiInputBase-root': {
-    backgroundColor: 'var(--color-background-secondary)',
-    borderRadius: 'var(--radius-sm)',
-    '&:hover': { backgroundColor: 'var(--color-background-tertiary)' },
-    '&.Mui-focused': { backgroundColor: 'var(--color-background-primary)' },
-  },
-  '& .MuiInputLabel-root': {
-    color: 'var(--color-text-secondary)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 'var(--placeholder-font-weight)',
-    fontFamily: 'var(--font-family-primary)',
-    '&.Mui-focused': { color: 'var(--color-border-focus)' },
-  },
-  '& .MuiFilledInput-root': {
-    backgroundColor: 'var(--color-background-secondary)',
-    borderRadius: 'var(--radius-sm)',
-    '&:hover': { backgroundColor: 'var(--color-background-tertiary)' },
-    '&.Mui-focused': { backgroundColor: 'var(--color-background-primary)' },
-    '&:before': { borderBottom: '1px solid var(--color-border-primary)' },
-    '&:hover:not(.Mui-disabled):before': { borderBottom: '1px solid var(--color-border-focus)' },
-    '&.Mui-focused:after': { borderBottom: '2px solid var(--color-border-focus)' },
-  },
-  '& .MuiInputBase-input': {
-    color: 'var(--color-text-primary)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 'var(--font-weight-medium)',
-    fontFamily: 'var(--font-family-primary)',
-  },
-}
-
-// Default export column fields
-const DEFAULT_EXPORT_FIELDS = [
-  { id: 'athleteName', label: 'Athlete name', checked: true },
-  { id: 'formName', label: 'Form name', checked: true },
-  { id: 'productArea', label: 'Product area', checked: true },
-  { id: 'category', label: 'Category', checked: true },
-  { id: 'completionDate', label: 'Completion date', checked: true },
-  { id: 'status', label: 'Status', checked: true },
-]
+import { DEFAULT_EXPORT_FIELDS } from '../../data/forms'
+import { formFieldStyles } from '../formFieldStyles'
 
 function ExportFormDrawer({
   open,
@@ -319,7 +281,6 @@ function ExportFormDrawer({
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Button
-            size="small"
             variant="contained"
             onClick={(e) => {
               e.stopPropagation()
@@ -405,13 +366,14 @@ function ExportFormDrawer({
       <Box>
         {/* Header */}
         <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          px={2}
-          pt={2}
-          pb={1}
-        >
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            px: 2,
+            pt: 2,
+            pb: 1
+          }}>
           <Typography
             variant="h6"
             sx={{
@@ -423,7 +385,7 @@ function ExportFormDrawer({
           >
             Select Athletes
           </Typography>
-          <IconButton size="small" onClick={handleCloseSelector}>
+          <IconButton onClick={handleCloseSelector}>
             <CloseOutlined fontSize="small" />
           </IconButton>
         </Box>
@@ -444,7 +406,6 @@ function ExportFormDrawer({
               <Button
                 startIcon={<ChevronLeftOutlined fontSize="small" />}
                 onClick={handleBack}
-                size="small"
                 sx={{
                   textTransform: 'none',
                   fontFamily: 'var(--font-family-primary)',
@@ -489,7 +450,6 @@ function ExportFormDrawer({
               }}
             >
               <Chip
-                size="small"
                 variant="filled"
                 disabled={selectedIds.size === 0}
                 color="primary"
@@ -519,9 +479,12 @@ function ExportFormDrawer({
             </Box>
           </>
         ) : (
-          <Box px={2} pb={1}>
+          <Box
+            sx={{
+              px: 2,
+              pb: 1
+            }}>
             <Chip
-              size="small"
               variant="filled"
               disabled={selectedIds.size === 0}
               color="primary"
@@ -572,7 +535,6 @@ function ExportFormDrawer({
         <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
           <Button
             variant="contained"
-            size="small"
             onClick={handleDone}
             disabled={selectedIds.size === 0}
             sx={{
@@ -591,23 +553,25 @@ function ExportFormDrawer({
           </Button>
         </Box>
       </Box>
-    )
+    );
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <LocalizationProvider dateAdapter={AdapterMoment}>
       <Drawer
         anchor={isMobile ? 'bottom' : 'right'}
         open={open}
         onClose={handleClose}
         ModalProps={{ keepMounted: true }}
-        PaperProps={{
-          sx: {
-            width: isMobile ? '100vw' : 480,
-            maxWidth: '100vw',
-            height: isMobile ? '90vh' : '100vh',
-            boxShadow: theme.shadows[16],
-            display: 'flex'
+        slotProps={{
+          paper: {
+            sx: {
+              width: isMobile ? '100vw' : 480,
+              maxWidth: '100vw',
+              height: isMobile ? '90vh' : '100vh',
+              boxShadow: theme.shadows[16],
+              display: 'flex'
+            }
           }
         }}
       >
@@ -634,7 +598,7 @@ function ExportFormDrawer({
             >
               Export
             </Typography>
-            <IconButton onClick={handleClose} size="small" aria-label="Close">
+            <IconButton onClick={handleClose} aria-label="Close">
               <CloseOutlined />
             </IconButton>
           </Box>
@@ -652,23 +616,25 @@ function ExportFormDrawer({
                   value={triggerDisplayText}
                   placeholder="Select players"
                   onClick={handleOpenSelector}
-                  InputProps={{
-                    readOnly: true,
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <KeyboardArrowDownOutlined
-                          fontSize="small"
-                          sx={{ color: 'var(--color-text-secondary)' }}
-                        />
-                      </InputAdornment>
-                    )
-                  }}
                   sx={{
                     ...formFieldStyles,
                     cursor: 'pointer',
                     '& .MuiInputBase-input': {
                       ...formFieldStyles['& .MuiInputBase-input'],
                       cursor: 'pointer'
+                    }
+                  }}
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <KeyboardArrowDownOutlined
+                            fontSize="small"
+                            sx={{ color: 'var(--color-text-secondary)' }}
+                          />
+                        </InputAdornment>
+                      )
                     }
                   }}
                 />
@@ -708,11 +674,13 @@ function ExportFormDrawer({
               </Popper>
 
               {/* Date Range */}
-              <Stack direction="row" spacing={2} alignItems="center">
+              <Stack direction="row" spacing={2} sx={{
+                alignItems: "center"
+              }}>
                 <DatePicker
                   label="Start date"
-                  value={startDate}
-                  onChange={(newValue) => setStartDate(newValue)}
+                  value={toMoment(startDate)}
+                  onChange={withDate((newValue) => setStartDate(newValue))}
                   slotProps={{
                     textField: {
                       size: 'small',
@@ -732,8 +700,8 @@ function ExportFormDrawer({
                 </Typography>
                 <DatePicker
                   label="End date"
-                  value={endDate}
-                  onChange={(newValue) => setEndDate(newValue)}
+                  value={toMoment(endDate)}
+                  onChange={withDate((newValue) => setEndDate(newValue))}
                   slotProps={{
                     textField: {
                       size: 'small',
@@ -811,10 +779,11 @@ function ExportFormDrawer({
               bgcolor: 'var(--color-background-primary)'
             }}
           >
-            <Stack direction="row" justifyContent="space-between" spacing={1.5}>
+            <Stack direction="row" spacing={1.5} sx={{
+              justifyContent: "space-between"
+            }}>
               <Button
                 variant="contained"
-                size="small"
                 disableElevation
                 sx={{
                   backgroundColor: 'var(--button-secondary-bg)',
@@ -829,7 +798,6 @@ function ExportFormDrawer({
               </Button>
               <Button
                 variant="contained"
-                size="small"
                 disableElevation
                 sx={{
                   backgroundColor: 'var(--color-primary)',
@@ -852,8 +820,10 @@ function ExportFormDrawer({
         open={snackbarOpen}
         autoHideDuration={2500}
         onClose={handleSnackbarClose}
-        TransitionComponent={SlideTransition}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        slots={{
+          transition: SlideTransition
+        }}
       >
         <Box
           sx={{
@@ -879,7 +849,6 @@ function ExportFormDrawer({
             Export successful
           </Typography>
           <Button
-            size="small"
             variant="contained"
             sx={{
               color: 'var(--color-white)',
@@ -895,7 +864,7 @@ function ExportFormDrawer({
         </Box>
       </Snackbar>
     </LocalizationProvider>
-  )
+  );
 }
 
 ExportFormDrawer.propTypes = {

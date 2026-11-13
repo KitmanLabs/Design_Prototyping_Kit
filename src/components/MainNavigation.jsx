@@ -38,7 +38,7 @@ const navigationItems = [
     id: 'medical', 
     label: 'Medical', 
     icon: LocalHospitalOutlined, 
-    path: '/medical',
+    path: '/medical/rosters',
     section: 'main'
   },
   { 
@@ -52,12 +52,12 @@ const navigationItems = [
     id: 'athletes', 
     label: 'Athletes', 
     icon: PeopleOutlined, 
-    path: '/athlete',
+    path: '/athletes',
     section: 'main'
   },
   { 
     id: 'workload', 
-    label: 'Workload', 
+    label: 'Workloads', 
     icon: FitnessCenterOutlined, 
     path: '/workloads',
     section: 'main'
@@ -73,28 +73,28 @@ const navigationItems = [
     id: 'calendar', 
     label: 'Calendar', 
     icon: CalendarMonthOutlined, 
-    path: '/planning',
+    path: '/calendar',
     section: 'main'
   },
   { 
-    id: 'messages', 
-    label: 'Messages', 
+    id: 'messaging', 
+    label: 'Messaging', 
     icon: ChatOutlined, 
-    path: '/messages',
+    path: '/messaging',
     section: 'main'
   },
   { 
-    id: 'activity-log', 
-    label: 'Activity log', 
+    id: 'activity', 
+    label: 'Activity', 
     icon: HistoryOutlined, 
     path: '/activity',
     section: 'main'
   },
   { 
-    id: 'admin', 
-    label: 'Admin', 
+    id: 'administration', 
+    label: 'Administration', 
     icon: SettingsOutlined, 
-    path: '/settings',
+    path: '/administration',
     section: 'main'
   }
 ]
@@ -125,9 +125,7 @@ function MainNavigation({
   }
 
   const renderNavItem = (item, isCollapsed = false) => {
-    const isActive = item.path === '/forms'
-      ? (location.pathname === '/forms' || location.pathname.startsWith('/forms/'))
-      : location.pathname === item.path
+    const isActive = location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
     const IconComponent = item.icon
 
     return (

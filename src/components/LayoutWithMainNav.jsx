@@ -1,10 +1,8 @@
 import React, { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
 import { 
   Box, 
   AppBar, 
   Toolbar, 
-  Typography, 
   IconButton,
   Avatar,
   Menu,
@@ -17,20 +15,13 @@ import {
   NotificationsOutlined
 } from '@mui/icons-material'
 import MainNavigation from './MainNavigation'
-import { currentUser, availableSquads, pageTitles } from '../data/layout'
+import { currentUser, availableSquads } from '../data/layout'
 import '../styles/design-tokens.css'
 
 function MedinahLayoutWithMainNav({ children }) {
-  const location = useLocation()
-  const navigate = useNavigate()
   const [isNavOpen, setIsNavOpen] = useState(false)
   const [currentSquad, setCurrentSquad] = useState(availableSquads[0])
   const [userMenuAnchor, setUserMenuAnchor] = useState(null)
-
-  const getPageTitle = () => {
-    if (location.pathname.startsWith('/forms')) return 'Forms'
-    return pageTitles[location.pathname] || 'Dashboard'
-  }
 
   const handleNavToggle = () => {
     setIsNavOpen(!isNavOpen)
@@ -48,9 +39,6 @@ function MedinahLayoutWithMainNav({ children }) {
     const squad = availableSquads.find(s => s.id === event.target.value)
     setCurrentSquad(squad)
   }
-
-  const isCalendarPage = location.pathname === '/planning'
-  const isFormsPage = location.pathname.startsWith('/forms')
 
   return (
     <>
@@ -84,21 +72,8 @@ function MedinahLayoutWithMainNav({ children }) {
             boxShadow: 'var(--shadow-sm)'
           }}
         >
-          <Toolbar sx={{ justifyContent: 'space-between' }}>
-            {/* Page Title */}
-            <Typography 
-              variant="h6" 
-              component="h1"
-              sx={{ 
-                fontWeight: (isCalendarPage || isFormsPage) ? 500 : 600,
-                fontSize: (isCalendarPage || isFormsPage) ? '14px' : undefined,
-                color: (isCalendarPage || isFormsPage) ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
-                fontFamily: 'var(--font-family-primary)',
-                textTransform: 'none'
-              }}
-            >
-              {getPageTitle()}
-            </Typography>
+          {/* Each page shows its own title in its page header, so the app bar holds only global context */}
+          <Toolbar sx={{ justifyContent: 'flex-end' }}>
 
             {/* Right Side Actions */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

@@ -19,25 +19,27 @@ import {
   Drawer,
   Checkbox,
   List,
-  ListItem,
   ListItemIcon,
   ListItemText,
-  Badge
-} from '@mui/material'
-import { DataGrid, GridPagination, GridToolbar } from 'playbook-components'
-import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined, KeyboardArrowDownOutlined, KeyboardArrowRightOutlined, CloseOutlined, NotificationsOutlined } from '@mui/icons-material'
+} from '@mui/material';
+import { Button, DataGridPremium, GridPagination } from 'playbook-components'
+import { PageHeader } from '../../floorplans'
+import { resolveGridPrompt } from '../../utils/gridAiAssistant'
+import { FORMS_AI_SUGGESTIONS, COMPLETED_FORMS_AI_SUGGESTIONS } from '../../data/gridAiSuggestions'
+import { SearchOutlined, MoreVertOutlined, ArrowDropDownOutlined, KeyboardArrowDownOutlined, KeyboardArrowRightOutlined, CloseOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DateRangePicker, DatePicker } from '@mui/x-date-pickers-pro'
-import dayjs from 'dayjs'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { DateRangePicker, DatePicker, MultiInputDateRangeField } from '@mui/x-date-pickers-pro'
+import moment from 'moment'
 import '../../styles/design-tokens.css'
-import { Button, StatusChip, Icon } from '../../components'
+import { StatusChip, Icon } from '../../components'
+import { dataGridStyles } from '../../components/dataGridStyles'
 import AssignFormDrawer from '../../components/forms/AssignFormDrawer'
 import CreateFormDrawer from '../../components/forms/CreateFormDrawer'
 import EditScheduleDrawer from '../../components/forms/EditScheduleDrawer'
 import ExportFormDrawer from '../../components/forms/ExportFormDrawer'
 import NotificationDrawer from '../../components/forms/NotificationDrawer'
-import athletesData from '../../data/athletes.json'
+import athletesData from '../../data/athletes'
 import formsTemplatesData from '../../data/forms_templates.json'
 import { currentUser } from '../../data/layout'
 import {
@@ -48,6 +50,9 @@ import {
   DeleteOutlined,
   FileDownloadOutlined,
 } from '@mui/icons-material'
+import { completedRowsData, complianceRowsData, schedulingRowsData } from '../../data/forms'
+
+import ListItemButton from '@mui/material/ListItemButton';
 
 function a11yProps(index) {
   return {
@@ -77,28 +82,10 @@ const typographyStyles = {
 }
 
 const gridSx = {
+  ...dataGridStyles,
   flex: 1,
   minHeight: 0,
-  width: '100%',
-  '& .MuiDataGrid-root': { border: 'none' },
-  '& .MuiDataGrid-columnHeaders': {
-    backgroundColor: 'var(--color-background-primary)',
-    '& .MuiDataGrid-columnHeaderTitle': {
-      fontWeight: 600,
-      fontSize: 'var(--font-size-sm)',
-      fontFamily: 'var(--font-family-primary)'
-    }
-  },
-  '& .MuiDataGrid-cell': {
-    borderBottom: '1px solid var(--color-border-secondary)',
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: 'var(--font-size-sm)',
-    fontFamily: 'var(--font-family-primary)'
-  },
-  '& .grid-cell--pad-left': { pl: 3, paddingLeft: '24px !important' },
-  '& .grid-cell--pad-right': { pr: 3, paddingRight: '24px !important' },
-  '& .MuiDataGrid-footerContainer': { px: 3 }
+  width: '100%'
 }
 
 const initialFormsFromData = (formsTemplatesData || []).map((r) => ({
@@ -111,265 +98,6 @@ const initialFormsFromData = (formsTemplatesData || []).map((r) => ({
   assignments: r.assignments ?? 0,
   lastUpdated: r.lastUpdated
 }))
-
-const completedRowsData = [
-  { id: 467635, athleteName: 'Bhuvan Bhatt', formName: 'Test Signature Form', productArea: 'General', category: 'Other', examiner: 'Bhuvan Bhatt', completionDate: '31 Jan 2026', formStatus: 'Complete' },
-  { id: 467634, athleteName: 'Akanksha', formName: 'Test - Toggle Switch', productArea: 'Medical', category: 'Other', examiner: 'Benny Gordon-admin-eu', completionDate: '30 Jan 2026', formStatus: 'Complete' },
-  { id: 467633, athleteName: 'Benny Gordon', formName: 'Test - Toggle Switch', productArea: 'Medical', category: 'Other', examiner: 'Benny Gordon-admin-eu', completionDate: '26 Sep 2025', formStatus: 'In progress' },
-  { id: 467632, athleteName: 'Marcus Johnson', formName: 'Daily Wellness Check', productArea: 'Performance', category: 'Wellbeing', examiner: 'Performance', completionDate: '24 Feb 2026', formStatus: 'Complete' },
-  { id: 467631, athleteName: 'Elena Rodriguez', formName: 'Pre-Season Medical Screening', productArea: 'Medical', category: 'Medical', examiner: 'Dr. Sarah Mitchell', completionDate: '20 Feb 2026', formStatus: 'Not started' },
-  { id: 467630, athleteName: 'David Chen', formName: 'Training Load Monitoring', productArea: 'Performance', category: 'Wellbeing', examiner: 'Performance', completionDate: '18 Feb 2026', formStatus: 'In progress' },
-  { id: 467629, athleteName: 'James Wilson', formName: 'Scholarship Reviews', productArea: 'Medical', category: 'Other', examiner: 'Saar Byrne-admin-eu', completionDate: '15 Feb 2026', formStatus: 'Complete' },
-  { id: 467628, athleteName: 'Emma Brown', formName: 'Consent and Data Release', productArea: 'General', category: 'Other', examiner: 'Sporting Operations', completionDate: '10 Feb 2026', formStatus: 'Not started' },
-  { id: 467627, athleteName: 'Liam Davis', formName: 'Post-Game RPE', productArea: 'Performance', category: 'Other', examiner: 'Coaching', completionDate: '8 Feb 2026', formStatus: 'Complete' },
-  { id: 467626, athleteName: 'Sophie Miller', formName: 'Concussion Protocol', productArea: 'Medical', category: 'Medical', examiner: 'Medical', completionDate: '5 Feb 2026', formStatus: 'Complete' }
-]
-
-const complianceRowsData = [
-  { id: 'c-1', athleteName: 'Ethan Walker', position: 'Inside Centre', dob: '14 Mar 2001', complete: 3, total: 10, lastUpdated: '24 Feb 2026', subRows: [
-    { id: 'c-1-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '20 Feb 2026' },
-    { id: 'c-1-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '18 Feb 2026' },
-    { id: 'c-1-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '15 Feb 2026' },
-    { id: 'c-1-sub-4', formName: 'Medical Update', status: 'Draft', lastUpdated: '22 Feb 2026' },
-    { id: 'c-1-sub-5', formName: 'Tryout Agreement', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-1-sub-6', formName: 'Prescription Pickup', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-1-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Draft', lastUpdated: '21 Feb 2026' },
-    { id: 'c-1-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-1-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-1-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
-  ]},
-  { id: 'c-2', athleteName: 'Ryan O\'Sullivan', position: 'Loosehead Prop', dob: '22 Sep 1998', complete: 2, total: 10, lastUpdated: '—', subRows: [
-    { id: 'c-2-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '10 Feb 2026' },
-    { id: 'c-2-sub-2', formName: 'Orthopedic Exam', status: 'Draft', lastUpdated: '12 Feb 2026' },
-    { id: 'c-2-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '8 Feb 2026' },
-    { id: 'c-2-sub-4', formName: 'Medical Update', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-2-sub-5', formName: 'Tryout Agreement', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-2-sub-6', formName: 'Prescription Pickup', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-2-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-2-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-2-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-2-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
-  ]},
-  { id: 'c-3', athleteName: 'Connor McCarthy', position: 'Wing', dob: '07 Jun 1996', complete: 5, total: 10, lastUpdated: '18 Jan 2026', subRows: [
-    { id: 'c-3-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '15 Jan 2026' },
-    { id: 'c-3-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '16 Jan 2026' },
-    { id: 'c-3-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '14 Jan 2026' },
-    { id: 'c-3-sub-4', formName: 'Medical Update', status: 'Complete', lastUpdated: '18 Jan 2026' },
-    { id: 'c-3-sub-5', formName: 'Tryout Agreement', status: 'Complete', lastUpdated: '17 Jan 2026' },
-    { id: 'c-3-sub-6', formName: 'Prescription Pickup', status: 'Draft', lastUpdated: '18 Jan 2026' },
-    { id: 'c-3-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Draft', lastUpdated: '18 Jan 2026' },
-    { id: 'c-3-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-3-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-3-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
-  ]},
-  { id: 'c-4', athleteName: 'Finn Henderson', position: 'Fly Half', dob: '28 Nov 2003', complete: 0, total: 10, lastUpdated: '—', subRows: [
-    { id: 'c-4-sub-1', formName: 'Medical Exam', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-4-sub-2', formName: 'Orthopedic Exam', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-4-sub-3', formName: 'Medical History Form', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-4-sub-4', formName: 'Medical Update', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-4-sub-5', formName: 'Tryout Agreement', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-4-sub-6', formName: 'Prescription Pickup', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-4-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-4-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-4-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-4-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
-  ]},
-  { id: 'c-5', athleteName: 'Jack Morrison', position: 'Outside Centre', dob: '09 Apr 1999', complete: 4, total: 10, lastUpdated: '10 Feb 2026', subRows: [
-    { id: 'c-5-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '5 Feb 2026' },
-    { id: 'c-5-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '6 Feb 2026' },
-    { id: 'c-5-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '4 Feb 2026' },
-    { id: 'c-5-sub-4', formName: 'Medical Update', status: 'Complete', lastUpdated: '10 Feb 2026' },
-    { id: 'c-5-sub-5', formName: 'Tryout Agreement', status: 'Draft', lastUpdated: '8 Feb 2026' },
-    { id: 'c-5-sub-6', formName: 'Prescription Pickup', status: 'Draft', lastUpdated: '9 Feb 2026' },
-    { id: 'c-5-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-5-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-5-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-5-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
-  ]},
-  { id: 'c-6', athleteName: 'Marcus Thompson', position: 'Number 8', dob: '15 Jan 1997', complete: 8, total: 10, lastUpdated: '22 Feb 2026', subRows: [
-    { id: 'c-6-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '18 Feb 2026' },
-    { id: 'c-6-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '19 Feb 2026' },
-    { id: 'c-6-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '17 Feb 2026' },
-    { id: 'c-6-sub-4', formName: 'Medical Update', status: 'Complete', lastUpdated: '22 Feb 2026' },
-    { id: 'c-6-sub-5', formName: 'Tryout Agreement', status: 'Complete', lastUpdated: '20 Feb 2026' },
-    { id: 'c-6-sub-6', formName: 'Prescription Pickup', status: 'Complete', lastUpdated: '20 Feb 2026' },
-    { id: 'c-6-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Complete', lastUpdated: '21 Feb 2026' },
-    { id: 'c-6-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Complete', lastUpdated: '21 Feb 2026' },
-    { id: 'c-6-sub-9', formName: 'Vision Exam', status: 'Draft', lastUpdated: '22 Feb 2026' },
-    { id: 'c-6-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
-  ]},
-  { id: 'c-7', athleteName: 'Sean Brennan', position: 'Scrum Half', dob: '18 Aug 1995', complete: 6, total: 10, lastUpdated: '20 Feb 2026', subRows: [
-    { id: 'c-7-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '15 Feb 2026' },
-    { id: 'c-7-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '16 Feb 2026' },
-    { id: 'c-7-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '14 Feb 2026' },
-    { id: 'c-7-sub-4', formName: 'Medical Update', status: 'Complete', lastUpdated: '20 Feb 2026' },
-    { id: 'c-7-sub-5', formName: 'Tryout Agreement', status: 'Complete', lastUpdated: '18 Feb 2026' },
-    { id: 'c-7-sub-6', formName: 'Prescription Pickup', status: 'Complete', lastUpdated: '19 Feb 2026' },
-    { id: 'c-7-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Draft', lastUpdated: '20 Feb 2026' },
-    { id: 'c-7-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Draft', lastUpdated: '20 Feb 2026' },
-    { id: 'c-7-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-7-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
-  ]},
-  { id: 'c-8', athleteName: 'Patrick Doyle', position: 'Hooker', dob: '03 Dec 2000', complete: 1, total: 10, lastUpdated: '15 Feb 2026', subRows: [
-    { id: 'c-8-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '15 Feb 2026' },
-    { id: 'c-8-sub-2', formName: 'Orthopedic Exam', status: 'Draft', lastUpdated: '15 Feb 2026' },
-    { id: 'c-8-sub-3', formName: 'Medical History Form', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-8-sub-4', formName: 'Medical Update', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-8-sub-5', formName: 'Tryout Agreement', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-8-sub-6', formName: 'Prescription Pickup', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-8-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-8-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-8-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-8-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
-  ]},
-  { id: 'c-9', athleteName: 'Dylan Murphy', position: 'Fullback', dob: '27 Feb 2002', complete: 0, total: 10, lastUpdated: '—', subRows: [
-    { id: 'c-9-sub-1', formName: 'Medical Exam', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-9-sub-2', formName: 'Orthopedic Exam', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-9-sub-3', formName: 'Medical History Form', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-9-sub-4', formName: 'Medical Update', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-9-sub-5', formName: 'Tryout Agreement', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-9-sub-6', formName: 'Prescription Pickup', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-9-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-9-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-9-sub-9', formName: 'Vision Exam', status: 'Not Started', lastUpdated: '—' },
-    { id: 'c-9-sub-10', formName: 'State Waiver', status: 'Not Started', lastUpdated: '—' }
-  ]},
-  { id: 'c-10', athleteName: 'Liam O\'Brien', position: 'Lock', dob: '11 Jul 1994', complete: 10, total: 10, lastUpdated: '20 Feb 2026', subRows: [
-    { id: 'c-10-sub-1', formName: 'Medical Exam', status: 'Complete', lastUpdated: '12 Feb 2026' },
-    { id: 'c-10-sub-2', formName: 'Orthopedic Exam', status: 'Complete', lastUpdated: '13 Feb 2026' },
-    { id: 'c-10-sub-3', formName: 'Medical History Form', status: 'Complete', lastUpdated: '11 Feb 2026' },
-    { id: 'c-10-sub-4', formName: 'Medical Update', status: 'Complete', lastUpdated: '20 Feb 2026' },
-    { id: 'c-10-sub-5', formName: 'Tryout Agreement', status: 'Complete', lastUpdated: '15 Feb 2026' },
-    { id: 'c-10-sub-6', formName: 'Prescription Pickup', status: 'Complete', lastUpdated: '16 Feb 2026' },
-    { id: 'c-10-sub-7', formName: 'Authorization for Release of, and Disclosure', status: 'Complete', lastUpdated: '17 Feb 2026' },
-    { id: 'c-10-sub-8', formName: 'Authorization for the Use and Disclosure of Health Records', status: 'Complete', lastUpdated: '18 Feb 2026' },
-    { id: 'c-10-sub-9', formName: 'Vision Exam', status: 'Complete', lastUpdated: '19 Feb 2026' },
-    { id: 'c-10-sub-10', formName: 'State Waiver', status: 'Complete', lastUpdated: '20 Feb 2026' }
-  ]}
-]
-
-// Scheduling Overview mock data
-const schedulingRowsData = [
-  {
-    id: 's-1',
-    scheduleName: 'Pre-Season Medical Screening',
-    startDate: '2026-03-01T14:05:00',
-    endDate: '2026-03-04T18:00:00',
-    category: 'Medical',
-    players: ['Michael Anderson', 'Bill Byerson', 'David Carter', 'Elena Rodriguez', 'James Wilson', 'Emma Brown', 'Liam Davis', 'Sophie Miller', 'Marcus Johnson', 'Ryan Thompson', 'Sarah Mitchell', 'Daniel Lee', 'Jessica Wang', 'Chris Evans', 'Amy Chen', 'Kevin O\'Brien', 'Laura Parker', 'Tom Harris', 'Rachel Green', 'Nick Adams', 'Olivia Turner', 'Jake Morrison', 'Megan Foster', 'Alex Reed', 'Hannah Cooper', 'Ben Walsh', 'Sara Kennedy', 'Mike Sullivan', 'Emily Scott', 'John Blake', 'Kate Murphy', 'Brian Hayes', 'Lisa Morgan', 'Steve Collins', 'Diana Ross', 'Paul White', 'Maria Garcia', 'George Brown', 'Nicole Taylor', 'Peter Jackson', 'Karen Lewis', 'Frank Moore', 'Linda Hall', 'Edward Young', 'Andrea King', 'Robert Wright', 'Jennifer Lopez', 'Thomas Baker', 'Michelle Clark', 'William Hill', 'Amanda Green', 'Christopher Lee', 'Catherine Adams', 'Timothy Brown', 'Samantha Jones', 'Joseph Martinez', 'Stephanie Robinson', 'Anthony Miller', 'Rebecca Wilson', 'Charles Taylor', 'Victoria Thompson', 'Mark Anderson', 'Elizabeth Davis', 'Matthew Garcia', 'Christina Martinez', 'Ryan Johnson', 'Ashley Williams', 'Joshua Brown', 'Lauren Moore', 'Brandon Jackson', 'Morgan White', 'Tyler Harris', 'Kayla Martin', 'Justin Thompson'],
-    isUpcoming: true,
-    forms: [
-      { id: 's-1-f-1', formName: 'Medical Exam' },
-      { id: 's-1-f-2', formName: 'Orthopedic Exam' },
-      { id: 's-1-f-3', formName: 'Medical History Form' }
-    ]
-  },
-  {
-    id: 's-2',
-    scheduleName: 'Weekly Wellness Check',
-    startDate: '2026-03-05T09:00:00',
-    endDate: '2026-03-05T17:00:00',
-    category: 'Wellbeing',
-    players: ['Ethan Walker', 'Connor McCarthy', 'Finn Henderson', 'Jack Morrison', 'Marcus Thompson', 'Sean Brennan', 'Patrick Doyle', 'Dylan Murphy'],
-    isUpcoming: true,
-    forms: [
-      { id: 's-2-f-1', formName: 'Daily Wellness Check' }
-    ]
-  },
-  {
-    id: 's-3',
-    scheduleName: 'Performance Evaluation Q1',
-    startDate: '2026-03-10T08:00:00',
-    endDate: '2026-03-15T18:00:00',
-    category: 'Performance',
-    players: ['Michael Anderson', 'Bill Byerson', 'David Carter', 'Elena Rodriguez', 'James Wilson', 'Emma Brown', 'Liam Davis', 'Sophie Miller', 'Marcus Johnson', 'Ryan Thompson', 'Sarah Mitchell', 'Daniel Lee', 'Jessica Wang', 'Chris Evans', 'Amy Chen'],
-    isUpcoming: true,
-    forms: [
-      { id: 's-3-f-1', formName: 'Training Load Monitoring' },
-      { id: 's-3-f-2', formName: 'Post-Game RPE' },
-      { id: 's-3-f-3', formName: 'Performance Assessment' }
-    ]
-  },
-  {
-    id: 's-4',
-    scheduleName: 'Concussion Protocol Review',
-    startDate: '2026-03-20T10:00:00',
-    endDate: '2026-03-22T16:00:00',
-    category: 'Medical',
-    players: ['Ethan Walker', 'Ryan O\'Sullivan', 'Connor McCarthy', 'Finn Henderson', 'Jack Morrison'],
-    isUpcoming: true,
-    forms: [
-      { id: 's-4-f-1', formName: 'Concussion Protocol' },
-      { id: 's-4-f-2', formName: 'Return to Play Assessment' }
-    ]
-  },
-  {
-    id: 's-5',
-    scheduleName: 'End of Season Survey',
-    startDate: '2026-04-01T09:00:00',
-    endDate: '2026-04-07T18:00:00',
-    category: 'Assessment',
-    players: ['Michael Anderson', 'Bill Byerson', 'David Carter', 'Elena Rodriguez', 'James Wilson', 'Emma Brown', 'Liam Davis', 'Sophie Miller', 'Marcus Johnson', 'Ryan Thompson'],
-    isUpcoming: true,
-    forms: [
-      { id: 's-5-f-1', formName: 'End of Season Survey' },
-      { id: 's-5-f-2', formName: 'Season Feedback Form' }
-    ]
-  },
-  // Past schedules
-  {
-    id: 's-6',
-    scheduleName: 'January Health Check',
-    startDate: '2026-01-15T14:05:00',
-    endDate: '2026-01-18T17:00:00',
-    category: 'Medical',
-    players: ['Michael Anderson', 'Bill Byerson', 'David Carter', 'Elena Rodriguez', 'James Wilson', 'Emma Brown', 'Liam Davis', 'Sophie Miller', 'Marcus Johnson', 'Ryan Thompson', 'Sarah Mitchell', 'Daniel Lee'],
-    isUpcoming: false,
-    forms: [
-      { id: 's-6-f-1', formName: 'Medical Exam' },
-      { id: 's-6-f-2', formName: 'Medical History Form' }
-    ]
-  },
-  {
-    id: 's-7',
-    scheduleName: 'Winter Training Assessment',
-    startDate: '2026-02-01T08:00:00',
-    endDate: '2026-02-05T18:00:00',
-    category: 'Performance',
-    players: ['Ethan Walker', 'Connor McCarthy', 'Finn Henderson', 'Jack Morrison', 'Marcus Thompson', 'Sean Brennan'],
-    isUpcoming: false,
-    forms: [
-      { id: 's-7-f-1', formName: 'Training Load Monitoring' }
-    ]
-  },
-  {
-    id: 's-8',
-    scheduleName: 'February Wellness Survey',
-    startDate: '2026-02-10T09:00:00',
-    endDate: '2026-02-12T17:00:00',
-    category: 'Wellbeing',
-    players: ['Michael Anderson', 'Bill Byerson', 'David Carter', 'Elena Rodriguez', 'James Wilson', 'Emma Brown', 'Liam Davis', 'Sophie Miller'],
-    isUpcoming: false,
-    forms: [
-      { id: 's-8-f-1', formName: 'Daily Wellness Check' },
-      { id: 's-8-f-2', formName: 'Mental Health Assessment' }
-    ]
-  },
-  {
-    id: 's-9',
-    scheduleName: 'Pre-Season Compliance Forms',
-    startDate: '2025-12-16T14:05:00',
-    endDate: '2025-12-19T18:00:00',
-    category: 'Compliance',
-    players: ['Michael Anderson', 'Bill Byerson', 'David Carter', 'Elena Rodriguez', 'James Wilson', 'Emma Brown', 'Liam Davis', 'Sophie Miller', 'Marcus Johnson', 'Ryan Thompson', 'Sarah Mitchell', 'Daniel Lee', 'Jessica Wang', 'Chris Evans', 'Amy Chen', 'Kevin O\'Brien', 'Laura Parker', 'Tom Harris', 'Rachel Green', 'Nick Adams', 'Olivia Turner', 'Jake Morrison', 'Megan Foster', 'Alex Reed', 'Hannah Cooper', 'Ben Walsh', 'Sara Kennedy', 'Mike Sullivan', 'Emily Scott', 'John Blake', 'Kate Murphy', 'Brian Hayes', 'Lisa Morgan', 'Steve Collins', 'Diana Ross', 'Paul White', 'Maria Garcia', 'George Brown', 'Nicole Taylor', 'Peter Jackson', 'Karen Lewis', 'Frank Moore', 'Linda Hall', 'Edward Young', 'Andrea King', 'Robert Wright', 'Jennifer Lopez', 'Thomas Baker', 'Michelle Clark', 'William Hill', 'Amanda Green', 'Christopher Lee', 'Catherine Adams', 'Timothy Brown', 'Samantha Jones', 'Joseph Martinez', 'Stephanie Robinson', 'Anthony Miller', 'Rebecca Wilson', 'Charles Taylor', 'Victoria Thompson', 'Mark Anderson', 'Elizabeth Davis', 'Matthew Garcia', 'Christina Martinez', 'Ryan Johnson', 'Ashley Williams', 'Joshua Brown', 'Lauren Moore', 'Brandon Jackson', 'Morgan White', 'Tyler Harris', 'Kayla Martin', 'Justin Thompson'],
-    isUpcoming: false,
-    forms: [
-      { id: 's-9-f-1', formName: 'Medical Exam' },
-      { id: 's-9-f-2', formName: 'Orthopedic Exam' },
-      { id: 's-9-f-3', formName: 'Medical History Form' }
-    ]
-  }
-]
 
 export default function FormsPage() {
   const navigate = useNavigate()
@@ -394,7 +122,7 @@ export default function FormsPage() {
 
   const handleCreateForm = useCallback((payload) => {
     const id = `new-${Date.now()}`
-    const lastUpdated = dayjs().format('D MMM YYYY')
+    const lastUpdated = moment().format('D MMM YYYY')
     setFormsList((prev) => [
       ...prev,
       {
@@ -480,7 +208,6 @@ export default function FormsPage() {
       cellClassName: 'grid-cell--pad-right',
       renderCell: (params) => (
         <IconButton
-          size="small"
           aria-label="more"
           onClick={(e) => {
             e.stopPropagation()
@@ -521,8 +248,8 @@ export default function FormsPage() {
     if (completedFormName) rows = rows.filter((r) => (r.formName || '').toLowerCase().includes(String(completedFormName).toLowerCase()))
     if (completedStatus) rows = rows.filter((r) => r.formStatus === completedStatus)
     const [start, end] = completedDateRange || [null, null]
-    if (start) rows = rows.filter((r) => dayjs(r.completionDate).isAfter(dayjs(start).startOf('day')) || dayjs(r.completionDate).isSame(dayjs(start).startOf('day')))
-    if (end) rows = rows.filter((r) => dayjs(r.completionDate).isBefore(dayjs(end).endOf('day')) || dayjs(r.completionDate).isSame(dayjs(end).endOf('day')))
+    if (start) rows = rows.filter((r) => moment(r.completionDate).isAfter(moment(start).startOf('day')) || moment(r.completionDate).isSame(moment(start).startOf('day')))
+    if (end) rows = rows.filter((r) => moment(r.completionDate).isBefore(moment(end).endOf('day')) || moment(r.completionDate).isSame(moment(end).endOf('day')))
     return rows
   }, [completedAthlete, completedFormName, completedStatus, completedDateRange])
 
@@ -591,7 +318,6 @@ export default function FormsPage() {
         cellClassName: 'grid-cell--pad-right',
         renderCell: (params) => (
           <IconButton
-            size="small"
             aria-label="Delete"
             onClick={(e) => {
               e.stopPropagation()
@@ -628,11 +354,28 @@ export default function FormsPage() {
   const complianceFilteredRows = useMemo(() => {
     let rows = complianceRowsData
     if (complianceAthlete) rows = rows.filter((r) => r.athleteName === complianceAthlete)
-    if (complianceFormName) rows = rows.filter((r) => (r.athleteName || '').toLowerCase().includes(String(complianceFormName).toLowerCase()))
-    if (complianceSquad) rows = rows.filter((r) => (r.position || '').toLowerCase().includes(String(complianceSquad).toLowerCase()))
+    if (complianceSquad) rows = rows.filter((r) => r.squad === complianceSquad)
+
+    // Form name and date range apply to each athlete's forms; athletes with no matching forms drop out
+    const formQuery = String(complianceFormName || '').trim().toLowerCase()
     const [start, end] = complianceDateRange || [null, null]
-    if (start || end) {
-      // Filter by date if we had a date field on compliance rows; for now no date filter on compliance
+    const isInDateRange = (dateText) => {
+      const date = moment(dateText, 'D MMM YYYY', true)
+      if (!date.isValid()) return false
+      if (start && date.isBefore(moment(start), 'day')) return false
+      if (end && date.isAfter(moment(end), 'day')) return false
+      return true
+    }
+    if (formQuery || start || end) {
+      rows = rows
+        .map((r) => ({
+          ...r,
+          subRows: (r.subRows || []).filter((sub) =>
+            (!formQuery || (sub.formName || '').toLowerCase().includes(formQuery)) &&
+            (!(start || end) || isInDateRange(sub.lastUpdated))
+          ),
+        }))
+        .filter((r) => r.subRows.length > 0)
     }
     // Flatten rows with expanded sub-rows
     const flattenedRows = []
@@ -664,7 +407,6 @@ export default function FormsPage() {
           const isExpanded = expandedRows.has(params.row.id)
           return (
             <IconButton
-              size="small"
               onClick={(e) => {
                 e.stopPropagation()
                 toggleRowExpansion(params.row.id)
@@ -776,8 +518,8 @@ export default function FormsPage() {
 
   // Helper function to format date range
   const formatScheduleDateRange = (startDate, endDate) => {
-    const start = dayjs(startDate)
-    const end = dayjs(endDate)
+    const start = moment(startDate)
+    const end = moment(endDate)
     const startFormatted = start.format('MMMM D, YYYY, h:mm a')
     const endFormatted = end.format('MMMM D, YYYY')
     return `${startFormatted} – ${endFormatted}`
@@ -818,9 +560,9 @@ export default function FormsPage() {
     // Filter by date
     if (schedulingDateFilter) {
       rows = rows.filter((r) => {
-        const start = dayjs(r.startDate)
-        const end = dayjs(r.endDate)
-        const filterDate = dayjs(schedulingDateFilter)
+        const start = moment(r.startDate)
+        const end = moment(r.endDate)
+        const filterDate = moment(schedulingDateFilter)
         return filterDate.isBetween(start, end, 'day', '[]') || filterDate.isSame(start, 'day') || filterDate.isSame(end, 'day')
       })
     }
@@ -861,7 +603,7 @@ export default function FormsPage() {
 
   const handleSaveAssignedPlayers = useCallback(() => {
     // Handle save logic here - for now just log and close
-    // eslint-disable-next-line no-console
+     
     console.log('Saved assigned players:', selectedAssignedPlayers)
     handleCloseAssignedPlayersDrawer()
   }, [selectedAssignedPlayers, handleCloseAssignedPlayersDrawer])
@@ -977,7 +719,6 @@ export default function FormsPage() {
           const isExpanded = schedulingExpandedRows.has(params.row.id)
           return (
             <IconButton
-              size="small"
               onClick={(e) => {
                 e.stopPropagation()
                 toggleSchedulingRowExpansion(params.row.id)
@@ -1045,7 +786,6 @@ export default function FormsPage() {
           if (params.row.isSubRow) return null
           return (
             <IconButton
-              size="small"
               aria-label="more"
               onClick={(e) => {
                 e.stopPropagation()
@@ -1065,44 +805,13 @@ export default function FormsPage() {
   )
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterMoment}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0, bgcolor: 'var(--color-background-primary)', height: '100%', fontFamily: 'var(--font-family-primary)' }}>
-        {/* Page title (big) + Create form button */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3, pt: 2, pb: 1 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-primary)', fontSize: 'var(--font-size-2xl)' }}>
-            Forms
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <IconButton
-              onClick={() => setIsNotificationDrawerOpen(true)}
-              size="small"
-              aria-label="Notifications"
-              sx={{ color: 'var(--color-text-secondary)' }}
-            >
-              <Badge 
-                badgeContent={3} 
-                color="error"
-                sx={{
-                  '& .MuiBadge-badge': {
-                    fontSize: 'var(--font-size-xs)',
-                    minWidth: 18,
-                    height: 18
-                  }
-                }}
-              >
-                <NotificationsOutlined />
-              </Badge>
-            </IconButton>
-            <Button
-              variant="primary"
-              size="medium"
-              onClick={() => setIsCreateOpen(true)}
-              style={{ fontWeight: 700, fontSize: 'var(--font-size-sm)' }}
-            >
-              Create form
-            </Button>
-          </Box>
-        </Box>
+        <PageHeader
+          title="Forms"
+          primaryAction={{ id: 'create', label: 'Create form', onClick: () => setIsCreateOpen(true) }}
+          moreActions={[{ id: 'notifications', label: 'Form notifications', onClick: () => setIsNotificationDrawerOpen(true) }]}
+        />
 
         <Paper elevation={0} sx={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <Tabs
@@ -1126,14 +835,14 @@ export default function FormsPage() {
               '& .MuiTabs-indicator': { backgroundColor: 'var(--color-primary)' }
             }}
           >
-            <Tab label="Forms" {...a11yProps(0)} />
+            <Tab label="Templates" {...a11yProps(0)} />
             <Tab label="Scheduling Overview" {...a11yProps(1)} />
             <Tab label="Completed" {...a11yProps(2)} />
             <Tab label="Compliance" {...a11yProps(3)} />
             <Tab label="Tryouts" {...a11yProps(4)} />
           </Tabs>
 
-          {/* Forms tab */}
+          {/* Templates tab */}
           <TabPanel value={tabValue} index={0}>
             <Box sx={{ px: 3, py: 1.5, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flexShrink: 0 }}>
               <TextField
@@ -1143,13 +852,15 @@ export default function FormsPage() {
                 value={searchForm}
                 onChange={(e) => setSearchForm(e.target.value)}
                 sx={{ minWidth: 260 }}
-                InputProps={{
-                  sx: typographyStyles,
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />
-                    </InputAdornment>
-                  )
+                slotProps={{
+                  input: {
+                    sx: typographyStyles,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />
+                      </InputAdornment>
+                    )
+                  }
                 }}
               />
               <TextField
@@ -1160,7 +871,9 @@ export default function FormsPage() {
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
                 sx={{ minWidth: 220 }}
-                InputProps={{ sx: typographyStyles }}
+                slotProps={{
+                  input: { sx: typographyStyles }
+                }}
               >
                 <MenuItem value="">All</MenuItem>
                 <MenuItem value="Other">Other</MenuItem>
@@ -1177,11 +890,16 @@ export default function FormsPage() {
                 }
               }
             }}>
-              <DataGrid
+              <DataGridPremium
                 rows={formsRows}
                 columns={formsColumns}
                 disableRowSelectionOnClick
-                onRowClick={() => navigate('/medical-assessment')}
+                aiAssistant
+                chartsIntegration
+                onPrompt={resolveGridPrompt}
+                aiAssistantSuggestions={FORMS_AI_SUGGESTIONS}
+                allowAiAssistantDataSampling
+                onRowClick={(params) => navigate(`/forms/${params.row.id}/assignments`)}
                 pagination
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
@@ -1292,7 +1010,7 @@ export default function FormsPage() {
                 '&:hover': { backgroundColor: 'var(--color-background-hover)' }
               }
             }}>
-              <DataGrid
+              <DataGridPremium
                 rows={schedulingFilteredRows}
                 columns={schedulingColumns}
                 disableRowSelectionOnClick
@@ -1348,6 +1066,7 @@ export default function FormsPage() {
                 <MenuItem value="Other">Other</MenuItem>
               </TextField>
               <DateRangePicker
+                slots={{ field: MultiInputDateRangeField }}
                 value={completedDateRange}
                 onChange={(newValue) => setCompletedDateRange(newValue)}
                 slotProps={{
@@ -1355,7 +1074,6 @@ export default function FormsPage() {
                     size: 'small',
                     variant: 'filled',
                     sx: { minWidth: 260 },
-                    inputProps: { placeholder: 'Start – End' }
                   }
                 }}
                 sx={{
@@ -1365,10 +1083,15 @@ export default function FormsPage() {
               />
             </Box>
             <Box sx={gridSx}>
-              <DataGrid
+              <DataGridPremium
                 rows={completedFilteredRows}
                 columns={completedColumns}
                 disableRowSelectionOnClick
+                aiAssistant
+                chartsIntegration
+                onPrompt={resolveGridPrompt}
+                aiAssistantSuggestions={COMPLETED_FORMS_AI_SUGGESTIONS}
+                allowAiAssistantDataSampling
                 pagination
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
@@ -1409,8 +1132,12 @@ export default function FormsPage() {
                 sx={{ minWidth: 160 }}
               >
                 <MenuItem value="">All</MenuItem>
+                {[...new Set(complianceRowsData.map((r) => r.squad).filter(Boolean))].map((squad) => (
+                  <MenuItem key={squad} value={squad}>{squad}</MenuItem>
+                ))}
               </TextField>
               <DateRangePicker
+                slots={{ field: MultiInputDateRangeField }}
                 value={complianceDateRange}
                 onChange={(newValue) => setComplianceDateRange(newValue)}
                 slotProps={{
@@ -1418,7 +1145,6 @@ export default function FormsPage() {
                     size: 'small',
                     variant: 'filled',
                     sx: { minWidth: 260 },
-                    inputProps: { placeholder: 'Start – End' }
                   }
                 }}
                 sx={{
@@ -1434,7 +1160,7 @@ export default function FormsPage() {
                 '&:hover': { backgroundColor: 'var(--color-background-hover)' }
               }
             }}>
-              <DataGrid
+              <DataGridPremium
                 rows={complianceFilteredRows}
                 columns={complianceColumns}
                 disableRowSelectionOnClick
@@ -1442,7 +1168,7 @@ export default function FormsPage() {
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
                 pageSizeOptions={[25, 50, 100]}
-                slots={{ pagination: GridPagination, toolbar: GridToolbar }}
+                slots={{ pagination: GridPagination }}
                 slotProps={{ pagination: { showFirstButton: true, showLastButton: true } }}
                 getRowClassName={(params) => params.row.isSubRow ? 'compliance-sub-row' : ''}
               />
@@ -1466,7 +1192,7 @@ export default function FormsPage() {
           }}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-          PaperProps={{
+          slotProps={{ paper: {
             sx: {
               '& .MuiMenuItem-root': { 
                 fontFamily: 'var(--font-family-primary)', 
@@ -1474,7 +1200,7 @@ export default function FormsPage() {
                 gap: 1
               }
             }
-          }}
+          } }}
         >
           <MenuItem
             onClick={() => {
@@ -1549,7 +1275,7 @@ export default function FormsPage() {
           }}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-          PaperProps={{
+          slotProps={{ paper: {
             sx: {
               '& .MuiMenuItem-root': { 
                 fontFamily: 'var(--font-family-primary)', 
@@ -1557,7 +1283,7 @@ export default function FormsPage() {
                 gap: 1
               }
             }
-          }}
+          } }}
         >
           {(() => {
             const currentSchedule = schedulingRowsData.find(r => r.id === schedulingActionRowId)
@@ -1604,7 +1330,7 @@ export default function FormsPage() {
           }}
           onSave={(data) => {
             // Handle save here
-            // eslint-disable-next-line no-console
+             
             console.log('Schedule saved:', data)
             setEditScheduleOpen(false)
             setEditingSchedule(null)
@@ -1618,13 +1344,15 @@ export default function FormsPage() {
           anchor="right"
           open={assignedPlayersDrawerOpen}
           onClose={handleCloseAssignedPlayersDrawer}
-          PaperProps={{
-            sx: {
-              width: 400,
-              maxWidth: '100vw',
-              height: '100vh',
-              display: 'flex',
-              flexDirection: 'column'
+          slotProps={{
+            paper: {
+              sx: {
+                width: 400,
+                maxWidth: '100vw',
+                height: '100vh',
+                display: 'flex',
+                flexDirection: 'column'
+              }
             }
           }}
         >
@@ -1650,7 +1378,7 @@ export default function FormsPage() {
             >
               Assigned Players
             </Typography>
-            <IconButton onClick={handleCloseAssignedPlayersDrawer} size="small" aria-label="Close">
+            <IconButton onClick={handleCloseAssignedPlayersDrawer} aria-label="Close">
               <CloseOutlined />
             </IconButton>
           </Box>
@@ -1675,10 +1403,9 @@ export default function FormsPage() {
             {/* Player list with checkboxes */}
             <List sx={{ flex: 1, py: 0 }}>
               {assignedPlayersDrawerData.players.map((playerName) => (
-                <ListItem
+                <ListItemButton
                   key={playerName}
                   dense
-                  button
                   onClick={() => handleToggleAssignedPlayer(playerName)}
                   sx={{
                     px: 3,
@@ -1686,8 +1413,7 @@ export default function FormsPage() {
                     '&:hover': {
                       backgroundColor: 'var(--color-background-hover)'
                     }
-                  }}
-                >
+                  }}>
                   <ListItemIcon sx={{ minWidth: 40 }}>
                     <Checkbox
                       edge="start"
@@ -1704,15 +1430,17 @@ export default function FormsPage() {
                   </ListItemIcon>
                   <ListItemText
                     primary={playerName}
-                    primaryTypographyProps={{
-                      sx: {
-                        fontFamily: 'var(--font-family-primary)',
-                        fontSize: 'var(--font-size-sm)',
-                        color: 'var(--color-text-primary)'
+                    slotProps={{
+                      primary: {
+                        sx: {
+                          fontFamily: 'var(--font-family-primary)',
+                          fontSize: 'var(--font-size-sm)',
+                          color: 'var(--color-text-primary)'
+                        }
                       }
                     }}
                   />
-                </ListItem>
+                </ListItemButton>
               ))}
             </List>
           </Box>
@@ -1729,7 +1457,8 @@ export default function FormsPage() {
             }}
           >
             <Button
-              variant="secondary"
+ disableElevation={true}
+              variant="contained" color="secondary"
               onClick={handleCloseAssignedPlayersDrawer}
               sx={{
                 borderColor: 'var(--color-border-primary)',
@@ -1747,7 +1476,8 @@ export default function FormsPage() {
               Cancel
             </Button>
             <Button
-              variant="primary"
+ disableElevation={true}
+              variant="contained" color="primary"
               onClick={handleSaveAssignedPlayers}
               sx={{
                 backgroundColor: 'var(--color-primary)',
@@ -1778,7 +1508,7 @@ export default function FormsPage() {
           onSubmit={(data) => {
             setSelectedAthletes(data.selectedAthletes)
             // Handle assignment submission here
-            // eslint-disable-next-line no-console
+             
             console.log('Form assignment:', data)
           }}
         />
@@ -1801,5 +1531,5 @@ export default function FormsPage() {
         />
       </Box>
     </LocalizationProvider>
-  )
+  );
 }

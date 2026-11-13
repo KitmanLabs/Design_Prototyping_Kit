@@ -2,14 +2,14 @@
 // Edit this file to change what appears in tables and cards
 
 // Import comprehensive data from JSON files
-import athletesData from './data/athletes.json'
-import injuriesData from './data/injuries_medical.json'
-import trainingsData from './data/training_sessions.json'
-import assessmentsData from './data/assessments.json'
-import gamesData from './data/games_matches.json'
-import squadsData from './data/squads_teams.json'
-import questionnairesData from './data/questionnaires_wellbeing.json'
-import staffData from './data/users_staff.json'
+import athletesData from './data/athletes'
+import injuriesData from './data/injuries_medical'
+import trainingsData from './data/training_sessions'
+import assessmentsData from './data/assessments'
+import gamesData from './data/games_matches'
+import squadsData from './data/squads_teams'
+import questionnairesData from './data/questionnaires_wellbeing'
+import staffData from './data/users_staff'
 
 // Export all data for easy access
 export const athletes = athletesData

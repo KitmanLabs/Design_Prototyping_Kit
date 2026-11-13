@@ -230,12 +230,14 @@ const FiltersSidebar = ({
               onChange={(e) => onSearchChange(e.target.value)}
               size="small"
               sx={formFieldStyles}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <SearchOutlined sx={{ fontSize: 20, color: 'var(--color-text-secondary)' }} />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <SearchOutlined sx={{ fontSize: 20, color: 'var(--color-text-secondary)' }} />
+                    </InputAdornment>
+                  ),
+                }
               }}
             />
           )}
@@ -259,12 +261,14 @@ const FiltersSidebar = ({
               onChange={(e) => onSearchChange(e.target.value)}
               size="small"
               sx={{ ...formFieldStyles, mt: 1 }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <SearchOutlined sx={{ fontSize: 20, color: 'var(--color-text-secondary)' }} />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <SearchOutlined sx={{ fontSize: 20, color: 'var(--color-text-secondary)' }} />
+                    </InputAdornment>
+                  ),
+                }
               }}
             />
           )}
@@ -303,7 +307,7 @@ const FiltersSidebar = ({
         <Typography variant="h6" sx={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: 'var(--font-size-base)' }}>
           Filters
         </Typography>
-        <IconButton onClick={onClose} size="small" sx={{ color: 'var(--color-text-secondary)' }}>
+        <IconButton onClick={onClose} sx={{ color: 'var(--color-text-secondary)' }}>
           <CloseOutlined />
         </IconButton>
       </Box>
@@ -400,7 +404,7 @@ const FiltersSidebar = ({
                 sx={formFieldStyles}
               />
             )}
-            componentsProps={{
+            slotProps={{
               popper: {
                 sx: { zIndex: 1300 },
               },
@@ -415,7 +419,7 @@ const FiltersSidebar = ({
           onToggle={() => setGamesExpanded(!gamesExpanded)}
           showSearch={false}
         >
-          <FormControl fullWidth variant="filled" size="small" sx={{ ...formFieldStyles, mb: 1.5 }}>
+          <FormControl fullWidth variant="filled" sx={{ ...formFieldStyles, mb: 1.5 }}>
             <InputLabel>Competition</InputLabel>
             <Select
               value={selectedFilters.gamesCompetition || ''}
@@ -428,7 +432,7 @@ const FiltersSidebar = ({
               ))}
             </Select>
           </FormControl>
-          <FormControl fullWidth variant="filled" size="small" sx={formFieldStyles}>
+          <FormControl fullWidth variant="filled" sx={formFieldStyles}>
             <InputLabel>Opposition</InputLabel>
             <Select
               value={selectedFilters.gamesOpposition || ''}
@@ -478,7 +482,7 @@ const FiltersSidebar = ({
                 sx={formFieldStyles}
               />
             )}
-            componentsProps={{
+            slotProps={{
               popper: {
                 sx: { zIndex: 1300 },
               },
@@ -511,7 +515,7 @@ const FiltersSidebar = ({
                 sx={formFieldStyles}
               />
             )}
-            componentsProps={{
+            slotProps={{
               popper: {
                 sx: { zIndex: 1300 },
               },

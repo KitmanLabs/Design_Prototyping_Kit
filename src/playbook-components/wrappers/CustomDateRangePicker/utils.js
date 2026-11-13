@@ -1,15 +1,8 @@
-// @flow
-
 import moment from 'moment';
-import { colors } from '@kitman/common/src/variables';
-import { alpha } from '@mui/material/styles';
+import { colors, withAlpha } from '@kitman/common/src/variables';
 
-// Types
-import type { MomentType } from '@kitman/playbook/components/wrappers/DateRangePickerWrapper/types';
-import type { DateRange as LegacyDateRange } from '@kitman/common/src/types';
-import type { DateRange, DateRangeOutput } from './types';
 
-export const convertDateRangeToTuple = (range: LegacyDateRange): DateRange => {
+export const convertDateRangeToTuple = (range) => {
   return [
     range.start_date ? moment(range.start_date) : null,
     range.end_date ? moment(range.end_date) : null,
@@ -38,8 +31,8 @@ export const getThisYear = () => {
 
 // Extract month and year from calendar header text
 export const getCurrentMonthYear = (
-  calendarContainer: HTMLElement
-): ?{ month: number, year: number } => {
+  calendarContainer
+) => {
   const monthYearElement = calendarContainer.querySelector(
     '.MuiPickersCalendarHeader-label'
   );
@@ -67,9 +60,9 @@ export const getCurrentMonthYear = (
 // Format user input as they type - handles partial and complete date ranges based on organization locale
 
 export const formatDateInput = (
-  input: string,
-  locale: string = 'en-US'
-): { formatted: string, dateRange?: [MomentType, MomentType] } => {
+  input,
+  locale = 'en-US'
+) => {
   const numbers = input.replace(/\D/g, '');
 
   const inputFormat = locale === 'en-US' ? 'MMDDYYYY' : 'DDMMYYYY';
@@ -124,12 +117,12 @@ export const formatDateInput = (
 // Apply visual styles to calendar days to show selected range;
 // This is the most complex function - directly manipulates DOM for styling
 export const applyRangeStyles = (
-  dateRange: DateRange,
-  hoveredDate: ?MomentType,
-  isMobile: boolean
+  dateRange,
+  hoveredDate,
+  isMobile
 ) => {
   // First, clear all existing styles
-  document.querySelectorAll('.MuiPickersDay-root').forEach((day) => {
+  document.querySelectorAll('.MuiPickerDay-root').forEach((day) => {
     const dayElement = day;
     dayElement.style.backgroundColor = '';
     dayElement.style.color = '';
@@ -141,7 +134,7 @@ export const applyRangeStyles = (
 
   calendarContainers.forEach((container) => {
     const calendarType = container.getAttribute('data-calendar-type');
-    const daysInCalendar = container.querySelectorAll('.MuiPickersDay-root');
+    const daysInCalendar = container.querySelectorAll('.MuiPickerDay-root');
 
     // Get the month/year this calendar is showing
     const currentMonthYear = getCurrentMonthYear(container);
@@ -177,7 +170,7 @@ export const applyRangeStyles = (
           currentDate.isAfter(dateRange[0], 'day') &&
           currentDate.isBefore(dateRange[1], 'day')
         ) {
-          dayElement.style.backgroundColor = alpha(colors.grey_300, 0.08);
+          dayElement.style.backgroundColor = withAlpha(colors.grey_300, 0.08);
           dayElement.style.color = colors.grey_300;
           dayElement.style.borderRadius = '0';
         }
@@ -189,7 +182,7 @@ export const applyRangeStyles = (
             currentDate.isBefore(hoveredDate, 'day') &&
             hoveredDate.isAfter(dateRange[0], 'day')
           ) {
-            dayElement.style.backgroundColor = alpha(colors.grey_300, 0.08);
+            dayElement.style.backgroundColor = withAlpha(colors.grey_300, 0.08);
             dayElement.style.color = colors.grey_300;
             dayElement.style.borderRadius = '0';
           }
@@ -208,7 +201,7 @@ export const applyRangeStyles = (
           currentDate.isAfter(dateRange[0], 'day') &&
           currentDate.isBefore(dateRange[1], 'day')
         ) {
-          dayElement.style.backgroundColor = alpha(colors.grey_300, 0.08);
+          dayElement.style.backgroundColor = withAlpha(colors.grey_300, 0.08);
           dayElement.style.color = colors.grey_300;
           dayElement.style.borderRadius = '0';
         }
@@ -220,7 +213,7 @@ export const applyRangeStyles = (
             hoveredDate.isAfter(dateRange[0], 'day')
           ) {
             // Highlight hovered end date
-            dayElement.style.backgroundColor = alpha(colors.grey_300, 0.08);
+            dayElement.style.backgroundColor = withAlpha(colors.grey_300, 0.08);
             dayElement.style.color = colors.grey_300;
             dayElement.style.borderRadius = '50%';
           } else if (
@@ -229,7 +222,7 @@ export const applyRangeStyles = (
             hoveredDate.isAfter(dateRange[0], 'day')
           ) {
             // Highlight dates between start and hovered date
-            dayElement.style.backgroundColor = alpha(colors.grey_300, 0.08);
+            dayElement.style.backgroundColor = withAlpha(colors.grey_300, 0.08);
             dayElement.style.color = colors.grey_300;
             dayElement.style.borderRadius = '0';
           }
@@ -240,9 +233,9 @@ export const applyRangeStyles = (
 };
 
 export const formatDateRange = (
-  startDate: MomentType | null,
-  endDate: MomentType | null
-): DateRangeOutput => {
+  startDate,
+  endDate
+) => {
   return {
     start_date:
       startDate && startDate.isValid() ? startDate.format('YYYY-MM-DD') : '',

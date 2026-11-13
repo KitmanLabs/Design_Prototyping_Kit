@@ -2,23 +2,27 @@ import React, { useState, useMemo } from 'react';
 import {
   Box,
   Typography,
-  Tabs,
-  Tab,
   TextField,
   MenuItem,
   InputAdornment,
   IconButton,
   Chip,
 } from '@mui/material';
-import { DataGrid } from 'playbook-components';
+import { useNavigate } from 'react-router-dom';
+import { Button, DataGridPremium, TabBar } from 'playbook-components';
+import { PageFrame, PageHeader, useToasts, useNavigationToast } from '../../floorplans';
+import { resolveGridPrompt } from '../../utils/gridAiAssistant';
+import { MEDICAL_ROSTER_AI_SUGGESTIONS } from '../../data/gridAiSuggestions';
 import {
   SearchOutlined,
   MoreVertOutlined,
   WarningOutlined,
 } from '@mui/icons-material';
-import { Button, PlayerAvatar, StatusChip } from '../../components';
-import athletesData from '../../data/athletes.json';
-import injuriesData from '../../data/injuries_medical.json';
+import { PlayerAvatar, StatusChip } from '../../components';
+import { dataGridStyles } from '../../components/dataGridStyles';
+import athletesData from '../../data/athletes';
+import injuriesData from '../../data/injuries_medical';
+import { isoDate } from '../../data/clock';
 import '../../styles/design-tokens.css';
 
 // Typography styles matching FormsPage pattern
@@ -28,39 +32,13 @@ const typographyStyles = {
   fontWeight: 'var(--font-weight-medium)'
 };
 
-// Grid styling matching FormsPage pattern
 const gridSx = {
+  ...dataGridStyles,
   flex: 1,
   minHeight: 0,
-  width: '100%',
-  '& .MuiDataGrid-root': { border: 'none' },
-  '& .MuiDataGrid-columnHeaders': {
-    backgroundColor: 'var(--color-background-primary)',
-    '& .MuiDataGrid-columnHeaderTitle': {
-      fontWeight: 600,
-      fontSize: 'var(--font-size-sm)',
-      fontFamily: 'var(--font-family-primary)'
-    }
-  },
-  '& .MuiDataGrid-cell': {
-    borderBottom: '1px solid var(--color-border-secondary)',
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: 'var(--font-size-sm)',
-    fontFamily: 'var(--font-family-primary)'
-  },
-  '& .grid-cell--pad-left': { pl: 3, paddingLeft: '24px !important' },
-  '& .grid-cell--pad-right': { pr: 3, paddingRight: '24px !important' },
-  '& .MuiDataGrid-footerContainer': { px: 3 }
+  width: '100%'
 };
 
-// Accessibility helper for tabs
-function a11yProps(index) {
-  return {
-    id: `medical-tab-${index}`,
-    'aria-controls': `medical-tabpanel-${index}`
-  };
-}
 
 // Tab panel component matching FormsPage pattern
 function TabPanel({ children, value, index }) {
@@ -68,8 +46,8 @@ function TabPanel({ children, value, index }) {
   return (
     <Box
       role="tabpanel"
-      id={`medical-tabpanel-${index}`}
-      aria-labelledby={`medical-tab-${index}`}
+      id={`tabpanel-medical-${index}`}
+      aria-labelledby={`tab-medical-${index}`}
       sx={{ pt: 0, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
     >
       {children}
@@ -80,13 +58,12 @@ function TabPanel({ children, value, index }) {
 // Generate mock medical roster data
 const generateMedicalRosterData = () => {
   return athletesData.slice(0, 15).map((athlete, index) => {
-    // Find injury for this athlete
-    const injury = injuriesData.find((inj) => inj.athlete_id === athlete.id);
+    // The athlete's open injury, if any: the same records that make them unavailable elsewhere
+    const injury = injuriesData.find((inj) => inj.athlete_id === athlete.id && inj.status !== 'Returned');
 
     // Generate mock data for other fields
-    const statuses = ['Out', 'Preliminary', 'Full'];
     const cardiacStatuses = ['Outstanding', 'Complete', 'Pending'];
-    const allergies = ['None', 'Penicillin', 'NSAIDs', 'None Known', 'Latex'];
+    const allergies = ['None', 'Penicillin', 'NSAIDs', 'None known', 'Latex'];
     const rosterTypes = ['Active', 'IR', 'PUP', 'NFI'];
 
     return {
@@ -96,8 +73,8 @@ const generateMedicalRosterData = () => {
       position: athlete.position,
       injuryDate: injury ? injury.occurrence_date : null,
       injuryName: injury ? injury.injury_type : null,
-      injuryStatus: injury ? statuses[index % 3] : null,
-      noteDate: '2024-01-15',
+      injuryStatus: injury ? 'Out' : null,
+      noteDate: isoDate(-(index % 3)),
       noteTitle: 'Morning wellness check',
       notePreview: `Notes for ${athlete.firstname} - all vitals normal`,
       cardiacScreening: cardiacStatuses[index % 3],
@@ -108,6 +85,9 @@ const generateMedicalRosterData = () => {
 };
 
 function MedicalPage() {
+  const navigate = useNavigate();
+  const { showToast, toasts } = useToasts();
+  useNavigationToast(showToast);
   const [activeTab, setActiveTab] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeRosterFilter, setActiveRosterFilter] = useState('');
@@ -115,16 +95,16 @@ function MedicalPage() {
   const [injuredFilter, setInjuredFilter] = useState('');
 
   const tabs = [
-    'Roster',
+    'Team',
     'Notes',
     'Diagnostics',
     'Procedures',
-    'Medical Flags',
-    'Shared Players',
-    'Past Players',
+    'Medical flags',
+    'Shared players',
+    'Past athletes',
     'Documents',
-    "Coach's Report",
-    'Daily Status Report',
+    "Coach's report",
+    'Daily status report',
   ];
 
   const rosterData = useMemo(() => generateMedicalRosterData(), []);
@@ -311,7 +291,6 @@ function MedicalPage() {
         return (
           <Chip
             label={params.row.cardiacScreening}
-            size="small"
             icon={isOutstanding ? <WarningOutlined fontSize="small" /> : undefined}
             sx={{
               backgroundColor: isOutstanding
@@ -362,95 +341,30 @@ function MedicalPage() {
       headerClassName: 'grid-cell--pad-right',
       cellClassName: 'grid-cell--pad-right',
       renderCell: () => (
-        <IconButton size="small" sx={{ color: 'var(--color-text-secondary)' }}>
+        <IconButton sx={{ color: 'var(--color-text-secondary)' }}>
           <MoreVertOutlined fontSize="small" />
         </IconButton>
       ),
     },
   ];
 
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-  };
+  // Floorplan: Collection. The rosters tab is the reference; the other tabs are placeholders.
+  const tabBarTabs = tabs.map((title, index) => ({ tabKey: `medical-${index}`, tabHash: index, title }));
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Page Header */}
-      <Box sx={{ px: 3, pt: 3, pb: 2 }}>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 'var(--font-weight-semibold)',
-            color: 'var(--color-text-primary)',
-            fontFamily: 'var(--font-family-primary)',
-          }}
-        >
-          Medical
-        </Typography>
-      </Box>
-
-      {/* Tab Navigation */}
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3 }}>
-        <Tabs
-          value={activeTab}
-          onChange={handleTabChange}
-          aria-label="medical tabs"
-          variant="scrollable"
-          scrollButtons="auto"
-          sx={{
-            '& .MuiTab-root': {
-              textTransform: 'none',
-              fontWeight: 'var(--font-weight-medium)',
-              fontSize: 'var(--font-size-sm)',
-              color: 'var(--color-text-secondary)',
-              minHeight: 48,
-              '&.Mui-selected': {
-                color: 'var(--color-primary)',
-              },
-            },
-            '& .MuiTabs-indicator': {
-              backgroundColor: 'var(--color-primary)',
-            },
-          }}
-        >
-          {tabs.map((tab, index) => (
-            <Tab key={tab} label={tab} {...a11yProps(index)} />
-          ))}
-        </Tabs>
-      </Box>
-
+    <PageFrame
+      fill
+      contentPadding={0}
+      header={
+        <PageHeader
+          title="Medical"
+          primaryAction={{ id: 'log-injury', label: 'Log injury', onClick: () => navigate('/medical/log-injury') }}
+        />
+      }
+      tabs={<TabBar tabs={tabBarTabs} value={activeTab} onChange={setActiveTab} variant="scrollable" />}
+    >
       {/* Tab Panels */}
       <TabPanel value={activeTab} index={0}>
-        {/* Section Header Row */}
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            px: 3,
-            py: 2,
-          }}
-        >
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 'var(--font-weight-semibold)',
-              color: 'var(--color-text-primary)',
-              fontFamily: 'var(--font-family-primary)',
-            }}
-          >
-            Roster
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button variant="primary" size="small">
-              Add
-            </Button>
-            <Button variant="secondary" size="small">
-              Download
-            </Button>
-          </Box>
-        </Box>
-
         {/* Filter Row */}
         <Box sx={{ px: 3, py: 1.5, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flexShrink: 0 }}>
           <TextField
@@ -460,13 +374,15 @@ function MedicalPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             sx={{ minWidth: 260 }}
-            InputProps={{
-              sx: typographyStyles,
-              endAdornment: (
-                <InputAdornment position="end">
-                  <SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />
-                </InputAdornment>
-              )
+            slotProps={{
+              input: {
+                sx: typographyStyles,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <SearchOutlined fontSize="small" sx={{ color: 'var(--color-primary)' }} />
+                  </InputAdornment>
+                )
+              }
             }}
           />
           <TextField
@@ -477,7 +393,9 @@ function MedicalPage() {
             value={activeRosterFilter}
             onChange={(e) => setActiveRosterFilter(e.target.value)}
             sx={{ minWidth: 220 }}
-            InputProps={{ sx: typographyStyles }}
+            slotProps={{
+              input: { sx: typographyStyles }
+            }}
           >
             <MenuItem value="">All</MenuItem>
             <MenuItem value="Active">Active</MenuItem>
@@ -493,7 +411,9 @@ function MedicalPage() {
             value={positionFilter}
             onChange={(e) => setPositionFilter(e.target.value)}
             sx={{ minWidth: 220 }}
-            InputProps={{ sx: typographyStyles }}
+            slotProps={{
+              input: { sx: typographyStyles }
+            }}
           >
             <MenuItem value="">All</MenuItem>
             {positions.map((pos) => (
@@ -510,12 +430,22 @@ function MedicalPage() {
             value={injuredFilter}
             onChange={(e) => setInjuredFilter(e.target.value)}
             sx={{ minWidth: 220 }}
-            InputProps={{ sx: typographyStyles }}
+            slotProps={{
+              input: { sx: typographyStyles }
+            }}
           >
             <MenuItem value="">All</MenuItem>
             <MenuItem value="Yes">Yes</MenuItem>
             <MenuItem value="No">No</MenuItem>
           </TextField>
+          <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
+            <Button disableElevation={true} variant="contained" color="primary">
+              Add
+            </Button>
+            <Button disableElevation={true} variant="contained" color="secondary">
+              Download
+            </Button>
+          </Box>
         </Box>
 
         {/* Data Grid */}
@@ -529,42 +459,34 @@ function MedicalPage() {
               overflow: 'hidden',
             }}
           >
-            <DataGrid
+            <DataGridPremium
               rows={filteredData}
               columns={columns}
               pageSize={10}
-              rowsPerPageOptions={[10, 25, 50]}
-              disableSelectionOnClick
+              pageSizeOptions={[10, 25, 50]}
               disableColumnMenu
               rowHeight={72}
-              headerHeight={56}
+              columnHeaderHeight={56}
+              aiAssistant
+              chartsIntegration
+              onPrompt={resolveGridPrompt}
+              aiAssistantSuggestions={MEDICAL_ROSTER_AI_SUGGESTIONS}
+              // Mock data only: sends sample values with each prompt (see AthleteDataGrid)
+              allowAiAssistantDataSampling
               sx={{
+                // Shared styles come from gridSx on the wrapper; these are the Medical-only additions
                 border: 'none',
                 '& .MuiDataGrid-columnHeaders': {
-                  backgroundColor: 'var(--color-background-primary)',
                   borderBottom: '1px solid var(--color-border-primary)',
                   '& .MuiDataGrid-columnHeaderTitle': {
-                    fontWeight: 600,
-                    fontSize: 'var(--font-size-sm)',
-                    fontFamily: 'var(--font-family-primary)',
                     color: 'var(--color-text-secondary)',
                   },
                 },
-                '& .MuiDataGrid-cell': {
-                  borderBottom: '1px solid var(--color-border-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  fontSize: 'var(--font-size-sm)',
-                  fontFamily: 'var(--font-family-primary)',
-                },
-                '& .grid-cell--pad-left': { pl: 3, paddingLeft: '24px !important' },
-                '& .grid-cell--pad-right': { pr: 3, paddingRight: '24px !important' },
                 '& .MuiDataGrid-row:hover': {
                   backgroundColor: 'var(--color-background-secondary)',
                 },
                 '& .MuiDataGrid-footerContainer': {
                   borderTop: '1px solid var(--color-border-primary)',
-                  px: 3,
                 },
               }}
             />
@@ -585,7 +507,8 @@ function MedicalPage() {
           </Box>
         </TabPanel>
       ))}
-    </Box>
+      {toasts}
+    </PageFrame>
   );
 }
 

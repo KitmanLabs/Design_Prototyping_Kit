@@ -39,7 +39,6 @@ body:
       label: "Boundaries (Do NOT)"
       description: "What is out of scope? What must not change?"
       placeholder: |
-        - Do NOT modify src/playbook-components-build/
         - Do NOT add new npm dependencies
         - Do NOT change existing component APIs
 

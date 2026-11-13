@@ -1,12 +1,9 @@
-// @flow
-
 import i18n from '@kitman/common/src/utils/i18n';
-import type { CustomFilter } from './types';
 import { getThisMonth, getThisWeek, getThisYear } from './utils';
 
 // Default quick filters available in the dropdown
 
-export const getDefaultFilters = (): Array<CustomFilter> => {
+export const getDefaultFilters = () => {
   return [
     {
       key: 'week',

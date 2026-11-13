@@ -1,4 +1,3 @@
-// @flow
 import { gridClasses } from '@mui/x-data-grid';
 
 const style = {

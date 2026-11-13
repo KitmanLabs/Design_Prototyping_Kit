@@ -5,8 +5,6 @@ import {
   Typography, 
   Divider, 
   TextField,
-  Avatar,
-  Button as MuiButton,
   IconButton,
   Autocomplete,
   InputAdornment,
@@ -19,11 +17,13 @@ import {
   ListItemText,
   OutlinedInput
 } from '@mui/material'
-import { ArrowBackOutlined, Close, ChevronRight, Lock, Search, InfoOutlined, DiamondOutlined, DragIndicator, KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material'
+import { ArrowBackOutlined, CloseOutlined, ChevronRightOutlined, LockOutlined, SearchOutlined, InfoOutlined, DiamondOutlined, DragIndicatorOutlined, KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import '../../styles/design-tokens.css'
+import { Button } from '../../playbook-components'
+import { PageHeader } from '../../floorplans'
 
 // Medical History form template matching screenshot structure
 const medicalAssessmentTemplate = {
@@ -132,14 +132,6 @@ const sectionCompletion = {
   's3': { completed: 1, total: 6 }
 }
 
-// Get initials from name
-function getInitials(name) {
-  if (!name) return '?'
-  const parts = name.trim().split(' ')
-  if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
-  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
-}
-
 export default function FormFillView() {
   const navigate = useNavigate()
   const { athleteId } = useParams()
@@ -210,52 +202,7 @@ export default function FormFillView() {
   const currentSubsectionIndex = currentSection?.items?.findIndex(item => item.id === (selectedSubsectionId || currentSection?.items?.[0]?.id)) ?? 0
 
   return (
-    <Box sx={{ display: 'flex', width: '100%', overflow: 'hidden', flexDirection: 'column', height: '100vh' }}>
-      {/* Top breadcrumb row */}
-      <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        px: 3,
-        py: 1.5,
-        borderBottom: '1px solid var(--color-border-primary)',
-        backgroundColor: 'var(--color-background-primary)'
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              color: 'var(--color-text-primary)', 
-              fontWeight: 500,
-              cursor: 'pointer',
-              '&:hover': { textDecoration: 'underline' }
-            }}
-            onClick={() => navigate('/forms')}
-          >
-            Forms
-          </Typography>
-          <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', color: 'var(--color-text-secondary)' }}>
-            <Box component="span" sx={{ mx: 0.5 }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a3 3 0 100-6 3 3 0 000 6zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            </Box>
-            Player list
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>&gt; &gt;</Typography>
-        </Box>
-        
-        <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Typography variant="body2" sx={{ color: 'var(--color-text-primary)' }}>Primary Squad</Typography>
-          <Typography variant="body2" sx={{ color: 'var(--color-text-secondary)' }}>▼</Typography>
-          <Avatar 
-            sx={{ 
-              width: 32, 
-              height: 32, 
-              ml: 1
-            }}
-            src=""
-          />
-        </Box>
-      </Box>
-
+    <Box sx={{ display: 'flex', width: '100%', overflow: 'hidden', flexDirection: 'column', height: '100%' }}>
       {/* Main content area - shifts left when summary drawer is open */}
       <Box 
         sx={{ 
@@ -268,111 +215,15 @@ export default function FormFillView() {
           overflow: 'hidden'
         }}
       >
-        {/* Header row with back arrow, avatar, title, and buttons */}
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          px: 3, 
-          py: 2,
-          gap: 2,
-          borderBottom: '1px solid var(--color-border-primary)'
-        }}>
-          {/* Back arrow */}
-          <IconButton
-            size="small"
-            onClick={() => navigate(-1)}
-            sx={{ 
-              color: 'var(--color-text-secondary)',
-              '&:hover': { backgroundColor: 'var(--color-background-secondary)' }
-            }}
-          >
-            <ArrowBackOutlined />
-          </IconButton>
-          
-          {/* Avatar with initials */}
-          <Avatar 
-            sx={{ 
-              width: 40, 
-              height: 40, 
-              bgcolor: 'var(--color-primary)',
-              fontSize: '14px',
-              fontWeight: 600,
-              border: '2px solid var(--color-primary)'
-            }}
-          >
-            {getInitials(athleteName)}
-          </Avatar>
-          
-          {/* Form title */}
-          <Typography 
-            variant="h5" 
-            sx={{ 
-              fontWeight: 400, 
-              color: 'var(--color-text-primary)',
-              fontSize: '1.5rem'
-            }}
-          >
-            {formTitle}
-          </Typography>
-          
-          {/* Action buttons */}
-          <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-            <MuiButton
-              variant="outlined"
-              size="medium"
-              onClick={() => setIsSummaryView(prev => !prev)}
-              sx={{
-                borderColor: 'var(--color-primary)',
-                color: 'var(--color-primary)',
-                textTransform: 'none',
-                fontWeight: 500,
-                px: 2,
-                '&:hover': { 
-                  borderColor: 'var(--color-primary-dark)',
-                  backgroundColor: 'var(--color-primary-light)'
-                }
-              }}
-            >
-              Summary View
-            </MuiButton>
-            <MuiButton
-              variant="outlined"
-              size="medium"
-              disabled={isSaving}
-              onClick={handleSaveAsDraft}
-              sx={{
-                borderColor: 'var(--color-primary)',
-                color: 'var(--color-primary)',
-                textTransform: 'none',
-                fontWeight: 500,
-                px: 2,
-                '&:hover': { 
-                  borderColor: 'var(--color-primary-dark)',
-                  backgroundColor: 'var(--color-primary-light)'
-                }
-              }}
-            >
-              Save As Draft
-            </MuiButton>
-            <MuiButton
-              variant="contained"
-              size="medium"
-              disableElevation
-              disabled={isSaving}
-              onClick={handleSubmit}
-              sx={{
-                backgroundColor: 'var(--color-primary)',
-                color: 'var(--color-white)',
-                textTransform: 'none',
-                fontWeight: 500,
-                px: 2.5,
-                '&:hover': { backgroundColor: 'var(--color-primary-hover)' }
-              }}
-            >
-              Submit
-            </MuiButton>
-          </Box>
-        </Box>
+        <PageHeader
+          title={formTitle}
+          backLabel="Forms"
+          onBackClick={() => navigate('/forms')}
+          listItems={[{ id: 'athlete', label: 'Athlete', value: athleteName }]}
+          primaryAction={{ id: 'submit', label: 'Submit', onClick: handleSubmit, disabled: isSaving }}
+          secondaryAction={{ id: 'draft', label: 'Save as draft', onClick: handleSaveAsDraft, disabled: isSaving }}
+          tertiaryAction={{ id: 'summary', label: isSummaryView ? 'Hide summary' : 'Summary view', onClick: () => setIsSummaryView((prev) => !prev) }}
+        />
 
         {/* Main content area with left panel and right content */}
         <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
@@ -441,7 +292,7 @@ export default function FormFillView() {
                           '&:hover': { backgroundColor: 'var(--color-background-secondary)' }
                         }}
                       >
-                        <DragIndicator 
+                        <DragIndicatorOutlined 
                           sx={{ 
                             color: 'var(--color-text-disabled)', 
                             fontSize: '18px',
@@ -471,7 +322,7 @@ export default function FormFillView() {
                             {completion.completed} of {completion.total} steps completed
                           </Typography>
                         </Box>
-                        <ChevronRight 
+                        <ChevronRightOutlined 
                           sx={{ 
                             color: 'var(--color-text-secondary)', 
                             fontSize: '18px',
@@ -499,7 +350,7 @@ export default function FormFillView() {
                             '&:hover': { backgroundColor: 'var(--color-background-secondary)' }
                           }}
                         >
-                          <DragIndicator 
+                          <DragIndicatorOutlined 
                             sx={{ 
                               color: 'var(--color-text-disabled)', 
                               fontSize: '16px',
@@ -517,7 +368,7 @@ export default function FormFillView() {
                           >
                             Sub section {sectionIndex + 1}.{subIndex + 1}: {subsection.title}
                           </Typography>
-                          <ChevronRight 
+                          <ChevronRightOutlined 
                             sx={{ 
                               color: 'var(--color-text-secondary)', 
                               fontSize: '16px'
@@ -570,7 +421,7 @@ export default function FormFillView() {
               </Typography>
               
               {/* Medical Assessment Questions */}
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <LocalizationProvider dateAdapter={AdapterMoment}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {/* Question 1: Allergies */}
                   <Box>
@@ -584,7 +435,7 @@ export default function FormFillView() {
                     >
                       1. Do you currently have any allergies?
                     </Typography>
-                    <FormControl size="small" sx={{ minWidth: 200, mb: 2 }}>
+                    <FormControl sx={{ minWidth: 200, mb: 2 }}>
                       <InputLabel>Select</InputLabel>
                       <Select
                         value={hasAllergies}
@@ -620,7 +471,7 @@ export default function FormFillView() {
                     >
                       2. Have you sustained any injuries in the past 12 months?
                     </Typography>
-                    <FormControl size="small" sx={{ minWidth: 300, mb: 2 }}>
+                    <FormControl sx={{ minWidth: 300, mb: 2 }}>
                       <InputLabel>Select injuries</InputLabel>
                       <Select
                         multiple
@@ -711,7 +562,7 @@ export default function FormFillView() {
                     >
                       5. Do you have any pre-existing medical conditions?
                     </Typography>
-                    <FormControl size="small" sx={{ minWidth: 300, mb: 2 }}>
+                    <FormControl sx={{ minWidth: 300, mb: 2 }}>
                       <InputLabel>Select conditions</InputLabel>
                       <Select
                         multiple
@@ -753,45 +604,38 @@ export default function FormFillView() {
               py: 2,
               borderTop: '1px solid var(--color-border-primary)'
             }}>
-              <MuiButton
-                variant="outlined"
+              <Button
+                variant="contained"
+                color="secondary"
+                disableElevation
                 size="medium"
-                startIcon={<KeyboardArrowLeft />}
+                startIcon={<KeyboardArrowLeftOutlined />}
                 disabled={currentSectionIndex === 0 && currentSubsectionIndex === 0}
                 sx={{
-                  borderColor: 'var(--color-border-primary)',
                   color: 'var(--color-primary)',
                   textTransform: 'none',
                   fontWeight: 500,
-                  '&:hover': { 
-                    borderColor: 'var(--color-border-focus)',
-                    backgroundColor: 'var(--color-primary-light)'
-                  },
-                  '&.Mui-disabled': {
-                    borderColor: 'var(--color-border-primary)',
-                    color: 'var(--color-text-muted)'
-                  }
+                  '&:hover': { backgroundColor: 'var(--color-secondary-hover)' },
+                  '&.Mui-disabled': { color: 'var(--color-text-muted)' }
                 }}
               >
                 Back
-              </MuiButton>
-              <MuiButton
-                variant="outlined"
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                disableElevation
                 size="medium"
-                endIcon={<KeyboardArrowRight />}
+                endIcon={<KeyboardArrowRightOutlined />}
                 sx={{
-                  borderColor: 'var(--color-border-primary)',
                   color: 'var(--color-primary)',
                   textTransform: 'none',
                   fontWeight: 500,
-                  '&:hover': { 
-                    borderColor: 'var(--color-border-focus)',
-                    backgroundColor: 'var(--color-primary-light)'
-                  }
+                  '&:hover': { backgroundColor: 'var(--color-secondary-hover)' }
                 }}
               >
                 Next
-              </MuiButton>
+              </Button>
             </Box>
           </Box>
         </Box>
@@ -821,18 +665,16 @@ export default function FormFillView() {
             {/* Detail Header */}
             <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <IconButton
-                size="small"
                 onClick={() => setSelectedSummaryItem(null)}
                 sx={{ color: 'var(--color-text-secondary)' }}
               >
                 <ArrowBackOutlined fontSize="small" />
               </IconButton>
               <IconButton
-                size="small"
                 onClick={() => { setIsSummaryView(false); setSelectedSummaryItem(null); }}
                 sx={{ color: 'var(--color-text-secondary)' }}
               >
-                <Close fontSize="small" />
+                <CloseOutlined fontSize="small" />
               </IconButton>
             </Box>
 
@@ -843,7 +685,6 @@ export default function FormFillView() {
                   {selectedSummaryItem.title}
                 </Typography>
                 <Chip
-                  size="small"
                   icon={<DiamondOutlined sx={{ fontSize: '14px !important' }} />}
                   label="AI Generated"
                   sx={{
@@ -875,12 +716,14 @@ export default function FormFillView() {
                     backgroundColor: 'var(--color-background-secondary)',
                   }
                 }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Lock fontSize="small" sx={{ color: 'var(--color-text-disabled)' }} />
-                    </InputAdornment>
-                  )
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <LockOutlined fontSize="small" sx={{ color: 'var(--color-text-disabled)' }} />
+                      </InputAdornment>
+                    )
+                  }
                 }}
               />
             </Box>
@@ -979,11 +822,10 @@ export default function FormFillView() {
                 Form Summaries
               </Typography>
               <IconButton
-                size="small"
                 onClick={() => setIsSummaryView(false)}
                 sx={{ color: 'var(--color-text-secondary)' }}
               >
-                <Close fontSize="small" />
+                <CloseOutlined fontSize="small" />
               </IconButton>
             </Box>
 
@@ -1001,12 +843,14 @@ export default function FormFillView() {
                     backgroundColor: 'var(--color-background-secondary)',
                   }
                 }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Lock fontSize="small" sx={{ color: 'var(--color-text-disabled)' }} />
-                    </InputAdornment>
-                  )
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <LockOutlined fontSize="small" sx={{ color: 'var(--color-text-disabled)' }} />
+                      </InputAdornment>
+                    )
+                  }
                 }}
               />
               {/* Template selector */}
@@ -1019,13 +863,17 @@ export default function FormFillView() {
                     {...params}
                     variant="filled"
                     placeholder="Search templates"
-                    InputProps={{
-                      ...params.InputProps,
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Search fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
-                        </InputAdornment>
-                      )
+                    slotProps={{
+                      ...params.slotProps,
+
+                      input: {
+                        ...params.slotProps.input,
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchOutlined fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
+                          </InputAdornment>
+                        )
+                      }
                     }}
                   />
                 )}
@@ -1066,7 +914,7 @@ export default function FormFillView() {
                         {item.date}
                       </Typography>
                     </Box>
-                    <ChevronRight fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
+                    <ChevronRightOutlined fontSize="small" sx={{ color: 'var(--color-text-secondary)' }} />
                   </Box>
                 ))}
               </Box>
@@ -1074,7 +922,7 @@ export default function FormFillView() {
 
             {/* Bottom Show More Button */}
             <Box sx={{ p: 3, borderTop: '1px solid var(--color-border-primary)' }}>
-              <MuiButton
+              <Button
                 fullWidth
                 variant="contained"
                 disableElevation
@@ -1086,11 +934,11 @@ export default function FormFillView() {
                 }}
               >
                 Show More
-              </MuiButton>
+              </Button>
             </Box>
           </>
         )}
       </Box>
     </Box>
-  )
+  );
 }

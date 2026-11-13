@@ -1,5 +1,3 @@
-// @flow
-
 import { colors } from '@kitman/common/src/variables';
 
 export const dateRangePickerStyles = {

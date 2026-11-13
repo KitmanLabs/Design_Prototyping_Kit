@@ -1,4 +1,3 @@
-// @flow
 // NOTE: SelectWrapper imports from '../../../components' in the source repo.
 // This path is not available in Design_Prototyping_Kit. You may need to
 // install or alias the @kitman/playbook package to resolve SelectWrapper.
