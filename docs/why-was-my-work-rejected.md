@@ -84,6 +84,8 @@ src/pages/Athletes.jsx
 
 Other things that shouldn't be committed are ignored automatically: `node_modules/`, `dist/`, build output and `.DS_Store` files.
 
+If one of them gets committed anyway, because it was in git before it was ignored or was added with `--force`, the commit check fails and names it. Take it out of git and keep your copy with `git rm --cached <file>`, then commit again.
+
 ---
 
 ## "Claude won't add a package"
