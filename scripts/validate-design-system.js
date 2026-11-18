@@ -186,6 +186,35 @@ function checkFloorplans() {
   return true;
 }
 
+function checkNoIgnoredFilesTracked() {
+  // .gitignore only keeps untracked files out. A file committed before it was listed, or
+  // added with --force, stays tracked and is committed again on every change: .DS_Store
+  // came back that way. The index includes what's staged, so this also blocks the commit.
+  console.log('🧹 Checking that no ignored file is committed...');
+  let tracked;
+  try {
+    tracked = execSync('git ls-files --cached --ignored --exclude-standard', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .split('\n')
+      .filter(Boolean);
+  } catch {
+    console.log('⚠️  Not a git checkout, so skipped\n');
+    return true;
+  }
+
+  if (tracked.length) {
+    console.log(`❌ ${tracked.length} file(s) are in git although .gitignore excludes them:`);
+    tracked.forEach((file) => console.log(`   ${file}`));
+    console.log('   Take each out of git and keep your copy: git rm --cached <file>\n');
+    hasErrors = true;
+    return false;
+  }
+  console.log('✅ No ignored file is committed\n');
+  return true;
+}
+
 // Run all checks
 console.log('Starting comprehensive design system validation...\n');
 
@@ -215,6 +244,9 @@ checkDisallowedButtonsAndIcons();
 
 // Page structure (warning only)
 checkFloorplans();
+
+// Files .gitignore excludes (.DS_Store, .env, build output)
+checkNoIgnoredFilesTracked();
 
 // Code style validation
 runCommand('npm run lint', 'ESLint validation');
