@@ -10,7 +10,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 // served from any folder. See PROTOTYPE.md.
 export default defineConfig({
   base: './',
-  plugins: [react({ include: /\.(jsx|js|tsx|ts)$/ })],
+  // Emotion's css prop: the Playbook's RichTextEditor, ConfirmationModal, DataGrid wrapper,
+  // FileUploads and DummySelect style themselves with it, as in iP. Without it they render unstyled.
+  plugins: [react({ include: /\.(jsx|js|tsx|ts)$/, jsxImportSource: '@emotion/react' })],
   resolve: {
     // iP monorepo package names mapped onto src/playbook-components, as in the kit.
     alias: playbookAliases(__dirname),
