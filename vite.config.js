@@ -14,7 +14,9 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, '')
   return {
     plugins: [
-      react({ include: /\.(jsx|js|tsx|ts)$/ }),
+      // Emotion's css prop: the Playbook's RichTextEditor, ConfirmationModal, DataGrid wrapper,
+      // FileUploads and DummySelect style themselves with it, as in iP. Without it they render unstyled.
+      react({ include: /\.(jsx|js|tsx|ts)$/, jsxImportSource: '@emotion/react' }),
       // ANTHROPIC_API_KEY_REF is a 1Password secret reference (op://vault/item/field): the key
     // is read with the `op` CLI on the first AI Assistant prompt and kept only in memory.
     // ANTHROPIC_API_KEY_OP_ACCOUNT (optional) picks the 1Password account when several are signed in.
